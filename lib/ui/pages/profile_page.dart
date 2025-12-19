@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:ui' as ui;
 import '../../logic/game_controller.dart';
 import '../../core/colors.dart';
@@ -162,9 +163,64 @@ Widget dailyActivityList(GameController controller) {
   );
 }
 
-class ProfileDialog extends StatelessWidget {
+class ProfileDialog extends StatefulWidget {
   final GameController controller;
   const ProfileDialog({super.key, required this.controller});
+
+  @override
+  State<ProfileDialog> createState() => _ProfileDialogState();
+}
+
+class _ProfileDialogState extends State<ProfileDialog> {
+  late final TextEditingController _nicknameController;
+  String? _nicknameError;
+
+  @override
+  void initState() {
+    super.initState();
+    _nicknameController =
+        TextEditingController(text: widget.controller.nickname);
+  }
+
+  @override
+  void dispose() {
+    _nicknameController.dispose();
+    super.dispose();
+  }
+
+  String? _validateNickname(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) {
+      return 'Nickname is required';
+    }
+    if (trimmed.length > 32) {
+      return 'Maximum 32 characters allowed';
+    }
+    if (!GameController.nicknameRegExp.hasMatch(trimmed)) {
+      return 'Use letters, numbers, dot, dash, or underscore';
+    }
+    return null;
+  }
+
+  Future<void> _saveNickname() async {
+    final value = _nicknameController.text;
+    final error = _validateNickname(value);
+    setState(() {
+      _nicknameError = error;
+    });
+    if (error != null) return;
+    final saved = await widget.controller.setNickname(value.trim());
+    if (!mounted) return;
+    if (!saved) {
+      setState(() {
+        _nicknameError = 'Use letters, numbers, dot, dash, or underscore';
+      });
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Nickname updated')),
+    );
+  }
 
   Widget _achChip(String text, bool achieved) {
     return Container(
@@ -222,9 +278,69 @@ class ProfileDialog extends StatelessWidget {
     );
   }
 
+  Widget _nicknameRow() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const SizedBox(
+              width: 140,
+              child: Text('Nickname',
+                  style: TextStyle(
+                      color: AppColors.dialogSubtitle,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.2)),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.dialogFieldBg.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white24, width: 1),
+                ),
+                child: TextField(
+                  controller: _nicknameController,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                        RegExp(r'[A-Za-z0-9._-]')),
+                    LengthLimitingTextInputFormatter(32),
+                  ],
+                  style: const TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.w700),
+                  decoration: const InputDecoration(
+                    isCollapsed: true,
+                    hintText: 'Enter nickname',
+                    hintStyle: TextStyle(color: Colors.white38),
+                    border: InputBorder.none,
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      _nicknameError = _validateNickname(value);
+                    });
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (_nicknameError != null)
+          Padding(
+            padding: const EdgeInsets.only(left: 148, top: 4),
+            child: Text(_nicknameError!,
+                style: const TextStyle(color: Colors.redAccent, fontSize: 12)),
+          ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final bg = AppColors.bg;
+    final controller = widget.controller;
     // Legacy badges are deprecated in UI; keep only Achievements and Belts sections
     // final badges = controller.badges.toList()..sort();
     return Dialog(
@@ -286,7 +402,7 @@ class ProfileDialog extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _infoRow('Nickname', controller.nickname),
+                        _nicknameRow(),
                         const SizedBox(height: 8),
                         _infoRow('Country', controller.country),
                         const SizedBox(height: 8),
@@ -371,12 +487,29 @@ class ProfileDialog extends StatelessWidget {
                       ),
                       const SizedBox(width: 10),
                       ElevatedButton(
-                        onPressed: () => Navigator.of(context).pop(),
+                        onPressed: _saveNickname,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.brandGold,
                           foregroundColor: const Color(0xFF2B221D),
                           shadowColor: Colors.black54,
                           elevation: 4,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(24)),
+                          textStyle: const TextStyle(
+                              fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                        ),
+                        child: const Text('Save'),
+                      ),
+                      const SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white.withOpacity(0.12),
+                          foregroundColor: Colors.white,
+                          shadowColor: Colors.transparent,
+                          elevation: 0,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 20, vertical: 12),
                           shape: RoundedRectangleBorder(
