@@ -140,6 +140,7 @@ class GameController extends ChangeNotifier {
   static const _kAchievedRedRow = 'achievedRedRow';
   static const _kAchievedRedColumn = 'achievedRedColumn';
   static const _kAchievedRedDiagonal = 'achievedRedDiagonal';
+  static final RegExp nicknameRegExp = RegExp(r'^[A-Za-z0-9._-]{1,32}$');
 
   // In-memory settings
   int themeColorHex = 0xFF3B7D23;
@@ -601,6 +602,16 @@ class GameController extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_kLanguageCode, code);
+  }
+
+  Future<bool> setNickname(String value) async {
+    final trimmed = value.trim();
+    if (!nicknameRegExp.hasMatch(trimmed)) return false;
+    nickname = trimmed;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kNickname, nickname);
+    return true;
   }
 
   Future<void> setBoardSize(int size) async {
