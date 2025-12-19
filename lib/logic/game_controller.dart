@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -39,13 +38,17 @@ class TurnStatEntry {
   final int points; // points gained (can be 0)
   final String desc; // human-readable description
   final int ts; // timestamp ms when logged
-  const TurnStatEntry({required this.turn, required this.points, required this.desc, required this.ts});
+  const TurnStatEntry(
+      {required this.turn,
+      required this.points,
+      required this.desc,
+      required this.ts});
 }
 
 class GameController extends ChangeNotifier {
   // --- Analytics & activity ---
   int totalPlayTimeMs = 0;
-  
+
   // --- Per-game turn statistics (user's turns only) ---
   final List<TurnStatEntry> _turnStats = <TurnStatEntry>[];
   List<TurnStatEntry> get turnStats => List.unmodifiable(_turnStats);
@@ -56,7 +59,8 @@ class GameController extends ChangeNotifier {
   bool achievedRedColumn = false;
   bool achievedRedDiagonal = false;
   // --- Playtime tracking for current game ---
-  int _playAccumMs = 0; // accumulated active milliseconds for this game (excludes app downtime)
+  int _playAccumMs =
+      0; // accumulated active milliseconds for this game (excludes app downtime)
   int? _playStartMs; // when non-null, counting is running from this timestamp
   int lastGamePlayMs = 0; // finalized duration for the last finished game
   // Generation counter to invalidate any in-flight AI computations when state is reset/loaded
@@ -70,22 +74,28 @@ class GameController extends ChangeNotifier {
   // --- Undo support ---
   final List<_GameSnapshot> _undoStack = <_GameSnapshot>[];
   bool get canUndo {
-    if (gameOver || isSimulating || isAiThinking || isExploding || isFalling || isQuaking) return false;
+    if (gameOver ||
+        isSimulating ||
+        isAiThinking ||
+        isExploding ||
+        isFalling ||
+        isQuaking) return false;
     // If it's Red's turn, need at least two snapshots to go back to previous Red turn
     if (current == CellState.red) return _undoStack.length >= 2;
     // If it's Blue's turn (user just acted), one snapshot is enough
     return _undoStack.isNotEmpty;
   }
+
   // Per-move live points
   int lastMovePoints = 0;
   CellState? lastMoveBy;
   // Selection and explosion state
-  (int,int)? selectedCell;
-  Set<(int,int)> blowPreview = <(int,int)>{};
-  Set<(int,int)> explodingCells = <(int,int)>{};
+  (int, int)? selectedCell;
+  Set<(int, int)> blowPreview = <(int, int)>{};
+  Set<(int, int)> explodingCells = <(int, int)>{};
   bool isExploding = false;
   // Falling animation state
-  Map<(int,int), int> fallingDistances = <(int,int), int>{};
+  Map<(int, int), int> fallingDistances = <(int, int), int>{};
   bool isFalling = false;
   // Quake animation state (earthquake effect before grey drop)
   bool isQuaking = false;
@@ -135,7 +145,7 @@ class GameController extends ChangeNotifier {
   int themeColorHex = 0xFF3B7D23;
   String languageCode = 'en';
   int boardSize = 9; // not yet applied to engine (future enhancement)
-  int aiLevel = 3;   // 1..7
+  int aiLevel = 3; // 1..7
 
   // Game session stats
   int turnsRed = 0;
@@ -149,7 +159,8 @@ class GameController extends ChangeNotifier {
   int lastTotalBeforeAward = 0;
   bool _endProcessed = false; // bonuses awarded and totals persisted
   bool resultsShown = false; // guard for UI dialog
-  Set<(int,int)> goldCells = <(int,int)>{}; // cells in full lines to highlight at game end
+  Set<(int, int)> goldCells =
+      <(int, int)>{}; // cells in full lines to highlight at game end
 
   // Board pixel width/height from BoardWidget to align UI elements
   double boardPixelSize = 0;
@@ -161,24 +172,35 @@ class GameController extends ChangeNotifier {
   List<GameResult> history = <GameResult>[];
 
   // Deep copy of board
-  List<List<CellState>> _copyBoard(List<List<CellState>> src) => List<List<CellState>>.generate(K.n, (i) => List<CellState>.from(src[i]));
+  List<List<CellState>> _copyBoard(List<List<CellState>> src) =>
+      List<List<CellState>>.generate(K.n, (i) => List<CellState>.from(src[i]));
 
   // ---- Saved games helpers ----
   String _cellToStr(CellState s) {
     switch (s) {
-      case CellState.red: return 'r';
-      case CellState.blue: return 'b';
-      case CellState.neutral: return 'n';
-      case CellState.empty: default: return 'e';
+      case CellState.red:
+        return 'r';
+      case CellState.blue:
+        return 'b';
+      case CellState.neutral:
+        return 'n';
+      case CellState.empty:
+      default:
+        return 'e';
     }
   }
 
   CellState _strToCell(String s) {
     switch (s) {
-      case 'r': return CellState.red;
-      case 'b': return CellState.blue;
-      case 'n': return CellState.neutral;
-      case 'e': default: return CellState.empty;
+      case 'r':
+        return CellState.red;
+      case 'b':
+        return CellState.blue;
+      case 'n':
+        return CellState.neutral;
+      case 'e':
+      default:
+        return CellState.empty;
     }
   }
 
@@ -191,26 +213,32 @@ class GameController extends ChangeNotifier {
   Map<String, dynamic> _stateToMap() {
     return {
       'board': board.map((row) => row.map(_cellToStr).toList()).toList(),
-      'current': current == CellState.red ? 'red' : (current == CellState.blue ? 'blue' : (current == CellState.neutral ? 'neutral' : 'empty')),
+      'current': current == CellState.red
+          ? 'red'
+          : (current == CellState.blue
+              ? 'blue'
+              : (current == CellState.neutral ? 'neutral' : 'empty')),
       'turnsRed': turnsRed,
       'turnsBlue': turnsBlue,
       'bonusRed': bonusRed,
       'bonusBlue': bonusBlue,
       'lastMovePoints': lastMovePoints,
-      'lastMoveBy': lastMoveBy == null ? null : (lastMoveBy == CellState.red ? 'red' : 'blue'),
+      'lastMoveBy': lastMoveBy == null
+          ? null
+          : (lastMoveBy == CellState.red ? 'red' : 'blue'),
       'startingPlayer': startingPlayer == CellState.blue ? 'blue' : 'red',
       'aiLevel': aiLevel,
       'gameOver': gameOver,
       'redGamePoints': redGamePoints,
       'lastGamePointsAwarded': lastGamePointsAwarded,
       'lastTotalBeforeAward': lastTotalBeforeAward,
-            'playAccumMs': _currentAccumMs(),
+      'playAccumMs': _currentAccumMs(),
     };
   }
 
   void _applyStateMap(Map<String, dynamic> m) {
-      // Invalidate any in-flight AI computations from previous state
-      _aiGeneration++;
+    // Invalidate any in-flight AI computations from previous state
+    _aiGeneration++;
     final b = m['board'] as List<dynamic>;
     board = List<List<CellState>>.generate(K.n, (r) {
       final row = b[r] as List<dynamic>;
@@ -218,9 +246,15 @@ class GameController extends ChangeNotifier {
     });
     // Restore playtime accumulator from saved state; resume counting if game not over
     _playAccumMs = (m['playAccumMs'] as int?) ?? 0;
-    _playStartMs = (m['gameOver'] as bool? ?? false) ? null : DateTime.now().millisecondsSinceEpoch;
+    _playStartMs = (m['gameOver'] as bool? ?? false)
+        ? null
+        : DateTime.now().millisecondsSinceEpoch;
     final cur = m['current'] as String;
-    current = cur == 'red' ? CellState.red : (cur == 'blue' ? CellState.blue : (cur == 'neutral' ? CellState.neutral : CellState.empty));
+    current = cur == 'red'
+        ? CellState.red
+        : (cur == 'blue'
+            ? CellState.blue
+            : (cur == 'neutral' ? CellState.neutral : CellState.empty));
     turnsRed = m['turnsRed'] as int;
     turnsBlue = m['turnsBlue'] as int;
     bonusRed = m['bonusRed'] as int;
@@ -232,7 +266,9 @@ class GameController extends ChangeNotifier {
     } else {
       lastMoveBy = (lmb as String) == 'red' ? CellState.red : CellState.blue;
     }
-    startingPlayer = (m['startingPlayer'] as String) == 'blue' ? CellState.blue : CellState.red;
+    startingPlayer = (m['startingPlayer'] as String) == 'blue'
+        ? CellState.blue
+        : CellState.red;
     aiLevel = m['aiLevel'] as int;
     gameOver = m['gameOver'] as bool? ?? false;
     // Optional fields for points accounting
@@ -272,7 +308,11 @@ class GameController extends ChangeNotifier {
     final listJson = prefs.getString(_kSavedGames);
     List<dynamic> list = <dynamic>[];
     if (listJson != null && listJson.isNotEmpty) {
-      try { list = jsonDecode(listJson) as List<dynamic>; } catch (_) { list = <dynamic>[]; }
+      try {
+        list = jsonDecode(listJson) as List<dynamic>;
+      } catch (_) {
+        list = <dynamic>[];
+      }
     }
     final now = DateTime.now().millisecondsSinceEpoch;
     final id = '${now}_${turnsRed + turnsBlue}';
@@ -280,7 +320,9 @@ class GameController extends ChangeNotifier {
       'id': id,
       'ts': now,
       'name': name ?? 'Saved game',
-      'current': current == CellState.red ? 'red' : (current == CellState.blue ? 'blue' : 'other'),
+      'current': current == CellState.red
+          ? 'red'
+          : (current == CellState.blue ? 'blue' : 'other'),
       'state': _stateToMap(),
     };
     list.add(entry);
@@ -299,7 +341,7 @@ class GameController extends ChangeNotifier {
       final raw = jsonDecode(listJson) as List<dynamic>;
       // Newest first
       final items = raw.map((e) => e as Map<String, dynamic>).toList();
-      items.sort((a,b) => (b['ts'] as int).compareTo(a['ts'] as int));
+      items.sort((a, b) => (b['ts'] as int).compareTo(a['ts'] as int));
       return items;
     } catch (_) {
       return <Map<String, dynamic>>[];
@@ -368,10 +410,13 @@ class GameController extends ChangeNotifier {
       final listJson = prefs.getString(_kSavedGames);
       List<dynamic> list = <dynamic>[];
       if (listJson != null && listJson.isNotEmpty) {
-        try { list = jsonDecode(listJson) as List<dynamic>; } catch (_) {}
+        try {
+          list = jsonDecode(listJson) as List<dynamic>;
+        } catch (_) {}
       }
       final now = DateTime.now().millisecondsSinceEpoch;
-      entry['id'] = '${now}_${(entry['state'] as Map<String, dynamic>)['turnsRed'] ?? 0}_${(entry['state'] as Map<String, dynamic>)['turnsBlue'] ?? 0}';
+      entry['id'] =
+          '${now}_${(entry['state'] as Map<String, dynamic>)['turnsRed'] ?? 0}_${(entry['state'] as Map<String, dynamic>)['turnsBlue'] ?? 0}';
       entry['ts'] = now;
       list.add(entry);
       // Keep only last 50
@@ -417,10 +462,12 @@ class GameController extends ChangeNotifier {
       // Move one step back in time by discarding the current Red turn's snapshot
       _undoStack.removeLast();
       if (_undoStack.isEmpty) return; // nothing to restore
-      snap = _undoStack.last; // restore previous start-of-Red snapshot (do not remove it)
+      snap = _undoStack
+          .last; // restore previous start-of-Red snapshot (do not remove it)
     } else {
       // Blue to move -> restore the current turn's snapshot
-      snap = _undoStack.last; // do not remove, so consecutive undos can continue stepping back
+      snap = _undoStack
+          .last; // do not remove, so consecutive undos can continue stepping back
     }
 
     // Remove last statistics entry to reflect undoing user's last completed turn
@@ -498,20 +545,23 @@ class GameController extends ChangeNotifier {
     try {
       final cjson = prefs.getString(_kDailyPlayCountJson);
       if (cjson != null && cjson.isNotEmpty) {
-        final Map<String, dynamic> m = jsonDecode(cjson) as Map<String, dynamic>;
+        final Map<String, dynamic> m =
+            jsonDecode(cjson) as Map<String, dynamic>;
         dailyPlayCountByDate = m.map((k, v) => MapEntry(k, (v as num).toInt()));
       }
     } catch (_) {}
     try {
       final tjson = prefs.getString(_kDailyPlayTimeJson);
       if (tjson != null && tjson.isNotEmpty) {
-        final Map<String, dynamic> m = jsonDecode(tjson) as Map<String, dynamic>;
+        final Map<String, dynamic> m =
+            jsonDecode(tjson) as Map<String, dynamic>;
         dailyPlayTimeByDate = m.map((k, v) => MapEntry(k, (v as num).toInt()));
       }
     } catch (_) {}
     achievedRedRow = prefs.getBool(_kAchievedRedRow) ?? achievedRedRow;
     achievedRedColumn = prefs.getBool(_kAchievedRedColumn) ?? achievedRedColumn;
-    achievedRedDiagonal = prefs.getBool(_kAchievedRedDiagonal) ?? achievedRedDiagonal;
+    achievedRedDiagonal =
+        prefs.getBool(_kAchievedRedDiagonal) ?? achievedRedDiagonal;
 
     // Apply theme immediately
     AppColors.bg = Color(themeColorHex);
@@ -519,7 +569,8 @@ class GameController extends ChangeNotifier {
     current = startingPlayer;
 
     // Start playtime for initial fresh session if not started yet (app startup case)
-    final bool _freshBoard = RulesEngine.countOf(board, CellState.red) == 0 && RulesEngine.countOf(board, CellState.blue) == 0;
+    final bool _freshBoard = RulesEngine.countOf(board, CellState.red) == 0 &&
+        RulesEngine.countOf(board, CellState.blue) == 0;
     if (!gameOver && _freshBoard && _playStartMs == null) {
       _playAccumMs = 0;
       _playStartMs = DateTime.now().millisecondsSinceEpoch;
@@ -571,7 +622,8 @@ class GameController extends ChangeNotifier {
     startingPlayer = who;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_kStartingPlayer, who == CellState.blue ? 'blue' : 'red');
+    await prefs.setString(
+        _kStartingPlayer, who == CellState.blue ? 'blue' : 'red');
   }
 
   void newGame() {
@@ -582,8 +634,10 @@ class GameController extends ChangeNotifier {
     board = RulesEngine.emptyBoard();
     current = startingPlayer;
     gameOver = false;
-    turnsRed = 0; turnsBlue = 0;
-    bonusRed = 0; bonusBlue = 0;
+    turnsRed = 0;
+    turnsBlue = 0;
+    bonusRed = 0;
+    bonusBlue = 0;
     redGamePoints = 0;
     lastGamePointsAwarded = 0;
     lastTotalBeforeAward = totalUserScore;
@@ -663,7 +717,8 @@ class GameController extends ChangeNotifier {
     flat.shuffle(rnd);
 
     // Fill board
-    final newBoard = List<List<CellState>>.generate(n, (_) => List<CellState>.filled(n, CellState.empty));
+    final newBoard = List<List<CellState>>.generate(
+        n, (_) => List<CellState>.filled(n, CellState.empty));
     for (int i = 0; i < total; i++) {
       final r = i ~/ n;
       final c = i % n;
@@ -672,7 +727,8 @@ class GameController extends ChangeNotifier {
     board = newBoard;
 
     // Plausible turns counts: alternate moves starting from startingPlayer
-    final int redTurns = startingPlayer == CellState.red ? (total + 1) ~/ 2 : total ~/ 2;
+    final int redTurns =
+        startingPlayer == CellState.red ? (total + 1) ~/ 2 : total ~/ 2;
     final int blueTurns = total - redTurns;
     turnsRed = redTurns;
     turnsBlue = blueTurns;
@@ -717,7 +773,10 @@ class GameController extends ChangeNotifier {
       // Build concise breakdown: +1 place, +2 corner, +2 xN infect blue→grey, +3 xN claim grey→red
       final List<String> parts = <String>[];
       parts.add('+1 place');
-      final bool isCorner = (r == 0 && c == 0) || (r == 0 && c == K.n - 1) || (r == K.n - 1 && c == 0) || (r == K.n - 1 && c == K.n - 1);
+      final bool isCorner = (r == 0 && c == 0) ||
+          (r == 0 && c == K.n - 1) ||
+          (r == K.n - 1 && c == 0) ||
+          (r == K.n - 1 && c == K.n - 1);
       if (isCorner) parts.add('+2 corner');
       int blueToNeutral = 0;
       int neutralToRed = 0;
@@ -748,7 +807,8 @@ class GameController extends ChangeNotifier {
 
   // Unified tap handler to support selection and blowing up existing pieces.
   void onCellTap(int r, int c) {
-    if (gameOver || isAiThinking || isExploding || isFalling || isQuaking) return;
+    if (gameOver || isAiThinking || isExploding || isFalling || isQuaking)
+      return;
     final s = board[r][c];
     if (current != CellState.red) return; // only human red taps are processed
 
@@ -818,7 +878,8 @@ class GameController extends ChangeNotifier {
     await Future.delayed(const Duration(milliseconds: 420));
 
     final before = board;
-    final after = RulesEngine.blow(board, affected); // compute post-removal board
+    final after =
+        RulesEngine.blow(board, affected); // compute post-removal board
 
     // Per spec, blowing up does not award points to the user; set lastMovePoints = 0 for both sides
     if (who == CellState.red) {
@@ -870,16 +931,16 @@ class GameController extends ChangeNotifier {
     // Play falling animation
     await Future.delayed(const Duration(milliseconds: 300));
     // Clear falling state
-    fallingDistances = <(int,int), int>{};
+    fallingDistances = <(int, int), int>{};
     isFalling = false;
     notifyListeners();
   }
 
-  Set<(int,int)> _allNeutralCells() {
-    final set = <(int,int)>{};
+  Set<(int, int)> _allNeutralCells() {
+    final set = <(int, int)>{};
     for (int r = 0; r < K.n; r++) {
       for (int c = 0; c < K.n; c++) {
-        if (board[r][c] == CellState.neutral) set.add((r,c));
+        if (board[r][c] == CellState.neutral) set.add((r, c));
       }
     }
     return set;
@@ -900,7 +961,7 @@ class GameController extends ChangeNotifier {
 
     // Phase 2: Animate only neutrals falling out
     isFalling = true;
-    fallingDistances = { for (final rc in neutrals) rc : K.n };
+    fallingDistances = {for (final rc in neutrals) rc: K.n};
     // Keep preview while animating for clarity
     notifyListeners();
     await Future.delayed(Duration(milliseconds: fallDurationMs));
@@ -911,7 +972,7 @@ class GameController extends ChangeNotifier {
     // Clear states
     selectedCell = null;
     blowPreview.clear();
-    fallingDistances = <(int,int), int>{};
+    fallingDistances = <(int, int), int>{};
     isFalling = false;
 
     // No direct points for grey drop
@@ -934,7 +995,8 @@ class GameController extends ChangeNotifier {
     }
   }
 
-  int _computeMovePoints(List<List<CellState>> before, List<List<CellState>> after, int r, int c, CellState attacker) {
+  int _computeMovePoints(List<List<CellState>> before,
+      List<List<CellState>> after, int r, int c, CellState attacker) {
     // Compute delta points from RED player's perspective, per last move.
     // If RED moved: award positives (place +1, corner +2, Blue->Neutral +2, Neutral->Red +3, new Red full lines +50).
     // If BLUE moved: apply negatives to RED (Red->Neutral -2, Neutral->Blue -3). Opponent placement/corner/lines do not subtract.
@@ -943,7 +1005,10 @@ class GameController extends ChangeNotifier {
       // Placement
       points += 1;
       // Corner bonus
-      if ((r == 0 && c == 0) || (r == 0 && c == K.n - 1) || (r == K.n - 1 && c == 0) || (r == K.n - 1 && c == K.n - 1)) {
+      if ((r == 0 && c == 0) ||
+          (r == 0 && c == K.n - 1) ||
+          (r == K.n - 1 && c == 0) ||
+          (r == K.n - 1 && c == K.n - 1)) {
         points += 2;
       }
       int blueToNeutral = 0;
@@ -984,8 +1049,8 @@ class GameController extends ChangeNotifier {
   }
 
   void _scheduleAi() async {
-      // Capture generation to cancel any outdated AI runs when state is reloaded
-      final int gen = _aiGeneration;
+    // Capture generation to cancel any outdated AI runs when state is reloaded
+    final int gen = _aiGeneration;
     if (gameOver) return;
     isAiThinking = true;
     notifyListeners();
@@ -993,16 +1058,25 @@ class GameController extends ChangeNotifier {
     // Brief delay for UX and to let UI show overlay
     await Future.delayed(const Duration(milliseconds: 200));
     // If state changed (e.g., user loaded a game), cancel this run safely
-    if (gen != _aiGeneration || gameOver) { isAiThinking = false; notifyListeners(); return; }
+    if (gen != _aiGeneration || gameOver) {
+      isAiThinking = false;
+      notifyListeners();
+      return;
+    }
 
     // Evaluate best placement via existing AI
-    final mv = await Future<(int, int)?>(() => _ai.chooseMoveLevel(board, aiLevel));
+    final mv =
+        await Future<(int, int)?>(() => _ai.chooseMoveLevel(board, aiLevel));
     // Cancel if state changed during AI computation
-    if (gen != _aiGeneration || gameOver) { isAiThinking = false; notifyListeners(); return; }
+    if (gen != _aiGeneration || gameOver) {
+      isAiThinking = false;
+      notifyListeners();
+      return;
+    }
 
     // Also evaluate best blow for BLUE
     int bestBlowSwing = -0x7fffffff;
-    (int,int)? bestBlowCell;
+    (int, int)? bestBlowCell;
     final redBefore = RulesEngine.countOf(board, CellState.red);
     final blueBefore = RulesEngine.countOf(board, CellState.blue);
     for (int r = 0; r < K.n; r++) {
@@ -1018,16 +1092,20 @@ class GameController extends ChangeNotifier {
         final swing = (blueAfter - blueBefore) - (redAfter - redBefore);
         if (swing > bestBlowSwing) {
           bestBlowSwing = swing;
-          bestBlowCell = (r,c);
+          bestBlowCell = (r, c);
         }
       }
     }
 
-    if (gameOver) { isAiThinking = false; notifyListeners(); return; }
+    if (gameOver) {
+      isAiThinking = false;
+      notifyListeners();
+      return;
+    }
 
     // Compute best placement swing baseline
     int bestPlaceSwing = -0x7fffffff;
-    (int,int)? placeChoice = mv;
+    (int, int)? placeChoice = mv;
     if (mv != null) {
       final (pr, pc) = mv;
       final sim = RulesEngine.place(board, pr, pc, CellState.blue);
@@ -1042,7 +1120,8 @@ class GameController extends ChangeNotifier {
     final neutralsExist = _allNeutralCells().isNotEmpty;
 
     // If blow is strictly better than placement, or placement doesn't exist, choose blow
-    if (bestBlowCell != null && (placeChoice == null || bestBlowSwing > bestPlaceSwing)) {
+    if (bestBlowCell != null &&
+        (placeChoice == null || bestBlowSwing > bestPlaceSwing)) {
       final (br, bc) = bestBlowCell!;
       // Preselect for animation parity with user: show border+icon and affected preview
       selectedCell = (br, bc);
@@ -1061,7 +1140,8 @@ class GameController extends ChangeNotifier {
     }
 
     // If neutrals exist and neither blow nor placement yields positive swing, perform grey-drop with animations
-    if (neutralsExist && (placeChoice == null || (bestPlaceSwing <= 0 && bestBlowSwing <= 0))) {
+    if (neutralsExist &&
+        (placeChoice == null || (bestPlaceSwing <= 0 && bestBlowSwing <= 0))) {
       // Preselect one neutral for clarity and preview all neutrals
       final allNeutrals = _allNeutralCells();
       final sel = allNeutrals.first;
@@ -1087,7 +1167,7 @@ class GameController extends ChangeNotifier {
       return;
     }
 
-    final (r,c) = placeChoice;
+    final (r, c) = placeChoice;
     final before = board;
     final next = RulesEngine.place(board, r, c, CellState.blue);
     if (next != null) {
@@ -1124,7 +1204,9 @@ class GameController extends ChangeNotifier {
     }
     lastGamePlayMs = _playAccumMs;
     // Compute full-color lines for bonuses and gold highlight cells
-    bonusRed = 0; bonusBlue = 0; goldCells.clear();
+    bonusRed = 0;
+    bonusBlue = 0;
+    goldCells.clear();
     int redLinesInThisGame = 0;
     // Rows
     for (int r = 0; r < K.n; r++) {
@@ -1132,10 +1214,14 @@ class GameController extends ChangeNotifier {
       if (row.every((c) => c == CellState.red)) {
         bonusRed += 50;
         redLinesInThisGame += 1;
-        for (int c = 0; c < K.n; c++) { goldCells.add((r,c)); }
+        for (int c = 0; c < K.n; c++) {
+          goldCells.add((r, c));
+        }
       } else if (row.every((c) => c == CellState.blue)) {
         bonusBlue += 50;
-        for (int c = 0; c < K.n; c++) { goldCells.add((r,c)); }
+        for (int c = 0; c < K.n; c++) {
+          goldCells.add((r, c));
+        }
       }
     }
     // Columns
@@ -1149,10 +1235,14 @@ class GameController extends ChangeNotifier {
       if (allRed) {
         bonusRed += 50;
         redLinesInThisGame += 1;
-        for (int r = 0; r < K.n; r++) { goldCells.add((r,c)); }
+        for (int r = 0; r < K.n; r++) {
+          goldCells.add((r, c));
+        }
       } else if (allBlue) {
         bonusBlue += 50;
-        for (int r = 0; r < K.n; r++) { goldCells.add((r,c)); }
+        for (int r = 0; r < K.n; r++) {
+          goldCells.add((r, c));
+        }
       }
     }
 
@@ -1201,11 +1291,17 @@ class GameController extends ChangeNotifier {
     // Check diagonals for red achievements (not part of bonus rules, used only for achievements)
     bool anyRedDiag = true;
     for (int i = 0; i < K.n; i++) {
-      if (board[i][i] != CellState.red) { anyRedDiag = false; break; }
+      if (board[i][i] != CellState.red) {
+        anyRedDiag = false;
+        break;
+      }
     }
     bool anyRedAntiDiag = true;
     for (int i = 0; i < K.n; i++) {
-      if (board[i][K.n - 1 - i] != CellState.red) { anyRedAntiDiag = false; break; }
+      if (board[i][K.n - 1 - i] != CellState.red) {
+        anyRedAntiDiag = false;
+        break;
+      }
     }
 
     // Update achievement flags (sticky once achieved)
@@ -1220,7 +1316,12 @@ class GameController extends ChangeNotifier {
       bool hasRedCol = false;
       for (int c = 0; c < K.n && !hasRedCol; c++) {
         bool all = true;
-        for (int r = 0; r < K.n; r++) { if (board[r][c] != CellState.red) { all = false; break; } }
+        for (int r = 0; r < K.n; r++) {
+          if (board[r][c] != CellState.red) {
+            all = false;
+            break;
+          }
+        }
         if (all) hasRedCol = true;
       }
       achievedRedRow = achievedRedRow || hasRedRow;
@@ -1249,10 +1350,13 @@ class GameController extends ChangeNotifier {
 
     // Update analytics: totals and per-day
     totalPlayTimeMs += lastGamePlayMs;
-    DateTime when = DateTime.fromMillisecondsSinceEpoch(result.timestampMs).toLocal();
-    String dayKey = '${when.year.toString().padLeft(4,'0')}-${when.month.toString().padLeft(2,'0')}-${when.day.toString().padLeft(2,'0')}' ;
+    DateTime when =
+        DateTime.fromMillisecondsSinceEpoch(result.timestampMs).toLocal();
+    String dayKey =
+        '${when.year.toString().padLeft(4, '0')}-${when.month.toString().padLeft(2, '0')}-${when.day.toString().padLeft(2, '0')}';
     dailyPlayCountByDate[dayKey] = (dailyPlayCountByDate[dayKey] ?? 0) + 1;
-    dailyPlayTimeByDate[dayKey] = (dailyPlayTimeByDate[dayKey] ?? 0) + lastGamePlayMs;
+    dailyPlayTimeByDate[dayKey] =
+        (dailyPlayTimeByDate[dayKey] ?? 0) + lastGamePlayMs;
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_kTotalUserScore, totalUserScore);
@@ -1260,7 +1364,8 @@ class GameController extends ChangeNotifier {
     await prefs.setStringList(_kBadges, badges.toList());
     await prefs.setString(_kHistory, GameResult.encodeList(history));
     await prefs.setInt(_kTotalPlayTimeMs, totalPlayTimeMs);
-    await prefs.setString(_kDailyPlayCountJson, jsonEncode(dailyPlayCountByDate));
+    await prefs.setString(
+        _kDailyPlayCountJson, jsonEncode(dailyPlayCountByDate));
     await prefs.setString(_kDailyPlayTimeJson, jsonEncode(dailyPlayTimeByDate));
     await prefs.setBool(_kAchievedRedRow, achievedRedRow);
     await prefs.setBool(_kAchievedRedColumn, achievedRedColumn);
@@ -1296,7 +1401,7 @@ class GameController extends ChangeNotifier {
 
     // Phase 2: Animate only neutrals falling out
     isFalling = true;
-    fallingDistances = { for (final rc in neutrals) rc : K.n };
+    fallingDistances = {for (final rc in neutrals) rc: K.n};
     notifyListeners();
     await Future.delayed(Duration(milliseconds: fallDurationMs));
 
@@ -1306,7 +1411,7 @@ class GameController extends ChangeNotifier {
     // Clear states
     selectedCell = null;
     blowPreview.clear();
-    fallingDistances = <(int,int), int>{};
+    fallingDistances = <(int, int), int>{};
     isFalling = false;
 
     // No direct points for grey drop

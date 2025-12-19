@@ -7,7 +7,13 @@ class K {
 class AiBelt {
   // 1..7 mapping
   static const List<String> names = [
-    'White', 'Orange', 'Red', 'Green', 'Blue', 'Brown', 'Black'
+    'White',
+    'Orange',
+    'Red',
+    'Green',
+    'Blue',
+    'Brown',
+    'Black'
   ];
 
   static const List<int> colors = [

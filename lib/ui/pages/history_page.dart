@@ -39,8 +39,16 @@ class _HistoryDialogState extends State<HistoryDialog> {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(22),
-          gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [bg, bg]),
-          boxShadow: const [BoxShadow(color: AppColors.dialogShadow, blurRadius: 24, offset: Offset(0, 12))],
+          gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [bg, bg]),
+          boxShadow: const [
+            BoxShadow(
+                color: AppColors.dialogShadow,
+                blurRadius: 24,
+                offset: Offset(0, 12))
+          ],
           border: Border.all(color: AppColors.dialogOutline, width: 1),
         ),
         child: ConstrainedBox(
@@ -52,12 +60,19 @@ class _HistoryDialogState extends State<HistoryDialog> {
                 Row(
                   children: [
                     const Spacer(),
-                    const Text('History', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800)),
+                    const Text('History',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800)),
                     const Spacer(),
                     Container(
                       width: 36,
                       height: 36,
-                      decoration: BoxDecoration(color: Colors.white.withOpacity(0.08), shape: BoxShape.circle, border: Border.all(color: Colors.white24)),
+                      decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.08),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white24)),
                       child: IconButton(
                         padding: EdgeInsets.zero,
                         iconSize: 20,
@@ -70,7 +85,9 @@ class _HistoryDialogState extends State<HistoryDialog> {
                 const SizedBox(height: 12),
                 Expanded(
                   child: items.isEmpty
-                      ? const Center(child: Text('No finished games yet', style: TextStyle(color: Colors.white70)))
+                      ? const Center(
+                          child: Text('No finished games yet',
+                              style: TextStyle(color: Colors.white70)))
                       : Scrollbar(
                           thumbVisibility: true,
                           trackVisibility: true,
@@ -78,7 +95,8 @@ class _HistoryDialogState extends State<HistoryDialog> {
                           child: ListView.separated(
                             controller: _scrollCtrl,
                             itemCount: items.length,
-                            separatorBuilder: (_, __) => const SizedBox(height: 10),
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: 10),
                             itemBuilder: (context, index) {
                               final gr = items[index];
                               return _HistoryTile(gr: gr);
@@ -119,7 +137,9 @@ class _HistoryTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final dt = DateTime.fromMillisecondsSinceEpoch(gr.timestampMs);
     final when = _formatDateTime(dt);
-    final resultLabel = gr.winner == 'draw' ? 'Draw' : (gr.winner == 'red' ? 'Player Wins' : 'AI Wins');
+    final resultLabel = gr.winner == 'draw'
+        ? 'Draw'
+        : (gr.winner == 'red' ? 'Player Wins' : 'AI Wins');
     // Subtle background tint by winner: red/blue/grey
     final bool redWon = gr.winner == 'red';
     final bool blueWon = gr.winner == 'blue';
@@ -148,10 +168,14 @@ class _HistoryTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(when, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
+                Text(when,
+                    style: const TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 4),
-                Text('AI: ${AiBelt.nameFor(gr.aiLevel)}', style: const TextStyle(color: Colors.white70)),
-                Text('Winner: $resultLabel', style: const TextStyle(color: Colors.white70)),
+                Text('AI: ${AiBelt.nameFor(gr.aiLevel)}',
+                    style: const TextStyle(color: Colors.white70)),
+                Text('Winner: $resultLabel',
+                    style: const TextStyle(color: Colors.white70)),
               ],
             ),
           ),
@@ -161,11 +185,14 @@ class _HistoryTile extends StatelessWidget {
               spacing: 12,
               runSpacing: 6,
               children: [
-                _chip('Your score', gr.redTotal.toString(), color: AppColors.red),
+                _chip('Your score', gr.redTotal.toString(),
+                    color: AppColors.red),
                 _chip('Time', _formatDuration(gr.playMs)),
                 _chip('Red base', gr.redBase.toString(), color: AppColors.red),
-                _chip('Blue base', gr.blueBase.toString(), color: AppColors.blue),
-                _chip('Total B', gr.blueTotal.toString(), color: AppColors.blue),
+                _chip('Blue base', gr.blueBase.toString(),
+                    color: AppColors.blue),
+                _chip('Total B', gr.blueTotal.toString(),
+                    color: AppColors.blue),
                 _chip('Turns R', gr.turnsRed.toString()),
                 _chip('Turns B', gr.turnsBlue.toString()),
               ],
@@ -187,20 +214,26 @@ class _HistoryTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: (color ?? Colors.white).withOpacity(0.15),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: (color ?? Colors.white).withOpacity(0.5), width: 1),
+        border: Border.all(
+            color: (color ?? Colors.white).withOpacity(0.5), width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('$label: ', style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.w700)),
-          Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
+          Text('$label: ',
+              style: const TextStyle(
+                  color: Colors.white70, fontWeight: FontWeight.w700)),
+          Text(value,
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.w900)),
         ],
       ),
     );
   }
 }
 
-Future<void> showAnimatedHistoryDialog({required BuildContext context, required GameController controller}) {
+Future<void> showAnimatedHistoryDialog(
+    {required BuildContext context, required GameController controller}) {
   return showGeneralDialog(
     context: context,
     barrierDismissible: true,
@@ -209,7 +242,10 @@ Future<void> showAnimatedHistoryDialog({required BuildContext context, required 
     transitionDuration: const Duration(milliseconds: 260),
     pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),
     transitionBuilder: (ctx, anim, _, __) {
-      final curved = CurvedAnimation(parent: anim, curve: Curves.easeOutCubic, reverseCurve: Curves.easeInCubic);
+      final curved = CurvedAnimation(
+          parent: anim,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic);
       return Stack(
         children: [
           Positioned.fill(
@@ -219,7 +255,8 @@ Future<void> showAnimatedHistoryDialog({required BuildContext context, required 
               curve: Curves.easeOutCubic,
               builder: (context, sigma, _) {
                 return BackdropFilter(
-                  filter: ui.ImageFilter.blur(sigmaX: sigma * anim.value, sigmaY: sigma * anim.value),
+                  filter: ui.ImageFilter.blur(
+                      sigmaX: sigma * anim.value, sigmaY: sigma * anim.value),
                   child: const SizedBox.shrink(),
                 );
               },

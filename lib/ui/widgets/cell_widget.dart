@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import '../../models/cell_state.dart';
 import '../../core/colors.dart';
@@ -9,7 +8,12 @@ class CellWidget extends StatefulWidget {
   final VoidCallback? onLongPress;
   final BorderRadius? borderRadius; // optional custom radius per-cell
 
-  const CellWidget({super.key, required this.state, this.onTap, this.onLongPress, this.borderRadius});
+  const CellWidget(
+      {super.key,
+      required this.state,
+      this.onTap,
+      this.onLongPress,
+      this.borderRadius});
 
   @override
   State<CellWidget> createState() => _CellWidgetState();
@@ -34,7 +38,9 @@ class _CellWidgetState extends State<CellWidget> {
     final oldState = oldWidget.state;
     final newState = widget.state;
 
-    final isColorChange = oldState != CellState.empty && newState != CellState.empty && oldState != newState;
+    final isColorChange = oldState != CellState.empty &&
+        newState != CellState.empty &&
+        oldState != newState;
 
     if (isColorChange) {
       // Show flash with the old color first, then update to the new color to animate tween
@@ -57,7 +63,8 @@ class _CellWidgetState extends State<CellWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final isPlacement = widget.state != CellState.empty && (_prev == null || _prev == CellState.empty);
+    final isPlacement = widget.state != CellState.empty &&
+        (_prev == null || _prev == CellState.empty);
 
     return GestureDetector(
       onTap: widget.onTap,
@@ -75,7 +82,8 @@ class _CellWidgetState extends State<CellWidget> {
         ),
         transitionBuilder: (child, animation) {
           // Apply a scale pop-in when a new tile is placed (empty -> filled)
-          final keyVal = (child.key is ValueKey) ? (child.key as ValueKey).value : null;
+          final keyVal =
+              (child.key is ValueKey) ? (child.key as ValueKey).value : null;
           final isFilledChild = keyVal == 'filled';
           if (isPlacement && isFilledChild) {
             return ScaleTransition(scale: animation, child: child);
@@ -90,13 +98,27 @@ class _CellWidgetState extends State<CellWidget> {
   Widget _buildForState(CellState state) {
     switch (state) {
       case CellState.empty:
-        return _EmptyCell(key: const ValueKey('empty'), radius: widget.borderRadius ?? BorderRadius.circular(8));
+        return _EmptyCell(
+            key: const ValueKey('empty'),
+            radius: widget.borderRadius ?? BorderRadius.circular(8));
       case CellState.red:
-        return _InsetTile(color: AppColors.red, radius: widget.borderRadius ?? BorderRadius.circular(8), flashing: _flashing, key: const ValueKey('filled'));
+        return _InsetTile(
+            color: AppColors.red,
+            radius: widget.borderRadius ?? BorderRadius.circular(8),
+            flashing: _flashing,
+            key: const ValueKey('filled'));
       case CellState.blue:
-        return _InsetTile(color: AppColors.blue, radius: widget.borderRadius ?? BorderRadius.circular(8), flashing: _flashing, key: const ValueKey('filled'));
+        return _InsetTile(
+            color: AppColors.blue,
+            radius: widget.borderRadius ?? BorderRadius.circular(8),
+            flashing: _flashing,
+            key: const ValueKey('filled'));
       case CellState.neutral:
-        return _InsetTile(color: AppColors.neutral, radius: widget.borderRadius ?? BorderRadius.circular(8), flashing: _flashing, key: const ValueKey('filled'));
+        return _InsetTile(
+            color: AppColors.neutral,
+            radius: widget.borderRadius ?? BorderRadius.circular(8),
+            flashing: _flashing,
+            key: const ValueKey('filled'));
     }
   }
 }
@@ -115,7 +137,9 @@ class _EmptyCell extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppColors.cellDark,
             borderRadius: radius,
-            border: Border.all(color: AppColors.cellDarkBorder, width: 2), // 2px darker border line
+            border: Border.all(
+                color: AppColors.cellDarkBorder,
+                width: 2), // 2px darker border line
           ),
         ),
 
@@ -181,7 +205,11 @@ class _InsetTile extends StatelessWidget {
   final Color color;
   final bool flashing;
   final BorderRadius radius;
-  const _InsetTile({required this.color, required this.radius, this.flashing = false, super.key});
+  const _InsetTile(
+      {required this.color,
+      required this.radius,
+      this.flashing = false,
+      super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -204,8 +232,15 @@ class _InsetTile extends StatelessWidget {
                 color: color,
                 borderRadius: radius,
                 boxShadow: const [
-                  BoxShadow(color: Colors.black26, offset: Offset(0, 2), blurRadius: 4),
-                  BoxShadow(color: Colors.black12, offset: Offset(0, 0), blurRadius: 1, spreadRadius: 0.5),
+                  BoxShadow(
+                      color: Colors.black26,
+                      offset: Offset(0, 2),
+                      blurRadius: 4),
+                  BoxShadow(
+                      color: Colors.black12,
+                      offset: Offset(0, 0),
+                      blurRadius: 1,
+                      spreadRadius: 0.5),
                 ],
               ),
             ),
@@ -244,7 +279,11 @@ class _InsetTile extends StatelessWidget {
                     return const LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [AppColors.topHighlight, AppColors.midHighlight, Color(0x00000000)],
+                      colors: [
+                        AppColors.topHighlight,
+                        AppColors.midHighlight,
+                        Color(0x00000000)
+                      ],
                       stops: [0.0, 0.35, 0.8],
                     ).createShader(rect);
                   },

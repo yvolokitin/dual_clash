@@ -39,8 +39,16 @@ class _StatisticsDialogState extends State<StatisticsDialog> {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(22),
-          gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [bg, bg]),
-          boxShadow: const [BoxShadow(color: AppColors.dialogShadow, blurRadius: 24, offset: Offset(0, 12))],
+          gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [bg, bg]),
+          boxShadow: const [
+            BoxShadow(
+                color: AppColors.dialogShadow,
+                blurRadius: 24,
+                offset: Offset(0, 12))
+          ],
           border: Border.all(color: AppColors.dialogOutline, width: 1),
         ),
         child: ConstrainedBox(
@@ -52,12 +60,19 @@ class _StatisticsDialogState extends State<StatisticsDialog> {
                 Row(
                   children: [
                     const Spacer(),
-                    const Text('Statistics', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800)),
+                    const Text('Statistics',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800)),
                     const Spacer(),
                     Container(
                       width: 36,
                       height: 36,
-                      decoration: BoxDecoration(color: Colors.white.withOpacity(0.08), shape: BoxShape.circle, border: Border.all(color: Colors.white24)),
+                      decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.08),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white24)),
                       child: IconButton(
                         padding: EdgeInsets.zero,
                         iconSize: 20,
@@ -70,7 +85,9 @@ class _StatisticsDialogState extends State<StatisticsDialog> {
                 const SizedBox(height: 12),
                 Expanded(
                   child: items.isEmpty
-                      ? const Center(child: Text('No turns yet for this game', style: TextStyle(color: Colors.white70)))
+                      ? const Center(
+                          child: Text('No turns yet for this game',
+                              style: TextStyle(color: Colors.white70)))
                       : Scrollbar(
                           thumbVisibility: true,
                           trackVisibility: true,
@@ -78,10 +95,12 @@ class _StatisticsDialogState extends State<StatisticsDialog> {
                           child: ListView.separated(
                             controller: _scrollCtrl,
                             itemCount: items.length,
-                            separatorBuilder: (_, __) => const SizedBox(height: 10),
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: 10),
                             itemBuilder: (context, index) {
                               final it = items[index];
-                              final isLatest = index == 0; // first is the latest
+                              final isLatest =
+                                  index == 0; // first is the latest
                               // Compute cumulative total up to this turn from original list
                               final totalAtTurn = original
                                   .where((e) => e.turn <= it.turn)
@@ -97,7 +116,8 @@ class _StatisticsDialogState extends State<StatisticsDialog> {
                                     ? () {
                                         // Close statistics then undo
                                         Navigator.of(context).pop();
-                                        widget.controller.undoToPreviousUserTurn();
+                                        widget.controller
+                                            .undoToPreviousUserTurn();
                                       }
                                     : null,
                               );
@@ -122,7 +142,14 @@ class _StatTile extends StatelessWidget {
   final bool showUndo;
   final bool canUndo;
   final VoidCallback? onUndo;
-  const _StatTile({required this.turn, required this.desc, required this.points, required this.total, this.showUndo = false, this.canUndo = false, this.onUndo});
+  const _StatTile(
+      {required this.turn,
+      required this.desc,
+      required this.points,
+      required this.total,
+      this.showUndo = false,
+      this.canUndo = false,
+      this.onUndo});
 
   @override
   Widget build(BuildContext context) {
@@ -147,9 +174,12 @@ class _StatTile extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.flag_outlined, size: 18, color: Colors.white70),
+                const Icon(Icons.flag_outlined,
+                    size: 18, color: Colors.white70),
                 const SizedBox(width: 6),
-                Text('Turn $turn', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
+                Text('Turn $turn',
+                    style: const TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.w800)),
               ],
             ),
           ),
@@ -163,7 +193,10 @@ class _StatTile extends StatelessWidget {
               width: 36,
               height: 36,
               margin: const EdgeInsets.only(right: 8),
-              decoration: BoxDecoration(color: Colors.white.withOpacity(canUndo ? 0.10 : 0.04), shape: BoxShape.circle, border: Border.all(color: Colors.white24)),
+              decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(canUndo ? 0.10 : 0.04),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white24)),
               child: IconButton(
                 tooltip: 'Undo last action',
                 padding: EdgeInsets.zero,
@@ -175,13 +208,19 @@ class _StatTile extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: (points >= 0 ? Colors.green : Colors.red).withOpacity(0.18),
+              color:
+                  (points >= 0 ? Colors.green : Colors.red).withOpacity(0.18),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: (points >= 0 ? Colors.green : Colors.red).withOpacity(0.6), width: 1),
+              border: Border.all(
+                  color: (points >= 0 ? Colors.green : Colors.red)
+                      .withOpacity(0.6),
+                  width: 1),
             ),
             child: Text(
               '${points >= 0 ? '+' : ''}$points',
-              style: TextStyle(color: points >= 0 ? Colors.greenAccent : Colors.redAccent, fontWeight: FontWeight.w900),
+              style: TextStyle(
+                  color: points >= 0 ? Colors.greenAccent : Colors.redAccent,
+                  fontWeight: FontWeight.w900),
             ),
           ),
           const SizedBox(width: 8),
@@ -194,7 +233,8 @@ class _StatTile extends StatelessWidget {
             ),
             child: Text(
               '$total',
-              style: const TextStyle(color: AppColors.brandGold, fontWeight: FontWeight.w900),
+              style: const TextStyle(
+                  color: AppColors.brandGold, fontWeight: FontWeight.w900),
             ),
           ),
         ],
@@ -203,7 +243,8 @@ class _StatTile extends StatelessWidget {
   }
 }
 
-Future<void> showAnimatedStatisticsDialog({required BuildContext context, required GameController controller}) {
+Future<void> showAnimatedStatisticsDialog(
+    {required BuildContext context, required GameController controller}) {
   return showGeneralDialog(
     context: context,
     barrierDismissible: true,
@@ -212,7 +253,10 @@ Future<void> showAnimatedStatisticsDialog({required BuildContext context, requir
     transitionDuration: const Duration(milliseconds: 260),
     pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),
     transitionBuilder: (ctx, anim, _, __) {
-      final curved = CurvedAnimation(parent: anim, curve: Curves.easeOutCubic, reverseCurve: Curves.easeInCubic);
+      final curved = CurvedAnimation(
+          parent: anim,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic);
       return Stack(
         children: [
           Positioned.fill(
@@ -222,7 +266,8 @@ Future<void> showAnimatedStatisticsDialog({required BuildContext context, requir
               curve: Curves.easeOutCubic,
               builder: (context, sigma, _) {
                 return BackdropFilter(
-                  filter: ui.ImageFilter.blur(sigmaX: sigma * anim.value, sigmaY: sigma * anim.value),
+                  filter: ui.ImageFilter.blur(
+                      sigmaX: sigma * anim.value, sigmaY: sigma * anim.value),
                   child: const SizedBox.shrink(),
                 );
               },
@@ -246,4 +291,3 @@ Future<void> showAnimatedStatisticsDialog({required BuildContext context, requir
     },
   );
 }
-

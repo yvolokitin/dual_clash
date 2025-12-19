@@ -14,7 +14,8 @@ class SettingsDialog extends StatefulWidget {
 }
 
 /// Helper to show the SettingsDialog with Block Blast-like animated transition
-Future<void> showAnimatedSettingsDialog({required BuildContext context, required GameController controller}) {
+Future<void> showAnimatedSettingsDialog(
+    {required BuildContext context, required GameController controller}) {
   return showGeneralDialog(
     context: context,
     barrierDismissible: true,
@@ -26,7 +27,10 @@ Future<void> showAnimatedSettingsDialog({required BuildContext context, required
       return const SizedBox.shrink();
     },
     transitionBuilder: (ctx, anim, secondaryAnim, child) {
-      final curved = CurvedAnimation(parent: anim, curve: Curves.easeOutCubic, reverseCurve: Curves.easeInCubic);
+      final curved = CurvedAnimation(
+          parent: anim,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic);
       return Stack(
         children: [
           // Subtle background blur like Block Blast
@@ -37,7 +41,8 @@ Future<void> showAnimatedSettingsDialog({required BuildContext context, required
               curve: Curves.easeOutCubic,
               builder: (context, sigma, _) {
                 return BackdropFilter(
-                  filter: ui.ImageFilter.blur(sigmaX: sigma * anim.value, sigmaY: sigma * anim.value),
+                  filter: ui.ImageFilter.blur(
+                      sigmaX: sigma * anim.value, sigmaY: sigma * anim.value),
                   child: const SizedBox.shrink(),
                 );
               },
@@ -94,7 +99,10 @@ class _SettingsDialogState extends State<SettingsDialog> {
             colors: [dialogTop, dialogBottom],
           ),
           boxShadow: const [
-            BoxShadow(color: AppColors.dialogShadow, blurRadius: 24, offset: Offset(0, 12)),
+            BoxShadow(
+                color: AppColors.dialogShadow,
+                blurRadius: 24,
+                offset: Offset(0, 12)),
           ],
           border: Border.all(color: AppColors.dialogOutline, width: 1),
         ),
@@ -184,7 +192,8 @@ class _SettingsDialogState extends State<SettingsDialog> {
                 const SizedBox(height: 6),
                 Text(
                   _aiLevelDescription(_aiLevel),
-                  style: const TextStyle(color: Colors.white70, fontSize: 12, height: 1.2),
+                  style: const TextStyle(
+                      color: Colors.white70, fontSize: 12, height: 1.2),
                 ),
                 _separator(),
 
@@ -200,7 +209,8 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       colorDot: AppColors.red,
                       onTap: () async {
                         setState(() => _startingPlayer = CellState.red);
-                        await widget.controller.setStartingPlayer(CellState.red);
+                        await widget.controller
+                            .setStartingPlayer(CellState.red);
                       },
                     ),
                     _choiceTile(
@@ -209,7 +219,8 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       colorDot: AppColors.blue,
                       onTap: () async {
                         setState(() => _startingPlayer = CellState.blue);
-                        await widget.controller.setStartingPlayer(CellState.blue);
+                        await widget.controller
+                            .setStartingPlayer(CellState.blue);
                       },
                     ),
                   ],
@@ -226,9 +237,12 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       foregroundColor: const Color(0xFF2B221D),
                       shadowColor: Colors.black54,
                       elevation: 4,
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                      textStyle: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24)),
+                      textStyle: const TextStyle(
+                          fontWeight: FontWeight.w800, letterSpacing: 0.2),
                     ),
                     child: const Text('Close'),
                   ),
@@ -242,16 +256,22 @@ class _SettingsDialogState extends State<SettingsDialog> {
   }
 
   Widget _label(String text) => Padding(
-    padding: const EdgeInsets.only(bottom: 6.0),
-    child: Text(text, style: const TextStyle(color: AppColors.dialogSubtitle, fontWeight: FontWeight.w700, letterSpacing: 0.2)),
-  );
+        padding: const EdgeInsets.only(bottom: 6.0),
+        child: Text(text,
+            style: const TextStyle(
+                color: AppColors.dialogSubtitle,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.2)),
+      );
 
   InputDecoration _fieldDecoration() => const InputDecoration(
-    filled: true,
-    fillColor: AppColors.dialogFieldBg,
-    border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.all(Radius.circular(12))),
-    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-  );
+        filled: true,
+        fillColor: AppColors.dialogFieldBg,
+        border: OutlineInputBorder(
+            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.all(Radius.circular(12))),
+        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      );
 
   // subtle horizontal separator between settings sections
   Widget _separator() {
@@ -291,7 +311,8 @@ class _SettingsDialogState extends State<SettingsDialog> {
     Color? colorDot,
     VoidCallback? onTap,
   }) {
-    final bg = selected ? Colors.white.withOpacity(0.12) : AppColors.dialogFieldBg;
+    final bg =
+        selected ? Colors.white.withOpacity(0.12) : AppColors.dialogFieldBg;
     final border = selected ? AppColors.brandGold : Colors.white12;
     return Material(
       color: Colors.transparent,
@@ -309,7 +330,11 @@ class _SettingsDialogState extends State<SettingsDialog> {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (colorDot != null) ...[
-                Container(width: 10, height: 10, decoration: BoxDecoration(color: colorDot, shape: BoxShape.circle)),
+                Container(
+                    width: 10,
+                    height: 10,
+                    decoration:
+                        BoxDecoration(color: colorDot, shape: BoxShape.circle)),
                 const SizedBox(width: 8),
               ],
               Text(

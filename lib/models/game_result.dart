@@ -63,10 +63,13 @@ class GameResult {
         'pm': playMs,
       };
 
-  static String encodeList(List<GameResult> list) => jsonEncode(list.map((e) => e.toMap()).toList());
+  static String encodeList(List<GameResult> list) =>
+      jsonEncode(list.map((e) => e.toMap()).toList());
   static List<GameResult> decodeList(String jsonStr) {
     final raw = jsonDecode(jsonStr) as List<dynamic>;
-    return raw.map((e) => GameResult.fromMap(e as Map<String, dynamic>)).toList();
+    return raw
+        .map((e) => GameResult.fromMap(e as Map<String, dynamic>))
+        .toList();
   }
 
   static String winnerFromTotals(int redTotal, int blueTotal) {

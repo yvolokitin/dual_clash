@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
-import 'package:two_touch_game_flutter/core/colors.dart';
-import 'package:two_touch_game_flutter/logic/game_controller.dart';
-import 'package:two_touch_game_flutter/models/cell_state.dart';
-import 'package:two_touch_game_flutter/ui/widgets/animated_total_counter.dart';
+import 'package:dual_clash/core/colors.dart';
+import 'package:dual_clash/logic/game_controller.dart';
+import 'package:dual_clash/models/cell_state.dart';
+import 'package:dual_clash/ui/widgets/animated_total_counter.dart';
 
 /// Results dialog extracted from GamePage so it can be reused and maintained independently.
-Future<void> showAnimatedResultsDialog({required BuildContext context, required GameController controller}) {
+Future<void> showAnimatedResultsDialog(
+    {required BuildContext context, required GameController controller}) {
   return showGeneralDialog(
     context: context,
     barrierDismissible: true,
@@ -15,7 +16,10 @@ Future<void> showAnimatedResultsDialog({required BuildContext context, required 
     transitionDuration: const Duration(milliseconds: 260),
     pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),
     transitionBuilder: (ctx, anim, _, __) {
-      final curved = CurvedAnimation(parent: anim, curve: Curves.easeOutCubic, reverseCurve: Curves.easeInCubic);
+      final curved = CurvedAnimation(
+          parent: anim,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic);
       return Stack(
         children: [
           // Soft blur backdrop
@@ -23,7 +27,8 @@ Future<void> showAnimatedResultsDialog({required BuildContext context, required 
             child: AnimatedBuilder(
               animation: anim,
               builder: (context, _) => BackdropFilter(
-                filter: ui.ImageFilter.blur(sigmaX: 6 * anim.value, sigmaY: 6 * anim.value),
+                filter: ui.ImageFilter.blur(
+                    sigmaX: 6 * anim.value, sigmaY: 6 * anim.value),
                 child: const SizedBox.shrink(),
               ),
             ),
@@ -70,7 +75,9 @@ class _ResultsCard extends StatelessWidget {
     final blueBase = controller.scoreBlueBase();
     final redTotal = controller.scoreRedTotal();
     final blueTotal = controller.scoreBlueTotal();
-    final winner = redTotal == blueTotal ? null : (redTotal > blueTotal ? CellState.red : CellState.blue);
+    final winner = redTotal == blueTotal
+        ? null
+        : (redTotal > blueTotal ? CellState.red : CellState.blue);
 
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
@@ -79,8 +86,16 @@ class _ResultsCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(22),
-          gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [bg, bg]),
-          boxShadow: const [BoxShadow(color: AppColors.dialogShadow, blurRadius: 24, offset: Offset(0, 12))],
+          gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [bg, bg]),
+          boxShadow: const [
+            BoxShadow(
+                color: AppColors.dialogShadow,
+                blurRadius: 24,
+                offset: Offset(0, 12))
+          ],
           border: Border.all(color: AppColors.dialogOutline, width: 1),
         ),
         child: ConstrainedBox(
@@ -102,22 +117,34 @@ class _ResultsCard extends StatelessWidget {
                       if (winner == CellState.red)
                         Padding(
                           padding: const EdgeInsets.only(right: 8.0),
-                          child: Image.asset('assets/icons/winner-removebg.png', width: 36, height: 36),
+                          child: Image.asset('assets/icons/winner-removebg.png',
+                              width: 36, height: 36),
                         )
                       else if (winner == CellState.blue)
                         Padding(
                           padding: const EdgeInsets.only(right: 8.0),
-                          child: Image.asset('assets/icons/looser-removebg.png', width: 36, height: 36),
+                          child: Image.asset('assets/icons/looser-removebg.png',
+                              width: 36, height: 36),
                         ),
                       Text(
-                        winner == null ? 'Draw' : (winner == CellState.red ? 'Player Wins!' : 'AI Wins!'),
-                        style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900),
+                        winner == null
+                            ? 'Draw'
+                            : (winner == CellState.red
+                                ? 'Player Wins!'
+                                : 'AI Wins!'),
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900),
                       ),
                       const Spacer(),
                       Container(
                         width: 36,
                         height: 36,
-                        decoration: BoxDecoration(color: Colors.white.withOpacity(0.08), shape: BoxShape.circle, border: Border.all(color: Colors.white24)),
+                        decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.08),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white24)),
                         child: IconButton(
                           padding: EdgeInsets.zero,
                           iconSize: 20,
@@ -129,9 +156,21 @@ class _ResultsCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
 
-                  _scoreRow(label: 'Player', color: AppColors.red, base: redBase, bonus: controller.bonusRed, total: redTotal, highlight: winner == CellState.red),
+                  _scoreRow(
+                      label: 'Player',
+                      color: AppColors.red,
+                      base: redBase,
+                      bonus: controller.bonusRed,
+                      total: redTotal,
+                      highlight: winner == CellState.red),
                   const SizedBox(height: 8),
-                  _scoreRow(label: 'AI', color: AppColors.blue, base: blueBase, bonus: controller.bonusBlue, total: blueTotal, highlight: winner == CellState.blue),
+                  _scoreRow(
+                      label: 'AI',
+                      color: AppColors.blue,
+                      base: blueBase,
+                      bonus: controller.bonusBlue,
+                      total: blueTotal,
+                      highlight: winner == CellState.blue),
 
                   const SizedBox(height: 12),
                   // Points and time on the same row if fit; otherwise wrap
@@ -142,7 +181,9 @@ class _ResultsCard extends StatelessWidget {
                       runSpacing: 10,
                       children: [
                         AnimatedTotalCounter(value: controller.totalUserScore),
-                        _timeChip(label: 'Time played', value: _formatDuration(controller.lastGamePlayMs)),
+                        _timeChip(
+                            label: 'Time played',
+                            value: _formatDuration(controller.lastGamePlayMs)),
                       ],
                     ),
                   ),
@@ -151,8 +192,14 @@ class _ResultsCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _statChip(icon: Icons.rotate_left, label: 'Player turns', value: controller.turnsRed.toString()),
-                      _statChip(icon: Icons.rotate_right, label: 'AI turns', value: controller.turnsBlue.toString()),
+                      _statChip(
+                          icon: Icons.rotate_left,
+                          label: 'Player turns',
+                          value: controller.turnsRed.toString()),
+                      _statChip(
+                          icon: Icons.rotate_right,
+                          label: 'AI turns',
+                          value: controller.turnsBlue.toString()),
                     ],
                   ),
 
@@ -175,39 +222,64 @@ class _ResultsCard extends StatelessWidget {
     );
   }
 
-  Widget _scoreRow({required String label, required Color color, required int base, required int bonus, required int total, required bool highlight}) {
+  Widget _scoreRow(
+      {required String label,
+      required Color color,
+      required int base,
+      required int bonus,
+      required int total,
+      required bool highlight}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: highlight ? AppColors.brandGold : Colors.white24, width: highlight ? 2 : 1),
+        border: Border.all(
+            color: highlight ? AppColors.brandGold : Colors.white24,
+            width: highlight ? 2 : 1),
       ),
       child: Row(
         children: [
-          Container(width: 16, height: 16, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4))),
+          Container(
+              width: 16,
+              height: 16,
+              decoration: BoxDecoration(
+                  color: color, borderRadius: BorderRadius.circular(4))),
           const SizedBox(width: 8),
-          Text(label, style: TextStyle(color: highlight ? AppColors.brandGold : Colors.white, fontWeight: FontWeight.w800)),
+          Text(label,
+              style: TextStyle(
+                  color: highlight ? AppColors.brandGold : Colors.white,
+                  fontWeight: FontWeight.w800)),
           const Spacer(),
           // Show only the number of boxes (base) without calculations
-          Text('$base', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
+          Text('$base',
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.w900)),
         ],
       ),
     );
   }
 
-  Widget _statChip({required IconData icon, required String label, required String value}) {
+  Widget _statChip(
+      {required IconData icon, required String label, required String value}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(color: Colors.white.withOpacity(0.08), borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.white24)),
+      decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white24)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, color: Colors.white70, size: 18),
           const SizedBox(width: 4),
-          Text(label, style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.w600)),
+          Text(label,
+              style: const TextStyle(
+                  color: Colors.white70, fontWeight: FontWeight.w600)),
           const SizedBox(width: 6),
-          Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
+          Text(value,
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.w900)),
         ],
       ),
     );
@@ -216,15 +288,23 @@ class _ResultsCard extends StatelessWidget {
   Widget _timeChip({required String label, required String value}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(color: Colors.white.withOpacity(0.08), borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.white24)),
+      decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white24)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Image.asset('assets/icons/duration-removebg.png', width: 18, height: 18),
+          Image.asset('assets/icons/duration-removebg.png',
+              width: 18, height: 18),
           const SizedBox(width: 4),
-          Text(label, style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.w600)),
+          Text(label,
+              style: const TextStyle(
+                  color: Colors.white70, fontWeight: FontWeight.w600)),
           const SizedBox(width: 6),
-          Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
+          Text(value,
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.w900)),
         ],
       ),
     );
@@ -246,7 +326,9 @@ class _TotalsSummary extends StatelessWidget {
     Widget line1 = Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text('Your total points', style: TextStyle(color: Colors.white70, fontWeight: FontWeight.w700)),
+        const Text('Your total points',
+            style:
+                TextStyle(color: Colors.white70, fontWeight: FontWeight.w700)),
         AnimatedTotalCounter(value: total),
       ],
     );
@@ -265,7 +347,10 @@ class _TotalsSummary extends StatelessWidget {
               children: [
                 const Icon(Icons.add, color: Colors.lightGreenAccent, size: 18),
                 const SizedBox(width: 6),
-                Text('+${awarded}', style: const TextStyle(color: Colors.lightGreenAccent, fontWeight: FontWeight.w900)),
+                Text('+${awarded}',
+                    style: const TextStyle(
+                        color: Colors.lightGreenAccent,
+                        fontWeight: FontWeight.w900)),
                 const SizedBox(width: 10),
                 const Text('= ', style: TextStyle(color: Colors.white54)),
                 AnimatedTotalCounter(value: newTotal),
@@ -305,13 +390,21 @@ class _ResultsActions extends StatelessWidget {
   Widget build(BuildContext context) {
     final ai = controller.aiLevel;
 
-    Widget outlineButton({required String text, required IconData icon, required VoidCallback onPressed}) => OutlinedButton.icon(
+    Widget outlineButton(
+            {required String text,
+            required IconData icon,
+            required VoidCallback onPressed}) =>
+        OutlinedButton.icon(
           onPressed: onPressed,
           icon: Icon(icon),
           label: Text(text),
         );
 
-    Widget goldButton({required String text, required IconData icon, required VoidCallback onPressed}) => ElevatedButton.icon(
+    Widget goldButton(
+            {required String text,
+            required IconData icon,
+            required VoidCallback onPressed}) =>
+        ElevatedButton.icon(
           onPressed: onPressed,
           icon: Icon(icon),
           label: Text(text),
@@ -418,7 +511,9 @@ class _MiniBoardPreview extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Final board', style: TextStyle(color: Colors.white70, fontWeight: FontWeight.w700)),
+            const Text('Final board',
+                style: TextStyle(
+                    color: Colors.white70, fontWeight: FontWeight.w700)),
             const SizedBox(height: 8),
             Column(
               mainAxisSize: MainAxisSize.min,

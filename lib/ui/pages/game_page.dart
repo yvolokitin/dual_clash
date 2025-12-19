@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import '../../logic/game_controller.dart';
@@ -6,134 +5,182 @@ import '../../core/colors.dart';
 import '../../core/constants.dart';
 
 import '../../models/cell_state.dart';
-import 'package:two_touch_game_flutter/ui/widgets/board_widget.dart';
-import 'package:two_touch_game_flutter/ui/widgets/game_counter_chip.dart';
+import 'package:dual_clash/ui/widgets/board_widget.dart';
+import 'package:dual_clash/ui/widgets/game_counter_chip.dart';
 import 'settings_page.dart';
 import 'profile_page.dart';
 import 'help_page.dart';
 import 'history_page.dart';
 import 'statistics_page.dart';
 import 'main_menu_page.dart';
-import 'package:two_touch_game_flutter/ui/widgets/animated_total_counter.dart';
-import 'package:two_touch_game_flutter/ui/widgets/live_points_chip.dart';
+import 'package:dual_clash/ui/widgets/animated_total_counter.dart';
+import 'package:dual_clash/ui/widgets/live_points_chip.dart';
 
 class GameDialogs {
-  static Future<void> showSaveGameDialog({required BuildContext context, required GameController controller}) async {
-  final bg = AppColors.bg;
-  final red = controller.scoreRedBase();
-  final blue = controller.scoreBlueBase();
-  final now = DateTime.now();
-  String two(int v) => v.toString().padLeft(2, '0');
-  final belt = AiBelt.nameFor(controller.aiLevel).replaceAll(' ', '_');
-  final defaultName = '${now.year}-${two(now.month)}-${two(now.day)}-${two(now.hour)}-${two(now.minute)}-${two(now.second)}-AI_${belt}-RED-${red}-BLUE-${blue}';
-  final textCtrl = TextEditingController(text: defaultName);
+  static Future<void> showSaveGameDialog(
+      {required BuildContext context,
+      required GameController controller}) async {
+    final bg = AppColors.bg;
+    final red = controller.scoreRedBase();
+    final blue = controller.scoreBlueBase();
+    final now = DateTime.now();
+    String two(int v) => v.toString().padLeft(2, '0');
+    final belt = AiBelt.nameFor(controller.aiLevel).replaceAll(' ', '_');
+    final defaultName =
+        '${now.year}-${two(now.month)}-${two(now.day)}-${two(now.hour)}-${two(now.minute)}-${two(now.second)}-AI_${belt}-RED-${red}-BLUE-${blue}';
+    final textCtrl = TextEditingController(text: defaultName);
 
-  await showGeneralDialog<void>(
-    context: context,
-    barrierDismissible: true,
-    barrierLabel: 'Save Game',
-    barrierColor: Colors.black.withOpacity(0.55),
-    transitionDuration: const Duration(milliseconds: 260),
-    pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),
-    transitionBuilder: (ctx, anim, a2, child) {
-      final curved = CurvedAnimation(parent: anim, curve: Curves.easeOutCubic, reverseCurve: Curves.easeInCubic);
-      return Stack(
-        children: [
-          Positioned.fill(
-            child: AnimatedBuilder(
-              animation: anim,
-              builder: (context, _) => BackdropFilter(
-                filter: ui.ImageFilter.blur(sigmaX: 6 * anim.value, sigmaY: 6 * anim.value),
-                child: const SizedBox.shrink(),
+    await showGeneralDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Save Game',
+      barrierColor: Colors.black.withOpacity(0.55),
+      transitionDuration: const Duration(milliseconds: 260),
+      pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),
+      transitionBuilder: (ctx, anim, a2, child) {
+        final curved = CurvedAnimation(
+            parent: anim,
+            curve: Curves.easeOutCubic,
+            reverseCurve: Curves.easeInCubic);
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: AnimatedBuilder(
+                animation: anim,
+                builder: (context, _) => BackdropFilter(
+                  filter: ui.ImageFilter.blur(
+                      sigmaX: 6 * anim.value, sigmaY: 6 * anim.value),
+                  child: const SizedBox.shrink(),
+                ),
               ),
             ),
-          ),
-          Center(
-            child: FadeTransition(
-              opacity: curved,
-              child: ScaleTransition(
-                scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
-                child: Dialog(
-                  insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-                  backgroundColor: Colors.transparent,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(22),
-                      gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [bg, bg]),
-                      boxShadow: const [BoxShadow(color: AppColors.dialogShadow, blurRadius: 24, offset: Offset(0, 12))],
-                      border: Border.all(color: AppColors.dialogOutline, width: 1),
-                    ),
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 560, maxHeight: 400),
-                      child: Padding(
-                        padding: const EdgeInsets.all(18.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Row(
-                              children: [
-                                const Spacer(),
-                                const Text('Save game', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800)),
-                                const Spacer(),
-                                Container(
-                                  width: 36,
-                                  height: 36,
-                                  decoration: BoxDecoration(color: Colors.white.withOpacity(0.08), shape: BoxShape.circle, border: Border.all(color: Colors.white24)),
-                                  child: IconButton(
-                                    padding: EdgeInsets.zero,
-                                    iconSize: 20,
-                                    icon: const Icon(Icons.close, color: Colors.white70),
-                                    onPressed: () => Navigator.of(context).pop(),
+            Center(
+              child: FadeTransition(
+                opacity: curved,
+                child: ScaleTransition(
+                  scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
+                  child: Dialog(
+                    insetPadding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 24),
+                    backgroundColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(22)),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(22),
+                        gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [bg, bg]),
+                        boxShadow: const [
+                          BoxShadow(
+                              color: AppColors.dialogShadow,
+                              blurRadius: 24,
+                              offset: Offset(0, 12))
+                        ],
+                        border: Border.all(
+                            color: AppColors.dialogOutline, width: 1),
+                      ),
+                      child: ConstrainedBox(
+                        constraints:
+                            const BoxConstraints(maxWidth: 560, maxHeight: 400),
+                        child: Padding(
+                          padding: const EdgeInsets.all(18.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Row(
+                                children: [
+                                  const Spacer(),
+                                  const Text('Save game',
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w800)),
+                                  const Spacer(),
+                                  Container(
+                                    width: 36,
+                                    height: 36,
+                                    decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.08),
+                                        shape: BoxShape.circle,
+                                        border:
+                                            Border.all(color: Colors.white24)),
+                                    child: IconButton(
+                                      padding: EdgeInsets.zero,
+                                      iconSize: 20,
+                                      icon: const Icon(Icons.close,
+                                          color: Colors.white70),
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            const Text('Name for this save', style: TextStyle(color: Colors.white70, fontWeight: FontWeight.w700)),
-                            const SizedBox(height: 8),
-                            Container(
-                              decoration: BoxDecoration(color: Colors.white.withOpacity(0.06), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white24, width: 1)),
-                              child: TextField(
-                                controller: textCtrl,
-                                style: const TextStyle(color: Colors.white),
-                                decoration: const InputDecoration(
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                                  border: InputBorder.none,
-                                  hintText: 'Enter name...',
-                                  hintStyle: TextStyle(color: Colors.white54),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              const Text('Name for this save',
+                                  style: TextStyle(
+                                      color: Colors.white70,
+                                      fontWeight: FontWeight.w700)),
+                              const SizedBox(height: 8),
+                              Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.06),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                        color: Colors.white24, width: 1)),
+                                child: TextField(
+                                  controller: textCtrl,
+                                  style: const TextStyle(color: Colors.white),
+                                  decoration: const InputDecoration(
+                                    contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 12),
+                                    border: InputBorder.none,
+                                    hintText: 'Enter name...',
+                                    hintStyle: TextStyle(color: Colors.white54),
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 14),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: OutlinedButton(
-                                    onPressed: () => Navigator.of(context).pop(),
-                                    style: OutlinedButton.styleFrom(foregroundColor: Colors.white70, side: const BorderSide(color: Colors.white24)),
-                                    child: const Text('Cancel'),
+                              const SizedBox(height: 14),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: OutlinedButton(
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(),
+                                      style: OutlinedButton.styleFrom(
+                                          foregroundColor: Colors.white70,
+                                          side: const BorderSide(
+                                              color: Colors.white24)),
+                                      child: const Text('Cancel'),
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: ElevatedButton.icon(
-                                    onPressed: () async {
-                                      final name = textCtrl.text.trim().isEmpty ? defaultName : textCtrl.text.trim();
-                                      await controller.saveCurrentGame(name: name);
-                                      if (context.mounted) {
-                                        Navigator.of(context).pop();
-                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Game saved')));
-                                      }
-                                    },
-                                    icon: const Icon(Icons.save),
-                                    label: const Text('Save'),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: ElevatedButton.icon(
+                                      onPressed: () async {
+                                        final name =
+                                            textCtrl.text.trim().isEmpty
+                                                ? defaultName
+                                                : textCtrl.text.trim();
+                                        await controller.saveCurrentGame(
+                                            name: name);
+                                        if (context.mounted) {
+                                          Navigator.of(context).pop();
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(const SnackBar(
+                                                  content: Text('Game saved')));
+                                        }
+                                      },
+                                      icon: const Icon(Icons.save),
+                                      label: const Text('Save'),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -141,20 +188,21 @@ class GameDialogs {
                 ),
               ),
             ),
-          ),
-        ],
-      );
-    },
-  );
-}
+          ],
+        );
+      },
+    );
+  }
 }
 
 class GamePage extends StatelessWidget {
-  static const _chipTextStyle = TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white);
+  static const _chipTextStyle =
+      TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white);
   final GameController controller;
   const GamePage({super.key, required this.controller});
 
-  bool _isWide(BuildContext context) => MediaQuery.of(context).size.width >= 600;
+  bool _isWide(BuildContext context) =>
+      MediaQuery.of(context).size.width >= 600;
 
   void _maybeShowResultsDialog(BuildContext context) {
     if (controller.gameOver && !controller.resultsShown) {
@@ -182,7 +230,8 @@ class GamePage extends StatelessWidget {
                 ? null
                 : (redTotal > blueTotal ? CellState.red : CellState.blue))
             : null;
-        final bool finishedAndClosed = controller.gameOver && controller.resultsShown;
+        final bool finishedAndClosed =
+            controller.gameOver && controller.resultsShown;
 
         // Auto-show end results dialog once
         _maybeShowResultsDialog(context);
@@ -194,7 +243,8 @@ class GamePage extends StatelessWidget {
               children: [
                 // Top bar: centered icons only, order: Replay - Help - Settings - Profile - History
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 12.0),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 6.0, horizontal: 12.0),
                   child: SizedBox(
                     height: 60,
                     child: Center(
@@ -203,11 +253,17 @@ class GamePage extends StatelessWidget {
                         children: [
                           // Main Menu
                           IconButton(
-                            icon: Image.asset('assets/icons/mainmenu-removebg.png', width: 42, height: 42),
+                            icon: Image.asset(
+                                'assets/icons/mainmenu-removebg.png',
+                                width: 42,
+                                height: 42),
                             tooltip: 'Main Menu',
                             onPressed: () async {
-                              final result = await Navigator.of(context).push<String?>(
-                                buildMainMenuRoute(builder: (ctx) => MainMenuPage(controller: controller)),
+                              final result =
+                                  await Navigator.of(context).push<String?>(
+                                buildMainMenuRoute(
+                                    builder: (ctx) =>
+                                        MainMenuPage(controller: controller)),
                               );
                               if (result == 'challenge') {
                                 // Returned with reverse animation
@@ -222,14 +278,20 @@ class GamePage extends StatelessWidget {
                           // Replay (Restart game) / Play next when finished
                           finishedAndClosed
                               ? IconButton(
-                                  icon: Image.asset('assets/icons/play-removebg.png', width: 42, height: 42),
+                                  icon: Image.asset(
+                                      'assets/icons/play-removebg.png',
+                                      width: 42,
+                                      height: 42),
                                   tooltip: 'Play next',
                                   onPressed: () {
                                     controller.newGame();
                                   },
                                 )
                               : IconButton(
-                                  icon: Image.asset('assets/icons/restart-removebg.png', width: 42, height: 42),
+                                  icon: Image.asset(
+                                      'assets/icons/restart-removebg.png',
+                                      width: 42,
+                                      height: 42),
                                   tooltip: 'Restart',
                                   onPressed: () async {
                                     await _confirmRestart(context);
@@ -238,42 +300,58 @@ class GamePage extends StatelessWidget {
                           const SizedBox(width: 6),
                           // Help
                           IconButton(
-                            icon: Image.asset('assets/icons/help-removebg.png', width: 42, height: 42),
+                            icon: Image.asset('assets/icons/help-removebg.png',
+                                width: 42, height: 42),
                             tooltip: 'Help',
                             onPressed: () async {
-                              await showAnimatedHelpDialog(context: context, controller: controller);
+                              await showAnimatedHelpDialog(
+                                  context: context, controller: controller);
                             },
                           ),
                           // Settings
                           IconButton(
-                            icon: Image.asset('assets/icons/settings-removebg.png', width: 42, height: 42),
+                            icon: Image.asset(
+                                'assets/icons/settings-removebg.png',
+                                width: 42,
+                                height: 42),
                             tooltip: 'Settings',
                             onPressed: () async {
-                              await showAnimatedSettingsDialog(context: context, controller: controller);
+                              await showAnimatedSettingsDialog(
+                                  context: context, controller: controller);
                             },
                           ),
                           // Profile
                           IconButton(
-                            icon: Image.asset('assets/icons/profile-removebg.png', width: 42, height: 42),
+                            icon: Image.asset(
+                                'assets/icons/profile-removebg.png',
+                                width: 42,
+                                height: 42),
                             tooltip: 'Profile',
                             onPressed: () async {
-                              await showAnimatedProfileDialog(context: context, controller: controller);
+                              await showAnimatedProfileDialog(
+                                  context: context, controller: controller);
                             },
                           ),
                           // History
                           IconButton(
-                            icon: Image.asset('assets/icons/history-removebg.png', width: 42, height: 42),
+                            icon: Image.asset(
+                                'assets/icons/history-removebg.png',
+                                width: 42,
+                                height: 42),
                             tooltip: 'History',
                             onPressed: () async {
-                              await showAnimatedHistoryDialog(context: context, controller: controller);
+                              await showAnimatedHistoryDialog(
+                                  context: context, controller: controller);
                             },
                           ),
                           // Save
                           IconButton(
-                            icon: Image.asset('assets/icons/save-removebg.png', width: 42, height: 42),
+                            icon: Image.asset('assets/icons/save-removebg.png',
+                                width: 42, height: 42),
                             tooltip: 'Save game',
                             onPressed: () async {
-                              await GameDialogs.showSaveGameDialog(context: context, controller: controller);
+                              await GameDialogs.showSaveGameDialog(
+                                  context: context, controller: controller);
                             },
                           ),
                         ],
@@ -284,10 +362,13 @@ class GamePage extends StatelessWidget {
 
                 // Score row before the board — match board width (9 cells) and center the whole row
                 Padding(
-                  padding: const EdgeInsets.only(top: 4.0, bottom: 14.0, left: 16.0, right: 16.0),
+                  padding: const EdgeInsets.only(
+                      top: 4.0, bottom: 14.0, left: 16.0, right: 16.0),
                   child: Center(
                     child: SizedBox(
-                      width: controller.boardPixelSize > 0 ? controller.boardPixelSize : null,
+                      width: controller.boardPixelSize > 0
+                          ? controller.boardPixelSize
+                          : null,
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
@@ -297,20 +378,26 @@ class GamePage extends StatelessWidget {
                               points: redBase,
                               label: 'Player',
                               color: AppColors.red,
-                              isTurn: false, // Do not select player card when it is player turn
+                              isTurn:
+                                  false, // Do not select player card when it is player turn
                               highlight: winner == CellState.red,
                             ),
                           ),
                           Align(
-                              alignment: Alignment.center,
-                              child: GameCounterChip(points: controller.redGamePoints, borderColor: AiBelt.colorFor(controller.aiLevel), borderWidth: 4),
-                            ),
+                            alignment: Alignment.center,
+                            child: GameCounterChip(
+                                points: controller.redGamePoints,
+                                borderColor:
+                                    AiBelt.colorFor(controller.aiLevel),
+                                borderWidth: 4),
+                          ),
                           Align(
                             alignment: Alignment.centerRight,
                             child: _aiPlayerCard(
                               context: context,
                               points: blueBase,
-                              beltLabel: 'AI (${AiBelt.nameFor(controller.aiLevel)})',
+                              beltLabel:
+                                  'AI (${AiBelt.nameFor(controller.aiLevel)})',
                               isTurn: false,
                               highlight: winner == CellState.blue,
                             ),
@@ -330,17 +417,25 @@ class GamePage extends StatelessWidget {
                         BoardWidget(controller: controller),
                         if (controller.isAiThinking || controller.isSimulating)
                           Container(
-                            decoration: BoxDecoration(color: Colors.black.withOpacity(0.35), borderRadius: BorderRadius.circular(12)),
+                            decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.35),
+                                borderRadius: BorderRadius.circular(12)),
                             alignment: Alignment.center,
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 const SizedBox(height: 8),
-                                const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                                const CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white)),
                                 const SizedBox(height: 10),
                                 Text(
-                                  controller.isSimulating ? 'Simulating game...' : 'AI is thinking...',
-                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+                                  controller.isSimulating
+                                      ? 'Simulating game...'
+                                      : 'AI is thinking...',
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w700),
                                 ),
                               ],
                             ),
@@ -358,35 +453,45 @@ class GamePage extends StatelessWidget {
                     children: [
                       // Simulate button
                       IconButton(
-                        icon: Image.asset('assets/icons/simulate-removebg.png', width: 42, height: 42),
+                        icon: Image.asset('assets/icons/simulate-removebg.png',
+                            width: 42, height: 42),
                         tooltip: 'Simulate game',
-                        onPressed: (controller.isSimulating || controller.isAiThinking)
-                            ? null
-                            : () async {
-                                await controller.simulateGame();
-                              },
+                        onPressed:
+                            (controller.isSimulating || controller.isAiThinking)
+                                ? null
+                                : () async {
+                                    await controller.simulateGame();
+                                  },
                       ),
                       const SizedBox(width: 16),
                       // Statistics button
                       IconButton(
-                        icon: Image.asset('assets/icons/statistics-removebg.png', width: 42, height: 42),
+                        icon: Image.asset(
+                            'assets/icons/statistics-removebg.png',
+                            width: 42,
+                            height: 42),
                         tooltip: 'Statistics',
                         onPressed: () async {
-                          await showAnimatedStatisticsDialog(context: context, controller: controller);
+                          await showAnimatedStatisticsDialog(
+                              context: context, controller: controller);
                         },
                       ),
                       const SizedBox(width: 16),
                       // Undo button (hidden when game finished and results closed)
                       if (!finishedAndClosed)
                         IconButton(
-                          icon: Image.asset('assets/icons/undo-removebg.png', width: 42, height: 42),
+                          icon: Image.asset('assets/icons/undo-removebg.png',
+                              width: 42, height: 42),
                           tooltip: 'Undo to previous user turn',
-                          onPressed: controller.canUndo ? () { controller.undoToPreviousUserTurn(); } : null,
+                          onPressed: controller.canUndo
+                              ? () {
+                                  controller.undoToPreviousUserTurn();
+                                }
+                              : null,
                         ),
                     ],
                   ),
                 ),
-
               ],
             ),
           ),
@@ -404,7 +509,10 @@ class GamePage extends StatelessWidget {
       transitionDuration: const Duration(milliseconds: 260),
       pageBuilder: (ctx, anim1, anim2) => const SizedBox.shrink(),
       transitionBuilder: (ctx, anim, secondaryAnim, child) {
-        final curved = CurvedAnimation(parent: anim, curve: Curves.easeOutCubic, reverseCurve: Curves.easeInCubic);
+        final curved = CurvedAnimation(
+            parent: anim,
+            curve: Curves.easeOutCubic,
+            reverseCurve: Curves.easeInCubic);
         final bg = AppColors.bg;
         return Stack(
           children: [
@@ -415,7 +523,8 @@ class GamePage extends StatelessWidget {
                 curve: Curves.easeOutCubic,
                 builder: (context, sigma, _) {
                   return BackdropFilter(
-                    filter: ui.ImageFilter.blur(sigmaX: sigma * anim.value, sigmaY: sigma * anim.value),
+                    filter: ui.ImageFilter.blur(
+                        sigmaX: sigma * anim.value, sigmaY: sigma * anim.value),
                     child: const SizedBox.shrink(),
                   );
                 },
@@ -427,9 +536,11 @@ class GamePage extends StatelessWidget {
                 child: ScaleTransition(
                   scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                   child: Dialog(
-                    insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                    insetPadding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 24),
                     backgroundColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(22)),
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(22),
@@ -439,12 +550,17 @@ class GamePage extends StatelessWidget {
                           colors: [bg, bg],
                         ),
                         boxShadow: const [
-                          BoxShadow(color: AppColors.dialogShadow, blurRadius: 24, offset: Offset(0, 12)),
+                          BoxShadow(
+                              color: AppColors.dialogShadow,
+                              blurRadius: 24,
+                              offset: Offset(0, 12)),
                         ],
-                        border: Border.all(color: AppColors.dialogOutline, width: 1),
+                        border: Border.all(
+                            color: AppColors.dialogOutline, width: 1),
                       ),
                       child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 520, maxHeight: 520),
+                        constraints:
+                            const BoxConstraints(maxWidth: 520, maxHeight: 520),
                         child: Padding(
                           padding: const EdgeInsets.all(18.0),
                           child: Column(
@@ -470,13 +586,16 @@ class GamePage extends StatelessWidget {
                                     decoration: BoxDecoration(
                                       color: Colors.white.withOpacity(0.08),
                                       shape: BoxShape.circle,
-                                      border: Border.all(color: Colors.white24, width: 1),
+                                      border: Border.all(
+                                          color: Colors.white24, width: 1),
                                     ),
                                     child: IconButton(
                                       padding: EdgeInsets.zero,
                                       iconSize: 20,
-                                      icon: const Icon(Icons.close, color: Colors.white70),
-                                      onPressed: () => Navigator.of(ctx).pop(false),
+                                      icon: const Icon(Icons.close,
+                                          color: Colors.white70),
+                                      onPressed: () =>
+                                          Navigator.of(ctx).pop(false),
                                     ),
                                   ),
                                 ],
@@ -484,34 +603,51 @@ class GamePage extends StatelessWidget {
                               const SizedBox(height: 12),
                               const Text(
                                 'Are you sure you want to restart the game? All score points will be lost.',
-                                style: TextStyle(color: AppColors.dialogSubtitle, fontWeight: FontWeight.w600),
+                                style: TextStyle(
+                                    color: AppColors.dialogSubtitle,
+                                    fontWeight: FontWeight.w600),
                               ),
                               const SizedBox(height: 18),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   TextButton(
-                                    onPressed: () => Navigator.of(ctx).pop(false),
+                                    onPressed: () =>
+                                        Navigator.of(ctx).pop(false),
                                     style: TextButton.styleFrom(
-                                      backgroundColor: Colors.white.withOpacity(0.08),
+                                      backgroundColor:
+                                          Colors.white.withOpacity(0.08),
                                       foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: Colors.white24)),
-                                      textStyle: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 16, vertical: 10),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          side: const BorderSide(
+                                              color: Colors.white24)),
+                                      textStyle: const TextStyle(
+                                          fontWeight: FontWeight.w800,
+                                          letterSpacing: 0.2),
                                     ),
                                     child: const Text('No'),
                                   ),
                                   const SizedBox(width: 10),
                                   ElevatedButton(
-                                    onPressed: () => Navigator.of(ctx).pop(true),
+                                    onPressed: () =>
+                                        Navigator.of(ctx).pop(true),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: AppColors.brandGold,
                                       foregroundColor: const Color(0xFF2B221D),
                                       shadowColor: Colors.black54,
                                       elevation: 4,
-                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                      textStyle: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 16, vertical: 10),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12)),
+                                      textStyle: const TextStyle(
+                                          fontWeight: FontWeight.w800,
+                                          letterSpacing: 0.2),
                                     ),
                                     child: const Text('Restart'),
                                   ),
@@ -536,24 +672,42 @@ class GamePage extends StatelessWidget {
     }
   }
 
-  Widget _playerCard({required int points, required String label, required Color color, required bool isTurn, required bool? highlight}) {
+  Widget _playerCard(
+      {required int points,
+      required String label,
+      required Color color,
+      required bool isTurn,
+      required bool? highlight}) {
     // Double-line border when it's this player's turn; otherwise subtle border.
     final innerCard = Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isTurn ? AppColors.brandGold : Colors.white24, width: isTurn ? 2 : 1),
+        border: Border.all(
+            color: isTurn ? AppColors.brandGold : Colors.white24,
+            width: isTurn ? 2 : 1),
         boxShadow: isTurn
-            ? const [BoxShadow(color: Color(0x66FFC34A), blurRadius: 12, spreadRadius: 1)]
+            ? const [
+                BoxShadow(
+                    color: Color(0x66FFC34A), blurRadius: 12, spreadRadius: 1)
+              ]
             : const [],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('$points', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+          Text('$points',
+              style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white)),
           const SizedBox(width: 8),
-          Container(width: 16, height: 16, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4))),
+          Container(
+              width: 16,
+              height: 16,
+              decoration: BoxDecoration(
+                  color: color, borderRadius: BorderRadius.circular(4))),
           const SizedBox(width: 8),
           Text(
             label, // Removed the word 'TURN'; turn is indicated by double border.
@@ -578,10 +732,15 @@ class GamePage extends StatelessWidget {
       ),
       child: innerCard,
     );
-   }
+  }
 
   // Special blue AI player card: order AI(label) - blue box - number, tappable to change AI level
-  Widget _aiPlayerCard({required BuildContext context, required int points, required String beltLabel, required bool isTurn, required bool? highlight}) {
+  Widget _aiPlayerCard(
+      {required BuildContext context,
+      required int points,
+      required String beltLabel,
+      required bool isTurn,
+      required bool? highlight}) {
     final inner = InkWell(
       borderRadius: BorderRadius.circular(12),
       onTap: () => _openAiDifficultySelector(context),
@@ -590,9 +749,14 @@ class GamePage extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.06),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isTurn ? AppColors.brandGold : Colors.white24, width: isTurn ? 2 : 1),
+          border: Border.all(
+              color: isTurn ? AppColors.brandGold : Colors.white24,
+              width: isTurn ? 2 : 1),
           boxShadow: isTurn
-              ? const [BoxShadow(color: Color(0x66FFC34A), blurRadius: 12, spreadRadius: 1)]
+              ? const [
+                  BoxShadow(
+                      color: Color(0x66FFC34A), blurRadius: 12, spreadRadius: 1)
+                ]
               : const [],
         ),
         child: Row(
@@ -607,9 +771,18 @@ class GamePage extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            Container(width: 16, height: 16, decoration: BoxDecoration(color: AppColors.blue, borderRadius: BorderRadius.circular(4))),
+            Container(
+                width: 16,
+                height: 16,
+                decoration: BoxDecoration(
+                    color: AppColors.blue,
+                    borderRadius: BorderRadius.circular(4))),
             const SizedBox(width: 8),
-            Text('$points', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+            Text('$points',
+                style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white)),
           ],
         ),
       ),
@@ -637,7 +810,10 @@ class GamePage extends StatelessWidget {
       transitionDuration: const Duration(milliseconds: 260),
       pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),
       transitionBuilder: (ctx, anim, a2, child) {
-        final curved = CurvedAnimation(parent: anim, curve: Curves.easeOutCubic, reverseCurve: Curves.easeInCubic);
+        final curved = CurvedAnimation(
+            parent: anim,
+            curve: Curves.easeOutCubic,
+            reverseCurve: Curves.easeInCubic);
         final bg = AppColors.bg;
         return Stack(
           children: [
@@ -645,7 +821,8 @@ class GamePage extends StatelessWidget {
               child: AnimatedBuilder(
                 animation: anim,
                 builder: (context, _) => BackdropFilter(
-                  filter: ui.ImageFilter.blur(sigmaX: 6 * anim.value, sigmaY: 6 * anim.value),
+                  filter: ui.ImageFilter.blur(
+                      sigmaX: 6 * anim.value, sigmaY: 6 * anim.value),
                   child: const SizedBox.shrink(),
                 ),
               ),
@@ -656,18 +833,30 @@ class GamePage extends StatelessWidget {
                 child: ScaleTransition(
                   scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                   child: Dialog(
-                    insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                    insetPadding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 24),
                     backgroundColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(22)),
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(22),
-                        gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [bg, bg]),
-                        boxShadow: const [BoxShadow(color: AppColors.dialogShadow, blurRadius: 24, offset: Offset(0, 12))],
-                        border: Border.all(color: AppColors.dialogOutline, width: 1),
+                        gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [bg, bg]),
+                        boxShadow: const [
+                          BoxShadow(
+                              color: AppColors.dialogShadow,
+                              blurRadius: 24,
+                              offset: Offset(0, 12))
+                        ],
+                        border: Border.all(
+                            color: AppColors.dialogOutline, width: 1),
                       ),
                       child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 560, maxHeight: 520),
+                        constraints:
+                            const BoxConstraints(maxWidth: 560, maxHeight: 520),
                         child: Padding(
                           padding: const EdgeInsets.all(18.0),
                           child: StatefulBuilder(
@@ -679,17 +868,28 @@ class GamePage extends StatelessWidget {
                                   Row(
                                     children: [
                                       const Spacer(),
-                                      const Text('AI difficulty', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800)),
+                                      const Text('AI difficulty',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.w800)),
                                       const Spacer(),
                                       Container(
                                         width: 36,
                                         height: 36,
-                                        decoration: BoxDecoration(color: Colors.white.withOpacity(0.08), shape: BoxShape.circle, border: Border.all(color: Colors.white24)),
+                                        decoration: BoxDecoration(
+                                            color:
+                                                Colors.white.withOpacity(0.08),
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                                color: Colors.white24)),
                                         child: IconButton(
                                           padding: EdgeInsets.zero,
                                           iconSize: 20,
-                                          icon: const Icon(Icons.close, color: Colors.white70),
-                                          onPressed: () => Navigator.of(ctx).pop(),
+                                          icon: const Icon(Icons.close,
+                                              color: Colors.white70),
+                                          onPressed: () =>
+                                              Navigator.of(ctx).pop(),
                                         ),
                                       ),
                                     ],
@@ -699,12 +899,15 @@ class GamePage extends StatelessWidget {
                                     spacing: 8,
                                     runSpacing: 8,
                                     children: [
-                                      for (int lvl = 1; lvl <= 7; lvl++) _aiLevelChoiceTile(
-                                        selected: tempLevel == lvl,
-                                        label: AiBelt.nameFor(lvl),
-                                        dot: AiBelt.colorFor(lvl),
-                                        onTap: () => setState(() { tempLevel = lvl; }),
-                                      ),
+                                      for (int lvl = 1; lvl <= 7; lvl++)
+                                        _aiLevelChoiceTile(
+                                          selected: tempLevel == lvl,
+                                          label: AiBelt.nameFor(lvl),
+                                          dot: AiBelt.colorFor(lvl),
+                                          onTap: () => setState(() {
+                                            tempLevel = lvl;
+                                          }),
+                                        ),
                                     ],
                                   ),
                                   const SizedBox(height: 16),
@@ -712,13 +915,22 @@ class GamePage extends StatelessWidget {
                                     children: [
                                       Expanded(
                                         child: TextButton(
-                                          onPressed: () => Navigator.of(ctx).pop(),
+                                          onPressed: () =>
+                                              Navigator.of(ctx).pop(),
                                           style: TextButton.styleFrom(
-                                            backgroundColor: Colors.white.withOpacity(0.08),
+                                            backgroundColor:
+                                                Colors.white.withOpacity(0.08),
                                             foregroundColor: Colors.white,
-                                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: Colors.white24)),
-                                            textStyle: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 16, vertical: 12),
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                                side: const BorderSide(
+                                                    color: Colors.white24)),
+                                            textStyle: const TextStyle(
+                                                fontWeight: FontWeight.w800,
+                                                letterSpacing: 0.2),
                                           ),
                                           child: const Text('Cancel'),
                                         ),
@@ -727,17 +939,26 @@ class GamePage extends StatelessWidget {
                                       Expanded(
                                         child: ElevatedButton(
                                           onPressed: () async {
-                                            await controller.setAiLevel(tempLevel);
-                                            if (context.mounted) Navigator.of(ctx).pop();
+                                            await controller
+                                                .setAiLevel(tempLevel);
+                                            if (context.mounted)
+                                              Navigator.of(ctx).pop();
                                           },
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: AppColors.brandGold,
-                                            foregroundColor: const Color(0xFF2B221D),
+                                            backgroundColor:
+                                                AppColors.brandGold,
+                                            foregroundColor:
+                                                const Color(0xFF2B221D),
                                             shadowColor: Colors.black54,
                                             elevation: 4,
-                                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                            textStyle: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 16, vertical: 12),
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12)),
+                                            textStyle: const TextStyle(
+                                                fontWeight: FontWeight.w800,
+                                                letterSpacing: 0.2),
                                           ),
                                           child: const Text('Confirm'),
                                         ),
@@ -761,8 +982,13 @@ class GamePage extends StatelessWidget {
     );
   }
 
-  Widget _aiLevelChoiceTile({required bool selected, required String label, required Color dot, required VoidCallback onTap}) {
-    final bg = selected ? Colors.white.withOpacity(0.12) : AppColors.dialogFieldBg;
+  Widget _aiLevelChoiceTile(
+      {required bool selected,
+      required String label,
+      required Color dot,
+      required VoidCallback onTap}) {
+    final bg =
+        selected ? Colors.white.withOpacity(0.12) : AppColors.dialogFieldBg;
     final border = selected ? AppColors.brandGold : Colors.white12;
     return Material(
       color: Colors.transparent,
@@ -779,11 +1005,17 @@ class GamePage extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(width: 10, height: 10, decoration: BoxDecoration(color: dot, shape: BoxShape.circle)),
+              Container(
+                  width: 10,
+                  height: 10,
+                  decoration:
+                      BoxDecoration(color: dot, shape: BoxShape.circle)),
               const SizedBox(width: 8),
               Text(
                 label,
-                style: TextStyle(color: Colors.white, fontWeight: selected ? FontWeight.w700 : FontWeight.w500),
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500),
               ),
             ],
           ),
@@ -793,11 +1025,9 @@ class GamePage extends StatelessWidget {
   }
 }
 
-
-
-
 // Results dialog
-Future<void> showAnimatedResultsDialog({required BuildContext context, required GameController controller}) {
+Future<void> showAnimatedResultsDialog(
+    {required BuildContext context, required GameController controller}) {
   return showGeneralDialog(
     context: context,
     barrierDismissible: true,
@@ -806,7 +1036,10 @@ Future<void> showAnimatedResultsDialog({required BuildContext context, required 
     transitionDuration: const Duration(milliseconds: 260),
     pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),
     transitionBuilder: (ctx, anim, _, __) {
-      final curved = CurvedAnimation(parent: anim, curve: Curves.easeOutCubic, reverseCurve: Curves.easeInCubic);
+      final curved = CurvedAnimation(
+          parent: anim,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic);
       return Stack(
         children: [
           // Soft blur backdrop
@@ -814,7 +1047,8 @@ Future<void> showAnimatedResultsDialog({required BuildContext context, required 
             child: AnimatedBuilder(
               animation: anim,
               builder: (context, _) => BackdropFilter(
-                filter: ui.ImageFilter.blur(sigmaX: 6 * anim.value, sigmaY: 6 * anim.value),
+                filter: ui.ImageFilter.blur(
+                    sigmaX: 6 * anim.value, sigmaY: 6 * anim.value),
                 child: const SizedBox.shrink(),
               ),
             ),
@@ -861,7 +1095,9 @@ class _ResultsCard extends StatelessWidget {
     final blueBase = controller.scoreBlueBase();
     final redTotal = controller.scoreRedTotal();
     final blueTotal = controller.scoreBlueTotal();
-    final winner = redTotal == blueTotal ? null : (redTotal > blueTotal ? CellState.red : CellState.blue);
+    final winner = redTotal == blueTotal
+        ? null
+        : (redTotal > blueTotal ? CellState.red : CellState.blue);
 
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
@@ -870,8 +1106,16 @@ class _ResultsCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(22),
-          gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [bg, bg]),
-          boxShadow: const [BoxShadow(color: AppColors.dialogShadow, blurRadius: 24, offset: Offset(0, 12))],
+          gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [bg, bg]),
+          boxShadow: const [
+            BoxShadow(
+                color: AppColors.dialogShadow,
+                blurRadius: 24,
+                offset: Offset(0, 12))
+          ],
           border: Border.all(color: AppColors.dialogOutline, width: 1),
         ),
         child: ConstrainedBox(
@@ -887,118 +1131,175 @@ class _ResultsCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                Row(
-                  children: [
-                    const Spacer(),
-                    if (winner == CellState.red)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: Image.asset('assets/icons/winner-removebg.png', width: 36, height: 36),
-                      )
-                    else if (winner == CellState.blue)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: Image.asset('assets/icons/looser-removebg.png', width: 36, height: 36),
-                      ),
-                    Text(
-                      winner == null ? 'Draw' : (winner == CellState.red ? 'Player Wins!' : 'AI Wins!'),
-                      style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900),
-                    ),
-                    const Spacer(),
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(color: Colors.white.withOpacity(0.08), shape: BoxShape.circle, border: Border.all(color: Colors.white24)),
-                      child: IconButton(
-                        padding: EdgeInsets.zero,
-                        iconSize: 20,
-                        icon: const Icon(Icons.close, color: Colors.white70),
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                
-                _scoreRow(label: 'Player', color: AppColors.red, base: redBase, bonus: controller.bonusRed, total: redTotal, highlight: winner == CellState.red),
-                const SizedBox(height: 8),
-                _scoreRow(label: 'AI', color: AppColors.blue, base: blueBase, bonus: controller.bonusBlue, total: blueTotal, highlight: winner == CellState.blue),
-
-                const SizedBox(height: 12),
-                // Points and time on the same row if fit; otherwise they will wrap to 2 rows automatically
-                Center(
-                  child: Wrap(
-                    alignment: WrapAlignment.center,
-                    spacing: 12,
-                    runSpacing: 10,
+                  Row(
                     children: [
-                      AnimatedTotalCounter(value: controller.totalUserScore),
-                      _timeChip(label: 'Time played', value: _formatDuration(controller.lastGamePlayMs)),
+                      const Spacer(),
+                      if (winner == CellState.red)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: Image.asset('assets/icons/winner-removebg.png',
+                              width: 36, height: 36),
+                        )
+                      else if (winner == CellState.blue)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: Image.asset('assets/icons/looser-removebg.png',
+                              width: 36, height: 36),
+                        ),
+                      Text(
+                        winner == null
+                            ? 'Draw'
+                            : (winner == CellState.red
+                                ? 'Player Wins!'
+                                : 'AI Wins!'),
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900),
+                      ),
+                      const Spacer(),
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.08),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white24)),
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          iconSize: 20,
+                          icon: const Icon(Icons.close, color: Colors.white70),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                      ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 12),
-                // Turns row beneath
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _statChip(icon: Icons.rotate_left, label: 'Player turns', value: controller.turnsRed.toString()),
-                    _statChip(icon: Icons.rotate_right, label: 'AI turns', value: controller.turnsBlue.toString()),
-                  ],
-                ),
+                  const SizedBox(height: 12),
 
-                const SizedBox(height: 12),
-                // Total user points summary per game outcome
-                _TotalsSummary(controller: controller, winner: winner),
+                  _scoreRow(
+                      label: 'Player',
+                      color: AppColors.red,
+                      base: redBase,
+                      bonus: controller.bonusRed,
+                      total: redTotal,
+                      highlight: winner == CellState.red),
+                  const SizedBox(height: 8),
+                  _scoreRow(
+                      label: 'AI',
+                      color: AppColors.blue,
+                      base: blueBase,
+                      bonus: controller.bonusBlue,
+                      total: blueTotal,
+                      highlight: winner == CellState.blue),
 
-                const SizedBox(height: 12),
-                // Action buttons based on result and AI level
-                _ResultsActions(controller: controller, winner: winner),
-                const SizedBox(height: 16),
-                // Mini board preview
-                _MiniBoardPreview(controller: controller),
-              ],
+                  const SizedBox(height: 12),
+                  // Points and time on the same row if fit; otherwise they will wrap to 2 rows automatically
+                  Center(
+                    child: Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 12,
+                      runSpacing: 10,
+                      children: [
+                        AnimatedTotalCounter(value: controller.totalUserScore),
+                        _timeChip(
+                            label: 'Time played',
+                            value: _formatDuration(controller.lastGamePlayMs)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  // Turns row beneath
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _statChip(
+                          icon: Icons.rotate_left,
+                          label: 'Player turns',
+                          value: controller.turnsRed.toString()),
+                      _statChip(
+                          icon: Icons.rotate_right,
+                          label: 'AI turns',
+                          value: controller.turnsBlue.toString()),
+                    ],
+                  ),
+
+                  const SizedBox(height: 12),
+                  // Total user points summary per game outcome
+                  _TotalsSummary(controller: controller, winner: winner),
+
+                  const SizedBox(height: 12),
+                  // Action buttons based on result and AI level
+                  _ResultsActions(controller: controller, winner: winner),
+                  const SizedBox(height: 16),
+                  // Mini board preview
+                  _MiniBoardPreview(controller: controller),
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ),
     );
   }
 
-  Widget _scoreRow({required String label, required Color color, required int base, required int bonus, required int total, required bool highlight}) {
+  Widget _scoreRow(
+      {required String label,
+      required Color color,
+      required int base,
+      required int bonus,
+      required int total,
+      required bool highlight}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: highlight ? AppColors.brandGold : Colors.white24, width: highlight ? 2 : 1),
+        border: Border.all(
+            color: highlight ? AppColors.brandGold : Colors.white24,
+            width: highlight ? 2 : 1),
       ),
       child: Row(
         children: [
-          Container(width: 16, height: 16, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4))),
+          Container(
+              width: 16,
+              height: 16,
+              decoration: BoxDecoration(
+                  color: color, borderRadius: BorderRadius.circular(4))),
           const SizedBox(width: 8),
-          Text(label, style: TextStyle(color: highlight ? AppColors.brandGold : Colors.white, fontWeight: FontWeight.w800)),
+          Text(label,
+              style: TextStyle(
+                  color: highlight ? AppColors.brandGold : Colors.white,
+                  fontWeight: FontWeight.w800)),
           const Spacer(),
           // Show only the number of boxes (base) without calculations
-          Text('$base', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
+          Text('$base',
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.w900)),
         ],
       ),
     );
   }
 
-  Widget _statChip({required IconData icon, required String label, required String value}) {
+  Widget _statChip(
+      {required IconData icon, required String label, required String value}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(color: Colors.white.withOpacity(0.08), borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.white24)),
+      decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white24)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, color: Colors.white70, size: 18),
           const SizedBox(width: 4),
-          Text(label, style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.w600)),
+          Text(label,
+              style: const TextStyle(
+                  color: Colors.white70, fontWeight: FontWeight.w600)),
           const SizedBox(width: 6),
-          Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
+          Text(value,
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.w900)),
         ],
       ),
     );
@@ -1007,21 +1308,28 @@ class _ResultsCard extends StatelessWidget {
   Widget _timeChip({required String label, required String value}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(color: Colors.white.withOpacity(0.08), borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.white24)),
+      decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white24)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Image.asset('assets/icons/duration-removebg.png', width: 18, height: 18),
+          Image.asset('assets/icons/duration-removebg.png',
+              width: 18, height: 18),
           const SizedBox(width: 4),
-          Text(label, style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.w600)),
+          Text(label,
+              style: const TextStyle(
+                  color: Colors.white70, fontWeight: FontWeight.w600)),
           const SizedBox(width: 6),
-          Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
+          Text(value,
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.w900)),
         ],
       ),
     );
   }
 }
-
 
 class _TotalsSummary extends StatelessWidget {
   final GameController controller;
@@ -1038,7 +1346,9 @@ class _TotalsSummary extends StatelessWidget {
     Widget line1 = Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text('Your total points', style: TextStyle(color: Colors.white70, fontWeight: FontWeight.w700)),
+        const Text('Your total points',
+            style:
+                TextStyle(color: Colors.white70, fontWeight: FontWeight.w700)),
         AnimatedTotalCounter(value: total),
       ],
     );
@@ -1051,20 +1361,31 @@ class _TotalsSummary extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('This game earned', style: TextStyle(color: Colors.white70, fontWeight: FontWeight.w700)),
-            Text('+$awarded = $before → $newTotal', style: const TextStyle(color: Colors.lightGreenAccent, fontWeight: FontWeight.w900)),
+            const Text('This game earned',
+                style: TextStyle(
+                    color: Colors.white70, fontWeight: FontWeight.w700)),
+            Text('+$awarded = $before → $newTotal',
+                style: const TextStyle(
+                    color: Colors.lightGreenAccent,
+                    fontWeight: FontWeight.w900)),
           ],
         ),
       );
     } else if (winner == null) {
       line2 = const Padding(
         padding: EdgeInsets.only(top: 8.0),
-        child: Text('Draw game: your total remains the same.', textAlign: TextAlign.right, style: TextStyle(color: Colors.white70, fontWeight: FontWeight.w700)),
+        child: Text('Draw game: your total remains the same.',
+            textAlign: TextAlign.right,
+            style:
+                TextStyle(color: Colors.white70, fontWeight: FontWeight.w700)),
       );
     } else {
       line2 = const Padding(
         padding: EdgeInsets.only(top: 8.0),
-        child: Text('You lost: your total remained the same.', textAlign: TextAlign.right, style: TextStyle(color: Colors.white70, fontWeight: FontWeight.w700)),
+        child: Text('You lost: your total remained the same.',
+            textAlign: TextAlign.right,
+            style:
+                TextStyle(color: Colors.white70, fontWeight: FontWeight.w700)),
       );
     }
 
@@ -1098,7 +1419,10 @@ class _ResultsActions extends StatelessWidget {
     final bool atMax = ai >= 7;
 
     // Helper builders
-    Widget goldButton({required String text, required IconData icon, required VoidCallback onPressed}) {
+    Widget goldButton(
+        {required String text,
+        required IconData icon,
+        required VoidCallback onPressed}) {
       return ElevatedButton.icon(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
@@ -1107,15 +1431,20 @@ class _ResultsActions extends StatelessWidget {
           shadowColor: Colors.black54,
           elevation: 4,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          textStyle: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.2),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          textStyle:
+              const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.2),
         ),
         icon: Icon(icon),
         label: Text(text),
       );
     }
 
-    Widget outlineButton({required String text, required IconData icon, required VoidCallback onPressed}) {
+    Widget outlineButton(
+        {required String text,
+        required IconData icon,
+        required VoidCallback onPressed}) {
       return TextButton.icon(
         onPressed: onPressed,
         style: TextButton.styleFrom(
@@ -1126,7 +1455,8 @@ class _ResultsActions extends StatelessWidget {
             borderRadius: BorderRadius.circular(24),
             side: const BorderSide(color: Colors.white24),
           ),
-          textStyle: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.2),
+          textStyle:
+              const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.2),
         ),
         icon: Icon(icon, size: 20),
         label: Text(text),
@@ -1227,7 +1557,9 @@ class _MiniBoardPreview extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Final board', style: TextStyle(color: Colors.white70, fontWeight: FontWeight.w700)),
+            const Text('Final board',
+                style: TextStyle(
+                    color: Colors.white70, fontWeight: FontWeight.w700)),
             const SizedBox(height: 8),
             Column(
               mainAxisSize: MainAxisSize.min,
@@ -1276,7 +1608,6 @@ class _MiniBoardPreview extends StatelessWidget {
   }
 }
 
-
 // Curtains reveal animation over the game board after loading a saved game
 Future<void> _showCurtainsRevealOverGame(BuildContext context) async {
   const duration = Duration(milliseconds: 650);
@@ -1295,7 +1626,8 @@ Future<void> _showCurtainsRevealOverGame(BuildContext context) async {
       return const SizedBox.shrink();
     },
     transitionBuilder: (ctx, anim, secondary, child) {
-      final curved = CurvedAnimation(parent: anim, curve: Curves.easeInOutCubic);
+      final curved =
+          CurvedAnimation(parent: anim, curve: Curves.easeInOutCubic);
       final size = MediaQuery.of(ctx).size;
       final halfW = size.width / 2;
       return Stack(

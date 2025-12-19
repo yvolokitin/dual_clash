@@ -9,8 +9,10 @@ import 'history_page.dart';
 String _formatDuration(int ms) {
   if (ms <= 0) return '0s';
   int seconds = (ms / 1000).floor();
-  final hours = seconds ~/ 3600; seconds %= 3600;
-  final minutes = seconds ~/ 60; seconds %= 60;
+  final hours = seconds ~/ 3600;
+  seconds %= 3600;
+  final minutes = seconds ~/ 60;
+  seconds %= 60;
   if (hours > 0) return '${hours}h ${minutes}m';
   if (minutes > 0) return '${minutes}m ${seconds}s';
   return '${seconds}s';
@@ -20,20 +22,31 @@ Widget _beltCard(String name, Color color, bool achieved) {
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
     decoration: BoxDecoration(
-      color: achieved ? color.withOpacity(0.25) : Colors.white.withOpacity(0.08),
+      color:
+          achieved ? color.withOpacity(0.25) : Colors.white.withOpacity(0.08),
       borderRadius: BorderRadius.circular(12),
       border: Border.all(color: achieved ? color : Colors.white24, width: 1),
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(width: 12, height: 12, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        Container(
+            width: 12,
+            height: 12,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
         const SizedBox(width: 8),
-        const Text(' ', style: TextStyle(fontSize: 0)), // ensure constant first, then dynamic
-        Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, letterSpacing: 0.2)),
+        const Text(' ',
+            style:
+                TextStyle(fontSize: 0)), // ensure constant first, then dynamic
+        Text(name,
+            style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.2)),
         if (achieved) ...[
           const SizedBox(width: 8),
-          const Icon(Icons.check_circle, color: Colors.lightGreenAccent, size: 16),
+          const Icon(Icons.check_circle,
+              color: Colors.lightGreenAccent, size: 16),
         ]
       ],
     ),
@@ -54,7 +67,9 @@ Widget beltsGridWidget(Set<String> badges) {
       spacing: 8,
       runSpacing: 8,
       children: [
-        for (int lvl = 1; lvl <= 7; lvl++) _beltCard(AiBelt.nameFor(lvl), AiBelt.colorFor(lvl), achievedLevel(lvl)),
+        for (int lvl = 1; lvl <= 7; lvl++)
+          _beltCard(
+              AiBelt.nameFor(lvl), AiBelt.colorFor(lvl), achievedLevel(lvl)),
       ],
     ),
   );
@@ -64,7 +79,7 @@ Widget dailyActivityList(GameController controller) {
   final counts = controller.dailyPlayCountByDate;
   final times = controller.dailyPlayTimeByDate;
   final keys = counts.keys.toSet()..addAll(times.keys);
-  final days = keys.toList()..sort((a,b) => b.compareTo(a)); // desc yyyy-MM-dd
+  final days = keys.toList()..sort((a, b) => b.compareTo(a)); // desc yyyy-MM-dd
   final show = days.take(10).toList();
   if (show.isEmpty) {
     return Container(
@@ -75,7 +90,8 @@ Widget dailyActivityList(GameController controller) {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.white24, width: 1),
       ),
-      child: const Text('No activity yet', style: TextStyle(color: Colors.white70)),
+      child: const Text('No activity yet',
+          style: TextStyle(color: Colors.white70)),
     );
   }
   return Container(
@@ -93,29 +109,48 @@ Widget dailyActivityList(GameController controller) {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Row(
               children: [
-                Expanded(child: Text(d, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700))),
+                Expanded(
+                    child: Text(d,
+                        style: const TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.w700))),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(color: Colors.white.withOpacity(0.08), borderRadius: BorderRadius.circular(999), border: Border.all(color: Colors.white24, width: 1)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(color: Colors.white24, width: 1)),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.sports_esports, color: Colors.white70, size: 16),
+                      const Icon(Icons.sports_esports,
+                          color: Colors.white70, size: 16),
                       const SizedBox(width: 6),
-                      Text('${counts[d] ?? 0}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
+                      Text('${counts[d] ?? 0}',
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w800)),
                     ],
                   ),
                 ),
                 const SizedBox(width: 10),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(color: Colors.white.withOpacity(0.08), borderRadius: BorderRadius.circular(999), border: Border.all(color: Colors.white24, width: 1)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(color: Colors.white24, width: 1)),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Image.asset('assets/icons/duration-removebg.png', width: 16, height: 16),
+                      Image.asset('assets/icons/duration-removebg.png',
+                          width: 16, height: 16),
                       const SizedBox(width: 6),
-                      Text(_formatDuration(times[d] ?? 0), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
+                      Text(_formatDuration(times[d] ?? 0),
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w800)),
                     ],
                   ),
                 ),
@@ -135,16 +170,24 @@ class ProfileDialog extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: achieved ? Colors.lightGreenAccent.withOpacity(0.18) : Colors.white.withOpacity(0.08),
+        color: achieved
+            ? Colors.lightGreenAccent.withOpacity(0.18)
+            : Colors.white.withOpacity(0.08),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: achieved ? Colors.lightGreenAccent : Colors.white24, width: 1),
+        border: Border.all(
+            color: achieved ? Colors.lightGreenAccent : Colors.white24,
+            width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(text, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+          Text(text,
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.w700)),
           const SizedBox(width: 6),
-          Icon(achieved ? Icons.check : Icons.radio_button_unchecked, color: achieved ? Colors.lightGreenAccent : Colors.white38, size: 16),
+          Icon(achieved ? Icons.check : Icons.radio_button_unchecked,
+              color: achieved ? Colors.lightGreenAccent : Colors.white38,
+              size: 16),
         ],
       ),
     );
@@ -155,7 +198,11 @@ class ProfileDialog extends StatelessWidget {
       children: [
         SizedBox(
           width: 140,
-          child: Text(label, style: const TextStyle(color: AppColors.dialogSubtitle, fontWeight: FontWeight.w700, letterSpacing: 0.2)),
+          child: Text(label,
+              style: const TextStyle(
+                  color: AppColors.dialogSubtitle,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.2)),
         ),
         const SizedBox(width: 8),
         Expanded(
@@ -166,7 +213,9 @@ class ProfileDialog extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.white24, width: 1),
             ),
-            child: Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+            child: Text(value,
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.w700)),
           ),
         ),
       ],
@@ -185,8 +234,16 @@ class ProfileDialog extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(22),
-          gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [bg, bg]),
-          boxShadow: const [BoxShadow(color: AppColors.dialogShadow, blurRadius: 24, offset: Offset(0, 12))],
+          gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [bg, bg]),
+          boxShadow: const [
+            BoxShadow(
+                color: AppColors.dialogShadow,
+                blurRadius: 24,
+                offset: Offset(0, 12))
+          ],
           border: Border.all(color: AppColors.dialogOutline, width: 1),
         ),
         child: ConstrainedBox(
@@ -200,12 +257,20 @@ class ProfileDialog extends StatelessWidget {
                 Row(
                   children: [
                     const Spacer(),
-                    const Text('Profile', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.dialogTitle, letterSpacing: 0.2)),
+                    const Text('Profile',
+                        style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.dialogTitle,
+                            letterSpacing: 0.2)),
                     const Spacer(),
                     Container(
                       width: 36,
                       height: 36,
-                      decoration: BoxDecoration(color: Colors.white.withOpacity(0.08), shape: BoxShape.circle, border: Border.all(color: Colors.white24, width: 1)),
+                      decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.08),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white24, width: 1)),
                       child: IconButton(
                         padding: EdgeInsets.zero,
                         iconSize: 20,
@@ -227,29 +292,46 @@ class ProfileDialog extends StatelessWidget {
                         const SizedBox(height: 8),
                         _infoRow('Age', controller.age.toString()),
                         const SizedBox(height: 16),
-                        _infoRow('Total score', controller.totalUserScore.toString()),
+                        _infoRow('Total score',
+                            controller.totalUserScore.toString()),
                         const SizedBox(height: 8),
-                        _infoRow('Full red lines made', controller.redLinesCompletedTotal.toString()),
+                        _infoRow('Full red lines made',
+                            controller.redLinesCompletedTotal.toString()),
                         const SizedBox(height: 16),
-                        _infoRow('Total time played', _formatDuration(controller.totalPlayTimeMs)),
+                        _infoRow('Total time played',
+                            _formatDuration(controller.totalPlayTimeMs)),
                         const SizedBox(height: 16),
-                        const Text('Belts', style: TextStyle(color: AppColors.dialogSubtitle, fontWeight: FontWeight.w700, letterSpacing: 0.2)),
+                        const Text('Belts',
+                            style: TextStyle(
+                                color: AppColors.dialogSubtitle,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.2)),
                         const SizedBox(height: 8),
                         beltsGridWidget(controller.badges),
                         const SizedBox(height: 16),
-                        const Text('Achievements', style: TextStyle(color: AppColors.dialogSubtitle, fontWeight: FontWeight.w700, letterSpacing: 0.2)),
+                        const Text('Achievements',
+                            style: TextStyle(
+                                color: AppColors.dialogSubtitle,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.2)),
                         const SizedBox(height: 8),
                         Wrap(
                           spacing: 8,
                           runSpacing: 8,
                           children: [
                             _achChip('Full Row', controller.achievedRedRow),
-                            _achChip('Full Column', controller.achievedRedColumn),
-                            _achChip('Diagonal', controller.achievedRedDiagonal),
+                            _achChip(
+                                'Full Column', controller.achievedRedColumn),
+                            _achChip(
+                                'Diagonal', controller.achievedRedDiagonal),
                           ],
                         ),
                         const SizedBox(height: 16),
-                        const Text('Daily activity', style: TextStyle(color: AppColors.dialogSubtitle, fontWeight: FontWeight.w700, letterSpacing: 0.2)),
+                        const Text('Daily activity',
+                            style: TextStyle(
+                                color: AppColors.dialogSubtitle,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.2)),
                         const SizedBox(height: 8),
                         dailyActivityList(controller),
                         // Legacy badges section removed as per spec; only Achievements and Belts remain
@@ -266,9 +348,11 @@ class ProfileDialog extends StatelessWidget {
                       ElevatedButton(
                         onPressed: () async {
                           Navigator.of(context).pop();
-                          await Future.delayed(const Duration(milliseconds: 50));
+                          await Future.delayed(
+                              const Duration(milliseconds: 50));
                           if (context.mounted) {
-                            await showAnimatedHistoryDialog(context: context, controller: controller);
+                            await showAnimatedHistoryDialog(
+                                context: context, controller: controller);
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -276,9 +360,12 @@ class ProfileDialog extends StatelessWidget {
                           foregroundColor: Colors.white,
                           shadowColor: Colors.transparent,
                           elevation: 0,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                          textStyle: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(24)),
+                          textStyle: const TextStyle(
+                              fontWeight: FontWeight.w800, letterSpacing: 0.2),
                         ),
                         child: const Text('History'),
                       ),
@@ -290,9 +377,12 @@ class ProfileDialog extends StatelessWidget {
                           foregroundColor: const Color(0xFF2B221D),
                           shadowColor: Colors.black54,
                           elevation: 4,
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                          textStyle: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(24)),
+                          textStyle: const TextStyle(
+                              fontWeight: FontWeight.w800, letterSpacing: 0.2),
                         ),
                         child: const Text('Close'),
                       ),
@@ -308,7 +398,8 @@ class ProfileDialog extends StatelessWidget {
   }
 }
 
-Future<void> showAnimatedProfileDialog({required BuildContext context, required GameController controller}) {
+Future<void> showAnimatedProfileDialog(
+    {required BuildContext context, required GameController controller}) {
   return showGeneralDialog(
     context: context,
     barrierDismissible: true,
@@ -317,7 +408,10 @@ Future<void> showAnimatedProfileDialog({required BuildContext context, required 
     transitionDuration: const Duration(milliseconds: 260),
     pageBuilder: (ctx, anim1, anim2) => const SizedBox.shrink(),
     transitionBuilder: (ctx, anim, secondaryAnim, child) {
-      final curved = CurvedAnimation(parent: anim, curve: Curves.easeOutCubic, reverseCurve: Curves.easeInCubic);
+      final curved = CurvedAnimation(
+          parent: anim,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic);
       return Stack(
         children: [
           Positioned.fill(
@@ -327,7 +421,8 @@ Future<void> showAnimatedProfileDialog({required BuildContext context, required 
               curve: Curves.easeOutCubic,
               builder: (context, sigma, _) {
                 return BackdropFilter(
-                  filter: ui.ImageFilter.blur(sigmaX: sigma * anim.value, sigmaY: sigma * anim.value),
+                  filter: ui.ImageFilter.blur(
+                      sigmaX: sigma * anim.value, sigmaY: sigma * anim.value),
                   child: const SizedBox.shrink(),
                 );
               },

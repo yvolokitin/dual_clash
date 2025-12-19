@@ -1,4 +1,3 @@
-
 import 'dart:math';
 import '../models/cell_state.dart';
 import '../core/constants.dart';
@@ -21,7 +20,8 @@ class SimpleAI {
       case 5:
         return _minimaxRoot(board, depth: 3, useAB: true, orderMoves: true);
       case 6:
-        return _minimaxRoot(board, depth: 4, useAB: true, orderMoves: true, useTT: true);
+        return _minimaxRoot(board,
+            depth: 4, useAB: true, orderMoves: true, useTT: true);
       case 7:
         return _mcts(board, rollouts: 1500, timeLimitMs: 600);
       default:
@@ -91,7 +91,9 @@ class SimpleAI {
   }
 
   // Helpers for search
-  int _score(List<List<CellState>> b) => RulesEngine.countOf(b, CellState.blue) - RulesEngine.countOf(b, CellState.red);
+  int _score(List<List<CellState>> b) =>
+      RulesEngine.countOf(b, CellState.blue) -
+      RulesEngine.countOf(b, CellState.red);
 
   Iterable<(int, int)> _emptyCells(List<List<CellState>> b) sync* {
     for (int r = 0; r < K.n; r++) {
@@ -101,7 +103,8 @@ class SimpleAI {
     }
   }
 
-  List<((int, int) move, int gain)> _orderedBlueMovesByGain(List<List<CellState>> b) {
+  List<((int, int) move, int gain)> _orderedBlueMovesByGain(
+      List<List<CellState>> b) {
     final base = RulesEngine.countOf(b, CellState.blue);
     final list = <((int, int), int)>[];
     for (final mv in _emptyCells(b)) {
@@ -127,7 +130,11 @@ class SimpleAI {
     return sb.toString();
   }
 
-  (int, int)? _minimaxRoot(List<List<CellState>> board, {required int depth, required bool useAB, bool orderMoves = false, bool useTT = false}) {
+  (int, int)? _minimaxRoot(List<List<CellState>> board,
+      {required int depth,
+      required bool useAB,
+      bool orderMoves = false,
+      bool useTT = false}) {
     int bestVal = -0x7fffffff;
     (int, int)? bestMove;
     final tt = useTT ? <String, int>{} : null;
@@ -163,7 +170,8 @@ class SimpleAI {
     return bestMove;
   }
 
-  int _minimax(List<List<CellState>> b, int depth, bool isMax, bool useAB, int alpha, int beta, Map<String, int>? tt) {
+  int _minimax(List<List<CellState>> b, int depth, bool isMax, bool useAB,
+      int alpha, int beta, Map<String, int>? tt) {
     if (depth == 0 || !_hasEmpty(b)) return _score(b);
     if (tt != null) {
       final k = _key(b);
@@ -219,7 +227,8 @@ class SimpleAI {
   bool _hasEmpty(List<List<CellState>> b) => RulesEngine.hasEmpty(b);
 
   // L7: simple MCTS over candidate first moves for Blue
-  (int, int)? _mcts(List<List<CellState>> board, {int rollouts = 1500, int timeLimitMs = 600}) {
+  (int, int)? _mcts(List<List<CellState>> board,
+      {int rollouts = 1500, int timeLimitMs = 600}) {
     final candidates = _orderedBlueMovesByGain(board);
     if (candidates.isEmpty) return null;
     final wins = List<int>.filled(candidates.length, 0);
@@ -227,7 +236,8 @@ class SimpleAI {
     final start = DateTime.now();
 
     int idx = 0;
-    while (plays.reduce((a, b) => a + b) < rollouts && DateTime.now().difference(start).inMilliseconds < timeLimitMs) {
+    while (plays.reduce((a, b) => a + b) < rollouts &&
+        DateTime.now().difference(start).inMilliseconds < timeLimitMs) {
       final i = idx % candidates.length;
       idx++;
       final mv = candidates[i].$1;

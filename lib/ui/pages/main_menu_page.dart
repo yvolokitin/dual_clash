@@ -14,7 +14,8 @@ class MainMenuPage extends StatelessWidget {
     // Spec: solid green background #22B14C on the Game menu screen
     const Color menuGreen = Color(0xFF22B14C);
     final size = MediaQuery.of(context).size;
-    final double topHeroHeight = size.height * 0.25; // 25% of top page for the image
+    final double topHeroHeight =
+        size.height * 0.25; // 25% of top page for the image
 
     return Scaffold(
       backgroundColor: menuGreen,
@@ -24,11 +25,13 @@ class MainMenuPage extends StatelessWidget {
           children: [
             // Top app bar row (back and title)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
               child: Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+                    icon: const Icon(Icons.arrow_back_ios_new,
+                        color: Colors.white),
                     onPressed: () => Navigator.of(context).maybePop(),
                   ),
                   const Spacer(),
@@ -65,8 +68,10 @@ class MainMenuPage extends StatelessWidget {
                       String _formatDuration(int ms) {
                         if (ms <= 0) return '0s';
                         int seconds = (ms / 1000).floor();
-                        final hours = seconds ~/ 3600; seconds %= 3600;
-                        final minutes = seconds ~/ 60; seconds %= 60;
+                        final hours = seconds ~/ 3600;
+                        seconds %= 3600;
+                        final minutes = seconds ~/ 60;
+                        seconds %= 60;
                         if (hours > 0) return '${hours}h ${minutes}m';
                         if (minutes > 0) return '${minutes}m ${seconds}s';
                         return '${seconds}s';
@@ -77,10 +82,14 @@ class MainMenuPage extends StatelessWidget {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(18),
                           boxShadow: const [
-                            BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
+                            BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 10,
+                                offset: Offset(0, 4)),
                           ],
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -88,11 +97,17 @@ class MainMenuPage extends StatelessWidget {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  Image.asset('assets/icons/points-removebg.png', width: 24, height: 24),
+                                  Image.asset(
+                                      'assets/icons/points-removebg.png',
+                                      width: 24,
+                                      height: 24),
                                   const SizedBox(width: 8),
                                   Text(
                                     '${controller.totalUserScore}',
-                                    style: const TextStyle(color: darkBlue, fontWeight: FontWeight.w800, fontSize: 18),
+                                    style: const TextStyle(
+                                        color: darkBlue,
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 18),
                                   ),
                                 ],
                               ),
@@ -106,11 +121,17 @@ class MainMenuPage extends StatelessWidget {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  Image.asset('assets/icons/duration-removebg.png', width: 24, height: 24),
+                                  Image.asset(
+                                      'assets/icons/duration-removebg.png',
+                                      width: 24,
+                                      height: 24),
                                   const SizedBox(width: 8),
                                   Text(
                                     _formatDuration(controller.totalPlayTimeMs),
-                                    style: const TextStyle(color: darkBlue, fontWeight: FontWeight.w800, fontSize: 18),
+                                    style: const TextStyle(
+                                        color: darkBlue,
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 18),
                                   ),
                                 ],
                               ),
@@ -150,7 +171,8 @@ class MainMenuPage extends StatelessWidget {
                           iconPath: 'assets/icons/load-removebg.png',
                           label: 'Load game',
                           onTap: () async {
-                            final ok = await showLoadGameDialog(context: context, controller: controller);
+                            final ok = await showLoadGameDialog(
+                                context: context, controller: controller);
                             if (ok == true && context.mounted) {
                               Navigator.of(context).pop('loaded');
                             }
@@ -162,7 +184,8 @@ class MainMenuPage extends StatelessWidget {
                           iconPath: 'assets/icons/history-removebg.png',
                           label: 'History',
                           onTap: () async {
-                            await showAnimatedHistoryDialog(context: context, controller: controller);
+                            await showAnimatedHistoryDialog(
+                                context: context, controller: controller);
                           },
                         ),
                         const SizedBox(height: 10),
@@ -171,7 +194,8 @@ class MainMenuPage extends StatelessWidget {
                           iconPath: 'assets/icons/profile-removebg.png',
                           label: 'Profile',
                           onTap: () async {
-                            await showAnimatedProfileDialog(context: context, controller: controller);
+                            await showAnimatedProfileDialog(
+                                context: context, controller: controller);
                           },
                         ),
                       ],
@@ -192,7 +216,11 @@ class _MenuActionTile extends StatelessWidget {
   final String iconPath;
   final String label;
   final VoidCallback onTap;
-  const _MenuActionTile({required this.color, required this.iconPath, required this.label, required this.onTap});
+  const _MenuActionTile(
+      {required this.color,
+      required this.iconPath,
+      required this.label,
+      required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -202,19 +230,22 @@ class _MenuActionTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.fromLTRB(20, 12, 16, 12), // 20px left margin, ~15% reduced height
+          padding: const EdgeInsets.fromLTRB(
+              20, 12, 16, 12), // 20px left margin, ~15% reduced height
           decoration: BoxDecoration(
             color: color.withOpacity(0.9),
             borderRadius: BorderRadius.circular(10), // less rounded
-            boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4))],
+            boxShadow: const [
+              BoxShadow(
+                  color: Colors.black26, blurRadius: 8, offset: Offset(0, 4))
+            ],
             border: Border.all(color: Colors.white24, width: 1),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.max,
             children: [
-              Container
-                (
+              Container(
                 width: 30,
                 height: 30,
                 padding: const EdgeInsets.all(3),
@@ -228,7 +259,10 @@ class _MenuActionTile extends StatelessWidget {
               Text(
                 label,
                 textAlign: TextAlign.left,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 16),
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16),
               ),
             ],
           ),
@@ -245,9 +279,14 @@ Route<T> buildMainMenuRoute<T>({required WidgetBuilder builder}) {
     transitionDuration: const Duration(milliseconds: 320),
     reverseTransitionDuration: const Duration(milliseconds: 260),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      final curved = CurvedAnimation(parent: animation, curve: Curves.easeOutCubic, reverseCurve: Curves.easeInCubic);
-      final offsetTween = Tween<Offset>(begin: const Offset(-1.0, 0.0), end: Offset.zero);
-      return SlideTransition(position: offsetTween.animate(curved), child: child);
+      final curved = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic);
+      final offsetTween =
+          Tween<Offset>(begin: const Offset(-1.0, 0.0), end: Offset.zero);
+      return SlideTransition(
+          position: offsetTween.animate(curved), child: child);
     },
   );
 }

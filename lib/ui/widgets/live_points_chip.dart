@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:two_touch_game_flutter/models/cell_state.dart';
-import 'package:two_touch_game_flutter/ui/styles/text_styles.dart';
+import 'package:dual_clash/models/cell_state.dart';
+import 'package:dual_clash/ui/styles/text_styles.dart';
 
 /// A small pill that shows the last move's point delta and who caused it.
 /// Positive (green) for Player (red), negative (red) for AI (blue).

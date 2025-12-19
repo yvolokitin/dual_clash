@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import '../../logic/game_controller.dart';
@@ -19,13 +18,16 @@ class BoardWidget extends StatelessWidget {
     final hsl = HSLColor.fromColor(base);
 
     if (K.n == 9) {
-      final darker = hsl.withLightness((hsl.lightness - 0.18).clamp(0.0, 1.0)).toColor();
-      final lighter = hsl.withLightness((hsl.lightness + 0.22).clamp(0.0, 1.0)).toColor();
+      final darker =
+          hsl.withLightness((hsl.lightness - 0.18).clamp(0.0, 1.0)).toColor();
+      final lighter =
+          hsl.withLightness((hsl.lightness + 0.22).clamp(0.0, 1.0)).toColor();
       return [darker, lighter];
     }
 
     // Default: subtle from base to a slightly lighter shade
-    final lighter = hsl.withLightness((hsl.lightness + 0.20).clamp(0.0, 1.0)).toColor();
+    final lighter =
+        hsl.withLightness((hsl.lightness + 0.20).clamp(0.0, 1.0)).toColor();
     return [base, lighter];
   }
 
@@ -43,11 +45,15 @@ class BoardWidget extends StatelessWidget {
         });
 
         const border = 5.0; // 5px gradient border (+2px thicker)
-        final innerSize = size; // outer container remains square; padding will shrink grid area visually
+        final innerSize =
+            size; // outer container remains square; padding will shrink grid area visually
 
         final cellSize = innerSize / K.n;
         return Center(
-          child: _Quake(quaking: controller.isQuaking, durationMs: controller.quakeDurationMs, child: Container(
+            child: _Quake(
+          quaking: controller.isQuaking,
+          durationMs: controller.quakeDurationMs,
+          child: Container(
             width: innerSize,
             height: innerSize,
             padding: const EdgeInsets.all(border),
@@ -60,8 +66,14 @@ class BoardWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               boxShadow: const [
                 // Subtle lift to make the board protrude above the background
-                BoxShadow(color: Color(0x66000000), blurRadius: 24, offset: Offset(0, 14)),
-                BoxShadow(color: Color(0x33000000), blurRadius: 8, offset: Offset(0, 2)),
+                BoxShadow(
+                    color: Color(0x66000000),
+                    blurRadius: 24,
+                    offset: Offset(0, 14)),
+                BoxShadow(
+                    color: Color(0x33000000),
+                    blurRadius: 8,
+                    offset: Offset(0, 2)),
               ],
             ),
             foregroundDecoration: K.n == 9
@@ -92,64 +104,74 @@ class BoardWidget extends StatelessWidget {
                       GridView.builder(
                         physics: const NeverScrollableScrollPhysics(),
                         padding: const EdgeInsets.only(bottom: 6),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: K.n,
                           mainAxisSpacing: 0,
                           crossAxisSpacing: 0,
                         ),
                         itemCount: K.n * K.n,
                         itemBuilder: (context, index) {
-                      final r = index ~/ K.n;
-                      final c = index % K.n;
-                      final st = controller.board[r][c];
-                      final isGold = controller.gameOver && controller.goldCells.contains((r, c));
+                          final r = index ~/ K.n;
+                          final c = index % K.n;
+                          final st = controller.board[r][c];
+                          final isGold = controller.gameOver &&
+                              controller.goldCells.contains((r, c));
 
-                      // For 9x9 board, ALL cells should have 0 radius; board container keeps outer rounding
-                      final BorderRadius cellRadius = (K.n == 9) ? BorderRadius.zero : BorderRadius.circular(8);
+                          // For 9x9 board, ALL cells should have 0 radius; board container keeps outer rounding
+                          final BorderRadius cellRadius = (K.n == 9)
+                              ? BorderRadius.zero
+                              : BorderRadius.circular(8);
 
-                      Widget cellStack = Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          CellWidget(
-                            state: st,
-                            borderRadius: cellRadius,
-                            onTap: () {
-                              controller.onCellTap(r, c);
-                            },
-                            onLongPress: () {
-                              controller.deselectSelection();
-                            },
-                          ),
-                          if (controller.blowPreview.contains((r, c)))
-                            _AffectedHighlight(),
-                          if (controller.selectedCell == (r, c) && (st == CellState.red || st == CellState.blue || st == CellState.neutral))
-                            const _SelectedGoldBorder(),
-                          if (controller.selectedCell == (r, c) && (st == CellState.red || st == CellState.blue))
-                            const _SelectedBlowIcon(),
-                          if (controller.isExploding && controller.explodingCells.contains((r, c)))
-                            const _ExplosionAnim(),
-                          if (isGold)
-                            const _GoldPulseBorder(),
-                        ],
-                      );
+                          Widget cellStack = Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              CellWidget(
+                                state: st,
+                                borderRadius: cellRadius,
+                                onTap: () {
+                                  controller.onCellTap(r, c);
+                                },
+                                onLongPress: () {
+                                  controller.deselectSelection();
+                                },
+                              ),
+                              if (controller.blowPreview.contains((r, c)))
+                                _AffectedHighlight(),
+                              if (controller.selectedCell == (r, c) &&
+                                  (st == CellState.red ||
+                                      st == CellState.blue ||
+                                      st == CellState.neutral))
+                                const _SelectedGoldBorder(),
+                              if (controller.selectedCell == (r, c) &&
+                                  (st == CellState.red || st == CellState.blue))
+                                const _SelectedBlowIcon(),
+                              if (controller.isExploding &&
+                                  controller.explodingCells.contains((r, c)))
+                                const _ExplosionAnim(),
+                              if (isGold) const _GoldPulseBorder(),
+                            ],
+                          );
 
-                      final dropDist = controller.isFalling ? (controller.fallingDistances[(r, c)] ?? 0) : 0;
-                      if (dropDist > 0) {
-                        cellStack = _FallDown(
-                          distanceCells: dropDist,
-                          cellSize: cellSize,
-                          durationMs: controller.fallDurationMs,
-                          child: cellStack,
-                        );
-                      }
+                          final dropDist = controller.isFalling
+                              ? (controller.fallingDistances[(r, c)] ?? 0)
+                              : 0;
+                          if (dropDist > 0) {
+                            cellStack = _FallDown(
+                              distanceCells: dropDist,
+                              cellSize: cellSize,
+                              durationMs: controller.fallDurationMs,
+                              child: cellStack,
+                            );
+                          }
 
-                      return AspectRatio(
-                        aspectRatio: 1,
-                        child: cellStack,
-                      );
-                    },
-                        ),
-                      ],
+                          return AspectRatio(
+                            aspectRatio: 1,
+                            child: cellStack,
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ),
 
@@ -163,7 +185,11 @@ class BoardWidget extends StatelessWidget {
                           return const LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
-                            colors: [Color(0x33FFFFFF), Color(0x11000000), Color(0x00000000)],
+                            colors: [
+                              Color(0x33FFFFFF),
+                              Color(0x11000000),
+                              Color(0x00000000)
+                            ],
                             stops: [0.0, 0.06, 0.18],
                           ).createShader(rect);
                         },
@@ -203,8 +229,11 @@ class BoardWidget extends StatelessWidget {
                         color: (() {
                           final redTotal = controller.scoreRedTotal();
                           final blueTotal = controller.scoreBlueTotal();
-                          if (!controller.gameOver || redTotal == blueTotal) return null;
-                          return redTotal > blueTotal ? AppColors.red : AppColors.blue;
+                          if (!controller.gameOver || redTotal == blueTotal)
+                            return null;
+                          return redTotal > blueTotal
+                              ? AppColors.red
+                              : AppColors.blue;
                         })(),
                         durationMs: controller.winnerBorderAnimMs,
                       ),
@@ -228,14 +257,16 @@ class _WinnerBorderRun extends StatefulWidget {
   State<_WinnerBorderRun> createState() => _WinnerBorderRunState();
 }
 
-class _WinnerBorderRunState extends State<_WinnerBorderRun> with SingleTickerProviderStateMixin {
+class _WinnerBorderRunState extends State<_WinnerBorderRun>
+    with SingleTickerProviderStateMixin {
   late AnimationController _ac;
   late Animation<double> _t;
 
   @override
   void initState() {
     super.initState();
-    _ac = AnimationController(vsync: this, duration: Duration(milliseconds: widget.durationMs));
+    _ac = AnimationController(
+        vsync: this, duration: Duration(milliseconds: widget.durationMs));
     // Use a constant speed; if the overlay is visible for full duration, one lap feels natural
     _t = CurvedAnimation(parent: _ac, curve: Curves.linear);
     _ac.repeat();
@@ -254,7 +285,8 @@ class _WinnerBorderRunState extends State<_WinnerBorderRun> with SingleTickerPro
       animation: _t,
       builder: (context, _) {
         return CustomPaint(
-          painter: _BorderRunnerPainter(progress: _t.value, color: widget.color!),
+          painter:
+              _BorderRunnerPainter(progress: _t.value, color: widget.color!),
         );
       },
     );
@@ -269,7 +301,8 @@ class _BorderRunnerPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
-    final r = RRect.fromRectAndRadius(rect.deflate(3), const Radius.circular(10));
+    final r =
+        RRect.fromRectAndRadius(rect.deflate(3), const Radius.circular(10));
 
     // Base faint border
     final base = Paint()
@@ -384,17 +417,25 @@ class _ExplosionAnim extends StatefulWidget {
   State<_ExplosionAnim> createState() => _ExplosionAnimState();
 }
 
-class _ExplosionAnimState extends State<_ExplosionAnim> with SingleTickerProviderStateMixin {
+class _ExplosionAnimState extends State<_ExplosionAnim>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _ac;
   late final Animation<double> _t;
   @override
   void initState() {
     super.initState();
-    _ac = AnimationController(vsync: this, duration: const Duration(milliseconds: 420))..forward();
+    _ac = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 420))
+      ..forward();
     _t = CurvedAnimation(parent: _ac, curve: Curves.easeOutCubic);
   }
+
   @override
-  void dispose() { _ac.dispose(); super.dispose(); }
+  void dispose() {
+    _ac.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -402,7 +443,8 @@ class _ExplosionAnimState extends State<_ExplosionAnim> with SingleTickerProvide
       builder: (context, _) {
         final t = _t.value;
         // Layers: bright flash, fiery core, expanding shockwave ring
-        final flashOpacity = t < 0.35 ? (1.0 - (t / 0.35)) : 0.0; // quick white flash
+        final flashOpacity =
+            t < 0.35 ? (1.0 - (t / 0.35)) : 0.0; // quick white flash
         final coreOpacity = 1.0 - t;
         final coreScale = 0.5 + 0.9 * t; // expand core
         final ringScale = 0.6 + 1.2 * t; // shockwave scale
@@ -458,11 +500,14 @@ class _ExplosionAnimState extends State<_ExplosionAnim> with SingleTickerProvide
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: Colors.amberAccent.withOpacity(0.9 * ringOpacity),
+                        color:
+                            Colors.amberAccent.withOpacity(0.9 * ringOpacity),
                         width: ringWidth,
                       ),
                       boxShadow: [
-                        BoxShadow(color: Colors.orange.withOpacity(0.5 * ringOpacity), blurRadius: 12),
+                        BoxShadow(
+                            color: Colors.orange.withOpacity(0.5 * ringOpacity),
+                            blurRadius: 12),
                       ],
                     ),
                   ),
@@ -481,7 +526,11 @@ class _FallDown extends StatelessWidget {
   final double cellSize;
   final int durationMs;
   final Widget child;
-  const _FallDown({required this.distanceCells, required this.cellSize, required this.child, required this.durationMs});
+  const _FallDown(
+      {required this.distanceCells,
+      required this.cellSize,
+      required this.child,
+      required this.durationMs});
 
   @override
   Widget build(BuildContext context) {
@@ -510,14 +559,17 @@ class _GoldPulseBorder extends StatefulWidget {
   State<_GoldPulseBorder> createState() => _GoldPulseBorderState();
 }
 
-class _GoldPulseBorderState extends State<_GoldPulseBorder> with SingleTickerProviderStateMixin {
+class _GoldPulseBorderState extends State<_GoldPulseBorder>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _ac;
   late final Animation<double> _t;
 
   @override
   void initState() {
     super.initState();
-    _ac = AnimationController(vsync: this, duration: const Duration(milliseconds: 900))..repeat(reverse: true);
+    _ac = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 900))
+      ..repeat(reverse: true);
     _t = CurvedAnimation(parent: _ac, curve: Curves.easeInOut);
   }
 
@@ -537,9 +589,13 @@ class _GoldPulseBorderState extends State<_GoldPulseBorder> with SingleTickerPro
         return Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.brandGold.withOpacity(opacity), width: 3),
+            border: Border.all(
+                color: AppColors.brandGold.withOpacity(opacity), width: 3),
             boxShadow: [
-              BoxShadow(color: AppColors.brandGold.withOpacity(0.5 * opacity), blurRadius: glow, spreadRadius: 0),
+              BoxShadow(
+                  color: AppColors.brandGold.withOpacity(0.5 * opacity),
+                  blurRadius: glow,
+                  spreadRadius: 0),
             ],
           ),
         );
@@ -552,7 +608,8 @@ class _Quake extends StatefulWidget {
   final bool quaking;
   final int durationMs;
   final Widget child;
-  const _Quake({required this.quaking, required this.durationMs, required this.child});
+  const _Quake(
+      {required this.quaking, required this.durationMs, required this.child});
 
   @override
   State<_Quake> createState() => _QuakeState();
@@ -566,7 +623,8 @@ class _QuakeState extends State<_Quake> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _ac = AnimationController(vsync: this, duration: Duration(milliseconds: widget.durationMs));
+    _ac = AnimationController(
+        vsync: this, duration: Duration(milliseconds: widget.durationMs));
     _t = CurvedAnimation(parent: _ac, curve: Curves.linear);
     if (widget.quaking) {
       _ac.forward(from: 0);
@@ -602,8 +660,10 @@ class _QuakeState extends State<_Quake> with SingleTickerProviderStateMixin {
         // Decaying multi-frequency shake
         final decay = (1.0 - t);
         final amp = 6.0 * decay; // max ~6px shake, reduces to 0
-        final dx = amp * math.sin(2 * math.pi * (10 * t)) + (amp * 0.5) * math.sin(2 * math.pi * (17 * t + 0.3));
-        final dy = (amp * 0.8) * math.sin(2 * math.pi * (13 * t + 0.1)) + (amp * 0.3) * math.sin(2 * math.pi * (19 * t + 0.6));
+        final dx = amp * math.sin(2 * math.pi * (10 * t)) +
+            (amp * 0.5) * math.sin(2 * math.pi * (17 * t + 0.3));
+        final dy = (amp * 0.8) * math.sin(2 * math.pi * (13 * t + 0.1)) +
+            (amp * 0.3) * math.sin(2 * math.pi * (19 * t + 0.6));
         return Transform.translate(offset: Offset(dx, dy), child: child);
       },
       child: widget.child,

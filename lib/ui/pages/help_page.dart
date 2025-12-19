@@ -17,8 +17,16 @@ class HelpDialog extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(22),
-          gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [bg, bg]),
-          boxShadow: const [BoxShadow(color: AppColors.dialogShadow, blurRadius: 24, offset: Offset(0, 12))],
+          gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [bg, bg]),
+          boxShadow: const [
+            BoxShadow(
+                color: AppColors.dialogShadow,
+                blurRadius: 24,
+                offset: Offset(0, 12))
+          ],
           border: Border.all(color: AppColors.dialogOutline, width: 1),
         ),
         child: ConstrainedBox(
@@ -31,12 +39,19 @@ class HelpDialog extends StatelessWidget {
                 Row(
                   children: [
                     const Spacer(),
-                    const Text('How to Play', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800)),
+                    const Text('How to Play',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800)),
                     const Spacer(),
                     Container(
                       width: 36,
                       height: 36,
-                      decoration: BoxDecoration(color: Colors.white.withOpacity(0.08), shape: BoxShape.circle, border: Border.all(color: Colors.white24)),
+                      decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.08),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white24)),
                       child: IconButton(
                         padding: EdgeInsets.zero,
                         iconSize: 20,
@@ -53,26 +68,35 @@ class HelpDialog extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: const [
                         _SectionTitle('Goal'),
-                        _BodyText('Fill the 9x9 board by taking turns with the AI. You are Red, the AI is Blue. The player with the higher TOTAL score wins.'),
+                        _BodyText(
+                            'Fill the 9x9 board by taking turns with the AI. You are Red, the AI is Blue. The player with the higher TOTAL score wins.'),
                         SizedBox(height: 12),
                         _SectionTitle('Turns & Placement'),
-                        _BodyText('Tap any empty cell to place your color. After your move, the AI places blue. The starting player can be changed in Settings.'),
+                        _BodyText(
+                            'Tap any empty cell to place your color. After your move, the AI places blue. The starting player can be changed in Settings.'),
                         SizedBox(height: 12),
                         _SectionTitle('Scoring'),
-                        _BodyText('Base Score: number of cells of your color on the board when the game ends.'),
-                        _BodyText('Bonus: +50 points for every full row or full column filled with your color.'),
+                        _BodyText(
+                            'Base Score: number of cells of your color on the board when the game ends.'),
+                        _BodyText(
+                            'Bonus: +50 points for every full row or full column filled with your color.'),
                         _BodyText('Total Score: Base Score + Bonus.'),
-                        _BodyText('Earning Points During Play (Red): +1 for each placement, +2 extra if placed in a corner, +2 for each Blue turned Neutral, +3 for each Neutral turned Red, +50 for each new full Red row/column.'),
-                        _BodyText('Your cumulative trophy counter only increases. Points are added after each finished game based on your Red Total. Opponent actions never reduce your cumulative total.'),
+                        _BodyText(
+                            'Earning Points During Play (Red): +1 for each placement, +2 extra if placed in a corner, +2 for each Blue turned Neutral, +3 for each Neutral turned Red, +50 for each new full Red row/column.'),
+                        _BodyText(
+                            'Your cumulative trophy counter only increases. Points are added after each finished game based on your Red Total. Opponent actions never reduce your cumulative total.'),
                         SizedBox(height: 12),
                         _SectionTitle('Winning'),
-                        _BodyText('When the board has no empty cells, the game ends. The player with the higher Total Score wins. Draws are possible.'),
+                        _BodyText(
+                            'When the board has no empty cells, the game ends. The player with the higher Total Score wins. Draws are possible.'),
                         SizedBox(height: 12),
                         _SectionTitle('AI Level'),
-                        _BodyText('Choose the AI difficulty in Settings (1–7). Higher levels think further ahead but take longer.'),
+                        _BodyText(
+                            'Choose the AI difficulty in Settings (1–7). Higher levels think further ahead but take longer.'),
                         SizedBox(height: 12),
                         _SectionTitle('History & Profile'),
-                        _BodyText('Your finished games are saved in History with all details. Your cumulative total Red score is shown in Profile.'),
+                        _BodyText(
+                            'Your finished games are saved in History with all details. Your cumulative total Red score is shown in Profile.'),
                       ],
                     ),
                   ),
@@ -91,7 +115,11 @@ class _SectionTitle extends StatelessWidget {
   const _SectionTitle(this.text);
   @override
   Widget build(BuildContext context) {
-    return Text(text, style: const TextStyle(color: AppColors.dialogTitle, fontSize: 16, fontWeight: FontWeight.w800));
+    return Text(text,
+        style: const TextStyle(
+            color: AppColors.dialogTitle,
+            fontSize: 16,
+            fontWeight: FontWeight.w800));
   }
 }
 
@@ -102,12 +130,17 @@ class _BodyText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 4.0),
-      child: Text(text, style: const TextStyle(color: Colors.white70, height: 1.35, fontWeight: FontWeight.w600)),
+      child: Text(text,
+          style: const TextStyle(
+              color: Colors.white70,
+              height: 1.35,
+              fontWeight: FontWeight.w600)),
     );
   }
 }
 
-Future<void> showAnimatedHelpDialog({required BuildContext context, required GameController controller}) {
+Future<void> showAnimatedHelpDialog(
+    {required BuildContext context, required GameController controller}) {
   return showGeneralDialog(
     context: context,
     barrierDismissible: true,
@@ -116,7 +149,10 @@ Future<void> showAnimatedHelpDialog({required BuildContext context, required Gam
     transitionDuration: const Duration(milliseconds: 260),
     pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),
     transitionBuilder: (ctx, anim, _, __) {
-      final curved = CurvedAnimation(parent: anim, curve: Curves.easeOutCubic, reverseCurve: Curves.easeInCubic);
+      final curved = CurvedAnimation(
+          parent: anim,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic);
       return Stack(
         children: [
           Positioned.fill(
@@ -126,7 +162,8 @@ Future<void> showAnimatedHelpDialog({required BuildContext context, required Gam
               curve: Curves.easeOutCubic,
               builder: (context, sigma, _) {
                 return BackdropFilter(
-                  filter: ui.ImageFilter.blur(sigmaX: sigma * anim.value, sigmaY: sigma * anim.value),
+                  filter: ui.ImageFilter.blur(
+                      sigmaX: sigma * anim.value, sigmaY: sigma * anim.value),
                   child: const SizedBox.shrink(),
                 );
               },

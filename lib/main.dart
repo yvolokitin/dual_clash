@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'ui/pages/game_page.dart';
 import 'logic/game_controller.dart';
@@ -54,7 +53,8 @@ class _TwoTouchAppState extends State<TwoTouchApp> {
       debugShowCheckedModeBanner: false,
       theme: base.copyWith(
         textTheme: _boldAll(base.textTheme.apply(fontFamily: 'Fredoka')),
-        primaryTextTheme: _boldAll(base.primaryTextTheme.apply(fontFamily: 'Fredoka')),
+        primaryTextTheme:
+            _boldAll(base.primaryTextTheme.apply(fontFamily: 'Fredoka')),
       ),
       home: GamePage(controller: controller),
     );

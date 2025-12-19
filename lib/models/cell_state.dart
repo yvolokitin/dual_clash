@@ -1,4 +1,3 @@
-
 enum CellState { empty, red, blue, neutral }
 
 extension CellStateX on CellState {

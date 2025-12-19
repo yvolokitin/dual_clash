@@ -57,12 +57,17 @@ class _AnimatedTotalCounterState extends State<AnimatedTotalCounter> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Image.asset('assets/icons/points-removebg.png', width: 22, height: 22),
+                  Image.asset('assets/icons/points-removebg.png',
+                      width: 22, height: 22),
                   const SizedBox(width: 6),
                   _RollingNumber(
                     value: widget.value,
                     previousValue: _oldValue,
-                    textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: color, letterSpacing: 0.5),
+                    textStyle: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                        color: color,
+                        letterSpacing: 0.5),
                     directionUp: increased,
                   ),
                 ],
@@ -96,19 +101,20 @@ class _RollingNumber extends StatelessWidget {
     final String oldStr = previousValue.abs().toString();
 
     // Right-align digits; pad with spaces to the same length for stable layout
-    final int maxLen = newStr.length > oldStr.length ? newStr.length : oldStr.length;
+    final int maxLen =
+        newStr.length > oldStr.length ? newStr.length : oldStr.length;
 
     String padLeft(String s) => s.padLeft(maxLen, ' ');
     final String newPadded = padLeft(newStr);
     final String oldPadded = padLeft(oldStr);
 
-    final bool showMinus = value < 0; // totals likely non-negative, but keep generic
+    final bool showMinus =
+        value < 0; // totals likely non-negative, but keep generic
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (showMinus)
-          Text('-', style: textStyle),
+        if (showMinus) Text('-', style: textStyle),
         AnimatedSize(
           duration: const Duration(milliseconds: 260),
           curve: Curves.easeOutCubic,
@@ -160,7 +166,8 @@ class _RollingDigit extends StatelessWidget {
       switchOutCurve: Curves.easeInCubic,
       transitionBuilder: (child, anim) {
         final begin = Offset(0, rollUp ? 0.7 : -0.7);
-        final tween = Tween<Offset>(begin: begin, end: Offset.zero).chain(CurveTween(curve: Curves.easeOutCubic));
+        final tween = Tween<Offset>(begin: begin, end: Offset.zero)
+            .chain(CurveTween(curve: Curves.easeOutCubic));
         return ClipRect(
           child: SlideTransition(position: anim.drive(tween), child: child),
         );
