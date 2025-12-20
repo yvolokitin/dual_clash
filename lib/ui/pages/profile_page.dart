@@ -175,8 +175,10 @@ class ProfileDialog extends StatefulWidget {
 
 class _ProfileDialogState extends State<ProfileDialog> {
   late final TextEditingController _nicknameController;
+  Timer? _saveDebounce;
   String? _nicknameError;
   late String _selectedCountry;
+  late int _age;
 
   @override
   void initState() {
@@ -184,6 +186,7 @@ class _ProfileDialogState extends State<ProfileDialog> {
     _nicknameController =
         TextEditingController(text: widget.controller.nickname);
     _selectedCountry = Countries.normalize(widget.controller.country);
+    _age = widget.controller.age.clamp(3, 99);
     if (_selectedCountry != widget.controller.country) {
       widget.controller.setCountry(_selectedCountry);
     }
@@ -293,6 +296,63 @@ class _ProfileDialogState extends State<ProfileDialog> {
             child: Text(value,
                 style: const TextStyle(
                     color: Colors.white, fontWeight: FontWeight.w700)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _updateAge(int delta) async {
+    final next = (_age + delta).clamp(3, 99);
+    if (next == _age) return;
+    setState(() {
+      _age = next;
+    });
+    await widget.controller.setAge(_age);
+  }
+
+  Widget _ageRow() {
+    return Row(
+      children: [
+        const SizedBox(
+          width: 140,
+          child: Text('Age',
+              style: TextStyle(
+                  color: AppColors.dialogSubtitle,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.2)),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: AppColors.dialogFieldBg.withOpacity(0.6),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white24, width: 1),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _AgeButton(
+                    icon: Icons.remove,
+                    onPressed: () => _updateAge(-1),
+                    enabled: _age > 3),
+                Expanded(
+                  child: Center(
+                    child: Text('$_age',
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 16)),
+                  ),
+                ),
+                _AgeButton(
+                    icon: Icons.add,
+                    onPressed: () => _updateAge(1),
+                    enabled: _age < 99),
+              ],
+            ),
           ),
         ),
       ],
@@ -622,4 +682,34 @@ Future<void> showAnimatedProfileDialog(
       );
     },
   );
+}
+
+class _AgeButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onPressed;
+  final bool enabled;
+  const _AgeButton(
+      {required this.icon, required this.onPressed, required this.enabled});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 36,
+      height: 36,
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        iconSize: 18,
+        onPressed: enabled ? onPressed : null,
+        icon: Icon(icon,
+            color: enabled ? Colors.white : Colors.white38, size: 18),
+        style: IconButton.styleFrom(
+          backgroundColor:
+              enabled ? Colors.white.withOpacity(0.08) : Colors.white12,
+          disabledBackgroundColor: Colors.white12,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      ),
+    );
+  }
 }
