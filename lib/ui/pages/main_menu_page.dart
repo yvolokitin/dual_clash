@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
 import '../../logic/game_controller.dart';
-import '../../core/colors.dart';
 import 'history_page.dart';
 import 'profile_page.dart';
 import 'menu_page.dart' show showLoadGameDialog; // reuse existing dialog
 
 class MainMenuPage extends StatelessWidget {
   final GameController controller;
-  const MainMenuPage({super.key, required this.controller});
+  final ValueChanged<String>? onAction;
+  const MainMenuPage({super.key, required this.controller, this.onAction});
+
+  void _handleAction(BuildContext context, String action) {
+    if (onAction != null) {
+      onAction!(action);
+    } else {
+      Navigator.of(context).pop(action);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +57,7 @@ class MainMenuPage extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Center(
                   child: Image.asset(
-                    'assets/icons/dual-clash-words-removebg.png',
+                    'assets/icons/dual_clash-words-removebg.png',
                     fit: BoxFit.contain,
                   ),
                 ),
@@ -162,7 +170,7 @@ class MainMenuPage extends StatelessWidget {
                           iconPath: 'assets/icons/play-removebg.png',
                           label: 'Game challenge',
                           onTap: () {
-                            Navigator.of(context).pop('challenge');
+                            _handleAction(context, 'challenge');
                           },
                         ),
                         const SizedBox(height: 10),
@@ -174,7 +182,7 @@ class MainMenuPage extends StatelessWidget {
                             final ok = await showLoadGameDialog(
                                 context: context, controller: controller);
                             if (ok == true && context.mounted) {
-                              Navigator.of(context).pop('loaded');
+                              _handleAction(context, 'loaded');
                             }
                           },
                         ),

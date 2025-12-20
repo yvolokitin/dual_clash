@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'ui/pages/game_page.dart';
 import 'logic/game_controller.dart';
+import 'ui/pages/intro_animation_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -56,7 +56,7 @@ class _TwoTouchAppState extends State<TwoTouchApp> {
         primaryTextTheme:
             _boldAll(base.primaryTextTheme.apply(fontFamily: 'Fredoka')),
       ),
-      home: GamePage(controller: controller),
+      home: IntroAnimationPage(controller: controller),
     );
   }
 }
