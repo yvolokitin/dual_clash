@@ -49,7 +49,7 @@ class MainMenuPage extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Center(
                   child: Image.asset(
-                    'assets/icons/dual-clash-words-removebg.png',
+                    'assets/icons/dual-clash-removebg.png',
                     fit: BoxFit.contain,
                   ),
                 ),
