@@ -8,19 +8,6 @@ import '../../core/constants.dart';
 import '../../core/countries.dart';
 import 'history_page.dart';
 
-// --- Shared helpers (top-level) ---
-String _formatDuration(int ms) {
-  if (ms <= 0) return '0s';
-  int seconds = (ms / 1000).floor();
-  final hours = seconds ~/ 3600;
-  seconds %= 3600;
-  final minutes = seconds ~/ 60;
-  seconds %= 60;
-  if (hours > 0) return '${hours}h ${minutes}m';
-  if (minutes > 0) return '${minutes}m ${seconds}s';
-  return '${seconds}s';
-}
-
 Widget _beltCard(String name, Color color, bool achieved) {
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -73,93 +60,6 @@ Widget beltsGridWidget(Set<String> badges) {
         for (int lvl = 1; lvl <= 7; lvl++)
           _beltCard(
               AiBelt.nameFor(lvl), AiBelt.colorFor(lvl), achievedLevel(lvl)),
-      ],
-    ),
-  );
-}
-
-Widget dailyActivityList(GameController controller) {
-  final counts = controller.dailyPlayCountByDate;
-  final times = controller.dailyPlayTimeByDate;
-  final keys = counts.keys.toSet()..addAll(times.keys);
-  final days = keys.toList()..sort((a, b) => b.compareTo(a)); // desc yyyy-MM-dd
-  final show = days.take(10).toList();
-  if (show.isEmpty) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.dialogFieldBg.withOpacity(0.6),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white24, width: 1),
-      ),
-      child: const Text('No activity yet',
-          style: TextStyle(color: Colors.white70)),
-    );
-  }
-  return Container(
-    width: double.infinity,
-    padding: const EdgeInsets.symmetric(vertical: 6),
-    decoration: BoxDecoration(
-      color: AppColors.dialogFieldBg.withOpacity(0.6),
-      borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: Colors.white24, width: 1),
-    ),
-    child: Column(
-      children: [
-        for (final d in show)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Row(
-              children: [
-                Expanded(
-                    child: Text(d,
-                        style: const TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.w700))),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(999),
-                      border: Border.all(color: Colors.white24, width: 1)),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.sports_esports,
-                          color: Colors.white70, size: 16),
-                      const SizedBox(width: 6),
-                      Text('${counts[d] ?? 0}',
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w800)),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(999),
-                      border: Border.all(color: Colors.white24, width: 1)),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Image.asset('assets/icons/duration-removebg.png',
-                          width: 16, height: 16),
-                      const SizedBox(width: 6),
-                      Text(_formatDuration(times[d] ?? 0),
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w800)),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
       ],
     ),
   );
@@ -270,35 +170,6 @@ class _ProfileDialogState extends State<ProfileDialog> {
               size: 16),
         ],
       ),
-    );
-  }
-
-  Widget _infoRow(String label, String value) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 140,
-          child: Text(label,
-              style: const TextStyle(
-                  color: AppColors.dialogSubtitle,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.2)),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: AppColors.dialogFieldBg.withOpacity(0.6),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white24, width: 1),
-            ),
-            child: Text(value,
-                style: const TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.w700)),
-          ),
-        ),
-      ],
     );
   }
 
@@ -536,12 +407,6 @@ class _ProfileDialogState extends State<ProfileDialog> {
                         const SizedBox(height: 8),
                         _ageRow(),
                         const SizedBox(height: 16),
-                        _infoRow('Total score',
-                            controller.totalUserScore.toString()),
-                        const SizedBox(height: 8),
-                        _infoRow('Full red lines made',
-                            controller.redLinesCompletedTotal.toString()),
-                        const SizedBox(height: 16),
                         const Text('Belts',
                             style: TextStyle(
                                 color: AppColors.dialogSubtitle,
@@ -567,14 +432,6 @@ class _ProfileDialogState extends State<ProfileDialog> {
                                 'Diagonal', controller.achievedRedDiagonal),
                           ],
                         ),
-                        const SizedBox(height: 16),
-                        const Text('Daily activity',
-                            style: TextStyle(
-                                color: AppColors.dialogSubtitle,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.2)),
-                        const SizedBox(height: 8),
-                        dailyActivityList(controller),
                         // Legacy badges section removed as per spec; only Achievements and Belts remain
                       ],
                     ),
