@@ -174,6 +174,7 @@ class ProfileDialog extends StatefulWidget {
 class _ProfileDialogState extends State<ProfileDialog> {
   late final TextEditingController _nicknameController;
   String? _nicknameError;
+  final List<int> _ageOptions = List.generate(97, (i) => i + 3);
 
   @override
   void initState() {
@@ -337,6 +338,58 @@ class _ProfileDialogState extends State<ProfileDialog> {
     );
   }
 
+  Widget _ageRow() {
+    final controller = widget.controller;
+    final int currentAge =
+        (controller.age >= 3 && controller.age <= 99) ? controller.age : 18;
+    return Row(
+      children: [
+        const SizedBox(
+          width: 140,
+          child: Text('Age',
+              style: TextStyle(
+                  color: AppColors.dialogSubtitle,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.2)),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppColors.dialogFieldBg.withOpacity(0.6),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white24, width: 1),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<int>(
+                value: currentAge,
+                isExpanded: true,
+                dropdownColor: AppColors.bg,
+                iconEnabledColor: Colors.white70,
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.w700),
+                items: _ageOptions
+                    .map((age) => DropdownMenuItem<int>(
+                          value: age,
+                          child: Text(age.toString()),
+                        ))
+                    .toList(),
+                onChanged: (value) async {
+                  if (value == null) return;
+                  await controller.setAge(value);
+                  if (mounted) {
+                    setState(() {});
+                  }
+                },
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final bg = AppColors.bg;
@@ -406,7 +459,7 @@ class _ProfileDialogState extends State<ProfileDialog> {
                         const SizedBox(height: 8),
                         _infoRow('Country', controller.country),
                         const SizedBox(height: 8),
-                        _infoRow('Age', controller.age.toString()),
+                        _ageRow(),
                         const SizedBox(height: 16),
                         _infoRow('Total score',
                             controller.totalUserScore.toString()),

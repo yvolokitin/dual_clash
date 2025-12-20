@@ -527,7 +527,12 @@ class GameController extends ChangeNotifier {
     // Profile
     nickname = prefs.getString(_kNickname) ?? nickname;
     country = prefs.getString(_kCountry) ?? country;
-    age = prefs.getInt(_kAge) ?? age;
+    final persistedAge = prefs.getInt(_kAge);
+    if (persistedAge != null && persistedAge >= 3 && persistedAge <= 99) {
+      age = persistedAge;
+    } else {
+      age = 18;
+    }
     redLinesCompletedTotal = prefs.getInt(_kRedLinesTotal) ?? 0;
     final badgesList = prefs.getStringList(_kBadges) ?? const <String>[];
     badges = badgesList.toSet();
@@ -602,6 +607,14 @@ class GameController extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_kLanguageCode, code);
+  }
+
+  Future<void> setAge(int value) async {
+    if (value < 3 || value > 99) return;
+    age = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_kAge, value);
   }
 
   Future<bool> setNickname(String value) async {
