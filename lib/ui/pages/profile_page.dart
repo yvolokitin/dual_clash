@@ -471,9 +471,6 @@ class _ProfileDialogState extends State<ProfileDialog> {
                         _infoRow('Full red lines made',
                             controller.redLinesCompletedTotal.toString()),
                         const SizedBox(height: 16),
-                        _infoRow('Total time played',
-                            _formatDuration(controller.totalPlayTimeMs)),
-                        const SizedBox(height: 16),
                         const Text('Belts',
                             style: TextStyle(
                                 color: AppColors.dialogSubtitle,
