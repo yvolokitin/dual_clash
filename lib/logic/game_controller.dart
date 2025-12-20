@@ -605,6 +605,14 @@ class GameController extends ChangeNotifier {
     await prefs.setString(_kLanguageCode, code);
   }
 
+  Future<void> setAge(int value) async {
+    if (value < 3 || value > 99) return;
+    age = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_kAge, value);
+  }
+
   Future<bool> setNickname(String value) async {
     final trimmed = value.trim();
     if (!nicknameRegExp.hasMatch(trimmed)) return false;

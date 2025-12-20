@@ -463,7 +463,7 @@ class _ProfileDialogState extends State<ProfileDialog> {
                         const SizedBox(height: 8),
                         _countryRow(),
                         const SizedBox(height: 8),
-                        _infoRow('Age', controller.age.toString()),
+                        _ageRow(),
                         const SizedBox(height: 16),
                         _infoRow('Total score',
                             controller.totalUserScore.toString()),
