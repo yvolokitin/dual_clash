@@ -96,7 +96,7 @@ class HelpDialog extends StatelessWidget {
                         SizedBox(height: 12),
                         _SectionTitle('History & Profile'),
                         _BodyText(
-                            'Your finished games are saved in History with all details. Your cumulative total Red score is shown in Profile.'),
+                            'Your finished games are saved in History with all details.'),
                       ],
                     ),
                   ),
