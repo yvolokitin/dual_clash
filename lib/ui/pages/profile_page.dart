@@ -1,6 +1,7 @@
+import 'dart:async';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:ui' as ui;
 import '../../logic/game_controller.dart';
 import '../../core/colors.dart';
 import '../../core/constants.dart';
@@ -174,6 +175,7 @@ class ProfileDialog extends StatefulWidget {
 class _ProfileDialogState extends State<ProfileDialog> {
   late final TextEditingController _nicknameController;
   String? _nicknameError;
+  Timer? _saveDebounce;
 
   @override
   void initState() {
@@ -184,6 +186,7 @@ class _ProfileDialogState extends State<ProfileDialog> {
 
   @override
   void dispose() {
+    _saveDebounce?.cancel();
     _nicknameController.dispose();
     super.dispose();
   }
@@ -202,8 +205,7 @@ class _ProfileDialogState extends State<ProfileDialog> {
     return null;
   }
 
-  Future<void> _saveNickname() async {
-    final value = _nicknameController.text;
+  Future<void> _saveNickname(String value) async {
     final error = _validateNickname(value);
     setState(() {
       _nicknameError = error;
@@ -220,6 +222,20 @@ class _ProfileDialogState extends State<ProfileDialog> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Nickname updated')),
     );
+  }
+
+  void _handleNicknameChanged(String value) {
+    final error = _validateNickname(value);
+    setState(() {
+      _nicknameError = error;
+    });
+    _saveDebounce?.cancel();
+    if (error != null) return;
+    final trimmed = value.trim();
+    if (trimmed == widget.controller.nickname) return;
+    _saveDebounce = Timer(const Duration(milliseconds: 400), () {
+      _saveNickname(trimmed);
+    });
   }
 
   Widget _achChip(String text, bool achieved) {
@@ -317,11 +333,7 @@ class _ProfileDialogState extends State<ProfileDialog> {
                     hintStyle: TextStyle(color: Colors.white38),
                     border: InputBorder.none,
                   ),
-                  onChanged: (value) {
-                    setState(() {
-                      _nicknameError = _validateNickname(value);
-                    });
-                  },
+                  onChanged: _handleNicknameChanged,
                 ),
               ),
             ),
@@ -484,23 +496,6 @@ class _ProfileDialogState extends State<ProfileDialog> {
                               fontWeight: FontWeight.w800, letterSpacing: 0.2),
                         ),
                         child: const Text('History'),
-                      ),
-                      const SizedBox(width: 10),
-                      ElevatedButton(
-                        onPressed: _saveNickname,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.brandGold,
-                          foregroundColor: const Color(0xFF2B221D),
-                          shadowColor: Colors.black54,
-                          elevation: 4,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 12),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(24)),
-                          textStyle: const TextStyle(
-                              fontWeight: FontWeight.w800, letterSpacing: 0.2),
-                        ),
-                        child: const Text('Save'),
                       ),
                       const SizedBox(width: 10),
                       ElevatedButton(
