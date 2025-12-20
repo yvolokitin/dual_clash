@@ -180,7 +180,6 @@ class _ResultsCard extends StatelessWidget {
                       spacing: 12,
                       runSpacing: 10,
                       children: [
-                        AnimatedTotalCounter(value: controller.totalUserScore),
                         _timeChip(
                             label: 'Time played',
                             value: _formatDuration(controller.lastGamePlayMs)),
