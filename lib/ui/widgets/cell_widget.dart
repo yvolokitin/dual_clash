@@ -100,23 +100,23 @@ class _CellWidgetState extends State<CellWidget> {
       case CellState.empty:
         return _EmptyCell(
             key: const ValueKey('empty'),
-            radius: widget.borderRadius ?? BorderRadius.circular(8));
+            radius: widget.borderRadius ?? BorderRadius.circular(2));
       case CellState.red:
         return _InsetTile(
             color: AppColors.red,
-            radius: widget.borderRadius ?? BorderRadius.circular(8),
+            radius: widget.borderRadius ?? BorderRadius.circular(2),
             flashing: _flashing,
             key: const ValueKey('filled'));
       case CellState.blue:
         return _InsetTile(
             color: AppColors.blue,
-            radius: widget.borderRadius ?? BorderRadius.circular(8),
+            radius: widget.borderRadius ?? BorderRadius.circular(2),
             flashing: _flashing,
             key: const ValueKey('filled'));
       case CellState.neutral:
         return _InsetTile(
             color: AppColors.neutral,
-            radius: widget.borderRadius ?? BorderRadius.circular(8),
+            radius: widget.borderRadius ?? BorderRadius.circular(2),
             flashing: _flashing,
             key: const ValueKey('filled'));
     }
@@ -137,9 +137,7 @@ class _EmptyCell extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppColors.cellDark,
             borderRadius: radius,
-            border: Border.all(
-                color: AppColors.cellDarkBorder,
-                width: 2), // 2px darker border line
+            border: Border.all(color: AppColors.cellDarkBorder, width: 1),
           ),
         ),
 
@@ -217,7 +215,7 @@ class _InsetTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.cellDark,
         borderRadius: radius,
-        border: Border.all(color: AppColors.cellDarkBorder, width: 2),
+        border: Border.all(color: AppColors.cellDarkBorder, width: 1),
       ),
       child: Padding(
         padding: const EdgeInsets.all(3.0), // inset look
