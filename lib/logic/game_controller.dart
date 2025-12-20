@@ -9,6 +9,7 @@ import 'ai.dart';
 import '../core/colors.dart';
 import '../core/constants.dart';
 import '../models/game_result.dart';
+import '../core/countries.dart';
 
 class _GameSnapshot {
   final List<List<CellState>> board;
@@ -104,7 +105,7 @@ class GameController extends ChangeNotifier {
   int fallDurationMs = 1000;
   // Profile data
   String nickname = 'Player';
-  String country = 'Unknown';
+  String country = Countries.defaultCountry;
   int age = 18;
   Set<String> badges = <String>{};
   int redLinesCompletedTotal = 0;
@@ -526,13 +527,8 @@ class GameController extends ChangeNotifier {
     }
     // Profile
     nickname = prefs.getString(_kNickname) ?? nickname;
-    country = prefs.getString(_kCountry) ?? country;
-    final persistedAge = prefs.getInt(_kAge);
-    if (persistedAge != null && persistedAge >= 3 && persistedAge <= 99) {
-      age = persistedAge;
-    } else {
-      age = 18;
-    }
+    country = Countries.normalize(prefs.getString(_kCountry) ?? country);
+    age = prefs.getInt(_kAge) ?? age;
     redLinesCompletedTotal = prefs.getInt(_kRedLinesTotal) ?? 0;
     final badgesList = prefs.getStringList(_kBadges) ?? const <String>[];
     badges = badgesList.toSet();
@@ -648,6 +644,13 @@ class GameController extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
         _kStartingPlayer, who == CellState.blue ? 'blue' : 'red');
+  }
+
+  Future<void> setCountry(String value) async {
+    country = Countries.normalize(value);
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kCountry, country);
   }
 
   void newGame() {

@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import '../../logic/game_controller.dart';
 import '../../core/colors.dart';
 import '../../core/constants.dart';
+import '../../core/countries.dart';
 import 'history_page.dart';
 
 // --- Shared helpers (top-level) ---
@@ -174,13 +175,17 @@ class ProfileDialog extends StatefulWidget {
 class _ProfileDialogState extends State<ProfileDialog> {
   late final TextEditingController _nicknameController;
   String? _nicknameError;
-  final List<int> _ageOptions = List.generate(97, (i) => i + 3);
+  late String _selectedCountry;
 
   @override
   void initState() {
     super.initState();
     _nicknameController =
         TextEditingController(text: widget.controller.nickname);
+    _selectedCountry = Countries.normalize(widget.controller.country);
+    if (_selectedCountry != widget.controller.country) {
+      widget.controller.setCountry(_selectedCountry);
+    }
   }
 
   @override
@@ -338,15 +343,13 @@ class _ProfileDialogState extends State<ProfileDialog> {
     );
   }
 
-  Widget _ageRow() {
-    final controller = widget.controller;
-    final int currentAge =
-        (controller.age >= 3 && controller.age <= 99) ? controller.age : 18;
+  Widget _countryRow() {
+    final options = Countries.optionsForSelection(_selectedCountry);
     return Row(
       children: [
         const SizedBox(
           width: 140,
-          child: Text('Age',
+          child: Text('Country',
               style: TextStyle(
                   color: AppColors.dialogSubtitle,
                   fontWeight: FontWeight.w700,
@@ -355,32 +358,33 @@ class _ProfileDialogState extends State<ProfileDialog> {
         const SizedBox(width: 8),
         Expanded(
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
             decoration: BoxDecoration(
               color: AppColors.dialogFieldBg.withOpacity(0.6),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.white24, width: 1),
             ),
             child: DropdownButtonHideUnderline(
-              child: DropdownButton<int>(
-                value: currentAge,
+              child: DropdownButton<String>(
+                value: _selectedCountry,
                 isExpanded: true,
-                dropdownColor: AppColors.bg,
+                dropdownColor: AppColors.dialogFieldBg.withOpacity(0.92),
                 iconEnabledColor: Colors.white70,
                 style: const TextStyle(
                     color: Colors.white, fontWeight: FontWeight.w700),
-                items: _ageOptions
-                    .map((age) => DropdownMenuItem<int>(
-                          value: age,
-                          child: Text(age.toString()),
+                items: options
+                    .map((country) => DropdownMenuItem<String>(
+                          value: country,
+                          enabled: country != Countries.defaultCountry,
+                          child: Text(country),
                         ))
                     .toList(),
                 onChanged: (value) async {
-                  if (value == null) return;
-                  await controller.setAge(value);
-                  if (mounted) {
-                    setState(() {});
-                  }
+                  if (value == null || value == _selectedCountry) return;
+                  setState(() {
+                    _selectedCountry = value;
+                  });
+                  await widget.controller.setCountry(value);
                 },
               ),
             ),
@@ -457,7 +461,7 @@ class _ProfileDialogState extends State<ProfileDialog> {
                       children: [
                         _nicknameRow(),
                         const SizedBox(height: 8),
-                        _infoRow('Country', controller.country),
+                        _countryRow(),
                         const SizedBox(height: 8),
                         _ageRow(),
                         const SizedBox(height: 16),
