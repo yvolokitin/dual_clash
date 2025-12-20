@@ -118,10 +118,9 @@ class BoardWidget extends StatelessWidget {
                           final isGold = controller.gameOver &&
                               controller.goldCells.contains((r, c));
 
-                          // For 9x9 board, ALL cells should have 0 radius; board container keeps outer rounding
-                          final BorderRadius cellRadius = (K.n == 9)
-                              ? BorderRadius.zero
-                              : BorderRadius.circular(8);
+                          // All cells share a subtle 2px corner rounding
+                          final BorderRadius cellRadius =
+                              BorderRadius.circular(2);
 
                           Widget cellStack = Stack(
                             fit: StackFit.expand,
