@@ -1,73 +1,13 @@
 import 'package:flutter/material.dart';
-import 'dart:ui' as ui;
 import 'package:dual_clash/core/colors.dart';
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/models/cell_state.dart';
 import 'package:dual_clash/ui/widgets/animated_total_counter.dart';
-import 'package:dual_clash/ui/widgets/results_card.dart';
 
-/// Results dialog extracted from GamePage so it can be reused and maintained independently.
-Future<void> showAnimatedResultsDialog(
-    {required BuildContext context, required GameController controller}) {
-  return showGeneralDialog(
-    context: context,
-    barrierDismissible: true,
-    barrierLabel: 'Results',
-    barrierColor: Colors.black.withOpacity(0.55),
-    transitionDuration: const Duration(milliseconds: 260),
-    pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),
-    transitionBuilder: (ctx, anim, _, __) {
-      final curved = CurvedAnimation(
-          parent: anim,
-          curve: Curves.easeOutCubic,
-          reverseCurve: Curves.easeInCubic);
-      return Stack(
-        children: [
-          // Soft blur backdrop
-          Positioned.fill(
-            child: AnimatedBuilder(
-              animation: anim,
-              builder: (context, _) => BackdropFilter(
-                filter: ui.ImageFilter.blur(
-                    sigmaX: 6 * anim.value, sigmaY: 6 * anim.value),
-                child: const SizedBox.shrink(),
-              ),
-            ),
-          ),
-          Center(
-            child: FadeTransition(
-              opacity: curved,
-              child: ScaleTransition(
-                scale: Tween<double>(begin: 0.94, end: 1.0).animate(curved),
-                child: ResultsCard(controller: controller),
-              ),
-            ),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-String _formatDuration(int ms) {
-  if (ms <= 0) return '0s';
-  int seconds = (ms / 1000).floor();
-  int hours = seconds ~/ 3600;
-  seconds %= 3600;
-  int minutes = seconds ~/ 60;
-  seconds %= 60;
-  if (hours > 0) {
-    return '${hours}h ${minutes}m';
-  }
-  if (minutes > 0) {
-    return '${minutes}m ${seconds}s';
-  }
-  return '${seconds}s';
-}
-
-class _ResultsCard extends StatelessWidget {
+// Independent ResultsCard widget extracted to be reusable across the app.
+class ResultsCard extends StatelessWidget {
   final GameController controller;
-  const _ResultsCard({required this.controller});
+  const ResultsCard({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -174,13 +114,14 @@ class _ResultsCard extends StatelessWidget {
                       highlight: winner == CellState.blue),
 
                   const SizedBox(height: 12),
-                  // Points and time on the same row if fit; otherwise wrap
+                  // Points and time on the same row if fit; otherwise they will wrap to 2 rows automatically
                   Center(
                     child: Wrap(
                       alignment: WrapAlignment.center,
                       spacing: 12,
                       runSpacing: 10,
                       children: [
+                        // AnimatedTotalCounter(value: controller.totalUserScore),
                         _timeChip(
                             label: 'Time played',
                             value: _formatDuration(controller.lastGamePlayMs)),
@@ -188,7 +129,7 @@ class _ResultsCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  // Turns row
+                  // Turns row beneath
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -341,32 +282,38 @@ class _TotalsSummary extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Won award', style: TextStyle(color: Colors.white54)),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.add, color: Colors.lightGreenAccent, size: 18),
-                const SizedBox(width: 6),
-                Text('+${awarded}',
-                    style: const TextStyle(
-                        color: Colors.lightGreenAccent,
-                        fontWeight: FontWeight.w900)),
-                const SizedBox(width: 10),
-                const Text('= ', style: TextStyle(color: Colors.white54)),
-                AnimatedTotalCounter(value: newTotal),
-              ],
-            ),
+            const Text('This game earned',
+                style: TextStyle(
+                    color: Colors.white70, fontWeight: FontWeight.w700)),
+            Text('+$awarded = $before → $newTotal',
+                style: const TextStyle(
+                    color: Colors.lightGreenAccent,
+                    fontWeight: FontWeight.w900)),
           ],
         ),
       );
+    } else if (winner == null) {
+      line2 = const Padding(
+        padding: EdgeInsets.only(top: 8.0),
+        child: Text('Draw game: your total remains the same.',
+            textAlign: TextAlign.right,
+            style:
+                TextStyle(color: Colors.white70, fontWeight: FontWeight.w700)),
+      );
     } else {
-      line2 = const SizedBox.shrink();
+      line2 = const Padding(
+        padding: EdgeInsets.only(top: 8.0),
+        child: Text('You lost: your total remained the same.',
+            textAlign: TextAlign.right,
+            style:
+                TextStyle(color: Colors.white70, fontWeight: FontWeight.w700)),
+      );
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.04),
+        color: Colors.white.withOpacity(0.06),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.white24, width: 1),
       ),
@@ -388,42 +335,61 @@ class _ResultsActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ai = controller.aiLevel;
+    final int ai = controller.aiLevel;
+    final bool atMin = ai <= 1;
+    final bool atMax = ai >= 7;
+
+    // Helper builders copied from GamePage to preserve styles
+    Widget goldButton(
+        {required String text,
+        required IconData icon,
+        required VoidCallback onPressed}) {
+      return ElevatedButton.icon(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.brandGold,
+          foregroundColor: const Color(0xFF2B221D),
+          shadowColor: Colors.black54,
+          elevation: 4,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          textStyle:
+              const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.2),
+        ),
+        icon: Icon(icon),
+        label: Text(text),
+      );
+    }
 
     Widget outlineButton(
-            {required String text,
-            required IconData icon,
-            required VoidCallback onPressed}) =>
-        OutlinedButton.icon(
-          onPressed: onPressed,
-          icon: Icon(icon),
-          label: Text(text),
-        );
-
-    Widget goldButton(
-            {required String text,
-            required IconData icon,
-            required VoidCallback onPressed}) =>
-        ElevatedButton.icon(
-          onPressed: onPressed,
-          icon: Icon(icon),
-          label: Text(text),
-        );
+        {required String text,
+        required IconData icon,
+        required VoidCallback onPressed}) {
+      return TextButton.icon(
+        onPressed: onPressed,
+        style: TextButton.styleFrom(
+          backgroundColor: Colors.white.withOpacity(0.08),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+            side: const BorderSide(color: Colors.white24),
+          ),
+          textStyle:
+              const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.2),
+        ),
+        icon: Icon(icon, size: 20),
+        label: Text(text),
+      );
+    }
 
     List<Widget> buttons;
-    if (winner == null) {
-      // Draw
+
+    if (atMin || atMax || winner == null) {
+      // At bounds or draw: single Next Game
       buttons = [
-        outlineButton(
-          text: 'Play again',
-          icon: Icons.replay,
-          onPressed: () {
-            Navigator.of(context).pop();
-            controller.newGame();
-          },
-        ),
         goldButton(
-          text: 'Continue play same level',
+          text: 'Play next game',
           icon: Icons.play_arrow,
           onPressed: () {
             Navigator.of(context).pop();
@@ -434,21 +400,21 @@ class _ResultsActions extends StatelessWidget {
     } else if (winner == CellState.red) {
       // User won
       buttons = [
-        goldButton(
-          text: 'Play higher AI level',
-          icon: Icons.trending_up,
-          onPressed: () async {
-            Navigator.of(context).pop();
-            final higher = (ai + 1).clamp(1, 7);
-            await controller.setAiLevel(higher);
-            controller.newGame();
-          },
-        ),
         outlineButton(
           text: 'Continue play same level',
           icon: Icons.replay,
           onPressed: () {
             Navigator.of(context).pop();
+            controller.newGame();
+          },
+        ),
+        goldButton(
+          text: 'Play next AI level',
+          icon: Icons.trending_up,
+          onPressed: () async {
+            Navigator.of(context).pop();
+            final next = (ai + 1).clamp(1, 7);
+            await controller.setAiLevel(next);
             controller.newGame();
           },
         ),
@@ -560,4 +526,20 @@ class _MiniBoardPreview extends StatelessWidget {
       ),
     );
   }
+}
+
+String _formatDuration(int ms) {
+  if (ms <= 0) return '0s';
+  int seconds = (ms / 1000).floor();
+  int hours = seconds ~/ 3600;
+  seconds %= 3600;
+  int minutes = seconds ~/ 60;
+  seconds %= 60;
+  if (hours > 0) {
+    return '${hours}h ${minutes}m';
+  }
+  if (minutes > 0) {
+    return '${minutes}m ${seconds}s';
+  }
+  return '${seconds}s';
 }

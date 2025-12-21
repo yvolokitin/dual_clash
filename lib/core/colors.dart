@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   // Mutable background color so Settings can change it at runtime
-  static Color bg = const Color(0xFF3B7D23); // game page green background
+  static Color bg = const Color(0xFF38518F); // FF3B7D23); // game page green background
   static const tile = Color(0xFFD9C7A6); // sand
   static const red = Color(0xFFD84A3A);
   static const blue = Color(0xFF1F73D1);

@@ -144,7 +144,7 @@ class GameController extends ChangeNotifier {
   static final RegExp nicknameRegExp = RegExp(r'^[A-Za-z0-9._-]{1,32}$');
 
   // In-memory settings
-  int themeColorHex = 0xFF3B7D23;
+  int themeColorHex = 0xFF38518F; // 0xFF3B7D23;
   String languageCode = 'en';
   int boardSize = 9; // not yet applied to engine (future enhancement)
   int aiLevel = 3; // 1..7

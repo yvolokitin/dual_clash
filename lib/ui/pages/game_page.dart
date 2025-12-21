@@ -15,6 +15,7 @@ import 'statistics_page.dart';
 import 'main_menu_page.dart';
 import 'package:dual_clash/ui/widgets/animated_total_counter.dart';
 import 'package:dual_clash/ui/widgets/live_points_chip.dart';
+import 'package:dual_clash/ui/widgets/results_card.dart';
 
 class GameDialogs {
   static Future<void> showSaveGameDialog(
@@ -1058,7 +1059,7 @@ Future<void> showAnimatedResultsDialog(
               opacity: curved,
               child: ScaleTransition(
                 scale: Tween<double>(begin: 0.94, end: 1.0).animate(curved),
-                child: _ResultsCard(controller: controller),
+                child: ResultsCard(controller: controller),
               ),
             ),
           ),
