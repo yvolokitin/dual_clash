@@ -44,7 +44,7 @@ class BoardWidget extends StatelessWidget {
           controller.setBoardPixelSize(size);
         });
 
-        const border = 5.0; // 5px gradient border (+2px thicker)
+        const border = 3.0; // 3px gradient border line
         final innerSize =
             size; // outer container remains square; padding will shrink grid area visually
 
@@ -118,9 +118,9 @@ class BoardWidget extends StatelessWidget {
                           final isGold = controller.gameOver &&
                               controller.goldCells.contains((r, c));
 
-                          // For 9x9 board, ALL cells should have 0 radius; board container keeps outer rounding
+                          // For 9x9 board, cells should have slight rounding (2px). For others keep 8px.
                           final BorderRadius cellRadius = (K.n == 9)
-                              ? BorderRadius.zero
+                              ? BorderRadius.circular(2)
                               : BorderRadius.circular(8);
 
                           Widget cellStack = Stack(

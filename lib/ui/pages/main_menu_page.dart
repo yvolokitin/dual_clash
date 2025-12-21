@@ -4,6 +4,7 @@ import '../../core/colors.dart';
 import 'history_page.dart';
 import 'profile_page.dart';
 import 'menu_page.dart' show showLoadGameDialog; // reuse existing dialog
+import 'game_page.dart';
 
 class MainMenuPage extends StatelessWidget {
   final GameController controller;
@@ -24,16 +25,12 @@ class MainMenuPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Top app bar row (back and title)
+
             Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
               child: Row(
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new,
-                        color: Colors.white),
-                    onPressed: () => Navigator.of(context).maybePop(),
-                  ),
                   const Spacer(),
                   const SizedBox.shrink(),
                   const Spacer(),
@@ -160,9 +157,13 @@ class MainMenuPage extends StatelessWidget {
                         _MenuActionTile(
                           color: Colors.orange,
                           iconPath: 'assets/icons/play-removebg.png',
-                          label: 'Game challenge',
+                          label: 'Game challange',
                           onTap: () {
-                            Navigator.of(context).pop('challenge');
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => GamePage(controller: controller),
+                              ),
+                            );
                           },
                         ),
                         const SizedBox(height: 10),

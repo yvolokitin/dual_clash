@@ -1200,7 +1200,7 @@ class _ResultsCard extends StatelessWidget {
                       spacing: 12,
                       runSpacing: 10,
                       children: [
-                        AnimatedTotalCounter(value: controller.totalUserScore),
+                        // AnimatedTotalCounter(value: controller.totalUserScore),
                         _timeChip(
                             label: 'Time played',
                             value: _formatDuration(controller.lastGamePlayMs)),
@@ -1557,7 +1557,7 @@ class _MiniBoardPreview extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Final board',
+            const Text('Final board view',
                 style: TextStyle(
                     color: Colors.white70, fontWeight: FontWeight.w700)),
             const SizedBox(height: 8),

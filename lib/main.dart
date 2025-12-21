@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'ui/pages/game_page.dart';
+import 'ui/pages/main_menu_page.dart';
 import 'logic/game_controller.dart';
 
 void main() {
@@ -56,7 +56,7 @@ class _TwoTouchAppState extends State<TwoTouchApp> {
         primaryTextTheme:
             _boldAll(base.primaryTextTheme.apply(fontFamily: 'Fredoka')),
       ),
-      home: GamePage(controller: controller),
+      home: MainMenuPage(controller: controller),
     );
   }
 }

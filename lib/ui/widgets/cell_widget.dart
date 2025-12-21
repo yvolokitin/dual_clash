@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/cell_state.dart';
 import '../../core/colors.dart';
+import '../../core/constants.dart';
 
 class CellWidget extends StatefulWidget {
   final CellState state;
@@ -105,18 +106,21 @@ class _CellWidgetState extends State<CellWidget> {
         return _InsetTile(
             color: AppColors.red,
             radius: widget.borderRadius ?? BorderRadius.circular(8),
+            asset: 'assets/icons/box_red-removebg.png',
             flashing: _flashing,
             key: const ValueKey('filled'));
       case CellState.blue:
         return _InsetTile(
             color: AppColors.blue,
             radius: widget.borderRadius ?? BorderRadius.circular(8),
+            asset: 'assets/icons/box_blue-removebg.png',
             flashing: _flashing,
             key: const ValueKey('filled'));
       case CellState.neutral:
         return _InsetTile(
             color: AppColors.neutral,
             radius: widget.borderRadius ?? BorderRadius.circular(8),
+            asset: 'assets/icons/box_grey-removebg.png',
             flashing: _flashing,
             key: const ValueKey('filled'));
     }
@@ -139,7 +143,7 @@ class _EmptyCell extends StatelessWidget {
             borderRadius: radius,
             border: Border.all(
                 color: AppColors.cellDarkBorder,
-                width: 2), // 2px darker border line
+                width: K.n == 9 ? 1 : 2), // 1px for 9x9, 2px otherwise
           ),
         ),
 
@@ -202,12 +206,14 @@ class _EmptyCell extends StatelessWidget {
 /// Generic beveled tile with slight top highlight and bottom inner shadow.
 /// Rendered inset within the cell to look "inside" the board.
 class _InsetTile extends StatelessWidget {
-  final Color color;
+  final Color color; // kept for backward compatibility (unused for image fill)
   final bool flashing;
   final BorderRadius radius;
+  final String asset;
   const _InsetTile(
       {required this.color,
       required this.radius,
+      required this.asset,
       this.flashing = false,
       super.key});
 
@@ -224,24 +230,27 @@ class _InsetTile extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // Base color with slight outer shadow for density
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeInOut,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: radius,
-                boxShadow: const [
-                  BoxShadow(
-                      color: Colors.black26,
-                      offset: Offset(0, 2),
-                      blurRadius: 4),
-                  BoxShadow(
-                      color: Colors.black12,
-                      offset: Offset(0, 0),
-                      blurRadius: 1,
-                      spreadRadius: 0.5),
-                ],
+            // Base image with slight outer shadow for density
+            ClipRRect(
+              borderRadius: radius,
+              child: Container(
+                decoration: const BoxDecoration(
+                  // mimic previous depth
+                  boxShadow: [
+                    BoxShadow(color: Colors.black26, offset: Offset(0, 2), blurRadius: 4),
+                    BoxShadow(
+                        color: Colors.black12, offset: Offset(0, 0), blurRadius: 1, spreadRadius: 0.5),
+                  ],
+                ),
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: Image.asset(
+                    asset,
+                    key: ValueKey(asset),
+                    fit: BoxFit.cover,
+                    filterQuality: FilterQuality.high,
+                  ),
+                ),
               ),
             ),
 
