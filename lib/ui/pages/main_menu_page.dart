@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 import '../../logic/game_controller.dart';
 import '../../core/colors.dart';
 import 'history_page.dart';
@@ -6,37 +7,60 @@ import 'profile_page.dart';
 import 'menu_page.dart' show showLoadGameDialog; // reuse existing dialog
 import 'game_page.dart';
 
-class MainMenuPage extends StatelessWidget {
+class MainMenuPage extends StatefulWidget {
   final GameController controller;
   const MainMenuPage({super.key, required this.controller});
 
   @override
+  State<MainMenuPage> createState() => _MainMenuPageState();
+}
+
+class _MainMenuPageState extends State<MainMenuPage> {
+  Animation<double>? _bgAnim;
+  bool _showContent = true; // hidden until startup animation completes
+  static const Color _violet = Color(0xFF8A2BE2);
+  static const Color _menuGreen = Color(0xFF22B14C);
+
+  @override
+  void initState() {
+    super.initState();
+    // If animation already played this session, show content immediately
+    _showContent = _StartupHeroLogo.hasPlayed;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Spec: solid green background #22B14C on the Game menu screen
-    const Color menuGreen = Color(0xFF22B14C);
+    final controller = widget.controller;
     final size = MediaQuery.of(context).size;
-    final double topHeroHeight =
-        size.height * 0.25; // 25% of top page for the image
+    final double topHeroHeight = size.height * 0.35; // 35% of top page for the image
+    final Color bgColor = _bgAnim != null
+        ? ColorTween(begin: _violet, end: _menuGreen).evaluate(_bgAnim!)!
+        : (_showContent ? _menuGreen : _violet);
 
     return Scaffold(
-      backgroundColor: menuGreen,
+      backgroundColor: bgColor,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Top app bar row (back and title)
-
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-              child: Row(
-                children: [
-                  const Spacer(),
-                  const SizedBox.shrink(),
-                  const Spacer(),
-                  const SizedBox(width: 48),
-                ],
-              ),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 400),
+              switchInCurve: Curves.easeOutCubic,
+              transitionBuilder: (child, anim) => FadeTransition(opacity: anim, child: child),
+              child: _showContent
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                      child: Row(
+                        children: const [
+                          Spacer(),
+                          SizedBox.shrink(),
+                          Spacer(),
+                          SizedBox(width: 48),
+                        ],
+                      ),
+                    )
+                  : const SizedBox.shrink(),
             ),
 
             // 25% top hero image
@@ -45,164 +69,188 @@ class MainMenuPage extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Center(
-                  child: Image.asset(
-                    'assets/icons/dual-clash-removebg.png',
-                    fit: BoxFit.contain,
-                  ),
+                  child: _StartupHeroLogo(
+                                      onAttachAnimation: (anim) {
+                                        // Bind background tween to the startup animation
+                                        setState(() {
+                                          _bgAnim = anim;
+                                        });
+                                        anim.addListener(() {
+                                          if (mounted) setState(() {});
+                                        });
+                                      },
+                                      onCompleted: () {
+                                        if (mounted) setState(() => _showContent = true);
+                                      },
+                                    ),
                 ),
               ),
             ),
 
             // Total points + time as one chip card (unified icon/text sizes)
-            Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 320),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Builder(
-                    builder: (context) {
-                      const Color darkBlue = Color(0xFF001F5B);
-                      String _formatDuration(int ms) {
-                        if (ms <= 0) return '0s';
-                        int seconds = (ms / 1000).floor();
-                        final hours = seconds ~/ 3600;
-                        seconds %= 3600;
-                        final minutes = seconds ~/ 60;
-                        seconds %= 60;
-                        if (hours > 0) return '${hours}h ${minutes}m';
-                        if (minutes > 0) return '${minutes}m ${seconds}s';
-                        return '${seconds}s';
-                      }
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 420),
+              switchInCurve: Curves.easeOutCubic,
+              transitionBuilder: (child, anim) => FadeTransition(opacity: anim, child: child),
+              child: _showContent
+                  ? Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 360),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Builder(
+                            builder: (context) {
+                              const Color darkBlue = Color(0xFF001F5B);
+                              String _formatDuration(int ms) {
+                                if (ms <= 0) return '0s';
+                                int seconds = (ms / 1000).floor();
+                                final hours = seconds ~/ 3600;
+                                seconds %= 3600;
+                                final minutes = seconds ~/ 60;
+                                seconds %= 60;
+                                if (hours > 0) return '${hours}h ${minutes}m';
+                                if (minutes > 0) return '${minutes}m ${seconds}s';
+                                return '${seconds}s';
+                              }
 
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(18),
-                          boxShadow: const [
-                            BoxShadow(
-                                color: Colors.black26,
-                                blurRadius: 10,
-                                offset: Offset(0, 4)),
-                          ],
+                              return Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(18),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                        color: Colors.black26,
+                                        blurRadius: 10,
+                                        offset: Offset(0, 4)),
+                                  ],
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 10),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          Image.asset(
+                                              'assets/icons/points-removebg.png',
+                                              width: 24,
+                                              height: 24),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            '${controller.totalUserScore}',
+                                            style: const TextStyle(
+                                                color: darkBlue,
+                                                fontWeight: FontWeight.w800,
+                                                fontSize: 18),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      width: 1,
+                                      height: 24,
+                                      color: Colors.black12,
+                                    ),
+                                    Expanded(
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          Image.asset(
+                                              'assets/icons/duration-removebg.png',
+                                              width: 24,
+                                              height: 24),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            _formatDuration(controller.totalPlayTimeMs),
+                                            style: const TextStyle(
+                                                color: darkBlue,
+                                                fontWeight: FontWeight.w800,
+                                                fontSize: 18),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
                         ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Image.asset(
-                                      'assets/icons/points-removebg.png',
-                                      width: 24,
-                                      height: 24),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    '${controller.totalUserScore}',
-                                    style: const TextStyle(
-                                        color: darkBlue,
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 18),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              width: 1,
-                              height: 24,
-                              color: Colors.black12,
-                            ),
-                            Expanded(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Image.asset(
-                                      'assets/icons/duration-removebg.png',
-                                      width: 24,
-                                      height: 24),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    _formatDuration(controller.totalPlayTimeMs),
-                                    style: const TextStyle(
-                                        color: darkBlue,
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 18),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
             ),
 
             const SizedBox(height: 16),
 
             // Centered menu items
             Expanded(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 320),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _MenuActionTile(
-                          color: Colors.orange,
-                          iconPath: 'assets/icons/play-removebg.png',
-                          label: 'Game challange',
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => GamePage(controller: controller),
-                              ),
-                            );
-                          },
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 420),
+                switchInCurve: Curves.easeOutCubic,
+                transitionBuilder: (child, anim) => FadeTransition(opacity: anim, child: child),
+                child: _showContent
+                    ? Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 320),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _MenuActionTile(
+                                  color: Colors.orange,
+                                  iconPath: 'assets/icons/play-removebg.png',
+                                  label: 'Game challange',
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) => GamePage(controller: controller),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                const SizedBox(height: 10),
+                                _MenuActionTile(
+                                  color: Colors.blue,
+                                  iconPath: 'assets/icons/load-removebg.png',
+                                  label: 'Load game',
+                                  onTap: () async {
+                                    final ok = await showLoadGameDialog(
+                                        context: context, controller: controller);
+                                    if (ok == true && context.mounted) {
+                                      Navigator.of(context).pop('loaded');
+                                    }
+                                  },
+                                ),
+                                const SizedBox(height: 10),
+                                _MenuActionTile(
+                                  color: const Color(0xFF8B4513), // brown
+                                  iconPath: 'assets/icons/history-removebg.png',
+                                  label: 'History',
+                                  onTap: () async {
+                                    await showAnimatedHistoryDialog(
+                                        context: context, controller: controller);
+                                  },
+                                ),
+                                const SizedBox(height: 10),
+                                _MenuActionTile(
+                                  color: Colors.red,
+                                  iconPath: 'assets/icons/profile-removebg.png',
+                                  label: 'Profile',
+                                  onTap: () async {
+                                    await showAnimatedProfileDialog(
+                                        context: context, controller: controller);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                        const SizedBox(height: 10),
-                        _MenuActionTile(
-                          color: Colors.blue,
-                          iconPath: 'assets/icons/load-removebg.png',
-                          label: 'Load game',
-                          onTap: () async {
-                            final ok = await showLoadGameDialog(
-                                context: context, controller: controller);
-                            if (ok == true && context.mounted) {
-                              Navigator.of(context).pop('loaded');
-                            }
-                          },
-                        ),
-                        const SizedBox(height: 10),
-                        _MenuActionTile(
-                          color: const Color(0xFF8B4513), // brown
-                          iconPath: 'assets/icons/history-removebg.png',
-                          label: 'History',
-                          onTap: () async {
-                            await showAnimatedHistoryDialog(
-                                context: context, controller: controller);
-                          },
-                        ),
-                        const SizedBox(height: 10),
-                        _MenuActionTile(
-                          color: Colors.red,
-                          iconPath: 'assets/icons/profile-removebg.png',
-                          label: 'Profile',
-                          onTap: () async {
-                            await showAnimatedProfileDialog(
-                                context: context, controller: controller);
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                      )
+                    : const SizedBox.shrink(),
               ),
             ),
           ],
@@ -269,6 +317,238 @@ class _MenuActionTile extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _StartupHeroLogo extends StatefulWidget {
+  const _StartupHeroLogo({this.onAttachAnimation, this.onCompleted});
+
+  final ValueChanged<Animation<double>>? onAttachAnimation;
+  final VoidCallback? onCompleted;
+
+  static bool get hasPlayed => _StartupHeroLogoState._playedOnce;
+
+  @override
+  State<_StartupHeroLogo> createState() => _StartupHeroLogoState();
+}
+
+class _StartupHeroLogoState extends State<_StartupHeroLogo>
+    with SingleTickerProviderStateMixin {
+  static bool _playedOnce = false; // session-scoped within app process
+  AnimationController? _ctrl;
+  Animation<double>? _t;
+  bool _showStaticLogo = false; // show regular logo on subsequent entries only
+
+  @override
+  void initState() {
+    super.initState();
+    if (!_playedOnce) {
+      _ctrl = AnimationController(vsync: this, duration: const Duration(seconds: 4));
+      _t = CurvedAnimation(parent: _ctrl!, curve: Curves.easeInOutCubic);
+      // Expose the animation to parent so it can drive background color
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && widget.onAttachAnimation != null && _t != null) {
+          widget.onAttachAnimation!.call(_t!);
+        }
+      });
+      _ctrl!.forward();
+      _ctrl!.addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          _playedOnce = true; // future builds in new routes show the static logo
+          // Notify parent that animation is done so the rest of UI can appear
+          widget.onCompleted?.call();
+          // Keep showing the final animation frame in this first session view
+          if (mounted) setState(() {});
+        }
+      });
+    } else {
+      _showStaticLogo = true;
+      // If skipping animation, notify parent immediately so page content shows
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        widget.onCompleted?.call();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _ctrl?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // If already played earlier in session and this is not the first instance, show static logo
+    if (_playedOnce && _showStaticLogo) {
+      return Image.asset('assets/icons/dual-clash-removebg.png', fit: BoxFit.contain);
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final w = constraints.maxWidth;
+        final h = constraints.maxHeight;
+        // Target merge area size ~ 70% of available height, keep square-ish
+        final targetSize = math.min(w, h) * 0.7;
+        final tileSize = targetSize / 2;
+        final centerX = w / 2;
+        final centerY = h / 2;
+        // Final positions for 2x2 layout: (top: red-grey), (bottom: red-blue)
+        final finalPos = <Offset>[
+          // top-left: red
+          Offset(centerX - tileSize, centerY - tileSize),
+          // top-right: grey
+          Offset(centerX, centerY - tileSize),
+          // bottom-left: red
+          Offset(centerX - tileSize, centerY),
+          // bottom-right: blue
+          Offset(centerX, centerY),
+        ];
+
+        // Start positions per spec
+        // - Top-left red: from left to right along top row Y
+        // - Top-right grey: from right to left along top row Y
+        // - Bottom-left red: from bottom up at its final X
+        // - Bottom-right blue: from bottom up at its final X
+        final startPos = <Offset>[
+          Offset(-targetSize, centerY - tileSize), // left outside, top row
+          Offset(w + targetSize, centerY - tileSize), // right outside, top row
+          Offset(centerX - tileSize, h + targetSize), // below screen
+          Offset(centerX, h + targetSize), // below screen
+        ];
+
+        // Helper: compute a half-donut arc using a quadratic Bezier with oriented control
+        Offset pathLerp(Offset a, Offset b, double t, int index) {
+          final mid = Offset((a.dx + b.dx) / 2, (a.dy + b.dy) / 2);
+          late Offset control;
+          if (index == 0) {
+            // top-left from left → arc downward
+            control = mid.translate(w * 0.10, h * 0.18);
+          } else if (index == 1) {
+            // top-right from right → arc downward
+            control = mid.translate(-w * 0.10, h * 0.18);
+          } else if (index == 2) {
+            // bottom-left from bottom → arc upward
+            control = mid.translate(-w * 0.08, -h * 0.20);
+          } else {
+            // bottom-right from bottom → arc upward
+            control = mid.translate(w * 0.08, -h * 0.20);
+          }
+          final oneMinusT = 1 - t;
+          final bez = Offset(
+            oneMinusT * oneMinusT * a.dx + 2 * oneMinusT * t * control.dx + t * t * b.dx,
+            oneMinusT * oneMinusT * a.dy + 2 * oneMinusT * t * control.dy + t * t * b.dy,
+          );
+          // Subtle wavy perturbation along the path
+          final waveMag = 6.0;
+          final wave = math.sin(t * math.pi * 2) * waveMag; // 2 cycles
+          final dir = (b - a);
+          final len = math.max(1.0, dir.distance);
+          // Perpendicular normal
+          final nx = -dir.dy / len;
+          final ny = dir.dx / len;
+          return bez.translate(wave * nx, wave * ny);
+        }
+
+        // Phase timings within 4s: fly-in (0-72%), settle (72-84%), shake (84-92%), words fade (88-100%)
+        final flyEnd = 0.72;
+        final settleEnd = 0.84;
+        final shakeEnd = 0.92;
+        final wordsStart = 0.88;
+
+        return AnimatedBuilder(
+          animation: _t!,
+          builder: (context, child) {
+            final t = (_t!.value).clamp(0.0, 1.0);
+            final flyT = (t / flyEnd).clamp(0.0, 1.0);
+            final settleT = t <= flyEnd
+                ? 0.0
+                : ((t - flyEnd) / (settleEnd - flyEnd)).clamp(0.0, 1.0);
+            final wordsT = t <= wordsStart
+                ? 0.0
+                : ((t - wordsStart) / (1 - wordsStart)).clamp(0.0, 1.0);
+
+            List<Widget> tiles = [];
+            final images = [
+              'assets/icons/box_red-removebg.png',
+              'assets/icons/box_grey-removebg.png',
+              'assets/icons/box_red-removebg.png',
+              'assets/icons/box_blue-removebg.png',
+            ];
+
+            for (int i = 0; i < 4; i++) {
+              final pFly = pathLerp(startPos[i], finalPos[i], Curves.easeInOut.transform(flyT), i);
+              final pSettle = Offset.lerp(pFly, finalPos[i], Curves.easeOut.transform(settleT))!;
+
+              // Shake effect after merge
+              Offset shakeOffset = Offset.zero;
+              if (t >= settleEnd && t < shakeEnd) {
+                final sp = ((t - settleEnd) / (shakeEnd - settleEnd)).clamp(0.0, 1.0);
+                final amp = (1.0 - sp) * (tileSize * 0.07); // decaying amplitude (~7% of tile)
+                final phase = i * math.pi / 3;
+                final dx = amp * math.sin(sp * 10 * math.pi + phase);
+                final dy = amp * 0.6 * math.cos(sp * 10 * math.pi + phase);
+                shakeOffset = Offset(dx, dy);
+              }
+
+              Offset pos;
+              if (t < flyEnd) {
+                pos = pFly;
+              } else if (t < settleEnd) {
+                pos = pSettle;
+              } else if (t < shakeEnd) {
+                pos = finalPos[i] + shakeOffset;
+              } else {
+                pos = finalPos[i];
+              }
+
+              // slight scale-in during fly
+              final scale = t < flyEnd ? (0.6 + 0.4 * flyT) : 1.0;
+              final opacity = (t < 0.05 && i > 1) ? (t / 0.05) : 1.0; // early fade-in
+
+              tiles.add(Positioned(
+                left: pos.dx,
+                top: pos.dy,
+                width: tileSize,
+                height: tileSize,
+                child: Opacity(
+                  opacity: opacity,
+                  child: Transform.scale(
+                    scale: scale,
+                    alignment: Alignment.center,
+                    child: Image.asset(images[i], fit: BoxFit.contain),
+                  ),
+                ),
+              ));
+            }
+
+            // Words overlay fades in at the end
+            tiles.add(Positioned(
+              left: centerX - targetSize / 2,
+              top: centerY - targetSize / 2,
+              width: targetSize,
+              height: targetSize,
+              child: IgnorePointer(
+                child: Opacity(
+                  opacity: Curves.easeIn.transform(wordsT),
+                  child: Center(
+                    child: Image.asset(
+                      'assets/icons/dual_clash-words-removebg.png',
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+              ),
+            ));
+
+            return SizedBox(
+              width: w,
+              height: h,
+              child: Stack(children: tiles),
+            );
+          },
+        );
+      },
     );
   }
 }

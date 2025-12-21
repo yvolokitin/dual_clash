@@ -139,11 +139,14 @@ class _EmptyCell extends StatelessWidget {
         // Base dark panel
         Container(
           decoration: BoxDecoration(
-            color: AppColors.cellDark,
+            color: K.n == 9 ? const Color(0xFF1F2547) : AppColors.cellDark,
             borderRadius: radius,
-            border: Border.all(
-                color: AppColors.cellDarkBorder,
-                width: K.n == 9 ? 1 : 2), // 1px for 9x9, 2px otherwise
+            border: K.n == 9
+                ? null
+                : Border.all(
+                    color: AppColors.cellDarkBorder,
+                    width: 2,
+                  ),
           ),
         ),
 
@@ -219,109 +222,50 @@ class _InsetTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.cellDark,
-        borderRadius: radius,
-        border: Border.all(color: AppColors.cellDarkBorder, width: 2),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(3.0), // inset look
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // Base image with slight outer shadow for density
-            ClipRRect(
-              borderRadius: radius,
-              child: Container(
-                decoration: const BoxDecoration(
-                  // mimic previous depth
-                  boxShadow: [
-                    BoxShadow(color: Colors.black26, offset: Offset(0, 2), blurRadius: 4),
-                    BoxShadow(
-                        color: Colors.black12, offset: Offset(0, 0), blurRadius: 1, spreadRadius: 0.5),
-                  ],
-                ),
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  child: Image.asset(
-                    asset,
-                    key: ValueKey(asset),
-                    fit: BoxFit.cover,
-                    filterQuality: FilterQuality.high,
-                  ),
-                ),
-              ),
+    // Draw the tile content without any outer padding/border to avoid
+    // the dark rim showing through at rounded corners.
+    return ClipRRect(
+      borderRadius: radius,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Base image. Disable linear sampling to avoid dark fringe
+          // around transparent pixels when the image is scaled.
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            child: Image.asset(
+              asset,
+              key: ValueKey(asset),
+              fit: BoxFit.cover,
+              filterQuality: FilterQuality.none,
             ),
+          ),
 
-            // Flash overlay when color is changing
-            Positioned.fill(
-              child: IgnorePointer(
-                child: AnimatedOpacity(
-                  opacity: flashing ? 0.9 : 0.0,
-                  duration: const Duration(milliseconds: 120),
-                  curve: Curves.easeOut,
-                  child: ClipRRect(
-                    borderRadius: radius,
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        // warm white flash with slight radial falloff via gradient
-                        gradient: RadialGradient(
-                          center: Alignment.topLeft,
-                          radius: 1.2,
-                          colors: [Color(0xCCFFFFFF), Color(0x00FFFFFF)],
-                          stops: [0.0, 1.0],
-                        ),
-                      ),
+          // Flash overlay when color is changing
+          Positioned.fill(
+            child: IgnorePointer(
+              child: AnimatedOpacity(
+                opacity: flashing ? 0.9 : 0.0,
+                duration: const Duration(milliseconds: 120),
+                curve: Curves.easeOut,
+                child: const DecoratedBox(
+                  decoration: BoxDecoration(
+                    // warm white flash with slight radial falloff via gradient
+                    gradient: RadialGradient(
+                      center: Alignment.topLeft,
+                      radius: 1.2,
+                      colors: [Color(0xCCFFFFFF), Color(0x00FFFFFF)],
+                      stops: [0.0, 1.0],
                     ),
                   ),
                 ),
               ),
             ),
+          ),
 
-            // Top highlight
-            Positioned.fill(
-              child: ClipRRect(
-                borderRadius: radius,
-                child: ShaderMask(
-                  shaderCallback: (rect) {
-                    return const LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        AppColors.topHighlight,
-                        AppColors.midHighlight,
-                        Color(0x00000000)
-                      ],
-                      stops: [0.0, 0.35, 0.8],
-                    ).createShader(rect);
-                  },
-                  blendMode: BlendMode.srcATop,
-                  child: const SizedBox.expand(),
-                ),
-              ),
-            ),
-
-            // Bottom inner shadow
-            Positioned.fill(
-              child: ClipRRect(
-                borderRadius: radius,
-                child: ShaderMask(
-                  shaderCallback: (rect) {
-                    return const LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                      colors: [AppColors.bottomInnerShadow, Color(0x00000000)],
-                      stops: [0.0, 0.5],
-                    ).createShader(rect);
-                  },
-                  blendMode: BlendMode.srcATop,
-                  child: const SizedBox.expand(),
-                ),
-              ),
-            ),
-          ],
-        ),
+          // Removed extra highlight/shadow overlays to prevent any rim or darkening
+          // bleeding into the transparent corners of the tile image.
+        ],
       ),
     );
   }

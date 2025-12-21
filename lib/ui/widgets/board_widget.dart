@@ -100,15 +100,15 @@ class BoardWidget extends StatelessWidget {
                     fit: StackFit.expand,
                     children: [
                       // Solid backdrop to eliminate any tiny seams between cells
-                      const ColoredBox(color: AppColors.cellDark),
+                      Container(color: K.n == 9 ? const Color(0xFF171D3F) : AppColors.cellDark),
                       GridView.builder(
                         physics: const NeverScrollableScrollPhysics(),
-                        padding: const EdgeInsets.only(bottom: 6),
+                        padding: K.n == 9 ? EdgeInsets.zero : const EdgeInsets.only(bottom: 6),
                         gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
+                            SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: K.n,
-                          mainAxisSpacing: 0,
-                          crossAxisSpacing: 0,
+                          mainAxisSpacing: K.n == 9 ? 2 : 0,
+                          crossAxisSpacing: K.n == 9 ? 2 : 0,
                         ),
                         itemCount: K.n * K.n,
                         itemBuilder: (context, index) {
