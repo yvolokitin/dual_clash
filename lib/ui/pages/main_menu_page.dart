@@ -195,46 +195,51 @@ class _MainMenuPageState extends State<MainMenuPage> {
                 child: _showContent
                     ? Center(
                         child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 320),
+                          constraints: const BoxConstraints(maxWidth: 420),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
+                            child: GridView(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                mainAxisSpacing: 14,
+                                crossAxisSpacing: 14,
+                                childAspectRatio: 1.1,
+                              ),
                               children: [
-                                _MenuActionTile(
-                                  color: Colors.orange,
-                                  iconPath: 'assets/icons/play-removebg.png',
+                                _MenuTile(
+                                  imagePath: 'assets/icons/menu_pvai.png',
                                   label: 'Game challange',
+                                  color: AppColors.red,
                                   onTap: () {
-                                    // Ensure switching from Duel mode to AI game starts a fresh board
                                     controller.humanVsHuman = false;
                                     controller.newGame();
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (_) => GamePage(controller: controller),
-                                      ),
+                                    _pushWithSlide(
+                                      context,
+                                      GamePage(controller: controller),
+                                      const Offset(-1.0, 0.0), // from left → right
                                     );
                                   },
                                 ),
-                                const SizedBox(height: 10),
-                                _MenuActionTile(
-                                  color: Colors.deepPurple,
-                                  iconPath: 'assets/icons/play-removebg.png',
+                                _MenuTile(
+                                  imagePath: 'assets/icons/menu_121.png',
                                   label: 'Duel mode',
+                                  color: AppColors.blue,
                                   onTap: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (_) => DuelPage(controller: controller),
-                                      ),
+                                    _pushWithSlide(
+                                      context,
+                                      DuelPage(controller: controller),
+                                      const Offset(1.0, 0.0), // from right → left
                                     );
                                   },
                                 ),
-                                const SizedBox(height: 10),
-                                _MenuActionTile(
-                                  color: Colors.blue,
-                                  iconPath: 'assets/icons/load-removebg.png',
+                                _MenuTile(
+                                  imagePath: 'assets/icons/menu_load.png',
                                   label: 'Load game',
+                                  color: Colors.orange,
                                   onTap: () async {
+                                    // Press effect comes from InkWell; keep dialog for loading
                                     final ok = await showLoadGameDialog(
                                         context: context, controller: controller);
                                     if (ok == true && context.mounted) {
@@ -242,24 +247,17 @@ class _MainMenuPageState extends State<MainMenuPage> {
                                     }
                                   },
                                 ),
-                                const SizedBox(height: 10),
-                                _MenuActionTile(
-                                  color: const Color(0xFF8B4513), // brown
-                                  iconPath: 'assets/icons/history-removebg.png',
-                                  label: 'History',
-                                  onTap: () async {
-                                    await showAnimatedHistoryDialog(
-                                        context: context, controller: controller);
-                                  },
-                                ),
-                                const SizedBox(height: 10),
-                                _MenuActionTile(
-                                  color: Colors.red,
-                                  iconPath: 'assets/icons/profile-removebg.png',
+                                _MenuTile(
+                                  imagePath: 'assets/icons/menu_profile.png',
                                   label: 'Profile',
-                                  onTap: () async {
-                                    await showAnimatedProfileDialog(
-                                        context: context, controller: controller);
+                                  color: Color(0xFFC0C0C0),
+                                  onTap: () {
+                                    // Open profile with a top → down slide
+                                    _pushWithSlide(
+                                      context,
+                                      _buildProfileFullScreen(controller),
+                                      const Offset(0.0, -1.0),
+                                    );
                                   },
                                 ),
                               ],
@@ -271,6 +269,91 @@ class _MainMenuPageState extends State<MainMenuPage> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  void _pushWithSlide(BuildContext context, Widget page, Offset beginOffset) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 320),
+        reverseTransitionDuration: const Duration(milliseconds: 260),
+        pageBuilder: (context, animation, secondaryAnimation) => page,
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          final curved = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+            reverseCurve: Curves.easeInCubic,
+          );
+          return SlideTransition(
+            position: Tween<Offset>(begin: beginOffset, end: Offset.zero)
+                .animate(curved),
+            child: child,
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildProfileFullScreen(GameController controller) {
+    return Scaffold(
+      backgroundColor: AppColors.bg,
+      body: SafeArea(
+        child: Center(
+          child: ProfileDialog(controller: controller),
+        ),
+      ),
+    );
+  }
+}
+
+class _MenuTile extends StatelessWidget {
+  final String imagePath;
+  final String label;
+  final VoidCallback onTap;
+  final Color color;
+  const _MenuTile({required this.imagePath, required this.label, required this.onTap, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.9),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.white24, width: 1),
+            boxShadow: const [
+              BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
+            ],
+          ),
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Center(
+                  child: Image.asset(
+                    imagePath,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -332,6 +415,23 @@ class _MenuActionTile extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfileFullScreen extends StatelessWidget {
+  final GameController controller;
+  const _ProfileFullScreen({super.key, required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.bg,
+      body: SafeArea(
+        child: Center(
+          child: ProfileDialog(controller: controller),
         ),
       ),
     );
