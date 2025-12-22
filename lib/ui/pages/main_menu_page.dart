@@ -455,11 +455,32 @@ class _StartupHeroLogoState extends State<_StartupHeroLogo>
   static bool _playedOnce = false; // session-scoped within app process
   AnimationController? _ctrl;
   Animation<double>? _t;
-  bool _showStaticLogo = false; // show regular logo on subsequent entries only
+  bool _showStaticLogo = false; // show static composed grid on subsequent entries only
+  static List<String>? _sessionImages; // cache 4 random player images for the session
+
+  List<String> _candidatePlayers() => const [
+        'assets/icons/player_blue.png',
+        'assets/icons/player_brown.png',
+        'assets/icons/player_green.png',
+        'assets/icons/player_grey.png',
+        'assets/icons/player_orange.png',
+        'assets/icons/player_red.png',
+        'assets/icons/player_violet.png',
+        'assets/icons/player_yellow.png',
+      ];
+
+  void _initSessionImagesIfNeeded() {
+    if (_sessionImages == null) {
+      final all = List<String>.from(_candidatePlayers());
+      all.shuffle();
+      _sessionImages = all.take(4).toList(growable: false);
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    _initSessionImagesIfNeeded();
     if (!_playedOnce) {
       _ctrl = AnimationController(vsync: this, duration: const Duration(seconds: 4));
       _t = CurvedAnimation(parent: _ctrl!, curve: Curves.easeInOutCubic);
@@ -496,9 +517,50 @@ class _StartupHeroLogoState extends State<_StartupHeroLogo>
 
   @override
   Widget build(BuildContext context) {
-    // If already played earlier in session and this is not the first instance, show static logo
+    // If already played earlier in session and this is not the first instance, show the composed 2x2 grid using cached images
     if (_playedOnce && _showStaticLogo) {
-      return Image.asset('assets/icons/dual-clash-removebg.png', fit: BoxFit.contain);
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final w = constraints.maxWidth;
+          final h = constraints.maxHeight;
+          final targetSize = math.min(w, h) * 0.7;
+          final tileSize = targetSize / 2;
+          final centerX = w / 2;
+          final centerY = h / 2;
+          final finalPos = <Offset>[
+            Offset(centerX - tileSize, centerY - tileSize),
+            Offset(centerX, centerY - tileSize),
+            Offset(centerX - tileSize, centerY),
+            Offset(centerX, centerY),
+          ];
+
+          final images = _sessionImages!;
+          List<Widget> tiles = [];
+          for (int i = 0; i < 4; i++) {
+            tiles.add(Positioned(
+              left: finalPos[i].dx,
+              top: finalPos[i].dy,
+              width: tileSize,
+              height: tileSize,
+              child: Image.asset(images[i], fit: BoxFit.contain),
+            ));
+          }
+          // Words overlay fully visible
+          tiles.add(Positioned(
+            left: centerX - targetSize / 2,
+            top: centerY - targetSize / 2,
+            width: targetSize,
+            height: targetSize,
+            child: IgnorePointer(
+              child: Center(
+                child: Image.asset('assets/icons/dual_clash-words-removebg.png', fit: BoxFit.contain),
+              ),
+            ),
+          ));
+
+          return SizedBox(width: w, height: h, child: Stack(children: tiles));
+        },
+      );
     }
 
     return LayoutBuilder(
@@ -586,12 +648,7 @@ class _StartupHeroLogoState extends State<_StartupHeroLogo>
                 : ((t - wordsStart) / (1 - wordsStart)).clamp(0.0, 1.0);
 
             List<Widget> tiles = [];
-            final images = [
-              'assets/icons/box_red-removebg.png',
-              'assets/icons/box_grey-removebg.png',
-              'assets/icons/box_red-removebg.png',
-              'assets/icons/box_blue-removebg.png',
-            ];
+            final images = _sessionImages!;
 
             for (int i = 0; i < 4; i++) {
               final pFly = pathLerp(startPos[i], finalPos[i], Curves.easeInOut.transform(flyT), i);
