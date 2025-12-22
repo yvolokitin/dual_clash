@@ -89,6 +89,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
             ),
 
             // Total points + time as one chip card (unified icon/text sizes)
+/*
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 420),
               switchInCurve: Curves.easeOutCubic,
@@ -183,7 +184,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
                     )
                   : const SizedBox.shrink(),
             ),
-
+*/
             const SizedBox(height: 16),
 
             // Centered menu items
