@@ -3,6 +3,7 @@ import 'package:dual_clash/core/colors.dart';
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/models/cell_state.dart';
 import 'package:dual_clash/ui/widgets/animated_total_counter.dart';
+import 'package:dual_clash/logic/rules_engine.dart';
 
 // Independent ResultsCard widget extracted to be reusable across the app.
 class ResultsCard extends StatelessWidget {
@@ -14,11 +15,13 @@ class ResultsCard extends StatelessWidget {
     final bg = AppColors.bg;
     final redBase = controller.scoreRedBase();
     final blueBase = controller.scoreBlueBase();
+    final neutrals = RulesEngine.countOf(controller.board, CellState.neutral);
     final redTotal = controller.scoreRedTotal();
     final blueTotal = controller.scoreBlueTotal();
     final winner = redTotal == blueTotal
         ? null
         : (redTotal > blueTotal ? CellState.red : CellState.blue);
+    final bool isDuel = controller.humanVsHuman;
 
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
@@ -70,9 +73,9 @@ class ResultsCard extends StatelessWidget {
                       Text(
                         winner == null
                             ? 'Draw'
-                            : (winner == CellState.red
-                                ? 'Player Wins!'
-                                : 'AI Wins!'),
+                            : (controller.humanVsHuman
+                                ? (winner == CellState.red ? 'Red wins!' : 'Blue wins!')
+                                : (winner == CellState.red ? 'Player Wins!' : 'AI Wins!')),
                         style: const TextStyle(
                             color: Colors.white,
                             fontSize: 22,
@@ -97,21 +100,47 @@ class ResultsCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
 
-                  _scoreRow(
-                      label: 'Player',
-                      color: AppColors.red,
-                      base: redBase,
-                      bonus: controller.bonusRed,
-                      total: redTotal,
-                      highlight: winner == CellState.red),
-                  const SizedBox(height: 8),
-                  _scoreRow(
-                      label: 'AI',
-                      color: AppColors.blue,
-                      base: blueBase,
-                      bonus: controller.bonusBlue,
-                      total: blueTotal,
-                      highlight: winner == CellState.blue),
+                  if (isDuel) ...[
+                    _scoreRow(
+                        label: 'Red',
+                        color: AppColors.red,
+                        base: redBase,
+                        bonus: 0,
+                        total: redBase,
+                        highlight: winner == CellState.red),
+                    const SizedBox(height: 8),
+                    _scoreRow(
+                        label: 'Grey',
+                        color: AppColors.neutral,
+                        base: neutrals,
+                        bonus: 0,
+                        total: neutrals,
+                        highlight: false),
+                    const SizedBox(height: 8),
+                    _scoreRow(
+                        label: 'Blue',
+                        color: AppColors.blue,
+                        base: blueBase,
+                        bonus: 0,
+                        total: blueBase,
+                        highlight: winner == CellState.blue),
+                  ] else ...[
+                    _scoreRow(
+                        label: 'Player',
+                        color: AppColors.red,
+                        base: redBase,
+                        bonus: controller.bonusRed,
+                        total: redTotal,
+                        highlight: winner == CellState.red),
+                    const SizedBox(height: 8),
+                    _scoreRow(
+                        label: 'AI',
+                        color: AppColors.blue,
+                        base: blueBase,
+                        bonus: controller.bonusBlue,
+                        total: blueTotal,
+                        highlight: winner == CellState.blue),
+                  ],
 
                   const SizedBox(height: 12),
                   // Points and time on the same row if fit; otherwise they will wrap to 2 rows automatically
@@ -135,18 +164,20 @@ class ResultsCard extends StatelessWidget {
                     children: [
                       _statChip(
                           icon: Icons.rotate_left,
-                          label: 'Player turns',
+                          label: isDuel ? 'Red turns' : 'Player turns',
                           value: controller.turnsRed.toString()),
                       _statChip(
                           icon: Icons.rotate_right,
-                          label: 'AI turns',
+                          label: isDuel ? 'Blue turns' : 'AI turns',
                           value: controller.turnsBlue.toString()),
                     ],
                   ),
 
-                  const SizedBox(height: 12),
-                  // Total user points summary per game outcome
-                  _TotalsSummary(controller: controller, winner: winner),
+                  if (!isDuel) ...[
+                    const SizedBox(height: 12),
+                    // Total user points summary per game outcome
+                    _TotalsSummary(controller: controller, winner: winner),
+                  ],
 
                   const SizedBox(height: 12),
                   // Action buttons based on result and AI level
@@ -380,6 +411,32 @@ class _ResultsActions extends StatelessWidget {
         ),
         icon: Icon(icon, size: 20),
         label: Text(text),
+      );
+    }
+
+    // Duel mode: single Play again button
+    if (controller.humanVsHuman) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.of(context).pop();
+              controller.newGame();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.brandGold,
+              foregroundColor: const Color(0xFF2B221D),
+              shadowColor: Colors.black54,
+              elevation: 4,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              textStyle: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.2),
+            ),
+            icon: const Icon(Icons.play_arrow),
+            label: const Text('Play again'),
+          ),
+        ],
       );
     }
 

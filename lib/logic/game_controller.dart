@@ -1053,7 +1053,7 @@ class GameController extends ChangeNotifier {
 
     _checkEnd();
     notifyListeners();
-    if (!gameOver && current == CellState.blue) {
+    if (!humanVsHuman && !gameOver && current == CellState.blue) {
       _scheduleAi();
     }
   }

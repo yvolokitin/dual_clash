@@ -104,6 +104,27 @@ class _DuelPageState extends State<DuelPage> {
                               ),
                             ],
                           ),
+                          // Middle: current turn indicator (two small boxes)
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _TurnBox(
+                                label: 'RED',
+                                iconPath: 'assets/icons/player_red.png',
+                                color: AppColors.red,
+                                active: controller.current == CellState.red,
+                                size: scoreItemSize,
+                              ),
+                              const SizedBox(width: 10),
+                              _TurnBox(
+                                label: 'BLUE',
+                                iconPath: 'assets/icons/player_blue.png',
+                                color: AppColors.blue,
+                                active: controller.current == CellState.blue,
+                                size: scoreItemSize,
+                              ),
+                            ],
+                          ),
                           // Right side: counts only (number -> icon) for red, grey, blue
                           Row(
                             mainAxisSize: MainAxisSize.min,
@@ -147,6 +168,49 @@ class _DuelPageState extends State<DuelPage> {
           ),
         );
       },
+    );
+  }
+}
+
+
+class _TurnBox extends StatelessWidget {
+  final String label;
+  final String iconPath;
+  final Color color;
+  final bool active;
+  final double size;
+  const _TurnBox({
+    super.key,
+    required this.label,
+    required this.iconPath,
+    required this.color,
+    required this.active,
+    required this.size,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final borderColor = active ? color : Colors.transparent;
+    final bg = Colors.white.withOpacity(active ? 0.10 : 0.06);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: borderColor, width: 2),
+        boxShadow: const [
+          BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 2)),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(iconPath, width: size, height: size),
+          // Optional label:
+          // const SizedBox(width: 6),
+          // Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
+        ],
+      ),
     );
   }
 }

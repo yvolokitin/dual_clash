@@ -94,7 +94,7 @@ class GamePage extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
-                                icon: Image.asset('assets/icons/main_menu.png',
+                                icon: Image.asset('assets/icons/menu_pvai.png',
                                     width: scoreItemSize, height: scoreItemSize),
                                 tooltip: 'Main Menu',
                                 onPressed: () async {
@@ -125,8 +125,11 @@ class GamePage extends StatelessWidget {
                               const SizedBox(width: 18),
                               Text('$blueBase', style: _chipTextStyle),
                               const SizedBox(width: 6),
-                              Image.asset('assets/icons/player_blue.png',
-                                  width: scoreItemSize, height: scoreItemSize),
+                              GestureDetector(
+                                onTap: () => _openAiDifficultySelector(context),
+                                child: Image.asset('assets/icons/player_blue.png',
+                                    width: scoreItemSize, height: scoreItemSize),
+                              ),
                             ],
                           ),
                         ],

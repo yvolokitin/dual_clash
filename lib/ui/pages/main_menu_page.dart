@@ -206,6 +206,9 @@ class _MainMenuPageState extends State<MainMenuPage> {
                                   iconPath: 'assets/icons/play-removebg.png',
                                   label: 'Game challange',
                                   onTap: () {
+                                    // Ensure switching from Duel mode to AI game starts a fresh board
+                                    controller.humanVsHuman = false;
+                                    controller.newGame();
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (_) => GamePage(controller: controller),

@@ -15,7 +15,7 @@ class MainMenuDialog extends StatelessWidget {
   final GameController controller;
   const MainMenuDialog({super.key, required this.controller});
 
-  static const Color _menuBg = Color(0xFFFFA213);
+  static const Color _menuBg = Color(0xFF38518F); // 0xFFFFA213);
 
   Future<void> _saveGame(BuildContext context) async {
     final red = controller.scoreRedBase();
