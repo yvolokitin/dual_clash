@@ -5,200 +5,15 @@ import '../../core/colors.dart';
 import '../../core/constants.dart';
 
 import '../../models/cell_state.dart';
+import 'package:dual_clash/logic/rules_engine.dart';
+import 'package:dual_clash/ui/dialogs/main_menu_dialog.dart' as mmd;
 import 'package:dual_clash/ui/widgets/board_widget.dart';
-import 'package:dual_clash/ui/widgets/game_counter_chip.dart';
-import 'settings_page.dart';
-import 'profile_page.dart';
-import 'help_page.dart';
-import 'history_page.dart';
 import 'statistics_page.dart';
-import 'main_menu_page.dart';
 import 'package:dual_clash/ui/widgets/animated_total_counter.dart';
 import 'package:dual_clash/ui/widgets/live_points_chip.dart';
 import 'package:dual_clash/ui/widgets/results_card.dart';
 
-class GameDialogs {
-  static Future<void> showSaveGameDialog(
-      {required BuildContext context,
-      required GameController controller}) async {
-    final bg = AppColors.bg;
-    final red = controller.scoreRedBase();
-    final blue = controller.scoreBlueBase();
-    final now = DateTime.now();
-    String two(int v) => v.toString().padLeft(2, '0');
-    final belt = AiBelt.nameFor(controller.aiLevel).replaceAll(' ', '_');
-    final defaultName =
-        '${now.year}-${two(now.month)}-${two(now.day)}-${two(now.hour)}-${two(now.minute)}-${two(now.second)}-AI_${belt}-RED-${red}-BLUE-${blue}';
-    final textCtrl = TextEditingController(text: defaultName);
-
-    await showGeneralDialog<void>(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: 'Save Game',
-      barrierColor: Colors.black.withOpacity(0.55),
-      transitionDuration: const Duration(milliseconds: 260),
-      pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),
-      transitionBuilder: (ctx, anim, a2, child) {
-        final curved = CurvedAnimation(
-            parent: anim,
-            curve: Curves.easeOutCubic,
-            reverseCurve: Curves.easeInCubic);
-        return Stack(
-          children: [
-            Positioned.fill(
-              child: AnimatedBuilder(
-                animation: anim,
-                builder: (context, _) => BackdropFilter(
-                  filter: ui.ImageFilter.blur(
-                      sigmaX: 6 * anim.value, sigmaY: 6 * anim.value),
-                  child: const SizedBox.shrink(),
-                ),
-              ),
-            ),
-            Center(
-              child: FadeTransition(
-                opacity: curved,
-                child: ScaleTransition(
-                  scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
-                  child: Dialog(
-                    insetPadding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 24),
-                    backgroundColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(22)),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(22),
-                        gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [bg, bg]),
-                        boxShadow: const [
-                          BoxShadow(
-                              color: AppColors.dialogShadow,
-                              blurRadius: 24,
-                              offset: Offset(0, 12))
-                        ],
-                        border: Border.all(
-                            color: AppColors.dialogOutline, width: 1),
-                      ),
-                      child: ConstrainedBox(
-                        constraints:
-                            const BoxConstraints(maxWidth: 560, maxHeight: 400),
-                        child: Padding(
-                          padding: const EdgeInsets.all(18.0),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Row(
-                                children: [
-                                  const Spacer(),
-                                  const Text('Save game',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.w800)),
-                                  const Spacer(),
-                                  Container(
-                                    width: 36,
-                                    height: 36,
-                                    decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.08),
-                                        shape: BoxShape.circle,
-                                        border:
-                                            Border.all(color: Colors.white24)),
-                                    child: IconButton(
-                                      padding: EdgeInsets.zero,
-                                      iconSize: 20,
-                                      icon: const Icon(Icons.close,
-                                          color: Colors.white70),
-                                      onPressed: () =>
-                                          Navigator.of(context).pop(),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              const Text('Name for this save',
-                                  style: TextStyle(
-                                      color: Colors.white70,
-                                      fontWeight: FontWeight.w700)),
-                              const SizedBox(height: 8),
-                              Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.06),
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                        color: Colors.white24, width: 1)),
-                                child: TextField(
-                                  controller: textCtrl,
-                                  style: const TextStyle(color: Colors.white),
-                                  decoration: const InputDecoration(
-                                    contentPadding: EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 12),
-                                    border: InputBorder.none,
-                                    hintText: 'Enter name...',
-                                    hintStyle: TextStyle(color: Colors.white54),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 14),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: OutlinedButton(
-                                      onPressed: () =>
-                                          Navigator.of(context).pop(),
-                                      style: OutlinedButton.styleFrom(
-                                          foregroundColor: Colors.white70,
-                                          side: const BorderSide(
-                                              color: Colors.white24)),
-                                      child: const Text('Cancel'),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: ElevatedButton.icon(
-                                      onPressed: () async {
-                                        final name =
-                                            textCtrl.text.trim().isEmpty
-                                                ? defaultName
-                                                : textCtrl.text.trim();
-                                        await controller.saveCurrentGame(
-                                            name: name);
-                                        if (context.mounted) {
-                                          Navigator.of(context).pop();
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(const SnackBar(
-                                                  content: Text('Game saved')));
-                                        }
-                                      },
-                                      icon: const Icon(Icons.save),
-                                      label: const Text('Save'),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
 class GamePage extends StatelessWidget {
-  static const _chipTextStyle =
-      TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white);
   final GameController controller;
   const GamePage({super.key, required this.controller});
 
@@ -223,6 +38,7 @@ class GamePage extends StatelessWidget {
       builder: (context, _) {
         final redBase = controller.scoreRedBase();
         final blueBase = controller.scoreBlueBase();
+        final neutralsCount = RulesEngine.countOf(controller.board, CellState.neutral);
         final redTotal = controller.scoreRedTotal();
         final blueTotal = controller.scoreBlueTotal();
         final isWide = _isWide(context);
@@ -234,6 +50,24 @@ class GamePage extends StatelessWidget {
         final bool finishedAndClosed =
             controller.gameOver && controller.resultsShown;
 
+        // Match score row icon size to exact board cell image size
+        const double _boardBorderPx = 3.0; // keep in sync with BoardWidget
+        final double _gridSpacingPx = K.n == 9 ? 2.0 : 0.0; // keep in sync with BoardWidget
+        final bool _hasBoardSize = controller.boardPixelSize > 0;
+        final double _innerBoardSide =
+            _hasBoardSize ? controller.boardPixelSize - 2 * _boardBorderPx : 0;
+        final double scoreItemSize = (_hasBoardSize
+            ? (_innerBoardSide - _gridSpacingPx * (K.n - 1)) / K.n
+            : 22.0) * 0.595; // additional 15% smaller than previous (now ~59.5% of cell size)
+
+        // Score-row text style: same height as icon, bold, and gold color
+        final _chipTextStyle = TextStyle(
+          fontSize: scoreItemSize,
+          height: 1.0,
+          fontWeight: FontWeight.w800,
+          color: const Color(0xFFE5AD3A),
+        );
+
         // Auto-show end results dialog once
         _maybeShowResultsDialog(context);
 
@@ -242,124 +76,6 @@ class GamePage extends StatelessWidget {
           body: SafeArea(
             child: Column(
               children: [
-                // Top bar: centered icons only, order: Replay - Help - Settings - Profile - History
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 6.0, horizontal: 12.0),
-                  child: SizedBox(
-                    height: 60,
-                    child: Center(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Main Menu
-                          IconButton(
-                            icon: Image.asset(
-                                'assets/icons/mainmenu-removebg.png',
-                                width: 42,
-                                height: 42),
-                            tooltip: 'Main Menu',
-                            onPressed: () async {
-                              final result =
-                                  await Navigator.of(context).push<String?>(
-                                buildMainMenuRoute(
-                                    builder: (ctx) =>
-                                        MainMenuPage(controller: controller)),
-                              );
-                              if (result == 'challenge') {
-                                // Returned with reverse animation
-                              } else if (result == 'loaded') {
-                                if (context.mounted) {
-                                  await _showCurtainsRevealOverGame(context);
-                                }
-                              }
-                            },
-                          ),
-                          const SizedBox(width: 6),
-                          // Replay (Restart game) / Play next when finished
-                          finishedAndClosed
-                              ? IconButton(
-                                  icon: Image.asset(
-                                      'assets/icons/play-removebg.png',
-                                      width: 42,
-                                      height: 42),
-                                  tooltip: 'Play next',
-                                  onPressed: () {
-                                    controller.newGame();
-                                  },
-                                )
-                              : IconButton(
-                                  icon: Image.asset(
-                                      'assets/icons/restart-removebg.png',
-                                      width: 42,
-                                      height: 42),
-                                  tooltip: 'Restart',
-                                  onPressed: () async {
-                                    await _confirmRestart(context);
-                                  },
-                                ),
-                          const SizedBox(width: 6),
-                          // Help
-                          IconButton(
-                            icon: Image.asset('assets/icons/help-removebg.png',
-                                width: 42, height: 42),
-                            tooltip: 'Help',
-                            onPressed: () async {
-                              await showAnimatedHelpDialog(
-                                  context: context, controller: controller);
-                            },
-                          ),
-                          // Settings
-                          IconButton(
-                            icon: Image.asset(
-                                'assets/icons/settings-removebg.png',
-                                width: 42,
-                                height: 42),
-                            tooltip: 'Settings',
-                            onPressed: () async {
-                              await showAnimatedSettingsDialog(
-                                  context: context, controller: controller);
-                            },
-                          ),
-                          // Profile
-                          IconButton(
-                            icon: Image.asset(
-                                'assets/icons/profile-removebg.png',
-                                width: 42,
-                                height: 42),
-                            tooltip: 'Profile',
-                            onPressed: () async {
-                              await showAnimatedProfileDialog(
-                                  context: context, controller: controller);
-                            },
-                          ),
-                          // History
-                          IconButton(
-                            icon: Image.asset(
-                                'assets/icons/history-removebg.png',
-                                width: 42,
-                                height: 42),
-                            tooltip: 'History',
-                            onPressed: () async {
-                              await showAnimatedHistoryDialog(
-                                  context: context, controller: controller);
-                            },
-                          ),
-                          // Save
-                          IconButton(
-                            icon: Image.asset('assets/icons/save-removebg.png',
-                                width: 42, height: 42),
-                            tooltip: 'Save game',
-                            onPressed: () async {
-                              await GameDialogs.showSaveGameDialog(
-                                  context: context, controller: controller);
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
 
                 // Score row before the board — match board width (9 cells) and center the whole row
                 Padding(
@@ -370,38 +86,48 @@ class GamePage extends StatelessWidget {
                       width: controller.boardPixelSize > 0
                           ? controller.boardPixelSize
                           : null,
-                      child: Stack(
-                        alignment: Alignment.center,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: _playerCard(
-                              points: redBase,
-                              label: 'Player',
-                              color: AppColors.red,
-                              isTurn:
-                                  false, // Do not select player card when it is player turn
-                              highlight: winner == CellState.red,
-                            ),
+                          // Left side: main_menu.png icon + game points chip
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Image.asset('assets/icons/main_menu.png',
+                                    width: scoreItemSize, height: scoreItemSize),
+                                tooltip: 'Main Menu',
+                                onPressed: () async {
+                                  await mmd.showAnimatedMainMenuDialog(
+                                      context: context, controller: controller);
+                                },
+                              ),
+                              const SizedBox(width: 8),
+                              Image.asset('assets/icons/points-removebg.png',
+                                  width: scoreItemSize, height: scoreItemSize),
+                              const SizedBox(width: 6),
+                              Text('${controller.redGamePoints}', style: _chipTextStyle),
+                            ],
                           ),
-                          Align(
-                            alignment: Alignment.center,
-                            child: GameCounterChip(
-                                points: controller.redGamePoints,
-                                borderColor:
-                                    AiBelt.colorFor(controller.aiLevel),
-                                borderWidth: 4),
-                          ),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: _aiPlayerCard(
-                              context: context,
-                              points: blueBase,
-                              beltLabel:
-                                  'AI (${AiBelt.nameFor(controller.aiLevel)})',
-                              isTurn: false,
-                              highlight: winner == CellState.blue,
-                            ),
+                          // Right side: red, grey, blue counts
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text('$redBase', style: _chipTextStyle),
+                              const SizedBox(width: 6),
+                              Image.asset('assets/icons/player_red.png',
+                                  width: scoreItemSize, height: scoreItemSize),
+                              const SizedBox(width: 18),
+                              Text('$neutralsCount', style: _chipTextStyle),
+                              const SizedBox(width: 6),
+                              Image.asset('assets/icons/player_grey.png',
+                                  width: scoreItemSize, height: scoreItemSize),
+                              const SizedBox(width: 18),
+                              Text('$blueBase', style: _chipTextStyle),
+                              const SizedBox(width: 6),
+                              Image.asset('assets/icons/player_blue.png',
+                                  width: scoreItemSize, height: scoreItemSize),
+                            ],
                           ),
                         ],
                       ),

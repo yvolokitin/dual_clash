@@ -6,6 +6,7 @@ import 'history_page.dart';
 import 'profile_page.dart';
 import 'menu_page.dart' show showLoadGameDialog; // reuse existing dialog
 import 'game_page.dart';
+import 'duel_page.dart';
 
 class MainMenuPage extends StatefulWidget {
   final GameController controller;
@@ -208,6 +209,19 @@ class _MainMenuPageState extends State<MainMenuPage> {
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (_) => GamePage(controller: controller),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                const SizedBox(height: 10),
+                                _MenuActionTile(
+                                  color: Colors.deepPurple,
+                                  iconPath: 'assets/icons/play-removebg.png',
+                                  label: 'Duel mode',
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) => DuelPage(controller: controller),
                                       ),
                                     );
                                   },

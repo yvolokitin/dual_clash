@@ -47,6 +47,8 @@ class TurnStatEntry {
 }
 
 class GameController extends ChangeNotifier {
+  // Duel mode: when true, both players are human and AI is disabled
+  bool humanVsHuman = false;
   // --- Analytics & activity ---
   int totalPlayTimeMs = 0;
 
@@ -295,10 +297,10 @@ class GameController extends ChangeNotifier {
 
     notifyListeners();
     // If it's Blue's turn after loading (and game is not over), schedule AI automatically
-    if (!gameOver && current == CellState.blue) {
+    if (!humanVsHuman && !gameOver && current == CellState.blue) {
       // Defer to next microtask to avoid racing with dialog/pop animations
       Future.microtask(() {
-        if (!gameOver && current == CellState.blue) {
+        if (!humanVsHuman && !gameOver && current == CellState.blue) {
           _scheduleAi();
         }
       });
@@ -579,7 +581,7 @@ class GameController extends ChangeNotifier {
     }
 
     // If Blue starts and the board is empty, schedule AI first move
-    if (!gameOver && current == CellState.blue && _freshBoard) {
+    if (!humanVsHuman && !gameOver && current == CellState.blue && _freshBoard) {
       _scheduleAi();
     }
     notifyListeners();
@@ -691,7 +693,7 @@ class GameController extends ChangeNotifier {
     }
     notifyListeners();
     // If AI (Blue) starts, let it make the first move
-    if (current == CellState.blue) {
+    if (!humanVsHuman && current == CellState.blue) {
       _scheduleAi();
     }
   }
@@ -828,7 +830,7 @@ class GameController extends ChangeNotifier {
     current = CellState.blue;
     _checkEnd();
     notifyListeners();
-    if (!gameOver) _scheduleAi();
+    if (!humanVsHuman && !gameOver) _scheduleAi();
     return true;
   }
 
@@ -837,12 +839,18 @@ class GameController extends ChangeNotifier {
     if (gameOver || isAiThinking || isExploding || isFalling || isQuaking)
       return;
     final s = board[r][c];
-    if (current != CellState.red) return; // only human red taps are processed
+
+    // In normal mode only Red (human) acts; in Duel mode current side acts (Red or Blue)
+    if (!humanVsHuman && current != CellState.red) return;
 
     // Grey tap: select to preview all grey boxes; tap same again to drop them
     if (s == CellState.neutral) {
       if (selectedCell == (r, c)) {
-        _performGreyDrop();
+        if (current == CellState.red) {
+          _performGreyDrop();
+        } else if (humanVsHuman && current == CellState.blue) {
+          _performGreyDropAi(); // reuse AI variant for Blue semantics
+        }
       } else {
         selectedCell = (r, c);
         blowPreview = _allNeutralCells();
@@ -855,15 +863,43 @@ class GameController extends ChangeNotifier {
     if (s == CellState.empty) {
       selectedCell = null;
       blowPreview.clear();
-      playerMove(r, c);
+      if (current == CellState.red) {
+        playerMove(r, c);
+      } else if (humanVsHuman && current == CellState.blue) {
+        // Human Blue placement mirrors AI placement path but without scheduling AI
+        final before = board;
+        final next = RulesEngine.place(board, r, c, CellState.blue);
+        if (next != null) {
+          board = next;
+          lastMovePoints = _computeMovePoints(before, next, r, c, CellState.blue);
+          lastMoveBy = CellState.blue;
+          turnsBlue++;
+          current = CellState.red;
+          _checkEnd();
+          notifyListeners();
+        }
+      }
       return;
     }
 
-    // Tapping a red piece -> select/deselect or blow
-    if (s == CellState.red) {
+    // Tapping a red/blue piece -> select/deselect or blow
+    if (s == CellState.red || s == CellState.blue) {
+      // In duel mode, a player may only blow up their own color on their turn.
+      // In normal mode (vs AI), only RED may act on RED pieces during RED's turn.
+      if (humanVsHuman) {
+        if (s != current) {
+          // Not the current player's own color — ignore tap.
+          return;
+        }
+      } else {
+        if (s != CellState.red || current != CellState.red) {
+          return;
+        }
+      }
+
       if (selectedCell == (r, c)) {
-        // tap again -> perform blow
-        _performBlow(r, c, CellState.red);
+        // tap again -> perform blow by current side
+        _performBlow(r, c, current);
       } else {
         selectedCell = (r, c);
         blowPreview = RulesEngine.blowAffected(board, r, c);
@@ -941,7 +977,7 @@ class GameController extends ChangeNotifier {
     notifyListeners();
 
     // schedule AI if needed
-    if (!gameOver && current == CellState.blue) {
+    if (!humanVsHuman && !gameOver && current == CellState.blue) {
       _scheduleAi();
     }
   }

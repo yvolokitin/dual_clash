@@ -7,8 +7,9 @@ class GameCounterChip extends StatelessWidget {
   final int points;
   final Color? borderColor;
   final double? borderWidth;
+  final double? itemSize;
   const GameCounterChip(
-      {super.key, required this.points, this.borderColor, this.borderWidth});
+      {super.key, required this.points, this.borderColor, this.borderWidth, this.itemSize});
 
   @override
   Widget build(BuildContext context) {
@@ -27,11 +28,15 @@ class GameCounterChip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Image.asset('assets/icons/points-removebg.png',
-              width: 18, height: 18),
+              width: itemSize ?? 22, height: itemSize ?? 22),
           const SizedBox(width: 6),
           Text(
             '$points',
-            style: AppTextStyles.chip.copyWith(color: Colors.white),
+            style: AppTextStyles.chip.copyWith(
+              color: const Color(0xFFE5AD3A),
+              fontSize: itemSize ?? 22,
+              height: 1.0,
+            ),
           ),
         ],
       ),

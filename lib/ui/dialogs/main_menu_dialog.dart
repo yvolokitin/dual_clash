@@ -1,0 +1,272 @@
+import 'dart:ui' as ui;
+import 'package:flutter/material.dart';
+import 'package:dual_clash/logic/game_controller.dart';
+import 'package:dual_clash/core/colors.dart';
+import 'package:dual_clash/core/constants.dart';
+import 'package:dual_clash/ui/dialogs/save_game_dialog.dart';
+import 'package:dual_clash/ui/pages/help_page.dart';
+import 'package:dual_clash/ui/pages/settings_page.dart';
+import 'package:dual_clash/ui/pages/profile_page.dart';
+import 'package:dual_clash/ui/pages/history_page.dart';
+
+/// Minimal, independent "Main Menu" dialog styled like Profile dialog
+/// but with a solid #FFA213 background as requested.
+class MainMenuDialog extends StatelessWidget {
+  final GameController controller;
+  const MainMenuDialog({super.key, required this.controller});
+
+  static const Color _menuBg = Color(0xFFFFA213);
+
+  Future<void> _saveGame(BuildContext context) async {
+    final red = controller.scoreRedBase();
+    final blue = controller.scoreBlueBase();
+    final now = DateTime.now();
+    String two(int v) => v.toString().padLeft(2, '0');
+    final belt = AiBelt.nameFor(controller.aiLevel).replaceAll(' ', '_');
+    final defaultName =
+        '${now.year}-${two(now.month)}-${two(now.day)}-${two(now.hour)}-${two(now.minute)}-${two(now.second)}-AI_${belt}-RED-${red}-BLUE-${blue}';
+    await showAnimatedSaveGameDialog(
+      context: context,
+      initialName: defaultName,
+      onSave: (name) async {
+        await controller.saveCurrentGame(name: name);
+        if (context.mounted) {
+          Navigator.of(context).pop();
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('Game saved')));
+        }
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      backgroundColor: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          gradient: const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [_menuBg, _menuBg],
+          ),
+          boxShadow: const [
+            BoxShadow(
+              color: AppColors.dialogShadow,
+              blurRadius: 24,
+              offset: Offset(0, 12),
+            )
+          ],
+          border: Border.all(color: AppColors.dialogOutline, width: 1),
+        ),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 520, maxHeight: 560),
+          child: Padding(
+            padding: const EdgeInsets.all(18.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    const Spacer(),
+                    const Text(
+                      'Menu',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.dialogTitle,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.08),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white24, width: 1),
+                      ),
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        iconSize: 20,
+                        icon: const Icon(Icons.close, color: Colors.white70),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _menuTile(
+                          context,
+                          icon: Icons.arrow_back,
+                          label: 'Return to main menu',
+                          onTap: () async {
+                            // Use captured navigator to avoid disposed context
+                            final nav = Navigator.of(context);
+                            // Close menu dialog
+                            nav.pop();
+                            await Future.delayed(const Duration(milliseconds: 30));
+                            // Then pop the GamePage route to return to Main Menu
+                            if (nav.canPop()) {
+                              nav.pop();
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 6),
+                        _menuTile(
+                          context,
+                          icon: Icons.refresh,
+                          label: 'Restart/Start the game',
+                          onTap: () async {
+                            Navigator.of(context).pop();
+                            await Future.delayed(const Duration(milliseconds: 30));
+                            controller.newGame();
+                          },
+                        ),
+                        const SizedBox(height: 6),
+                        _menuTile(
+                          context,
+                          icon: Icons.help_outline,
+                          label: 'Help',
+                          onTap: () async {
+                            Navigator.of(context).pop();
+                            await Future.delayed(const Duration(milliseconds: 30));
+                            await showAnimatedHelpDialog(context: context, controller: controller);
+                          },
+                        ),
+                        const SizedBox(height: 6),
+                        _menuTile(
+                          context,
+                          icon: Icons.settings,
+                          label: 'Settings',
+                          onTap: () async {
+                            Navigator.of(context).pop();
+                            await Future.delayed(const Duration(milliseconds: 30));
+                            await showAnimatedSettingsDialog(context: context, controller: controller);
+                          },
+                        ),
+                        const SizedBox(height: 6),
+                        _menuTile(
+                          context,
+                          icon: Icons.person_outline,
+                          label: 'Profile',
+                          onTap: () async {
+                            Navigator.of(context).pop();
+                            await Future.delayed(const Duration(milliseconds: 30));
+                            await showAnimatedProfileDialog(context: context, controller: controller);
+                          },
+                        ),
+                        const SizedBox(height: 6),
+                        _menuTile(
+                          context,
+                          icon: Icons.history,
+                          label: 'History',
+                          onTap: () async {
+                            Navigator.of(context).pop();
+                            await Future.delayed(const Duration(milliseconds: 30));
+                            await showAnimatedHistoryDialog(context: context, controller: controller);
+                          },
+                        ),
+                        const SizedBox(height: 6),
+                        _menuTile(
+                          context,
+                          icon: Icons.save_alt,
+                          label: 'Save game',
+                          onTap: () async {
+                            Navigator.of(context).pop();
+                            await Future.delayed(const Duration(milliseconds: 30));
+                            await _saveGame(context);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _menuTile(BuildContext context,
+      {required IconData icon,
+      required String label,
+      required VoidCallback onTap}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white24, width: 1),
+      ),
+      child: ListTile(
+        leading: Icon(icon, color: Colors.white),
+        title: Text(label,
+            style: const TextStyle(
+                color: Colors.white, fontWeight: FontWeight.w700)),
+        onTap: onTap,
+      ),
+    );
+  }
+}
+
+Future<void> showAnimatedMainMenuDialog({
+  required BuildContext context,
+  required GameController controller,
+}) {
+  return showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: 'Main Menu',
+    barrierColor: Colors.black.withOpacity(0.55),
+    transitionDuration: const Duration(milliseconds: 260),
+    pageBuilder: (ctx, anim1, anim2) => const SizedBox.shrink(),
+    transitionBuilder: (ctx, anim, secondaryAnim, child) {
+      final curved = CurvedAnimation(
+        parent: anim,
+        curve: Curves.easeOutCubic,
+        reverseCurve: Curves.easeInCubic,
+      );
+      return Stack(
+        children: [
+          Positioned.fill(
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: 6),
+              duration: const Duration(milliseconds: 260),
+              curve: Curves.easeOutCubic,
+              builder: (context, sigma, _) {
+                return BackdropFilter(
+                  filter: ui.ImageFilter.blur(
+                    sigmaX: sigma * anim.value,
+                    sigmaY: sigma * anim.value,
+                  ),
+                  child: const SizedBox.shrink(),
+                );
+              },
+            ),
+          ),
+          Center(
+            child: FadeTransition(
+              opacity: curved,
+              child: ScaleTransition(
+                scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
+                child: MainMenuDialog(controller: controller),
+              ),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
