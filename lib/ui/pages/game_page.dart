@@ -181,6 +181,7 @@ class GamePage extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+/*
                       // Simulate button
                       IconButton(
                         icon: Image.asset('assets/icons/simulate-removebg.png',
@@ -219,6 +220,7 @@ class GamePage extends StatelessWidget {
                                 }
                               : null,
                         ),
+ */
                     ],
                   ),
                 ),
