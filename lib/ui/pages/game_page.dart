@@ -13,6 +13,58 @@ import 'package:dual_clash/ui/widgets/animated_total_counter.dart';
 import 'package:dual_clash/ui/widgets/live_points_chip.dart';
 import 'package:dual_clash/ui/widgets/results_card.dart';
 
+// A small helper to provide safe hover zoom without affecting layout.
+class _HoverScaleBox extends StatefulWidget {
+  final double size;
+  final Widget child;
+  final VoidCallback? onTap;
+  final double hoverScale;
+  final Duration duration;
+
+  const _HoverScaleBox({
+    super.key,
+    required this.size,
+    required this.child,
+    this.onTap,
+    this.hoverScale = 1.06,
+    this.duration = const Duration(milliseconds: 120),
+  });
+
+  @override
+  State<_HoverScaleBox> createState() => _HoverScaleBoxState();
+}
+
+class _HoverScaleBoxState extends State<_HoverScaleBox> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final scaled = AnimatedScale(
+      scale: _hovered ? widget.hoverScale : 1.0,
+      duration: widget.duration,
+      curve: Curves.easeOutCubic,
+      child: widget.child,
+    );
+
+    final fixedBox = SizedBox(
+      width: widget.size,
+      height: widget.size,
+      child: Center(child: scaled),
+    );
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        behavior: HitTestBehavior.opaque,
+        child: ClipRect(child: fixedBox),
+      ),
+    );
+  }
+}
+
 class GamePage extends StatelessWidget {
   final GameController controller;
   const GamePage({super.key, required this.controller});
@@ -125,10 +177,14 @@ class GamePage extends StatelessWidget {
                               const SizedBox(width: 18),
                               Text('$blueBase', style: _chipTextStyle),
                               const SizedBox(width: 6),
-                              GestureDetector(
+                              _HoverScaleBox(
+                                size: scoreItemSize,
                                 onTap: () => _openAiDifficultySelector(context),
-                                child: Image.asset('assets/icons/player_blue.png',
-                                    width: scoreItemSize, height: scoreItemSize),
+                                child: Image.asset(
+                                  'assets/icons/player_blue.png',
+                                  width: scoreItemSize,
+                                  height: scoreItemSize,
+                                ),
                               ),
                             ],
                           ),
@@ -628,19 +684,29 @@ class GamePage extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 12),
                                   Wrap(
-                                    spacing: 8,
-                                    runSpacing: 8,
+                                    spacing: 10,
+                                    runSpacing: 10,
                                     children: [
                                       for (int lvl = 1; lvl <= 7; lvl++)
-                                        _aiLevelChoiceTile(
-                                          selected: tempLevel == lvl,
-                                          label: AiBelt.nameFor(lvl),
-                                          dot: AiBelt.colorFor(lvl),
-                                          onTap: () => setState(() {
-                                            tempLevel = lvl;
-                                          }),
+                                        Tooltip(
+                                          message: _aiLevelShortTip(lvl),
+                                          child: _aiLevelChoiceTile(
+                                            level: lvl,
+                                            selected: tempLevel == lvl,
+                                            onTap: () => setState(() {
+                                              tempLevel = lvl;
+                                            }),
+                                          ),
                                         ),
                                     ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    _aiLevelShortTip(tempLevel),
+                                    style: const TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 12,
+                                        height: 1.2),
                                   ),
                                   const SizedBox(height: 16),
                                   Row(
@@ -714,46 +780,96 @@ class GamePage extends StatelessWidget {
     );
   }
 
-  Widget _aiLevelChoiceTile(
-      {required bool selected,
-      required String label,
-      required Color dot,
-      required VoidCallback onTap}) {
-    final bg =
-        selected ? Colors.white.withOpacity(0.12) : AppColors.dialogFieldBg;
-    final border = selected ? AppColors.brandGold : Colors.white12;
+  Widget _aiLevelChoiceTile({
+    required int level,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    final String label = AiBelt.nameFor(level);
+    final String asset = AiBelt.assetFor(level);
+    final Color border = selected ? AppColors.brandGold : Colors.white12;
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          width: 84,
+          height: 88,
           decoration: BoxDecoration(
-            color: bg,
+            color: AppColors.dialogFieldBg,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: border, width: selected ? 2 : 1),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
+          clipBehavior: Clip.antiAlias,
+          child: Stack(
             children: [
-              Container(
-                  width: 10,
-                  height: 10,
-                  decoration:
-                      BoxDecoration(color: dot, shape: BoxShape.circle)),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500),
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Image.asset(
+                    asset,
+                    fit: BoxFit.contain,
+                    height: 54,
+                  ),
+                ),
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withOpacity(0.0),
+                        Colors.black.withOpacity(0.35),
+                      ],
+                    ),
+                  ),
+                  child: Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+                      fontSize: 12,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  String _aiLevelShortTip(int lvl) {
+    switch (lvl) {
+      case 1:
+        return 'White — Beginner: makes random moves.';
+      case 2:
+        return 'Yellow — Easy: prefers immediate gains.';
+      case 3:
+        return 'Orange — Normal: greedy with basic positioning.';
+      case 4:
+        return 'Green — Challenging: shallow search with some foresight.';
+      case 5:
+        return 'Blue — Hard: deeper search with pruning.';
+      case 6:
+        return 'Brown — Expert: advanced pruning and caching.';
+      case 7:
+        return 'Black — Master: strongest and most calculating.';
+      default:
+        return 'Select a belt level.';
+    }
   }
 }
 

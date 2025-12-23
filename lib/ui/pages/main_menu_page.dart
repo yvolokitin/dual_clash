@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'package:flutter/rendering.dart' show RenderBox;
 import '../../logic/game_controller.dart';
 import '../../core/colors.dart';
 import 'history_page.dart';
@@ -7,6 +8,7 @@ import 'profile_page.dart';
 import 'menu_page.dart' show showLoadGameDialog; // reuse existing dialog
 import 'game_page.dart';
 import 'duel_page.dart';
+import 'multi_human_page.dart';
 
 class MainMenuPage extends StatefulWidget {
   final GameController controller;
@@ -17,6 +19,10 @@ class MainMenuPage extends StatefulWidget {
 }
 
 class _MainMenuPageState extends State<MainMenuPage> {
+  final GlobalKey _duelTileKey = GlobalKey();
+  final GlobalKey _gameTileKey = GlobalKey();
+  final GlobalKey _loadTileKey = GlobalKey();
+  final GlobalKey _profileTileKey = GlobalKey();
   Animation<double>? _bgAnim;
   bool _showContent = true; // hidden until startup animation completes
   static const Color _violet = Color(0xFF8A2BE2);
@@ -210,6 +216,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
                               ),
                               children: [
                                 _MenuTile(
+                                  key: _gameTileKey,
                                   imagePath: 'assets/icons/menu_pvai.png',
                                   label: 'Game challange',
                                   color: AppColors.red,
@@ -224,18 +231,16 @@ class _MainMenuPageState extends State<MainMenuPage> {
                                   },
                                 ),
                                 _MenuTile(
+                                  key: _duelTileKey,
                                   imagePath: 'assets/icons/menu_121.png',
                                   label: 'Duel mode',
                                   color: AppColors.blue,
                                   onTap: () {
-                                    _pushWithSlide(
-                                      context,
-                                      DuelPage(controller: controller),
-                                      const Offset(1.0, 0.0), // from right → left
-                                    );
+                                    _openDuelFlyout(context, controller);
                                   },
                                 ),
                                 _MenuTile(
+                                  key: _loadTileKey,
                                   imagePath: 'assets/icons/menu_load.png',
                                   label: 'Load game',
                                   color: Colors.orange,
@@ -249,6 +254,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
                                   },
                                 ),
                                 _MenuTile(
+                                  key: _profileTileKey,
                                   imagePath: 'assets/icons/menu_profile.png',
                                   label: 'Profile',
                                   color: Color(0xFFC0C0C0),
@@ -270,6 +276,344 @@ class _MainMenuPageState extends State<MainMenuPage> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openDuelFlyout(BuildContext context, GameController controller) async {
+    // Measure the Duel tile and target tiles global rects
+    Rect rect = Rect.zero;
+    Rect gameRect = Rect.zero;
+    Rect loadRect = Rect.zero;
+    Rect profileRect = Rect.zero;
+    try {
+      final ctxDuel = _duelTileKey.currentContext;
+      if (ctxDuel != null) {
+        final box = ctxDuel.findRenderObject() as RenderBox?;
+        if (box != null && box.hasSize) {
+          final topLeft = box.localToGlobal(Offset.zero);
+          rect = Rect.fromLTWH(topLeft.dx, topLeft.dy, box.size.width, box.size.height);
+        }
+      }
+      final ctxGame = _gameTileKey.currentContext;
+      if (ctxGame != null) {
+        final box = ctxGame.findRenderObject() as RenderBox?;
+        if (box != null && box.hasSize) {
+          final topLeft = box.localToGlobal(Offset.zero);
+          gameRect = Rect.fromLTWH(topLeft.dx, topLeft.dy, box.size.width, box.size.height);
+        }
+      }
+      final ctxLoad = _loadTileKey.currentContext;
+      if (ctxLoad != null) {
+        final box = ctxLoad.findRenderObject() as RenderBox?;
+        if (box != null && box.hasSize) {
+          final topLeft = box.localToGlobal(Offset.zero);
+          loadRect = Rect.fromLTWH(topLeft.dx, topLeft.dy, box.size.width, box.size.height);
+        }
+      }
+      final ctxProfile = _profileTileKey.currentContext;
+      if (ctxProfile != null) {
+        final box = ctxProfile.findRenderObject() as RenderBox?;
+        if (box != null && box.hasSize) {
+          final topLeft = box.localToGlobal(Offset.zero);
+          profileRect = Rect.fromLTWH(topLeft.dx, topLeft.dy, box.size.width, box.size.height);
+        }
+      }
+    } catch (_) {}
+
+    // Fallback: if we couldn't measure required rects, show the old top overlay
+    if (rect == Rect.zero || gameRect == Rect.zero || loadRect == Rect.zero || profileRect == Rect.zero) {
+      await _openDuelModesOverlay(context, controller);
+      return;
+    }
+
+    // Capture for builder
+    final Rect duelRect = rect;
+    final Rect targetGameRect = gameRect;
+    final Rect targetLoadRect = loadRect;
+    final Rect targetProfileRect = profileRect;
+
+    await showGeneralDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Modes',
+      barrierColor: Colors.black.withOpacity(0.4),
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),
+      transitionBuilder: (ctx, anim, a2, child) {
+        final curved = CurvedAnimation(
+          parent: anim,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic,
+        );
+
+        final Rect from = duelRect;
+        Rect _lerpRect(Rect a, Rect b, double t) {
+          final l = a.left + (b.left - a.left) * t;
+          final tY = a.top + (b.top - a.top) * t;
+          final w = a.width + (b.width - a.width) * t;
+          final h = a.height + (b.height - a.height) * t;
+          return Rect.fromLTWH(l, tY, w, h);
+        }
+
+        return AnimatedBuilder(
+          animation: curved,
+          builder: (context, _) {
+            final r1 = _lerpRect(from, targetGameRect, curved.value);
+            final r2 = _lerpRect(from, targetLoadRect, curved.value);
+            final r3 = _lerpRect(from, targetProfileRect, curved.value);
+            return Stack(
+              children: [
+                // Tapping anywhere dismisses
+                Positioned.fill(
+                  child: GestureDetector(onTap: () => Navigator.of(ctx).pop()),
+                ),
+
+                // Duel (active) → lands over Game challenge
+                Positioned(
+                  left: r1.left,
+                  top: r1.top,
+                  width: r1.width,
+                  height: r1.height,
+                  child: FadeTransition(
+                    opacity: curved,
+                    child: ScaleTransition(
+                      scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
+                      child: _buildFlyoutTile(
+                        imagePath: 'assets/icons/menu_121.png',
+                        label: 'Duel mode',
+                        disabled: false,
+                        color: AppColors.blue,
+                        onTap: () {
+                          Navigator.of(ctx).pop();
+                          _pushWithSlide(
+                            context,
+                            DuelPage(controller: controller),
+                            const Offset(1.0, 0.0),
+                          );
+                        },
+                        width: r1.width,
+                        height: r1.height,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Triple (disabled) → lands over Load game
+                Positioned(
+                  left: r2.left,
+                  top: r2.top,
+                  width: r2.width,
+                  height: r2.height,
+                  child: FadeTransition(
+                    opacity: curved,
+                    child: ScaleTransition(
+                      scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
+                      child: _buildFlyoutTile(
+                        imagePath: 'assets/icons/menu_424.png',
+                        label: 'Triple Threat',
+                        disabled: true,
+                        width: r2.width,
+                        height: r2.height,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Quad (disabled) → lands over Profile
+                Positioned(
+                  left: r3.left,
+                  top: r3.top,
+                  width: r3.width,
+                  height: r3.height,
+                  child: FadeTransition(
+                    opacity: curved,
+                    child: ScaleTransition(
+                      scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
+                      child: _buildFlyoutTile(
+                        imagePath: 'assets/icons/menu_424.png',
+                        label: 'Quad Clash',
+                        disabled: true,
+                        width: r3.width,
+                        height: r3.height,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _openDuelModesOverlay(BuildContext context, GameController controller) async {
+    await showGeneralDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Modes',
+      barrierColor: Colors.black.withOpacity(0.55),
+      transitionDuration: const Duration(milliseconds: 260),
+      pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),
+      transitionBuilder: (ctx, anim, a2, child) {
+        final curved = CurvedAnimation(
+          parent: anim,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic,
+        );
+        return Center(
+          child: FadeTransition(
+            opacity: curved,
+            child: ScaleTransition(
+              scale: Tween<double>(begin: 0.96, end: 1.0).animate(curved),
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 24.0, left: 16, right: 16),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 720),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildFlyoutTile(
+                            imagePath: 'assets/icons/menu_121.png',
+                            label: 'Duel mode',
+                            disabled: false,
+                            width: 190,
+                            height: 170,
+                            color: AppColors.blue,
+                            onTap: () {
+                              Navigator.of(ctx).pop();
+                              _pushWithSlide(
+                                context,
+                                DuelPage(controller: controller),
+                                const Offset(1.0, 0.0),
+                              );
+                            },
+                          ),
+                          const SizedBox(width: 14),
+                          _buildFlyoutTile(
+                            imagePath: 'assets/icons/menu_424.png',
+                            label: 'Triple Threat',
+                            disabled: true,
+                            width: 190,
+                            height: 170,
+                          ),
+                          const SizedBox(width: 14),
+                          _buildFlyoutTile(
+                            imagePath: 'assets/icons/menu_424.png',
+                            label: 'Quad Clash',
+                            disabled: true,
+                            width: 190,
+                            height: 170,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildFlyoutTile({
+    required String imagePath,
+    required String label,
+    required bool disabled,
+    required double width,
+    required double height,
+    Color? color,
+    VoidCallback? onTap,
+  }) {
+    final outerRadius = BorderRadius.circular(16);
+    final innerRadius = BorderRadius.circular(13);
+
+    Color _darken(Color c, [double amount = 0.18]) {
+      final hsl = HSLColor.fromColor(c);
+      final lightness = (hsl.lightness - amount).clamp(0.0, 1.0);
+      return hsl.withLightness(lightness).toColor();
+    }
+
+    Color _lighten(Color c, [double amount = 0.18]) {
+      final hsl = HSLColor.fromColor(c);
+      final lightness = (hsl.lightness + amount).clamp(0.0, 1.0);
+      return hsl.withLightness(lightness).toColor();
+    }
+
+    final Color activeBase = color ?? AppColors.blue;
+    final Color base = disabled ? Colors.grey.shade600 : activeBase;
+    final gradient = LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [
+        _darken(base),
+        _lighten(base),
+      ],
+    );
+
+    Widget image = Image.asset(imagePath, fit: BoxFit.contain);
+    if (disabled) {
+      image = ColorFiltered(
+        colorFilter: const ColorFilter.matrix(<double>[
+          0.2126, 0.7152, 0.0722, 0, 0,
+          0.2126, 0.7152, 0.0722, 0, 0,
+          0.2126, 0.7152, 0.0722, 0, 0,
+          0, 0, 0, 1, 0,
+        ]),
+        child: Opacity(opacity: 0.65, child: image),
+      );
+    }
+
+    final labelStyle = TextStyle(
+      color: disabled ? Colors.white70 : Colors.white,
+      fontWeight: FontWeight.w800,
+      fontSize: 16,
+    );
+
+    return SizedBox(
+      width: width,
+      height: height,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: disabled ? null : onTap,
+          borderRadius: outerRadius,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: gradient,
+              borderRadius: outerRadius,
+              boxShadow: const [
+                BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
+              ],
+            ),
+            padding: const EdgeInsets.all(3),
+            child: Container(
+              decoration: BoxDecoration(
+                color: base.withOpacity(disabled ? 0.85 : 0.9),
+                borderRadius: innerRadius,
+              ),
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Center(child: image),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(label, style: labelStyle),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -314,7 +658,7 @@ class _MenuTile extends StatefulWidget {
   final String label;
   final VoidCallback onTap;
   final Color color;
-  const _MenuTile({required this.imagePath, required this.label, required this.onTap, required this.color});
+  const _MenuTile({Key? key, required this.imagePath, required this.label, required this.onTap, required this.color}) : super(key: key);
 
   @override
   State<_MenuTile> createState() => _MenuTileState();
@@ -412,6 +756,113 @@ class _MenuTileState extends State<_MenuTile> {
                       fontSize: 16,
                     ),
                   ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FlyoutTile extends StatelessWidget {
+  final String imagePath;
+  final String label;
+  final bool disabled;
+  final double width;
+  final double height;
+  final Color? color;
+  final VoidCallback? onTap;
+  const _FlyoutTile({
+    required this.imagePath,
+    required this.label,
+    required this.disabled,
+    required this.width,
+    required this.height,
+    this.color,
+    this.onTap,
+  });
+
+  Color _darken(Color c, [double amount = 0.18]) {
+    final hsl = HSLColor.fromColor(c);
+    final lightness = (hsl.lightness - amount).clamp(0.0, 1.0);
+    return hsl.withLightness(lightness).toColor();
+  }
+
+  Color _lighten(Color c, [double amount = 0.18]) {
+    final hsl = HSLColor.fromColor(c);
+    final lightness = (hsl.lightness + amount).clamp(0.0, 1.0);
+    return hsl.withLightness(lightness).toColor();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final outerRadius = BorderRadius.circular(16);
+    final innerRadius = BorderRadius.circular(13);
+
+    final Color activeBase = color ?? AppColors.blue;
+    final Color base = disabled ? Colors.grey.shade600 : activeBase;
+
+    final gradient = LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [
+        _darken(base),
+        _lighten(base),
+      ],
+    );
+
+    Widget image = Image.asset(imagePath, fit: BoxFit.contain);
+    if (disabled) {
+      image = ColorFiltered(
+        colorFilter: const ColorFilter.matrix(<double>[
+          0.2126, 0.7152, 0.0722, 0, 0,
+          0.2126, 0.7152, 0.0722, 0, 0,
+          0.2126, 0.7152, 0.0722, 0, 0,
+          0, 0, 0, 1, 0,
+        ]),
+        child: Opacity(opacity: 0.65, child: image),
+      );
+    }
+
+    final labelStyle = TextStyle(
+      color: disabled ? Colors.white70 : Colors.white,
+      fontWeight: FontWeight.w800,
+      fontSize: 16,
+    );
+
+    return SizedBox(
+      width: width,
+      height: height,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: disabled ? null : onTap,
+          borderRadius: outerRadius,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: gradient,
+              borderRadius: outerRadius,
+              boxShadow: const [
+                BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
+              ],
+            ),
+            padding: const EdgeInsets.all(3),
+            child: Container(
+              decoration: BoxDecoration(
+                color: base.withOpacity(disabled ? 0.85 : 0.9),
+                borderRadius: innerRadius,
+              ),
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Center(child: image),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(label, style: labelStyle),
                 ],
               ),
             ),

@@ -172,30 +172,6 @@ class _SettingsDialogState extends State<SettingsDialog> {
                 // The game continues using controller.boardSize; changes may come from elsewhere if needed.
                 const SizedBox(height: 0),
 
-                // AI difficulty
-                _label('AI difficulty'),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: List.generate(7, (i) => i + 1).map((lvl) {
-                    return _choiceTile(
-                      selected: _aiLevel == lvl,
-                      label: AiBelt.nameFor(lvl),
-                      colorDot: AiBelt.colorFor(lvl),
-                      onTap: () async {
-                        setState(() => _aiLevel = lvl);
-                        await widget.controller.setAiLevel(lvl);
-                      },
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  _aiLevelDescription(_aiLevel),
-                  style: const TextStyle(
-                      color: Colors.white70, fontSize: 12, height: 1.2),
-                ),
-                _separator(),
 
                 // Who starts selector
                 _label('Who starts first'),
@@ -351,14 +327,111 @@ class _SettingsDialogState extends State<SettingsDialog> {
     );
   }
 
+  // Belt tile with image and highlight
+  Widget _beltTile({
+    required int level,
+    required bool selected,
+    VoidCallback? onTap,
+  }) {
+    final String label = AiBelt.nameFor(level);
+    final String asset = AiBelt.assetFor(level);
+    final Color border = selected ? AppColors.brandGold : Colors.white12;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Container(
+          width: 84,
+          height: 88,
+          decoration: BoxDecoration(
+            color: AppColors.dialogFieldBg,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: border, width: selected ? 2 : 1),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Stack(
+            children: [
+              // Belt image centered
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Image.asset(
+                    asset,
+                    fit: BoxFit.contain,
+                    height: 54,
+                  ),
+                ),
+              ),
+              // Label at bottom with subtle gradient
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  width: double.infinity,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withOpacity(0.0),
+                        Colors.black.withOpacity(0.35),
+                      ],
+                    ),
+                  ),
+                  child: Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight:
+                          selected ? FontWeight.w700 : FontWeight.w600,
+                      fontSize: 12,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _aiLevelShortTip(int lvl) {
+    switch (lvl) {
+      case 1:
+        return 'White — Beginner: makes random moves.';
+      case 2:
+        return 'Yellow — Easy: prefers immediate gains.';
+      case 3:
+        return 'Orange — Normal: greedy with basic positioning.';
+      case 4:
+        return 'Green — Challenging: shallow search with some foresight.';
+      case 5:
+        return 'Blue — Hard: deeper search with pruning.';
+      case 6:
+        return 'Brown — Expert: advanced pruning and caching.';
+      case 7:
+        return 'Black — Master: strongest and most calculating.';
+      default:
+        return 'Select a belt level.';
+    }
+  }
+
   String _aiLevelDescription(int lvl) {
     switch (lvl) {
       case 1:
         return 'White — Beginner: random empty cells. Unpredictable but weak.';
       case 2:
-        return 'Orange — Easy: greedy takes that maximize immediate blue gain.';
+        return 'Yellow — Easy: greedy takes that maximize immediate gain.';
       case 3:
-        return 'Red — Normal: greedy with center tie-break to prefer strong positions.';
+        return 'Orange — Normal: greedy with center tie-break to prefer stronger positions.';
       case 4:
         return 'Green — Challenging: shallow minimax search (depth 2), no pruning.';
       case 5:
