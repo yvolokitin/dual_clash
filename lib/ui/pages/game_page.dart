@@ -102,15 +102,18 @@ class GamePage extends StatelessWidget {
         final bool finishedAndClosed =
             controller.gameOver && controller.resultsShown;
 
-        // Match score row icon size to exact board cell image size
+        // Match score row icon sizes relative to exact board cell size
         const double _boardBorderPx = 3.0; // keep in sync with BoardWidget
         final double _gridSpacingPx = K.n == 9 ? 2.0 : 0.0; // keep in sync with BoardWidget
         final bool _hasBoardSize = controller.boardPixelSize > 0;
         final double _innerBoardSide =
             _hasBoardSize ? controller.boardPixelSize - 2 * _boardBorderPx : 0;
-        final double scoreItemSize = (_hasBoardSize
+        // The exact pixel size of one board cell
+        final double boardCellSize = _hasBoardSize
             ? (_innerBoardSide - _gridSpacingPx * (K.n - 1)) / K.n
-            : 22.0) * 0.595; // additional 15% smaller than previous (now ~59.5% of cell size)
+            : 22.0;
+        // Smaller size used for score-row chips/icons (keeps layout similar)
+        final double scoreItemSize = boardCellSize * 0.595;
 
         // Score-row text style: same height as icon, bold, and gold color
         final _chipTextStyle = TextStyle(
@@ -146,8 +149,16 @@ class GamePage extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
-                                icon: Image.asset('assets/icons/menu_pvai.png',
-                                    width: scoreItemSize, height: scoreItemSize),
+                                padding: EdgeInsets.zero,
+                                constraints: BoxConstraints.tightFor(
+                                  width: boardCellSize,
+                                  height: boardCellSize,
+                                ),
+                                icon: Image.asset(
+                                  'assets/icons/menu_pvai.png',
+                                  width: boardCellSize,
+                                  height: boardCellSize,
+                                ),
                                 tooltip: 'Main Menu',
                                 onPressed: () async {
                                   await mmd.showAnimatedMainMenuDialog(

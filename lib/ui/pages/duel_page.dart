@@ -223,10 +223,12 @@ class _DuelPageState extends State<DuelPage> {
         final bool _hasBoardSize = controller.boardPixelSize > 0;
         final double _innerBoardSide =
             _hasBoardSize ? controller.boardPixelSize - 2 * _boardBorderPx : 0;
-        final double scoreItemSize = (_hasBoardSize
-                ? (_innerBoardSide - _gridSpacingPx * (K.n - 1)) / K.n
-                : 22.0) *
-            0.595; // keep consistent with GamePage
+        // The exact pixel size of one board cell
+        final double boardCellSize = _hasBoardSize
+            ? (_innerBoardSide - _gridSpacingPx * (K.n - 1)) / K.n
+            : 22.0;
+        // Smaller size used for score-row chips/icons (keeps layout similar)
+        final double scoreItemSize = boardCellSize * 0.595; // keep consistent with GamePage
 
         // Score-row text style: same height as icon, bold, and gold color
         final textStyle = TextStyle(
@@ -259,8 +261,16 @@ class _DuelPageState extends State<DuelPage> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
-                                icon: Image.asset('assets/icons/menu_121.png',
-                                    width: scoreItemSize, height: scoreItemSize),
+                                padding: EdgeInsets.zero,
+                                constraints: BoxConstraints.tightFor(
+                                  width: boardCellSize,
+                                  height: boardCellSize,
+                                ),
+                                icon: Image.asset(
+                                  'assets/icons/menu_121.png',
+                                  width: boardCellSize,
+                                  height: boardCellSize,
+                                ),
                                 tooltip: 'Main Menu',
                                 onPressed: () async {
                                   final ok = await _confirmLeaveDuel(context);
