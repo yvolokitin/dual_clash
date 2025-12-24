@@ -462,7 +462,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                     child: ScaleTransition(
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: _buildFlyoutTile(
-                        imagePath: 'assets/icons/menu_424.png',
+                        imagePath: 'assets/icons/menu_323.png',
                         label: 'Triple Threat',
                         disabled: true,
                         width: r2.width,

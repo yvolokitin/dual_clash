@@ -281,27 +281,8 @@ class _DuelPageState extends State<DuelPage> {
                               ),
                             ],
                           ),
-                          // Middle: current turn indicator (two small boxes)
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              _TurnBox(
-                                label: 'RED',
-                                iconPath: 'assets/icons/player_red.png',
-                                color: AppColors.red,
-                                active: controller.current == CellState.red,
-                                size: scoreItemSize,
-                              ),
-                              const SizedBox(width: 10),
-                              _TurnBox(
-                                label: 'BLUE',
-                                iconPath: 'assets/icons/player_blue.png',
-                                color: AppColors.blue,
-                                active: controller.current == CellState.blue,
-                                size: scoreItemSize,
-                              ),
-                            ],
-                          ),
+                          // Middle: turn indicator moved to bottom row
+                          const SizedBox.shrink(),
                           // Right side: counts only (number -> icon) for red, grey, blue
                           Row(
                             mainAxisSize: MainAxisSize.min,
@@ -336,6 +317,35 @@ class _DuelPageState extends State<DuelPage> {
                       children: [
                         BoardWidget(controller: controller),
                       ],
+                    ),
+                  ),
+                ),
+                // Turn row below the board
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0, top: 6.0),
+                  child: Center(
+                    child: SizedBox(
+                      width: controller.boardPixelSize > 0 ? controller.boardPixelSize : null,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _TurnBox(
+                            label: 'RED',
+                            iconPath: 'assets/icons/player_red.png',
+                            color: AppColors.red,
+                            active: controller.current == CellState.red,
+                            size: scoreItemSize,
+                          ),
+                          const SizedBox(width: 10),
+                          _TurnBox(
+                            label: 'BLUE',
+                            iconPath: 'assets/icons/player_blue.png',
+                            color: AppColors.blue,
+                            active: controller.current == CellState.blue,
+                            size: scoreItemSize,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

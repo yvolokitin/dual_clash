@@ -261,13 +261,7 @@ class _MultiScaffoldState extends State<_MultiScaffold> {
                           },
                         ),
                         const Spacer(),
-                        _turnChip(c, MultiCellState.red, 'R'),
-                        const SizedBox(width: 8),
-                        _turnChip(c, MultiCellState.blue, 'B'),
-                        const SizedBox(width: 8),
-                        _turnChip(c, MultiCellState.yellow, 'Y'),
-                        if (c.playersCount == 4) const SizedBox(width: 8),
-                        if (c.playersCount == 4) _turnChip(c, MultiCellState.green, 'G'),
+                        SizedBox.shrink(),
                         const Spacer(),
                       ],
                     ),
@@ -276,6 +270,27 @@ class _MultiScaffoldState extends State<_MultiScaffold> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Center(child: MultiBoardWidget(controller: c)),
+                    ),
+                  ),
+                  // Turn row below the board
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12.0, top: 6.0),
+                    child: Center(
+                      child: SizedBox(
+                        width: c.boardPixelSize > 0 ? c.boardPixelSize : null,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _turnChip(c, MultiCellState.red, 'R'),
+                            const SizedBox(width: 8),
+                            _turnChip(c, MultiCellState.blue, 'B'),
+                            const SizedBox(width: 8),
+                            _turnChip(c, MultiCellState.yellow, 'Y'),
+                            if (c.playersCount == 4) const SizedBox(width: 8),
+                            if (c.playersCount == 4) _turnChip(c, MultiCellState.green, 'G'),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ],
