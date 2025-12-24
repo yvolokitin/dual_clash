@@ -242,6 +242,56 @@ class GamePage extends StatelessWidget {
                   ),
                 ),
 
+                // AI level row under the board
+                if (!controller.humanVsHuman)
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(height: 14),
+                      SizedBox(
+                        height: boardCellSize * 0.36,
+                        child: Center(
+                          child: SizedBox(
+                            width: controller.boardPixelSize > 0
+                                ? controller.boardPixelSize
+                                : null,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Current AI Level',
+                                  style: TextStyle(
+                                    fontSize: boardCellSize * 0.288,
+                                    height: 1.0,
+                                    fontWeight: FontWeight.w700,
+                                    color: _chipTextStyle.color,
+                                  ),
+                                ),
+                                SizedBox(width: boardCellSize * 0.1),
+                                Image.asset(
+                                  AiBelt.assetFor(controller.aiLevel),
+                                  height: boardCellSize * 0.36,
+                                  fit: BoxFit.contain,
+                                ),
+                                SizedBox(width: boardCellSize * 0.1),
+                                Text(
+                                  '${AiBelt.nameFor(controller.aiLevel)} (${controller.aiLevel})',
+                                  style: TextStyle(
+                                    fontSize: boardCellSize * 0.288,
+                                    height: 1.0,
+                                    fontWeight: FontWeight.w700,
+                                    color: _chipTextStyle.color,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
                 // Bottom actions under the board: Simulate and Undo
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0, bottom: 12.0),
