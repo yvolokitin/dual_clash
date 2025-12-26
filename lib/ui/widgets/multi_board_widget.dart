@@ -13,59 +13,72 @@ class MultiBoardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
-      final size = math.min(constraints.maxWidth, constraints.maxHeight);
+      final availableWidth = constraints.maxWidth;
+      final horizontalPadding = availableWidth < 590 ? 10.0 : 0.0;
+      final paddedWidth = math.max(0.0, availableWidth - horizontalPadding * 2);
+      final size = math.min(paddedWidth, constraints.maxHeight);
       WidgetsBinding.instance.addPostFrameCallback((_) {
         controller.setBoardPixelSize(size);
       });
       final cellSize = size / K.n;
       return Center(
-        child: Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: const [
-              BoxShadow(color: Color(0x66000000), blurRadius: 24, offset: Offset(0, 14)),
-              BoxShadow(color: Color(0x33000000), blurRadius: 8, offset: Offset(0, 2)),
-            ],
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [AppColors.bg, HSLColor.fromColor(AppColors.bg).withLightness( (HSLColor.fromColor(AppColors.bg).lightness + 0.2).clamp(0.0,1.0)).toColor()],
-            ),
-          ),
-          padding: const EdgeInsets.all(3),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: GridView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              padding: K.n == 9 ? EdgeInsets.zero : const EdgeInsets.only(bottom: 6),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: K.n,
-                mainAxisSpacing: K.n == 9 ? 2 : 0,
-                crossAxisSpacing: K.n == 9 ? 2 : 0,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+          child: Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: const [
+                BoxShadow(color: Color(0x66000000), blurRadius: 24, offset: Offset(0, 14)),
+                BoxShadow(color: Color(0x33000000), blurRadius: 8, offset: Offset(0, 2)),
+              ],
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppColors.bg,
+                  HSLColor.fromColor(AppColors.bg)
+                      .withLightness(
+                          (HSLColor.fromColor(AppColors.bg).lightness + 0.2)
+                              .clamp(0.0, 1.0))
+                      .toColor()
+                ],
               ),
-              itemCount: K.n * K.n,
-              itemBuilder: (context, index) {
-                final r = index ~/ K.n;
-                final c = index % K.n;
-                final st = controller.board[r][c];
-                final radius = BorderRadius.circular(K.n == 9 ? 2 : 8);
-                return Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    MultiCellWidget(
-                      state: st,
-                      borderRadius: radius,
-                      onTap: () => controller.onCellTap(r, c),
-                    ),
-                    if (controller.blowPreview.contains((r, c)))
-                      const _AffectedHighlight(),
-                    if (controller.selectedCell == (r, c) && st != MultiCellState.empty)
-                      const _SelectedBorder(),
-                  ],
-                );
-              },
+            ),
+            padding: const EdgeInsets.all(3),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: GridView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                padding: K.n == 9 ? EdgeInsets.zero : const EdgeInsets.only(bottom: 6),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: K.n,
+                  mainAxisSpacing: K.n == 9 ? 2 : 0,
+                  crossAxisSpacing: K.n == 9 ? 2 : 0,
+                ),
+                itemCount: K.n * K.n,
+                itemBuilder: (context, index) {
+                  final r = index ~/ K.n;
+                  final c = index % K.n;
+                  final st = controller.board[r][c];
+                  final radius = BorderRadius.circular(K.n == 9 ? 2 : 8);
+                  return Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      MultiCellWidget(
+                        state: st,
+                        borderRadius: radius,
+                        onTap: () => controller.onCellTap(r, c),
+                      ),
+                      if (controller.blowPreview.contains((r, c)))
+                        const _AffectedHighlight(),
+                      if (controller.selectedCell == (r, c) && st != MultiCellState.empty)
+                        const _SelectedBorder(),
+                    ],
+                  );
+                },
+              ),
             ),
           ),
         ),
