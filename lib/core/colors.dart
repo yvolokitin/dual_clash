@@ -6,6 +6,8 @@ class AppColors {
   static const tile = Color(0xFFD9C7A6); // sand
   static const red = Color(0xFFD84A3A);
   static const blue = Color(0xFF1F73D1);
+  static const yellow = Color(0xFFFFD166);
+  static const green = Color(0xFF3BB54A);
   static const neutral = Color(0xFF8E8E90);
   static const accentYellow = Color(0xFFFFD166);
 

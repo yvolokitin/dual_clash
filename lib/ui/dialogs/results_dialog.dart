@@ -542,6 +542,12 @@ class _MiniBoardPreview extends StatelessWidget {
       case CellState.blue:
         fill = AppColors.blue;
         break;
+      case CellState.yellow:
+        fill = AppColors.yellow;
+        break;
+      case CellState.green:
+        fill = AppColors.green;
+        break;
       case CellState.neutral:
         fill = Colors.grey;
         break;

@@ -10,7 +10,8 @@ import 'package:dual_clash/ui/dialogs/results_dialog.dart' as results;
 
 class DuelPage extends StatefulWidget {
   final GameController controller;
-  const DuelPage({super.key, required this.controller});
+  final int playerCount;
+  const DuelPage({super.key, required this.controller, this.playerCount = 2});
 
   @override
   State<DuelPage> createState() => _DuelPageState();
@@ -184,6 +185,7 @@ class _DuelPageState extends State<DuelPage> {
     super.initState();
     // Enable human vs human and start a fresh game
     widget.controller.humanVsHuman = true;
+    widget.controller.setDuelPlayerCount(widget.playerCount);
     // Ensure AI doesn't schedule at start
     widget.controller.newGame();
   }
@@ -192,6 +194,7 @@ class _DuelPageState extends State<DuelPage> {
   void dispose() {
     // Restore default mode when leaving Duel page
     widget.controller.humanVsHuman = false;
+    widget.controller.setDuelPlayerCount(2);
     super.dispose();
   }
 
@@ -215,6 +218,8 @@ class _DuelPageState extends State<DuelPage> {
       builder: (context, _) {
         final redBase = controller.scoreRedBase();
         final blueBase = controller.scoreBlueBase();
+        final yellowBase = controller.scoreYellowBase();
+        final greenBase = controller.scoreGreenBase();
         final neutralsCount = RulesEngine.countOf(controller.board, CellState.neutral);
 
         // Match score row icon size to exact board cell image size, scaled same as GamePage
@@ -287,20 +292,49 @@ class _DuelPageState extends State<DuelPage> {
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text('$redBase', style: textStyle),
-                              const SizedBox(width: 6),
-                              Image.asset('assets/icons/player_red.png',
-                                  width: scoreItemSize, height: scoreItemSize),
-                              const SizedBox(width: 18),
-                              Text('$neutralsCount', style: textStyle),
-                              const SizedBox(width: 6),
-                              Image.asset('assets/icons/player_grey.png',
-                                  width: scoreItemSize, height: scoreItemSize),
-                              const SizedBox(width: 18),
-                              Text('$blueBase', style: textStyle),
-                              const SizedBox(width: 6),
-                              Image.asset('assets/icons/player_blue.png',
-                                  width: scoreItemSize, height: scoreItemSize),
+                              if (!controller.isMultiDuel) ...[
+                                Text('$redBase', style: textStyle),
+                                const SizedBox(width: 6),
+                                Image.asset('assets/icons/player_red.png',
+                                    width: scoreItemSize, height: scoreItemSize),
+                                const SizedBox(width: 18),
+                                Text('$neutralsCount', style: textStyle),
+                                const SizedBox(width: 6),
+                                Image.asset('assets/icons/player_grey.png',
+                                    width: scoreItemSize, height: scoreItemSize),
+                                const SizedBox(width: 18),
+                                Text('$blueBase', style: textStyle),
+                                const SizedBox(width: 6),
+                                Image.asset('assets/icons/player_blue.png',
+                                    width: scoreItemSize, height: scoreItemSize),
+                              ] else ...[
+                                Text('$redBase', style: textStyle),
+                                const SizedBox(width: 6),
+                                Image.asset('assets/icons/player_red.png',
+                                    width: scoreItemSize, height: scoreItemSize),
+                                const SizedBox(width: 14),
+                                Text('$blueBase', style: textStyle),
+                                const SizedBox(width: 6),
+                                Image.asset('assets/icons/player_blue.png',
+                                    width: scoreItemSize, height: scoreItemSize),
+                                const SizedBox(width: 14),
+                                Text('$yellowBase', style: textStyle),
+                                const SizedBox(width: 6),
+                                Image.asset('assets/icons/player_yellow.png',
+                                    width: scoreItemSize, height: scoreItemSize),
+                                if (controller.duelPlayerCount >= 4) ...[
+                                  const SizedBox(width: 14),
+                                  Text('$greenBase', style: textStyle),
+                                  const SizedBox(width: 6),
+                                  Image.asset('assets/icons/player_green.png',
+                                      width: scoreItemSize, height: scoreItemSize),
+                                ],
+                                const SizedBox(width: 14),
+                                Text('$neutralsCount', style: textStyle),
+                                const SizedBox(width: 6),
+                                Image.asset('assets/icons/player_grey.png',
+                                    width: scoreItemSize, height: scoreItemSize),
+                              ],
                             ],
                           ),
                         ],
@@ -344,6 +378,26 @@ class _DuelPageState extends State<DuelPage> {
                             active: controller.current == CellState.blue,
                             size: scoreItemSize,
                           ),
+                          if (controller.isMultiDuel) ...[
+                            const SizedBox(width: 10),
+                            _TurnBox(
+                              label: 'YELLOW',
+                              iconPath: 'assets/icons/player_yellow.png',
+                              color: AppColors.yellow,
+                              active: controller.current == CellState.yellow,
+                              size: scoreItemSize,
+                            ),
+                            if (controller.duelPlayerCount >= 4) ...[
+                              const SizedBox(width: 10),
+                              _TurnBox(
+                                label: 'GREEN',
+                                iconPath: 'assets/icons/player_green.png',
+                                color: AppColors.green,
+                                active: controller.current == CellState.green,
+                                size: scoreItemSize,
+                              ),
+                            ],
+                          ],
                         ],
                       ),
                     ),

@@ -129,6 +129,7 @@ class BoardWidget extends StatelessWidget {
                               CellWidget(
                                 state: st,
                                 borderRadius: cellRadius,
+                                usePlayerTokens: controller.usePlayerTokens,
                                 onTap: () {
                                   controller.onCellTap(r, c);
                                 },
@@ -141,10 +142,15 @@ class BoardWidget extends StatelessWidget {
                               if (controller.selectedCell == (r, c) &&
                                   (st == CellState.red ||
                                       st == CellState.blue ||
+                                      st == CellState.yellow ||
+                                      st == CellState.green ||
                                       st == CellState.neutral))
                                 const _SelectedGoldBorder(),
                               if (controller.selectedCell == (r, c) &&
-                                  (st == CellState.red || st == CellState.blue))
+                                  (st == CellState.red ||
+                                      st == CellState.blue ||
+                                      st == CellState.yellow ||
+                                      st == CellState.green))
                                 const _SelectedBlowIcon(),
                               if (controller.isExploding &&
                                   controller.explodingCells.contains((r, c)))
@@ -227,10 +233,27 @@ class BoardWidget extends StatelessWidget {
                     child: IgnorePointer(
                       child: _WinnerBorderRun(
                         color: (() {
+                          if (!controller.gameOver) return null;
+                          if (controller.isMultiDuel) {
+                            final winner = controller.duelWinner();
+                            if (winner == null) return null;
+                            switch (winner) {
+                              case CellState.red:
+                                return AppColors.red;
+                              case CellState.blue:
+                                return AppColors.blue;
+                              case CellState.yellow:
+                                return AppColors.yellow;
+                              case CellState.green:
+                                return AppColors.green;
+                              case CellState.neutral:
+                              case CellState.empty:
+                                return null;
+                            }
+                          }
                           final redTotal = controller.scoreRedTotal();
                           final blueTotal = controller.scoreBlueTotal();
-                          if (!controller.gameOver || redTotal == blueTotal)
-                            return null;
+                          if (redTotal == blueTotal) return null;
                           return redTotal > blueTotal
                               ? AppColors.red
                               : AppColors.blue;
