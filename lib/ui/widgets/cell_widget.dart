@@ -117,7 +117,9 @@ class _CellWidgetState extends State<CellWidget> {
         case CellState.green:
           return 'assets/icons/player_green.png';
         case CellState.neutral:
-          return 'assets/icons/box_grey-removebg.png';
+          return K.n == 9
+              ? 'assets/icons/player_grey.png'
+              : 'assets/icons/box_grey-removebg.png';
         case CellState.empty:
           return '';
       }
