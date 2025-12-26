@@ -25,8 +25,6 @@ class RulesEngine {
     if (!inBounds(r, c)) return null;
     if (board[r][c] != CellState.empty) return null;
 
-    final opp = attacker == CellState.red ? CellState.blue : CellState.red;
-
     // clone
     final next = List<List<CellState>>.generate(
       K.n,
@@ -40,7 +38,7 @@ class RulesEngine {
     for (final (nr, nc) in neighbors4(r, c)) {
       final s = next[nr][nc];
 
-      if (s == opp) {
+      if (s != attacker && s != CellState.empty && s != CellState.neutral) {
         next[nr][nc] = CellState.neutral;
       } else if (s == CellState.neutral) {
         next[nr][nc] = attacker;

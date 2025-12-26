@@ -18,9 +18,11 @@ class ResultsCard extends StatelessWidget {
     final neutrals = RulesEngine.countOf(controller.board, CellState.neutral);
     final redTotal = controller.scoreRedTotal();
     final blueTotal = controller.scoreBlueTotal();
-    final winner = redTotal == blueTotal
-        ? null
-        : (redTotal > blueTotal ? CellState.red : CellState.blue);
+    final CellState? winner = controller.isMultiDuel
+        ? controller.duelWinner()
+        : (redTotal == blueTotal
+            ? null
+            : (redTotal > blueTotal ? CellState.red : CellState.blue));
     final bool isDuel = controller.humanVsHuman;
 
     return Dialog(
@@ -58,24 +60,32 @@ class ResultsCard extends StatelessWidget {
                   Row(
                     children: [
                       const Spacer(),
-                      if (winner == CellState.red)
+                      if (winner != null)
                         Padding(
                           padding: const EdgeInsets.only(right: 8.0),
-                          child: Image.asset('assets/icons/winner-removebg.png',
-                              width: 36, height: 36),
-                        )
-                      else if (winner == CellState.blue)
-                        Padding(
-                          padding: const EdgeInsets.only(right: 8.0),
-                          child: Image.asset('assets/icons/looser-removebg.png',
-                              width: 36, height: 36),
+                          child: Image.asset(
+                              controller.humanVsHuman
+                                  ? 'assets/icons/winner-removebg.png'
+                                  : (winner == CellState.red
+                                      ? 'assets/icons/winner-removebg.png'
+                                      : 'assets/icons/looser-removebg.png'),
+                              width: 36,
+                              height: 36),
                         ),
                       Text(
                         winner == null
                             ? 'Draw'
                             : (controller.humanVsHuman
-                                ? (winner == CellState.red ? 'Red wins!' : 'Blue wins!')
-                                : (winner == CellState.red ? 'Player Wins!' : 'AI Wins!')),
+                                ? (winner == CellState.red
+                                    ? 'Red wins!'
+                                    : (winner == CellState.blue
+                                        ? 'Blue wins!'
+                                        : (winner == CellState.yellow
+                                            ? 'Yellow wins!'
+                                            : 'Green wins!')))
+                                : (winner == CellState.red
+                                    ? 'Player Wins!'
+                                    : 'AI Wins!')),
                         style: const TextStyle(
                             color: Colors.white,
                             fontSize: 22,
@@ -100,7 +110,49 @@ class ResultsCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
 
-                  if (isDuel) ...[
+                  if (isDuel && controller.isMultiDuel) ...[
+                    _scoreRow(
+                        label: 'Red',
+                        color: AppColors.red,
+                        base: redBase,
+                        bonus: 0,
+                        total: redBase,
+                        highlight: winner == CellState.red),
+                    const SizedBox(height: 8),
+                    _scoreRow(
+                        label: 'Blue',
+                        color: AppColors.blue,
+                        base: blueBase,
+                        bonus: 0,
+                        total: blueBase,
+                        highlight: winner == CellState.blue),
+                    const SizedBox(height: 8),
+                    _scoreRow(
+                        label: 'Yellow',
+                        color: AppColors.yellow,
+                        base: controller.scoreYellowBase(),
+                        bonus: 0,
+                        total: controller.scoreYellowBase(),
+                        highlight: winner == CellState.yellow),
+                    if (controller.duelPlayerCount >= 4) ...[
+                      const SizedBox(height: 8),
+                      _scoreRow(
+                          label: 'Green',
+                          color: AppColors.green,
+                          base: controller.scoreGreenBase(),
+                          bonus: 0,
+                          total: controller.scoreGreenBase(),
+                          highlight: winner == CellState.green),
+                    ],
+                    const SizedBox(height: 8),
+                    _scoreRow(
+                        label: 'Grey',
+                        color: AppColors.neutral,
+                        base: neutrals,
+                        bonus: 0,
+                        total: neutrals,
+                        highlight: false),
+                  ] else if (isDuel) ...[
                     _scoreRow(
                         label: 'Red',
                         color: AppColors.red,
@@ -159,19 +211,45 @@ class ResultsCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   // Turns row beneath
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _statChip(
-                          icon: Icons.rotate_left,
-                          label: isDuel ? 'Red turns' : 'Player turns',
-                          value: controller.turnsRed.toString()),
-                      _statChip(
-                          icon: Icons.rotate_right,
-                          label: isDuel ? 'Blue turns' : 'AI turns',
-                          value: controller.turnsBlue.toString()),
-                    ],
-                  ),
+                  if (isDuel && controller.isMultiDuel)
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 10,
+                      runSpacing: 8,
+                      children: [
+                        _statChip(
+                            icon: Icons.rotate_left,
+                            label: 'Red turns',
+                            value: controller.turnsRed.toString()),
+                        _statChip(
+                            icon: Icons.rotate_left,
+                            label: 'Blue turns',
+                            value: controller.turnsBlue.toString()),
+                        _statChip(
+                            icon: Icons.rotate_left,
+                            label: 'Yellow turns',
+                            value: controller.turnsYellow.toString()),
+                        if (controller.duelPlayerCount >= 4)
+                          _statChip(
+                              icon: Icons.rotate_left,
+                              label: 'Green turns',
+                              value: controller.turnsGreen.toString()),
+                      ],
+                    )
+                  else
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _statChip(
+                            icon: Icons.rotate_left,
+                            label: isDuel ? 'Red turns' : 'Player turns',
+                            value: controller.turnsRed.toString()),
+                        _statChip(
+                            icon: Icons.rotate_right,
+                            label: isDuel ? 'Blue turns' : 'AI turns',
+                            value: controller.turnsBlue.toString()),
+                      ],
+                    ),
 
                   if (!isDuel) ...[
                     const SizedBox(height: 12),
@@ -564,6 +642,12 @@ class _MiniBoardPreview extends StatelessWidget {
         break;
       case CellState.blue:
         fill = AppColors.blue;
+        break;
+      case CellState.yellow:
+        fill = AppColors.yellow;
+        break;
+      case CellState.green:
+        fill = AppColors.green;
         break;
       case CellState.neutral:
         fill = Colors.grey;

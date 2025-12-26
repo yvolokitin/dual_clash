@@ -352,7 +352,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                   ),
                 ),
 
-                // Triple (disabled) → lands over Load game
+                // Triple → lands over Load game
                 Positioned(
                   left: r2.left,
                   top: r2.top,
@@ -365,7 +365,16 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                       child: _buildFlyoutTile(
                         imagePath: 'assets/icons/menu_323.png',
                         label: 'Triple Threat',
-                        disabled: true,
+                        disabled: false,
+                        color: AppColors.yellow,
+                        onTap: () {
+                          Navigator.of(ctx).pop();
+                          _pushWithSlide(
+                            context,
+                            DuelPage(controller: controller, playerCount: 3),
+                            const Offset(1.0, 0.0),
+                          );
+                        },
                         width: r2.width,
                         height: r2.height,
                       ),
@@ -373,7 +382,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                   ),
                 ),
 
-                // Quad (disabled) → lands over Profile
+                // Quad → lands over Profile
                 Positioned(
                   left: r3.left,
                   top: r3.top,
@@ -386,7 +395,16 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                       child: _buildFlyoutTile(
                         imagePath: 'assets/icons/menu_424.png',
                         label: 'Quad Clash',
-                        disabled: true,
+                        disabled: false,
+                        color: AppColors.green,
+                        onTap: () {
+                          Navigator.of(ctx).pop();
+                          _pushWithSlide(
+                            context,
+                            DuelPage(controller: controller, playerCount: 4),
+                            const Offset(1.0, 0.0),
+                          );
+                        },
                         width: r3.width,
                         height: r3.height,
                       ),
@@ -450,19 +468,37 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                           ),
                           const SizedBox(width: 14),
                           _buildFlyoutTile(
-                            imagePath: 'assets/icons/menu_424.png',
+                            imagePath: 'assets/icons/menu_323.png',
                             label: 'Triple Threat',
-                            disabled: true,
+                            disabled: false,
                             width: 190,
                             height: 170,
+                            color: AppColors.yellow,
+                            onTap: () {
+                              Navigator.of(ctx).pop();
+                              _pushWithSlide(
+                                context,
+                                DuelPage(controller: controller, playerCount: 3),
+                                const Offset(1.0, 0.0),
+                              );
+                            },
                           ),
                           const SizedBox(width: 14),
                           _buildFlyoutTile(
                             imagePath: 'assets/icons/menu_424.png',
                             label: 'Quad Clash',
-                            disabled: true,
+                            disabled: false,
                             width: 190,
                             height: 170,
+                            color: AppColors.green,
+                            onTap: () {
+                              Navigator.of(ctx).pop();
+                              _pushWithSlide(
+                                context,
+                                DuelPage(controller: controller, playerCount: 4),
+                                const Offset(1.0, 0.0),
+                              );
+                            },
                           ),
                         ],
                       ),

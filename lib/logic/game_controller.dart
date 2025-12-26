@@ -16,6 +16,8 @@ class _GameSnapshot {
   final CellState current;
   final int turnsRed;
   final int turnsBlue;
+  final int turnsYellow;
+  final int turnsGreen;
   final int bonusRed;
   final int bonusBlue;
   final int lastMovePoints;
@@ -26,6 +28,8 @@ class _GameSnapshot {
     required this.current,
     required this.turnsRed,
     required this.turnsBlue,
+    required this.turnsYellow,
+    required this.turnsGreen,
     required this.bonusRed,
     required this.bonusBlue,
     required this.lastMovePoints,
@@ -49,6 +53,7 @@ class TurnStatEntry {
 class GameController extends ChangeNotifier {
   // Duel mode: when true, both players are human and AI is disabled
   bool humanVsHuman = false;
+  int duelPlayerCount = 2;
   // --- Analytics & activity ---
   int totalPlayTimeMs = 0;
 
@@ -154,6 +159,8 @@ class GameController extends ChangeNotifier {
   // Game session stats
   int turnsRed = 0;
   int turnsBlue = 0;
+  int turnsYellow = 0;
+  int turnsGreen = 0;
   int bonusRed = 0;
   int bonusBlue = 0;
   // Running game points for the user (RED), starting from 0 and accumulating per rules
@@ -179,6 +186,52 @@ class GameController extends ChangeNotifier {
   List<List<CellState>> _copyBoard(List<List<CellState>> src) =>
       List<List<CellState>>.generate(K.n, (i) => List<CellState>.from(src[i]));
 
+  List<CellState> get activePlayers {
+    if (!humanVsHuman) {
+      return const [CellState.red, CellState.blue];
+    }
+    switch (duelPlayerCount) {
+      case 3:
+        return const [CellState.red, CellState.blue, CellState.yellow];
+      case 4:
+        return const [CellState.red, CellState.blue, CellState.yellow, CellState.green];
+      default:
+        return const [CellState.red, CellState.blue];
+    }
+  }
+
+  bool get isMultiDuel => humanVsHuman && duelPlayerCount > 2;
+  bool get usePlayerTokens => isMultiDuel;
+
+  CellState _nextPlayer(CellState currentPlayer) {
+    final players = activePlayers;
+    final index = players.indexOf(currentPlayer);
+    if (index == -1) return players.first;
+    return players[(index + 1) % players.length];
+  }
+
+  bool _isActivePlayer(CellState state) => activePlayers.contains(state);
+
+  void _incrementTurnFor(CellState who) {
+    switch (who) {
+      case CellState.red:
+        turnsRed++;
+        break;
+      case CellState.blue:
+        turnsBlue++;
+        break;
+      case CellState.yellow:
+        turnsYellow++;
+        break;
+      case CellState.green:
+        turnsGreen++;
+        break;
+      case CellState.neutral:
+      case CellState.empty:
+        break;
+    }
+  }
+
   // ---- Saved games helpers ----
   String _cellToStr(CellState s) {
     switch (s) {
@@ -186,6 +239,10 @@ class GameController extends ChangeNotifier {
         return 'r';
       case CellState.blue:
         return 'b';
+      case CellState.yellow:
+        return 'y';
+      case CellState.green:
+        return 'g';
       case CellState.neutral:
         return 'n';
       case CellState.empty:
@@ -200,6 +257,10 @@ class GameController extends ChangeNotifier {
         return CellState.red;
       case 'b':
         return CellState.blue;
+      case 'y':
+        return CellState.yellow;
+      case 'g':
+        return CellState.green;
       case 'n':
         return CellState.neutral;
       case 'e':
@@ -221,15 +282,27 @@ class GameController extends ChangeNotifier {
           ? 'red'
           : (current == CellState.blue
               ? 'blue'
-              : (current == CellState.neutral ? 'neutral' : 'empty')),
+              : (current == CellState.yellow
+                  ? 'yellow'
+                  : (current == CellState.green
+                      ? 'green'
+                      : (current == CellState.neutral ? 'neutral' : 'empty')))),
       'turnsRed': turnsRed,
       'turnsBlue': turnsBlue,
+      'turnsYellow': turnsYellow,
+      'turnsGreen': turnsGreen,
       'bonusRed': bonusRed,
       'bonusBlue': bonusBlue,
       'lastMovePoints': lastMovePoints,
       'lastMoveBy': lastMoveBy == null
           ? null
-          : (lastMoveBy == CellState.red ? 'red' : 'blue'),
+          : (lastMoveBy == CellState.red
+              ? 'red'
+              : (lastMoveBy == CellState.blue
+                  ? 'blue'
+                  : (lastMoveBy == CellState.yellow
+                      ? 'yellow'
+                      : 'green'))),
       'startingPlayer': startingPlayer == CellState.blue ? 'blue' : 'red',
       'aiLevel': aiLevel,
       'gameOver': gameOver,
@@ -258,9 +331,15 @@ class GameController extends ChangeNotifier {
         ? CellState.red
         : (cur == 'blue'
             ? CellState.blue
-            : (cur == 'neutral' ? CellState.neutral : CellState.empty));
+            : (cur == 'yellow'
+                ? CellState.yellow
+                : (cur == 'green'
+                    ? CellState.green
+                    : (cur == 'neutral' ? CellState.neutral : CellState.empty))));
     turnsRed = m['turnsRed'] as int;
     turnsBlue = m['turnsBlue'] as int;
+    turnsYellow = m['turnsYellow'] as int? ?? 0;
+    turnsGreen = m['turnsGreen'] as int? ?? 0;
     bonusRed = m['bonusRed'] as int;
     bonusBlue = m['bonusBlue'] as int;
     lastMovePoints = m['lastMovePoints'] as int;
@@ -268,7 +347,14 @@ class GameController extends ChangeNotifier {
     if (lmb == null) {
       lastMoveBy = null;
     } else {
-      lastMoveBy = (lmb as String) == 'red' ? CellState.red : CellState.blue;
+      final last = lmb as String;
+      lastMoveBy = last == 'red'
+          ? CellState.red
+          : (last == 'blue'
+              ? CellState.blue
+              : (last == 'yellow'
+                  ? CellState.yellow
+                  : CellState.green));
     }
     startingPlayer = (m['startingPlayer'] as String) == 'blue'
         ? CellState.blue
@@ -326,7 +412,11 @@ class GameController extends ChangeNotifier {
       'name': name ?? 'Saved game',
       'current': current == CellState.red
           ? 'red'
-          : (current == CellState.blue ? 'blue' : 'other'),
+          : (current == CellState.blue
+              ? 'blue'
+              : (current == CellState.yellow
+                  ? 'yellow'
+                  : (current == CellState.green ? 'green' : 'other'))),
       'state': _stateToMap(),
     };
     list.add(entry);
@@ -442,6 +532,8 @@ class GameController extends ChangeNotifier {
       current: current,
       turnsRed: turnsRed,
       turnsBlue: turnsBlue,
+      turnsYellow: turnsYellow,
+      turnsGreen: turnsGreen,
       bonusRed: bonusRed,
       bonusBlue: bonusBlue,
       lastMovePoints: lastMovePoints,
@@ -483,6 +575,8 @@ class GameController extends ChangeNotifier {
     current = snap.current;
     turnsRed = snap.turnsRed;
     turnsBlue = snap.turnsBlue;
+    turnsYellow = snap.turnsYellow;
+    turnsGreen = snap.turnsGreen;
     bonusRed = snap.bonusRed;
     bonusBlue = snap.bonusBlue;
     lastMovePoints = snap.lastMovePoints;
@@ -655,6 +749,11 @@ class GameController extends ChangeNotifier {
     await prefs.setString(_kCountry, country);
   }
 
+  void setDuelPlayerCount(int count) {
+    duelPlayerCount = count.clamp(2, 4);
+    notifyListeners();
+  }
+
   void newGame() {
     _turnStats.clear();
     _undoStack.clear();
@@ -665,6 +764,8 @@ class GameController extends ChangeNotifier {
     gameOver = false;
     turnsRed = 0;
     turnsBlue = 0;
+    turnsYellow = 0;
+    turnsGreen = 0;
     bonusRed = 0;
     bonusBlue = 0;
     redGamePoints = 0;
@@ -827,10 +928,62 @@ class GameController extends ChangeNotifier {
         ts: DateTime.now().millisecondsSinceEpoch,
       ));
     }
-    current = CellState.blue;
+    if (humanVsHuman) {
+      current = _nextPlayer(CellState.red);
+    } else {
+      current = CellState.blue;
+    }
     _checkEnd();
     notifyListeners();
     if (!humanVsHuman && !gameOver) _scheduleAi();
+    return true;
+  }
+
+  bool _performHumanPlacement(int r, int c, CellState who) {
+    final before = board;
+    final next = RulesEngine.place(board, r, c, who);
+    if (next == null) return false;
+    board = next;
+    if (who == CellState.red || who == CellState.blue) {
+      lastMovePoints = _computeMovePoints(before, next, r, c, who);
+    } else {
+      lastMovePoints = 0;
+    }
+    lastMoveBy = who;
+    _incrementTurnFor(who);
+    if (who == CellState.red) {
+      redGamePoints += lastMovePoints;
+      // Log statistics for this red turn with detailed reasons
+      final List<String> parts = <String>[];
+      parts.add('+1 place');
+      final bool isCorner = (r == 0 && c == 0) ||
+          (r == 0 && c == K.n - 1) ||
+          (r == K.n - 1 && c == 0) ||
+          (r == K.n - 1 && c == K.n - 1);
+      if (isCorner) parts.add('+2 corner');
+      int blueToNeutral = 0;
+      int neutralToRed = 0;
+      for (int i = 0; i < K.n; i++) {
+        for (int j = 0; j < K.n; j++) {
+          final b = before[i][j];
+          final a = next[i][j];
+          if (b == CellState.blue && a == CellState.neutral) blueToNeutral++;
+          if (b == CellState.neutral && a == CellState.red) neutralToRed++;
+        }
+      }
+      if (blueToNeutral > 0) parts.add('+2 x$blueToNeutral blue→grey');
+      if (neutralToRed > 0) parts.add('+3 x$neutralToRed grey→red');
+      final desc = parts.join('; ');
+      _turnStats.add(TurnStatEntry(
+        turn: turnsRed,
+        points: lastMovePoints,
+        desc: desc.isEmpty ? 'Place' : desc,
+        ts: DateTime.now().millisecondsSinceEpoch,
+      ));
+    }
+    current = _nextPlayer(who);
+    _checkEnd();
+    notifyListeners();
     return true;
   }
 
@@ -840,16 +993,16 @@ class GameController extends ChangeNotifier {
       return;
     final s = board[r][c];
 
-    // In normal mode only Red (human) acts; in Duel mode current side acts (Red or Blue)
+    // In normal mode only Red (human) acts; in Duel mode current side acts
     if (!humanVsHuman && current != CellState.red) return;
 
     // Grey tap: select to preview all grey boxes; tap same again to drop them
     if (s == CellState.neutral) {
       if (selectedCell == (r, c)) {
-        if (current == CellState.red) {
-          _performGreyDrop();
-        } else if (humanVsHuman && current == CellState.blue) {
-          _performGreyDropAi(); // reuse AI variant for Blue semantics
+        if (humanVsHuman) {
+          _performGreyDropFor(current);
+        } else if (current == CellState.red) {
+          _performGreyDropFor(CellState.red);
         }
       } else {
         selectedCell = (r, c);
@@ -865,25 +1018,14 @@ class GameController extends ChangeNotifier {
       blowPreview.clear();
       if (current == CellState.red) {
         playerMove(r, c);
-      } else if (humanVsHuman && current == CellState.blue) {
-        // Human Blue placement mirrors AI placement path but without scheduling AI
-        final before = board;
-        final next = RulesEngine.place(board, r, c, CellState.blue);
-        if (next != null) {
-          board = next;
-          lastMovePoints = _computeMovePoints(before, next, r, c, CellState.blue);
-          lastMoveBy = CellState.blue;
-          turnsBlue++;
-          current = CellState.red;
-          _checkEnd();
-          notifyListeners();
-        }
+      } else if (humanVsHuman && _isActivePlayer(current)) {
+        _performHumanPlacement(r, c, current);
       }
       return;
     }
 
-    // Tapping a red/blue piece -> select/deselect or blow
-    if (s == CellState.red || s == CellState.blue) {
+    // Tapping a colored piece -> select/deselect or blow
+    if (_isActivePlayer(s)) {
       // In duel mode, a player may only blow up their own color on their turn.
       // In normal mode (vs AI), only RED may act on RED pieces during RED's turn.
       if (humanVsHuman) {
@@ -945,10 +1087,10 @@ class GameController extends ChangeNotifier {
         RulesEngine.blow(board, affected); // compute post-removal board
 
     // Per spec, blowing up does not award points to the user; set lastMovePoints = 0 for both sides
+    lastMovePoints = 0;
+    lastMoveBy = who;
+    _incrementTurnFor(who);
     if (who == CellState.red) {
-      lastMovePoints = 0;
-      lastMoveBy = CellState.red;
-      turnsRed++;
       // Log statistics for this red turn (blow)
       _turnStats.add(TurnStatEntry(
         turn: turnsRed,
@@ -956,13 +1098,10 @@ class GameController extends ChangeNotifier {
         desc: '0 blow',
         ts: DateTime.now().millisecondsSinceEpoch,
       ));
-      current = CellState.blue;
-    } else {
-      lastMovePoints = 0;
-      lastMoveBy = CellState.blue;
-      turnsBlue++;
-      current = CellState.red;
     }
+    current = humanVsHuman
+        ? _nextPlayer(who)
+        : (who == CellState.red ? CellState.blue : CellState.red);
 
     // Clear explosion overlay and selection, then remove immediately (no fall animation for blow)
     isExploding = false;
@@ -1009,9 +1148,13 @@ class GameController extends ChangeNotifier {
     return set;
   }
 
-  Future<void> _performGreyDrop() async {
+  Future<void> _performGreyDropFor(CellState who) async {
     if (gameOver || isExploding || isFalling || isQuaking) return;
-    if (current != CellState.red) return;
+    if (humanVsHuman) {
+      if (current != who) return;
+    } else if (who != CellState.red || current != CellState.red) {
+      return;
+    }
     // Determine all neutral cells to drop
     final neutrals = _allNeutralCells();
     if (neutrals.isEmpty) return;
@@ -1040,16 +1183,20 @@ class GameController extends ChangeNotifier {
 
     // No direct points for grey drop
     lastMovePoints = 0;
-    lastMoveBy = CellState.red;
-    turnsRed++;
-    // Log statistics for this red turn (grey drop)
-    _turnStats.add(TurnStatEntry(
-      turn: turnsRed,
-      points: lastMovePoints,
-      desc: '0 grey drop',
-      ts: DateTime.now().millisecondsSinceEpoch,
-    ));
-    current = CellState.blue;
+    lastMoveBy = who;
+    _incrementTurnFor(who);
+    if (who == CellState.red) {
+      // Log statistics for this red turn (grey drop)
+      _turnStats.add(TurnStatEntry(
+        turn: turnsRed,
+        points: lastMovePoints,
+        desc: '0 grey drop',
+        ts: DateTime.now().millisecondsSinceEpoch,
+      ));
+    }
+    current = humanVsHuman
+        ? _nextPlayer(who)
+        : (who == CellState.red ? CellState.blue : CellState.red);
 
     _checkEnd();
     notifyListeners();
@@ -1285,15 +1432,25 @@ class GameController extends ChangeNotifier {
         for (int c = 0; c < K.n; c++) {
           goldCells.add((r, c));
         }
+      } else if (isMultiDuel && row.every((c) => c == CellState.yellow)) {
+        for (int c = 0; c < K.n; c++) {
+          goldCells.add((r, c));
+        }
+      } else if (isMultiDuel && row.every((c) => c == CellState.green)) {
+        for (int c = 0; c < K.n; c++) {
+          goldCells.add((r, c));
+        }
       }
     }
     // Columns
     for (int c = 0; c < K.n; c++) {
-      bool allRed = true, allBlue = true;
+      bool allRed = true, allBlue = true, allYellow = true, allGreen = true;
       for (int r = 0; r < K.n; r++) {
         final s = board[r][c];
         allRed &= (s == CellState.red);
         allBlue &= (s == CellState.blue);
+        allYellow &= (s == CellState.yellow);
+        allGreen &= (s == CellState.green);
       }
       if (allRed) {
         bonusRed += 50;
@@ -1306,7 +1463,44 @@ class GameController extends ChangeNotifier {
         for (int r = 0; r < K.n; r++) {
           goldCells.add((r, c));
         }
+      } else if (isMultiDuel && allYellow) {
+        for (int r = 0; r < K.n; r++) {
+          goldCells.add((r, c));
+        }
+      } else if (isMultiDuel && allGreen) {
+        for (int r = 0; r < K.n; r++) {
+          goldCells.add((r, c));
+        }
       }
+    }
+
+    if (isMultiDuel) {
+      final winner = duelWinner();
+      if (winner != null) {
+        showWinnerBorderAnim = true;
+        notifyListeners();
+        Future.delayed(Duration(milliseconds: winnerBorderAnimMs), () {
+          showWinnerBorderAnim = false;
+          notifyListeners();
+        });
+      }
+
+      totalPlayTimeMs += lastGamePlayMs;
+      DateTime when = DateTime.now().toLocal();
+      String dayKey =
+          '${when.year.toString().padLeft(4, '0')}-${when.month.toString().padLeft(2, '0')}-${when.day.toString().padLeft(2, '0')}';
+      dailyPlayCountByDate[dayKey] = (dailyPlayCountByDate[dayKey] ?? 0) + 1;
+      dailyPlayTimeByDate[dayKey] =
+          (dailyPlayTimeByDate[dayKey] ?? 0) + lastGamePlayMs;
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_kTotalPlayTimeMs, totalPlayTimeMs);
+      await prefs.setString(
+          _kDailyPlayCountJson, jsonEncode(dailyPlayCountByDate));
+      await prefs.setString(
+          _kDailyPlayTimeJson, jsonEncode(dailyPlayTimeByDate));
+      notifyListeners();
+      return;
     }
 
     // Compute totals for legacy base/bonus scoring
@@ -1438,11 +1632,27 @@ class GameController extends ChangeNotifier {
 
   int scoreRedBase() => RulesEngine.countOf(board, CellState.red);
   int scoreBlueBase() => RulesEngine.countOf(board, CellState.blue);
+  int scoreYellowBase() => RulesEngine.countOf(board, CellState.yellow);
+  int scoreGreenBase() => RulesEngine.countOf(board, CellState.green);
   int scoreRedTotal() => scoreRedBase() + bonusRed;
   int scoreBlueTotal() => scoreBlueBase() + bonusBlue;
 
   int scoreRed() => RulesEngine.countOf(board, CellState.red);
   int scoreBlue() => RulesEngine.countOf(board, CellState.blue);
+
+  int scoreFor(CellState state) => RulesEngine.countOf(board, state);
+
+  CellState? duelWinner() {
+    if (!humanVsHuman) return null;
+    final scores = <CellState, int>{
+      for (final player in activePlayers) player: scoreFor(player),
+    };
+    final maxScore = scores.values.reduce(math.max);
+    final winners =
+        scores.entries.where((entry) => entry.value == maxScore).toList();
+    if (winners.length != 1) return null;
+    return winners.first.key;
+  }
 
   Future<void> _performGreyDropAi() async {
     if (gameOver || isExploding || isFalling || isQuaking) return;

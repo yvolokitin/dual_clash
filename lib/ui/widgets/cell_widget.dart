@@ -8,13 +8,15 @@ class CellWidget extends StatefulWidget {
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final BorderRadius? borderRadius; // optional custom radius per-cell
+  final bool usePlayerTokens;
 
   const CellWidget(
       {super.key,
       required this.state,
       this.onTap,
       this.onLongPress,
-      this.borderRadius});
+      this.borderRadius,
+      this.usePlayerTokens = false});
 
   @override
   State<CellWidget> createState() => _CellWidgetState();
@@ -97,6 +99,30 @@ class _CellWidgetState extends State<CellWidget> {
   }
 
   Widget _buildForState(CellState state) {
+    String _assetFor(CellState state) {
+      final bool usePlayer = usePlayerTokens ||
+          state == CellState.yellow ||
+          state == CellState.green;
+      switch (state) {
+        case CellState.red:
+          return usePlayer
+              ? 'assets/icons/player_red.png'
+              : 'assets/icons/box_red-removebg.png';
+        case CellState.blue:
+          return usePlayer
+              ? 'assets/icons/player_blue.png'
+              : 'assets/icons/box_blue-removebg.png';
+        case CellState.yellow:
+          return 'assets/icons/player_yellow.png';
+        case CellState.green:
+          return 'assets/icons/player_green.png';
+        case CellState.neutral:
+          return 'assets/icons/box_grey-removebg.png';
+        case CellState.empty:
+          return '';
+      }
+    }
+
     switch (state) {
       case CellState.empty:
         return _EmptyCell(
@@ -106,21 +132,35 @@ class _CellWidgetState extends State<CellWidget> {
         return _InsetTile(
             color: AppColors.red,
             radius: widget.borderRadius ?? BorderRadius.circular(8),
-            asset: 'assets/icons/box_red-removebg.png',
+            asset: _assetFor(state),
             flashing: _flashing,
             key: const ValueKey('filled'));
       case CellState.blue:
         return _InsetTile(
             color: AppColors.blue,
             radius: widget.borderRadius ?? BorderRadius.circular(8),
-            asset: 'assets/icons/box_blue-removebg.png',
+            asset: _assetFor(state),
+            flashing: _flashing,
+            key: const ValueKey('filled'));
+      case CellState.yellow:
+        return _InsetTile(
+            color: AppColors.yellow,
+            radius: widget.borderRadius ?? BorderRadius.circular(8),
+            asset: _assetFor(state),
+            flashing: _flashing,
+            key: const ValueKey('filled'));
+      case CellState.green:
+        return _InsetTile(
+            color: AppColors.green,
+            radius: widget.borderRadius ?? BorderRadius.circular(8),
+            asset: _assetFor(state),
             flashing: _flashing,
             key: const ValueKey('filled'));
       case CellState.neutral:
         return _InsetTile(
             color: AppColors.neutral,
             radius: widget.borderRadius ?? BorderRadius.circular(8),
-            asset: 'assets/icons/box_grey-removebg.png',
+            asset: _assetFor(state),
             flashing: _flashing,
             key: const ValueKey('filled'));
     }
