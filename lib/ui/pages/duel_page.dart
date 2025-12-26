@@ -365,7 +365,7 @@ class _DuelPageState extends State<DuelPage> {
                         children: [
                           _TurnBox(
                             label: 'RED',
-                            iconPath: 'assets/icons/player_red.png',
+                            iconPath: 'assets/icons/box_red.png',
                             color: AppColors.red,
                             active: controller.current == CellState.red,
                             size: scoreItemSize,
@@ -373,7 +373,7 @@ class _DuelPageState extends State<DuelPage> {
                           const SizedBox(width: 10),
                           _TurnBox(
                             label: 'BLUE',
-                            iconPath: 'assets/icons/player_blue.png',
+                            iconPath: 'assets/icons/box_blue.png',
                             color: AppColors.blue,
                             active: controller.current == CellState.blue,
                             size: scoreItemSize,
@@ -382,7 +382,7 @@ class _DuelPageState extends State<DuelPage> {
                             const SizedBox(width: 10),
                             _TurnBox(
                               label: 'YELLOW',
-                              iconPath: 'assets/icons/player_yellow.png',
+                              iconPath: 'assets/icons/box_yellow.png',
                               color: AppColors.yellow,
                               active: controller.current == CellState.yellow,
                               size: scoreItemSize,
@@ -391,7 +391,7 @@ class _DuelPageState extends State<DuelPage> {
                               const SizedBox(width: 10),
                               _TurnBox(
                                 label: 'GREEN',
-                                iconPath: 'assets/icons/player_green.png',
+                                iconPath: 'assets/icons/box_green.png',
                                 color: AppColors.green,
                                 active: controller.current == CellState.green,
                                 size: scoreItemSize,

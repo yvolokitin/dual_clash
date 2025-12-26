@@ -105,21 +105,15 @@ class _CellWidgetState extends State<CellWidget> {
           state == CellState.green;
       switch (state) {
         case CellState.red:
-          return usePlayer
-              ? 'assets/icons/player_red.png'
-              : 'assets/icons/box_red-removebg.png';
+          return 'assets/icons/box_red.png';
         case CellState.blue:
-          return usePlayer
-              ? 'assets/icons/player_blue.png'
-              : 'assets/icons/box_blue-removebg.png';
+          return 'assets/icons/box_blue.png';
         case CellState.yellow:
           return 'assets/icons/player_yellow.png';
         case CellState.green:
           return 'assets/icons/player_green.png';
         case CellState.neutral:
-          return K.n == 9
-              ? 'assets/icons/player_grey.png'
-              : 'assets/icons/box_grey-removebg.png';
+          return 'assets/icons/box_grey.png';
         case CellState.empty:
           return '';
       }
