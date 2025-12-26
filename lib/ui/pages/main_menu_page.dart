@@ -48,6 +48,18 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
     _wavesActive = false;
   }
 
+  String _formatDuration(int ms) {
+    if (ms <= 0) return '0s';
+    int seconds = (ms / 1000).floor();
+    final hours = seconds ~/ 3600;
+    seconds %= 3600;
+    final minutes = seconds ~/ 60;
+    seconds %= 60;
+    if (hours > 0) return '${hours}h ${minutes}m';
+    if (minutes > 0) return '${minutes}m ${seconds}s';
+    return '${seconds}s';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -141,6 +153,57 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                     ),
                 ),
               ),
+            ),
+
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 420),
+              switchInCurve: Curves.easeOutCubic,
+              transitionBuilder: (child, anim) =>
+                  FadeTransition(opacity: anim, child: child),
+              child: _showContent
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.18),
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(color: Colors.white24),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                '${controller.totalUserScore}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 18,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Image.asset(
+                                'assets/icons/player_red.png',
+                                width: 26,
+                                height: 26,
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                _formatDuration(controller.totalPlayTimeMs),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
             ),
 
             // Centered menu items
