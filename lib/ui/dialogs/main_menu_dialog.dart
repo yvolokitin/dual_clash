@@ -8,6 +8,7 @@ import 'package:dual_clash/ui/pages/help_page.dart';
 import 'package:dual_clash/ui/pages/settings_page.dart';
 import 'package:dual_clash/ui/pages/profile_page.dart';
 import 'package:dual_clash/ui/pages/history_page.dart';
+import 'package:dual_clash/ui/pages/statistics_page.dart';
 
 /// Minimal, independent "Main Menu" dialog styled like Profile dialog
 /// but with a solid #FFA213 background as requested.
@@ -136,6 +137,20 @@ class MainMenuDialog extends StatelessWidget {
                         const SizedBox(height: 6),
                         _menuTile(
                           context,
+                          icon: Icons.bar_chart,
+                          label: 'Statistics',
+                          onTap: () async {
+                            Navigator.of(context).pop();
+                            await Future.delayed(const Duration(milliseconds: 30));
+                            await showAnimatedStatisticsDialog(
+                              context: context,
+                              controller: controller,
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 6),
+                        _menuTile(
+                          context,
                           icon: Icons.help_outline,
                           label: 'Help',
                           onTap: () async {
@@ -186,6 +201,17 @@ class MainMenuDialog extends StatelessWidget {
                             Navigator.of(context).pop();
                             await Future.delayed(const Duration(milliseconds: 30));
                             await _saveGame(context);
+                          },
+                        ),
+                        const SizedBox(height: 6),
+                        _menuTile(
+                          context,
+                          icon: Icons.auto_awesome,
+                          label: 'Simulate game',
+                          onTap: () async {
+                            Navigator.of(context).pop();
+                            await Future.delayed(const Duration(milliseconds: 30));
+                            await controller.simulateGame();
                           },
                         ),
                       ],
