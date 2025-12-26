@@ -18,6 +18,7 @@ class SettingsMenuOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bg = AppColors.bg;
     return Positioned.fill(
       child: Stack(
         children: [
@@ -30,16 +31,16 @@ class SettingsMenuOverlay extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(top: 12, left: 16, right: 16),
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 560),
+                constraints: const BoxConstraints(maxWidth: 420),
                 child: Material(
                   color: Colors.transparent,
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(22),
-                      gradient: const LinearGradient(
+                      gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [AppColors.dialogGradTop, AppColors.dialogGradBottom],
+                        colors: [bg, bg],
                       ),
                       boxShadow: const [
                         BoxShadow(
@@ -89,11 +90,11 @@ class SettingsMenuOverlay extends StatelessWidget {
                           const SizedBox(height: 12),
                           GridView.count(
                             crossAxisCount: 2,
-                            mainAxisSpacing: 12,
-                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 14,
+                            crossAxisSpacing: 14,
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            childAspectRatio: 1.25,
+                            childAspectRatio: 1.1,
                             children: [
                               _SettingsMenuTile(
                                 color: AppColors.blue,
@@ -149,6 +150,7 @@ class SettingsMenuOverlay extends StatelessWidget {
                                   await _openAiDifficultySelector(context, controller);
                                 },
                               ),
+                              const SizedBox.shrink(),
                             ],
                           ),
                         ],
@@ -774,7 +776,7 @@ class _SettingsMenuTile extends StatelessWidget {
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w800,
-                    fontSize: 14,
+                    fontSize: 16,
                   ),
                 ),
               ],
