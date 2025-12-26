@@ -74,6 +74,13 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
         ? ColorTween(begin: _violet, end: _menuGreen).evaluate(_bgAnim!)!
         : (_showContent ? _menuGreen : _violet);
 
+
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+
+    print('Screen width: $width');
+    print('Screen height: $height');
+
     return Scaffold(
       backgroundColor: bgColor,
       body: SafeArea(

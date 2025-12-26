@@ -298,46 +298,6 @@ class GamePage extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-/*
-                      // Simulate button
-                      IconButton(
-                        icon: Image.asset('assets/icons/simulate-removebg.png',
-                            width: 42, height: 42),
-                        tooltip: 'Simulate game',
-                        onPressed:
-                            (controller.isSimulating || controller.isAiThinking)
-                                ? null
-                                : () async {
-                                    await controller.simulateGame();
-                                  },
-                      ),
-                      const SizedBox(width: 16),
-                      // Statistics button
-                      IconButton(
-                        icon: Image.asset(
-                            'assets/icons/statistics-removebg.png',
-                            width: 42,
-                            height: 42),
-                        tooltip: 'Statistics',
-                        onPressed: () async {
-                          await showAnimatedStatisticsDialog(
-                              context: context, controller: controller);
-                        },
-                      ),
-                      const SizedBox(width: 16),
-                      // Undo button (hidden when game finished and results closed)
-                      if (!finishedAndClosed)
-                        IconButton(
-                          icon: Image.asset('assets/icons/undo-removebg.png',
-                              width: 42, height: 42),
-                          tooltip: 'Undo to previous user turn',
-                          onPressed: controller.canUndo
-                              ? () {
-                                  controller.undoToPreviousUserTurn();
-                                }
-                              : null,
-                        ),
- */
                     ],
                   ),
                 ),
