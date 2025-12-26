@@ -28,6 +28,8 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
   static const Color _violet = Color(0xFF8A2BE2);
   static const Color _menuGreen = Color(0xFF22B14C);
 
+  bool _isCompactWidth(BuildContext context) => MediaQuery.of(context).size.width < 430;
+
   // Waves background animation
   AnimationController? _wavesCtrl;
   bool _wavesActive = false;
@@ -69,6 +71,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     final controller = widget.controller;
     final size = MediaQuery.of(context).size;
+    final compactLabels = _isCompactWidth(context);
     final double topHeroHeight = size.height * 0.35; // 35% of top page for the image
     final Color bgColor = _bgAnim != null
         ? ColorTween(begin: _violet, end: _menuGreen).evaluate(_bgAnim!)!
@@ -168,7 +171,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                 _MenuTile(
                                   key: _gameTileKey,
                                   imagePath: 'assets/icons/menu_pvai.png',
-                                  label: 'Game challange',
+                                  label: compactLabels ? 'Game' : 'Game challange',
                                   color: AppColors.red,
                                   onTap: () {
                                     controller.humanVsHuman = false;
@@ -183,7 +186,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                 _MenuTile(
                                   key: _duelTileKey,
                                   imagePath: 'assets/icons/menu_121.png',
-                                  label: 'Duel mode',
+                                  label: compactLabels ? 'Duel' : 'Duel mode',
                                   color: AppColors.blue,
                                   onTap: () {
                                     _openDuelFlyout(context, controller);
@@ -192,7 +195,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                 _MenuTile(
                                   key: _loadTileKey,
                                   imagePath: 'assets/icons/menu_load.png',
-                                  label: 'Load game',
+                                  label: compactLabels ? 'Load' : 'Load game',
                                   color: Colors.orange,
                                   onTap: () async {
                                     // Press effect comes from InkWell; keep dialog for loading
@@ -234,6 +237,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
   }
 
   Future<void> _openDuelFlyout(BuildContext context, GameController controller) async {
+    final compactLabels = _isCompactWidth(context);
     // Measure the Duel tile and target tiles global rects
     Rect rect = Rect.zero;
     Rect gameRect = Rect.zero;
@@ -334,7 +338,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: _buildFlyoutTile(
                         imagePath: 'assets/icons/menu_121.png',
-                        label: 'Duel mode',
+                        label: compactLabels ? 'Duel' : 'Duel mode',
                         disabled: false,
                         color: AppColors.blue,
                         onTap: () {
@@ -364,7 +368,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: _buildFlyoutTile(
                         imagePath: 'assets/icons/menu_323.png',
-                        label: 'Triple Threat',
+                        label: compactLabels ? 'Triple' : 'Triple Threat',
                         disabled: false,
                         color: AppColors.yellow,
                         onTap: () {
@@ -394,7 +398,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: _buildFlyoutTile(
                         imagePath: 'assets/icons/menu_424.png',
-                        label: 'Quad Clash',
+                        label: compactLabels ? 'Quad' : 'Quad Clash',
                         disabled: false,
                         color: AppColors.green,
                         onTap: () {
@@ -420,6 +424,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
   }
 
   Future<void> _openDuelModesOverlay(BuildContext context, GameController controller) async {
+    final compactLabels = _isCompactWidth(context);
     await showGeneralDialog<void>(
       context: context,
       barrierDismissible: true,
@@ -452,7 +457,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         children: [
                           _buildFlyoutTile(
                             imagePath: 'assets/icons/menu_121.png',
-                            label: 'Duel mode',
+                            label: compactLabels ? 'Duel' : 'Duel mode',
                             disabled: false,
                             width: 190,
                             height: 170,
@@ -469,7 +474,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                           const SizedBox(width: 14),
                           _buildFlyoutTile(
                             imagePath: 'assets/icons/menu_323.png',
-                            label: 'Triple Threat',
+                            label: compactLabels ? 'Triple' : 'Triple Threat',
                             disabled: false,
                             width: 190,
                             height: 170,
@@ -486,7 +491,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                           const SizedBox(width: 14),
                           _buildFlyoutTile(
                             imagePath: 'assets/icons/menu_424.png',
-                            label: 'Quad Clash',
+                            label: compactLabels ? 'Quad' : 'Quad Clash',
                             disabled: false,
                             width: 190,
                             height: 170,
