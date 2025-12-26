@@ -38,7 +38,9 @@ class BoardWidget extends StatelessWidget {
         // Fit the board to available space by using the smaller of width/height.
         final availableWidth = constraints.maxWidth;
         final availableHeight = constraints.maxHeight;
-        final size = math.min(availableWidth, availableHeight);
+        final horizontalPadding = availableWidth < 590 ? 10.0 : 0.0;
+        final paddedWidth = math.max(0.0, availableWidth - horizontalPadding * 2);
+        final size = math.min(paddedWidth, availableHeight);
         // Report the pixel size to controller so other UI (score row) can match width
         WidgetsBinding.instance.addPostFrameCallback((_) {
           controller.setBoardPixelSize(size);
@@ -50,10 +52,12 @@ class BoardWidget extends StatelessWidget {
 
         final cellSize = innerSize / K.n;
         return Center(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
             child: _Quake(
-          quaking: controller.isQuaking,
-          durationMs: controller.quakeDurationMs,
-          child: Container(
+              quaking: controller.isQuaking,
+              durationMs: controller.quakeDurationMs,
+              child: Container(
             width: innerSize,
             height: innerSize,
             padding: const EdgeInsets.all(border),
@@ -264,8 +268,10 @@ class BoardWidget extends StatelessWidget {
                   ),
               ],
             ),
+              ),
+            ),
           ),
-        ));
+        );
       },
     );
   }
