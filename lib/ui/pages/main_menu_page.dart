@@ -155,165 +155,184 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
               ),
             ),
 
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 420),
-              switchInCurve: Curves.easeOutCubic,
-              transitionBuilder: (child, anim) =>
-                  FadeTransition(opacity: anim, child: child),
-              child: _showContent
-                  ? Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Center(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 420),
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 20.0),
-                            child: LayoutBuilder(
-                              builder: (context, constraints) {
-                                final rowWidth = constraints.maxWidth;
-                                const tileGap = 14.0;
-                                final tileWidth = (rowWidth - tileGap) / 2;
-                                final sideMargin = tileWidth * 0.2;
-                                return SizedBox(
-                                  width: rowWidth,
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: sideMargin),
-                                        child: Row(
-                                          children: [
-                                            Expanded(
-                                              child: Align(
-                                                alignment: Alignment.centerLeft,
-                                                child: Text(
-                                                  '${controller.totalUserScore}',
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.w700,
-                                                    fontSize: 18,
+            Expanded(
+              child: Column(
+                children: [
+                  const Spacer(),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 420),
+                    switchInCurve: Curves.easeOutCubic,
+                    transitionBuilder: (child, anim) =>
+                        FadeTransition(opacity: anim, child: child),
+                    child: _showContent
+                        ? Center(
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 420),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20.0),
+                                child: LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    final rowWidth = constraints.maxWidth;
+                                    const tileGap = 14.0;
+                                    final tileWidth = (rowWidth - tileGap) / 2;
+                                    final sideMargin = tileWidth * 0.2;
+                                    return SizedBox(
+                                      width: rowWidth,
+                                      child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: sideMargin),
+                                            child: Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Align(
+                                                    alignment:
+                                                        Alignment.centerLeft,
+                                                    child: Text(
+                                                      '${controller.totalUserScore}',
+                                                      style: const TextStyle(
+                                                        color:
+                                                            Color(0xFFFFD700),
+                                                        fontWeight:
+                                                            FontWeight.w700,
+                                                        fontSize: 21.6,
+                                                      ),
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                            ),
-                                            Expanded(
-                                              child: Align(
-                                                alignment:
-                                                    Alignment.centerRight,
-                                                child: Text(
-                                                  _formatDuration(
-                                                      controller
+                                                Expanded(
+                                                  child: Align(
+                                                    alignment:
+                                                        Alignment.centerRight,
+                                                    child: Text(
+                                                      _formatDuration(controller
                                                           .totalPlayTimeMs),
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 16,
+                                                      style: const TextStyle(
+                                                        color:
+                                                            Color(0xFFFFD700),
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        fontSize: 19.2,
+                                                      ),
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
+                                              ],
                                             ),
-                                          ],
-                                        ),
+                                          ),
+                                          Image.asset(
+                                            'assets/icons/player_red.png',
+                                            width: 31.2,
+                                            height: 31.2,
+                                          ),
+                                        ],
                                       ),
-                                      Image.asset(
-                                        'assets/icons/player_red.png',
-                                        width: 26,
-                                        height: 26,
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                  const Spacer(),
+                  Expanded(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 420),
+                      switchInCurve: Curves.easeOutCubic,
+                      transitionBuilder: (child, anim) =>
+                          FadeTransition(opacity: anim, child: child),
+                      child: _showContent
+                          ? Center(
+                              child: ConstrainedBox(
+                                constraints:
+                                    const BoxConstraints(maxWidth: 420),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20.0),
+                                  child: GridView(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    gridDelegate:
+                                        const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2,
+                                      mainAxisSpacing: 14,
+                                      crossAxisSpacing: 14,
+                                      childAspectRatio: 1.1,
+                                    ),
+                                    children: [
+                                      _MenuTile(
+                                        key: _gameTileKey,
+                                        imagePath:
+                                            'assets/icons/menu_pvai.png',
+                                        label: 'Game challange',
+                                        color: AppColors.red,
+                                        onTap: () {
+                                          controller.humanVsHuman = false;
+                                          controller.newGame();
+                                          _pushWithSlide(
+                                            context,
+                                            GamePage(controller: controller),
+                                            const Offset(-1.0,
+                                                0.0), // from left → right
+                                          );
+                                        },
+                                      ),
+                                      _MenuTile(
+                                        key: _duelTileKey,
+                                        imagePath:
+                                            'assets/icons/menu_121.png',
+                                        label: 'Duel mode',
+                                        color: AppColors.blue,
+                                        onTap: () {
+                                          _openDuelFlyout(context, controller);
+                                        },
+                                      ),
+                                      _MenuTile(
+                                        key: _loadTileKey,
+                                        imagePath:
+                                            'assets/icons/menu_load.png',
+                                        label: 'Load game',
+                                        color: Colors.orange,
+                                        onTap: () async {
+                                          // Press effect comes from InkWell; keep dialog for loading
+                                          final ok = await showLoadGameDialog(
+                                              context: context,
+                                              controller: controller);
+                                          if (ok == true && context.mounted) {
+                                            Navigator.of(context)
+                                                .pop('loaded');
+                                          }
+                                        },
+                                      ),
+                                      _MenuTile(
+                                        key: _profileTileKey,
+                                        imagePath:
+                                            'assets/icons/menu_profile.png',
+                                        label: 'Profile',
+                                        color: Color(0xFFC0C0C0),
+                                        onTap: () {
+                                          // Open profile with a top → down slide
+                                          _pushWithSlide(
+                                            context,
+                                            _buildProfileFullScreen(controller),
+                                            const Offset(0.0, -1.0),
+                                          );
+                                        },
                                       ),
                                     ],
                                   ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                    )
-                  : const SizedBox.shrink(),
-            ),
-
-            // Centered menu items
-            Expanded(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 420),
-                switchInCurve: Curves.easeOutCubic,
-                transitionBuilder: (child, anim) => FadeTransition(opacity: anim, child: child),
-                child: _showContent
-                    ? Center(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 420),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                            child: GridView(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                mainAxisSpacing: 14,
-                                crossAxisSpacing: 14,
-                                childAspectRatio: 1.1,
+                                ),
                               ),
-                              children: [
-                                _MenuTile(
-                                  key: _gameTileKey,
-                                  imagePath: 'assets/icons/menu_pvai.png',
-                                  label: 'Game challange',
-                                  color: AppColors.red,
-                                  onTap: () {
-                                    controller.humanVsHuman = false;
-                                    controller.newGame();
-                                    _pushWithSlide(
-                                      context,
-                                      GamePage(controller: controller),
-                                      const Offset(-1.0, 0.0), // from left → right
-                                    );
-                                  },
-                                ),
-                                _MenuTile(
-                                  key: _duelTileKey,
-                                  imagePath: 'assets/icons/menu_121.png',
-                                  label: 'Duel mode',
-                                  color: AppColors.blue,
-                                  onTap: () {
-                                    _openDuelFlyout(context, controller);
-                                  },
-                                ),
-                                _MenuTile(
-                                  key: _loadTileKey,
-                                  imagePath: 'assets/icons/menu_load.png',
-                                  label: 'Load game',
-                                  color: Colors.orange,
-                                  onTap: () async {
-                                    // Press effect comes from InkWell; keep dialog for loading
-                                    final ok = await showLoadGameDialog(
-                                        context: context, controller: controller);
-                                    if (ok == true && context.mounted) {
-                                      Navigator.of(context).pop('loaded');
-                                    }
-                                  },
-                                ),
-                                _MenuTile(
-                                  key: _profileTileKey,
-                                  imagePath: 'assets/icons/menu_profile.png',
-                                  label: 'Profile',
-                                  color: Color(0xFFC0C0C0),
-                                  onTap: () {
-                                    // Open profile with a top → down slide
-                                    _pushWithSlide(
-                                      context,
-                                      _buildProfileFullScreen(controller),
-                                      const Offset(0.0, -1.0),
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      )
-                    : const SizedBox.shrink(),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
