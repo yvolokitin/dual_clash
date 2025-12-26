@@ -164,38 +164,40 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                   ? Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Center(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.18),
-                            borderRadius: BorderRadius.circular(999),
-                            border: Border.all(color: Colors.white24),
-                          ),
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 360),
                           child: Row(
-                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(
-                                '${controller.totalUserScore}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 18,
+                              Expanded(
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    '${controller.totalUserScore}',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 18,
+                                    ),
+                                  ),
                                 ),
                               ),
-                              const SizedBox(width: 10),
                               Image.asset(
                                 'assets/icons/player_red.png',
                                 width: 26,
                                 height: 26,
                               ),
-                              const SizedBox(width: 10),
-                              Text(
-                                _formatDuration(controller.totalPlayTimeMs),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
+                              Expanded(
+                                child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    _formatDuration(
+                                        controller.totalPlayTimeMs),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ],
