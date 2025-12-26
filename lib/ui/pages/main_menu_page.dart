@@ -165,42 +165,68 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Center(
                         child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 360),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    '${controller.totalUserScore}',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 18,
-                                    ),
+                          constraints: const BoxConstraints(maxWidth: 420),
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 20.0),
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                final rowWidth = constraints.maxWidth;
+                                const tileGap = 14.0;
+                                final tileWidth = (rowWidth - tileGap) / 2;
+                                final sideMargin = tileWidth * 0.2;
+                                return SizedBox(
+                                  width: rowWidth,
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: sideMargin),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(
+                                                  '${controller.totalUserScore}',
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.w700,
+                                                    fontSize: 18,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Expanded(
+                                              child: Align(
+                                                alignment:
+                                                    Alignment.centerRight,
+                                                child: Text(
+                                                  _formatDuration(
+                                                      controller
+                                                          .totalPlayTimeMs),
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Image.asset(
+                                        'assets/icons/player_red.png',
+                                        width: 26,
+                                        height: 26,
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ),
-                              Image.asset(
-                                'assets/icons/player_red.png',
-                                width: 26,
-                                height: 26,
-                              ),
-                              Expanded(
-                                child: Align(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    _formatDuration(
-                                        controller.totalPlayTimeMs),
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ),
