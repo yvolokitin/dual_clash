@@ -3,12 +3,10 @@ import 'dart:math' as math;
 import 'package:flutter/rendering.dart' show RenderBox;
 import '../../logic/game_controller.dart';
 import '../../core/colors.dart';
-import 'history_page.dart';
-import 'profile_page.dart';
 import 'menu_page.dart' show showLoadGameDialog; // reuse existing dialog
 import 'game_page.dart';
 import 'duel_page.dart';
-import 'multi_human_page.dart';
+import 'settings_menu_widget.dart';
 
 class MainMenuPage extends StatefulWidget {
   final GameController controller;
@@ -22,11 +20,12 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
   final GlobalKey _duelTileKey = GlobalKey();
   final GlobalKey _gameTileKey = GlobalKey();
   final GlobalKey _loadTileKey = GlobalKey();
-  final GlobalKey _profileTileKey = GlobalKey();
+  final GlobalKey _settingsTileKey = GlobalKey();
   Animation<double>? _bgAnim;
   bool _showContent = true; // hidden until startup animation completes
   static const Color _violet = Color(0xFF8A2BE2);
   static const Color _menuGreen = Color(0xFF22B14C);
+  bool _showSettingsMenu = false;
 
   // Waves background animation
   AnimationController? _wavesCtrl;
@@ -204,17 +203,12 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                   },
                                 ),
                                 _MenuTile(
-                                  key: _profileTileKey,
+                                  key: _settingsTileKey,
                                   imagePath: 'assets/icons/menu_profile.png',
-                                  label: 'Profile',
+                                  label: 'Settings',
                                   color: Color(0xFFC0C0C0),
                                   onTap: () {
-                                    // Open profile with a top → down slide
-                                    _pushWithSlide(
-                                      context,
-                                      _buildProfileFullScreen(controller),
-                                      const Offset(0.0, -1.0),
-                                    );
+                                    setState(() => _showSettingsMenu = true);
                                   },
                                 ),
                               ],
@@ -227,6 +221,11 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
             ),
           ],
             ),
+            if (_showSettingsMenu)
+              SettingsMenuOverlay(
+                controller: controller,
+                onClose: () => setState(() => _showSettingsMenu = false),
+              ),
           ],
         ),
       ),
@@ -238,7 +237,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
     Rect rect = Rect.zero;
     Rect gameRect = Rect.zero;
     Rect loadRect = Rect.zero;
-    Rect profileRect = Rect.zero;
+    Rect settingsRect = Rect.zero;
     try {
       final ctxDuel = _duelTileKey.currentContext;
       if (ctxDuel != null) {
@@ -264,18 +263,18 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
           loadRect = Rect.fromLTWH(topLeft.dx, topLeft.dy, box.size.width, box.size.height);
         }
       }
-      final ctxProfile = _profileTileKey.currentContext;
-      if (ctxProfile != null) {
-        final box = ctxProfile.findRenderObject() as RenderBox?;
+      final ctxSettings = _settingsTileKey.currentContext;
+      if (ctxSettings != null) {
+        final box = ctxSettings.findRenderObject() as RenderBox?;
         if (box != null && box.hasSize) {
           final topLeft = box.localToGlobal(Offset.zero);
-          profileRect = Rect.fromLTWH(topLeft.dx, topLeft.dy, box.size.width, box.size.height);
+          settingsRect = Rect.fromLTWH(topLeft.dx, topLeft.dy, box.size.width, box.size.height);
         }
       }
     } catch (_) {}
 
     // Fallback: if we couldn't measure required rects, show the old top overlay
-    if (rect == Rect.zero || gameRect == Rect.zero || loadRect == Rect.zero || profileRect == Rect.zero) {
+    if (rect == Rect.zero || gameRect == Rect.zero || loadRect == Rect.zero || settingsRect == Rect.zero) {
       await _openDuelModesOverlay(context, controller);
       return;
     }
@@ -284,7 +283,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
     final Rect duelRect = rect;
     final Rect targetGameRect = gameRect;
     final Rect targetLoadRect = loadRect;
-    final Rect targetProfileRect = profileRect;
+    final Rect targetSettingsRect = settingsRect;
 
     await showGeneralDialog<void>(
       context: context,
@@ -314,7 +313,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
           builder: (context, _) {
             final r1 = _lerpRect(from, targetGameRect, curved.value);
             final r2 = _lerpRect(from, targetLoadRect, curved.value);
-            final r3 = _lerpRect(from, targetProfileRect, curved.value);
+            final r3 = _lerpRect(from, targetSettingsRect, curved.value);
             return Stack(
               children: [
                 // Tapping anywhere dismisses
@@ -382,7 +381,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                   ),
                 ),
 
-                // Quad → lands over Profile
+                // Quad → lands over Settings
                 Positioned(
                   left: r3.left,
                   top: r3.top,
@@ -629,16 +628,6 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildProfileFullScreen(GameController controller) {
-    return Scaffold(
-      backgroundColor: AppColors.bg,
-      body: SafeArea(
-        child: Center(
-          child: ProfileDialog(controller: controller),
-        ),
-      ),
-    );
-  }
 }
 
 class _MenuTile extends StatefulWidget {
@@ -946,23 +935,6 @@ class _MenuActionTile extends StatelessWidget {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ProfileFullScreen extends StatelessWidget {
-  final GameController controller;
-  const _ProfileFullScreen({super.key, required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.bg,
-      body: SafeArea(
-        child: Center(
-          child: ProfileDialog(controller: controller),
         ),
       ),
     );
