@@ -100,7 +100,7 @@ class _CellWidgetState extends State<CellWidget> {
 
   Widget _buildForState(CellState state) {
     String _assetFor(CellState state) {
-      final bool usePlayer = usePlayerTokens ||
+      final bool usePlayer = widget.usePlayerTokens ||
           state == CellState.yellow ||
           state == CellState.green;
       switch (state) {
