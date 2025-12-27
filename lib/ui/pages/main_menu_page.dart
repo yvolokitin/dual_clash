@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'dart:math' as math;
 import 'package:flutter/rendering.dart' show RenderBox;
 import '../../logic/game_controller.dart';
@@ -79,6 +80,11 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
 
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
+    final bool isTallMobile = !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.iOS ||
+            defaultTargetPlatform == TargetPlatform.android) &&
+        height > 1200;
+    final double menuGridMaxWidth = isTallMobile ? 420 * 1.15 : 420;
 
     print('Screen width: $width');
     print('Screen height: $height');
@@ -161,7 +167,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                 child: _showContent
                     ? Center(
                         child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 420),
+                          constraints: BoxConstraints(maxWidth: menuGridMaxWidth),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 20.0),
                             child: GridView(
