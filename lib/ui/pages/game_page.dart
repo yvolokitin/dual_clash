@@ -306,6 +306,8 @@ class _GamePageState extends State<GamePage> {
         final redTotal = controller.scoreRedTotal();
         final blueTotal = controller.scoreBlueTotal();
         final isWide = _isWide(context);
+        final bool isTallMobile = (Platform.isAndroid || Platform.isIOS) &&
+            MediaQuery.of(context).size.height > 1200;
         final winner = controller.gameOver
             ? (redTotal == blueTotal
                 ? null
@@ -326,10 +328,12 @@ class _GamePageState extends State<GamePage> {
             : 22.0;
         // Smaller size used for score-row chips/icons (keeps layout similar)
         final double scoreItemSize = boardCellSize * 0.595;
+        final double scoreFontScale = isTallMobile ? 0.9 : 1.0;
+        final double scoreTopPadding = isTallMobile ? 20.0 : 0.0;
 
         // Score-row text style: same height as icon, bold, and gold color
         final _chipTextStyle = TextStyle(
-          fontSize: scoreItemSize,
+          fontSize: scoreItemSize * scoreFontScale,
           height: 1.0,
           fontWeight: FontWeight.w800,
           color: const Color(0xFFE5AD3A),
@@ -347,8 +351,11 @@ class _GamePageState extends State<GamePage> {
 
                 // Score row before the board — match board width (9 cells) and center the whole row
                 Padding(
-                  padding: const EdgeInsets.only(
-                      top: 4.0, bottom: 14.0, left: 16.0, right: 16.0),
+                  padding: EdgeInsets.only(
+                      top: 4.0 + scoreTopPadding,
+                      bottom: 14.0,
+                      left: 16.0,
+                      right: 16.0),
                   child: Center(
                     child: SizedBox(
                       width: controller.boardPixelSize > 0
