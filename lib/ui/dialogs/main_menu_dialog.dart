@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:dual_clash/logic/game_controller.dart';
@@ -9,14 +11,91 @@ import 'package:dual_clash/ui/pages/settings_page.dart';
 import 'package:dual_clash/ui/pages/profile_page.dart';
 import 'package:dual_clash/ui/pages/history_page.dart';
 import 'package:dual_clash/ui/pages/statistics_page.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Minimal, independent "Main Menu" dialog styled like Profile dialog
 /// but with a solid #FFA213 background as requested.
-class MainMenuDialog extends StatelessWidget {
+class MainMenuDialog extends StatefulWidget {
   final GameController controller;
   const MainMenuDialog({super.key, required this.controller});
 
+  @override
+  State<MainMenuDialog> createState() => _MainMenuDialogState();
+}
+
+class _MainMenuDialogState extends State<MainMenuDialog> {
   static const Color _menuBg = Color(0xFF38518F); // 0xFFFFA213);
+  static const String _premiumProductId = 'premium_upgrade';
+
+  final InAppPurchase _iap = InAppPurchase.instance;
+  StreamSubscription<List<PurchaseDetails>>? _purchaseSub;
+  ProductDetails? _premiumProduct;
+  bool _iapAvailable = false;
+  bool _handledPurchase = false;
+
+  GameController get controller => widget.controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _purchaseSub = _iap.purchaseStream.listen(
+      _handlePurchases,
+      onError: (_) {},
+    );
+    _loadProducts();
+  }
+
+  @override
+  void dispose() {
+    _purchaseSub?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadProducts() async {
+    final available = await _iap.isAvailable();
+    if (!mounted) return;
+    setState(() {
+      _iapAvailable = available;
+    });
+    if (!available) return;
+    final response = await _iap.queryProductDetails({_premiumProductId});
+    if (!mounted) return;
+    if (response.productDetails.isNotEmpty) {
+      setState(() {
+        _premiumProduct = response.productDetails.first;
+      });
+    }
+  }
+
+  Future<void> _handlePurchases(List<PurchaseDetails> purchases) async {
+    for (final purchase in purchases) {
+      if (purchase.status == PurchaseStatus.purchased ||
+          purchase.status == PurchaseStatus.restored) {
+        if (_handledPurchase) continue;
+        _handledPurchase = true;
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('has_premium', true);
+        if (purchase.pendingCompletePurchase) {
+          await _iap.completePurchase(purchase);
+        }
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+      } else if (purchase.status == PurchaseStatus.error &&
+          purchase.pendingCompletePurchase) {
+        await _iap.completePurchase(purchase);
+      }
+    }
+  }
+
+  Future<void> _buyPremium() async {
+    if (!_iapAvailable || _premiumProduct == null) {
+      return;
+    }
+    final purchaseParam = PurchaseParam(productDetails: _premiumProduct!);
+    await _iap.buyNonConsumable(purchaseParam: purchaseParam);
+  }
 
   Future<void> _saveGame(BuildContext context) async {
     final red = controller.scoreRedBase();
@@ -214,6 +293,26 @@ class MainMenuDialog extends StatelessWidget {
                             await controller.simulateGame();
                           },
                         ),
+                        const SizedBox(height: 6),
+                        _menuTile(
+                          context,
+                          icon: Icons.block,
+                          label: 'Remove Ads — 1€',
+                          onTap: () async {
+                            await _buyPremium();
+                          },
+                        ),
+                        if (Platform.isIOS) ...[
+                          const SizedBox(height: 6),
+                          _menuTile(
+                            context,
+                            icon: Icons.restore,
+                            label: 'Restore Purchases',
+                            onTap: () async {
+                              await _iap.restorePurchases();
+                            },
+                          ),
+                        ],
                       ],
                     ),
                   ),
