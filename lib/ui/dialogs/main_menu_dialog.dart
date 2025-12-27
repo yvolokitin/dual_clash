@@ -28,7 +28,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
   static const Color _menuBg = Color(0xFF38518F); // 0xFFFFA213);
   static const String _premiumProductId = 'premium_upgrade';
 
-  final InAppPurchase _iap = InAppPurchase.instance;
+  InAppPurchase? _iap;
   StreamSubscription<List<PurchaseDetails>>? _purchaseSub;
   ProductDetails? _premiumProduct;
   bool _iapAvailable = false;
@@ -39,11 +39,14 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
   @override
   void initState() {
     super.initState();
-    _purchaseSub = _iap.purchaseStream.listen(
-      _handlePurchases,
-      onError: (_) {},
-    );
-    _loadProducts();
+    if (Platform.isAndroid || Platform.isIOS) {
+      _iap = InAppPurchase.instance;
+      _purchaseSub = _iap!.purchaseStream.listen(
+        _handlePurchases,
+        onError: (_) {},
+      );
+      _loadProducts();
+    }
   }
 
   @override
@@ -53,6 +56,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
   }
 
   Future<void> _loadProducts() async {
+    if (_iap == null) return;
     final available = await _iap.isAvailable();
     if (!mounted) return;
     setState(() {
@@ -77,24 +81,24 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('has_premium', true);
         if (purchase.pendingCompletePurchase) {
-          await _iap.completePurchase(purchase);
+          await _iap?.completePurchase(purchase);
         }
         if (mounted) {
           Navigator.of(context).pop();
         }
       } else if (purchase.status == PurchaseStatus.error &&
           purchase.pendingCompletePurchase) {
-        await _iap.completePurchase(purchase);
+        await _iap?.completePurchase(purchase);
       }
     }
   }
 
   Future<void> _buyPremium() async {
-    if (!_iapAvailable || _premiumProduct == null) {
+    if (_iap == null || !_iapAvailable || _premiumProduct == null) {
       return;
     }
     final purchaseParam = PurchaseParam(productDetails: _premiumProduct!);
-    await _iap.buyNonConsumable(purchaseParam: purchaseParam);
+    await _iap?.buyNonConsumable(purchaseParam: purchaseParam);
   }
 
   Future<void> _saveGame(BuildContext context) async {
@@ -309,7 +313,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                             icon: Icons.restore,
                             label: 'Restore Purchases',
                             onTap: () async {
-                              await _iap.restorePurchases();
+                              await _iap?.restorePurchases();
                             },
                           ),
                         ],
