@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
 import '../../logic/game_controller.dart';
@@ -111,6 +112,8 @@ class _GamePageState extends State<GamePage> {
   BannerAd? _bannerAd;
   bool _isAdLoaded = false;
   bool _hasPremium = false;
+  bool _isLoadingAd = false;
+  Timer? _adRetryTimer;
 
   GameController get controller => widget.controller;
 
@@ -122,6 +125,7 @@ class _GamePageState extends State<GamePage> {
 
   @override
   void dispose() {
+    _adRetryTimer?.cancel();
     _bannerAd?.dispose();
     super.dispose();
   }
@@ -148,6 +152,7 @@ class _GamePageState extends State<GamePage> {
       _hasPremium = hasPremium;
     });
     if (!hasPremium) {
+      _startAdRetryTimer();
       await _loadBannerIfEligible();
     }
   }
@@ -157,6 +162,7 @@ class _GamePageState extends State<GamePage> {
     final hasPremium = prefs.getBool('has_premium') ?? false;
     if (!mounted) return;
     if (hasPremium && !_hasPremium) {
+      _adRetryTimer?.cancel();
       _bannerAd?.dispose();
       _bannerAd = null;
       setState(() {
@@ -164,8 +170,19 @@ class _GamePageState extends State<GamePage> {
         _isAdLoaded = false;
       });
     } else if (!hasPremium && !_hasPremium && _bannerAd == null) {
+      _startAdRetryTimer();
       await _loadBannerIfEligible();
     }
+  }
+
+  void _startAdRetryTimer() {
+    if (!Platform.isAndroid && !Platform.isIOS) return;
+    if (_hasPremium) return;
+    if (_adRetryTimer?.isActive ?? false) return;
+    _adRetryTimer = Timer.periodic(const Duration(seconds: 15), (_) async {
+      if (_hasPremium || _isAdLoaded || _bannerAd != null) return;
+      await _loadBannerIfEligible();
+    });
   }
 
   Future<bool> _hasNetwork() async {
@@ -182,8 +199,13 @@ class _GamePageState extends State<GamePage> {
     if (!(Platform.isAndroid || Platform.isIOS)) return;
     if (_hasPremium) return;
     if (_bannerAd != null) return;
+    if (_isLoadingAd) return;
+    _isLoadingAd = true;
     final hasNetwork = await _hasNetwork();
-    if (!hasNetwork) return;
+    if (!hasNetwork) {
+      _isLoadingAd = false;
+      return;
+    }
     final adUnitId = Platform.isAndroid
         ? 'ca-app-pub-3940256099942544/9214589741'
         : 'ca-app-pub-3940256099942544/2435281174';
@@ -197,10 +219,13 @@ class _GamePageState extends State<GamePage> {
           setState(() {
             _bannerAd = ad as BannerAd;
             _isAdLoaded = true;
+            _isLoadingAd = false;
           });
+          _adRetryTimer?.cancel();
         },
         onAdFailedToLoad: (ad, error) {
           ad.dispose();
+          _isLoadingAd = false;
         },
       ),
     );
@@ -212,25 +237,25 @@ class _GamePageState extends State<GamePage> {
       return const SizedBox.shrink();
     }
     if (Platform.isAndroid || Platform.isIOS) {
-      if (!_isAdLoaded || _bannerAd == null) {
-        return const SizedBox.shrink();
-      }
-      final bannerWidth = _bannerAd!.size.width.toDouble();
-      final bannerHeight = _bannerAd!.size.height.toDouble();
-      return SafeArea(
-        bottom: true,
-        top: false,
-        child: SizedBox(
-          height: bannerHeight,
-          child: Center(
-            child: SizedBox(
-              width: bannerWidth,
-              height: bannerHeight,
-              child: AdWidget(ad: _bannerAd!),
+      if (_isAdLoaded && _bannerAd != null) {
+        final bannerWidth = _bannerAd!.size.width.toDouble();
+        final bannerHeight = _bannerAd!.size.height.toDouble();
+        return SafeArea(
+          bottom: true,
+          top: false,
+          child: SizedBox(
+            height: bannerHeight,
+            child: Center(
+              child: SizedBox(
+                width: bannerWidth,
+                height: bannerHeight,
+                child: AdWidget(ad: _bannerAd!),
+              ),
             ),
           ),
-        ),
-      );
+        );
+      }
+      return _buildSupportBlock();
     }
     return _buildSupportBlock();
   }
