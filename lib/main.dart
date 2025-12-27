@@ -2,8 +2,18 @@ import 'package:flutter/material.dart';
 import 'ui/pages/main_menu_page.dart';
 import 'logic/game_controller.dart';
 
-void main() {
+import 'dart:io';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // AdMob SDK init, Инициализируем AdMob только там, где поддерживается плагин
+  if (Platform.isAndroid || Platform.isIOS) {
+    await MobileAds.instance.initialize();
+  }
+
   runApp(const TwoTouchApp());
 }
 

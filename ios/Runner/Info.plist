@@ -40,5 +40,14 @@
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
+
+
+    <!-- TEST ADMOB -->
+    <key>GADApplicationIdentifier</key>
+    <string>ca-app-pub-3940256099942544~1458002511</string>
+
+    <key>GADIsAdManagerApp</key>
+    <false/>
+
 </dict>
 </plist>
