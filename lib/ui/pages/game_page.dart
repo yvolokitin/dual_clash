@@ -207,7 +207,7 @@ class _GamePageState extends State<GamePage> {
     await banner.load();
   }
 
-  Widget _buildBottomBar() {
+  Widget _buildBottomBar(BuildContext context) {
     if (_hasPremium) {
       return const SizedBox.shrink();
     }
@@ -215,13 +215,19 @@ class _GamePageState extends State<GamePage> {
       if (!_isAdLoaded || _bannerAd == null) {
         return const SizedBox.shrink();
       }
+      final bannerWidth = _bannerAd!.size.width.toDouble();
+      final bannerHeight = _bannerAd!.size.height.toDouble();
       return SafeArea(
         bottom: true,
-        child: Center(
-          child: SizedBox(
-            width: _bannerAd!.size.width.toDouble(),
-            height: _bannerAd!.size.height.toDouble(),
-            child: AdWidget(ad: _bannerAd!),
+        top: false,
+        child: SizedBox(
+          height: bannerHeight,
+          child: Center(
+            child: SizedBox(
+              width: bannerWidth,
+              height: bannerHeight,
+              child: AdWidget(ad: _bannerAd!),
+            ),
           ),
         ),
       );
@@ -232,6 +238,7 @@ class _GamePageState extends State<GamePage> {
   Widget _buildSupportBlock() {
     return SafeArea(
       bottom: true,
+      top: false,
       child: SizedBox(
         height: 100,
         child: Center(
@@ -333,7 +340,7 @@ class _GamePageState extends State<GamePage> {
 
         return Scaffold(
           backgroundColor: AppColors.bg,
-          bottomNavigationBar: _buildBottomBar(),
+          bottomNavigationBar: _buildBottomBar(context),
           body: SafeArea(
             child: Column(
               children: [
