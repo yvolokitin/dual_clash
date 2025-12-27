@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'dart:ui' as ui;
 import '../../logic/game_controller.dart';
 import '../../core/colors.dart';
@@ -12,6 +13,9 @@ import 'statistics_page.dart';
 import 'package:dual_clash/ui/widgets/animated_total_counter.dart';
 import 'package:dual_clash/ui/widgets/live_points_chip.dart';
 import 'package:dual_clash/ui/widgets/results_card.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // A small helper to provide safe hover zoom without affecting layout.
 class _HoverScaleBox extends StatefulWidget {
@@ -65,9 +69,62 @@ class _HoverScaleBoxState extends State<_HoverScaleBox> {
   }
 }
 
-class GamePage extends StatelessWidget {
+class _SupportLink {
+  final String label;
+  final IconData icon;
+  final Uri url;
+
+  const _SupportLink({
+    required this.label,
+    required this.icon,
+    required this.url,
+  });
+}
+
+class GamePage extends StatefulWidget {
   final GameController controller;
   const GamePage({super.key, required this.controller});
+
+  @override
+  State<GamePage> createState() => _GamePageState();
+}
+
+class _GamePageState extends State<GamePage> {
+  static final List<_SupportLink> _supportLinks = [
+    _SupportLink(
+      label: 'Patreon',
+      icon: Icons.favorite,
+      url: Uri.parse('https://www.patreon.com'),
+    ),
+    _SupportLink(
+      label: 'Boosty',
+      icon: Icons.volunteer_activism,
+      url: Uri.parse('https://boosty.to'),
+    ),
+    _SupportLink(
+      label: 'Ko-fi',
+      icon: Icons.coffee,
+      url: Uri.parse('https://ko-fi.com'),
+    ),
+  ];
+
+  BannerAd? _bannerAd;
+  bool _isAdLoaded = false;
+  bool _hasPremium = false;
+
+  GameController get controller => widget.controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPremiumAndMaybeAd();
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
+  }
 
   bool _isWide(BuildContext context) =>
       MediaQuery.of(context).size.width >= 600;
@@ -81,6 +138,154 @@ class GamePage extends StatelessWidget {
         showAnimatedResultsDialog(context: context, controller: controller);
       });
     }
+  }
+
+  Future<void> _loadPremiumAndMaybeAd() async {
+    final prefs = await SharedPreferences.getInstance();
+    final hasPremium = prefs.getBool('has_premium') ?? false;
+    if (!mounted) return;
+    setState(() {
+      _hasPremium = hasPremium;
+    });
+    if (!hasPremium) {
+      await _loadBannerIfEligible();
+    }
+  }
+
+  Future<void> _reloadPremiumStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final hasPremium = prefs.getBool('has_premium') ?? false;
+    if (!mounted) return;
+    if (hasPremium && !_hasPremium) {
+      _bannerAd?.dispose();
+      _bannerAd = null;
+      setState(() {
+        _hasPremium = true;
+        _isAdLoaded = false;
+      });
+    } else if (!hasPremium && !_hasPremium && _bannerAd == null) {
+      await _loadBannerIfEligible();
+    }
+  }
+
+  Future<bool> _hasNetwork() async {
+    try {
+      final result = await InternetAddress.lookup('example.com')
+          .timeout(const Duration(seconds: 3));
+      return result.isNotEmpty && result.first.rawAddress.isNotEmpty;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _loadBannerIfEligible() async {
+    if (!(Platform.isAndroid || Platform.isIOS)) return;
+    if (_hasPremium) return;
+    if (_bannerAd != null) return;
+    final hasNetwork = await _hasNetwork();
+    if (!hasNetwork) return;
+    final adUnitId = Platform.isAndroid
+        ? 'ca-app-pub-3940256099942544/9214589741'
+        : 'ca-app-pub-3940256099942544/2435281174';
+    final banner = BannerAd(
+      adUnitId: adUnitId,
+      size: AdSize.largeBanner,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          if (!mounted) return;
+          setState(() {
+            _bannerAd = ad as BannerAd;
+            _isAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+        },
+      ),
+    );
+    await banner.load();
+  }
+
+  Widget _buildBottomBar() {
+    if (_hasPremium) {
+      return const SizedBox.shrink();
+    }
+    if (Platform.isAndroid || Platform.isIOS) {
+      if (!_isAdLoaded || _bannerAd == null) {
+        return const SizedBox.shrink();
+      }
+      return SafeArea(
+        bottom: true,
+        child: Center(
+          child: SizedBox(
+            width: _bannerAd!.size.width.toDouble(),
+            height: _bannerAd!.size.height.toDouble(),
+            child: AdWidget(ad: _bannerAd!),
+          ),
+        ),
+      );
+    }
+    return _buildSupportBlock();
+  }
+
+  Widget _buildSupportBlock() {
+    return SafeArea(
+      bottom: true,
+      child: SizedBox(
+        height: 100,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.white24, width: 1),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Support the dev',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: _supportLinks
+                        .map(
+                          (link) => OutlinedButton.icon(
+                            onPressed: () async {
+                              await launchUrl(
+                                link.url,
+                                mode: LaunchMode.externalApplication,
+                              );
+                            },
+                            icon: Icon(link.icon, size: 18),
+                            label: Text(link.label),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              side: const BorderSide(color: Colors.white24),
+                              textStyle:
+                                  const TextStyle(fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -128,6 +333,7 @@ class GamePage extends StatelessWidget {
 
         return Scaffold(
           backgroundColor: AppColors.bg,
+          bottomNavigationBar: _buildBottomBar(),
           body: SafeArea(
             child: Column(
               children: [
@@ -163,6 +369,7 @@ class GamePage extends StatelessWidget {
                                 onPressed: () async {
                                   await mmd.showAnimatedMainMenuDialog(
                                       context: context, controller: controller);
+                                  await _reloadPremiumStatus();
                                 },
                               ),
                               const SizedBox(width: 8),
