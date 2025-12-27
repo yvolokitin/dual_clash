@@ -38,8 +38,12 @@ class BoardWidget extends StatelessWidget {
         // Fit the board to available space by using the smaller of width/height.
         final availableWidth = constraints.maxWidth;
         final availableHeight = constraints.maxHeight;
-        final horizontalPadding = availableWidth < 590 ? 10.0 : 0.0;
-        final paddedWidth = math.max(0.0, availableWidth - horizontalPadding * 2);
+        final sizeWithoutPadding = math.min(availableWidth, availableHeight);
+        final minSidePadding = K.n == 9 ? 10.0 : 0.0;
+        final sideMargin = (availableWidth - sizeWithoutPadding) / 2;
+        final horizontalPadding = sideMargin < minSidePadding ? minSidePadding : 0.0;
+        final paddedWidth =
+            math.max(0.0, availableWidth - horizontalPadding * 2);
         final size = math.min(paddedWidth, availableHeight);
         // Report the pixel size to controller so other UI (score row) can match width
         WidgetsBinding.instance.addPostFrameCallback((_) {
