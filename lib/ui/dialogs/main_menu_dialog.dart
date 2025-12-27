@@ -56,14 +56,15 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
   }
 
   Future<void> _loadProducts() async {
-    if (_iap == null) return;
-    final available = await _iap.isAvailable();
+    final iap = _iap;
+    if (iap == null) return;
+    final available = await iap.isAvailable();
     if (!mounted) return;
     setState(() {
       _iapAvailable = available;
     });
     if (!available) return;
-    final response = await _iap.queryProductDetails({_premiumProductId});
+    final response = await iap.queryProductDetails({_premiumProductId});
     if (!mounted) return;
     if (response.productDetails.isNotEmpty) {
       setState(() {
