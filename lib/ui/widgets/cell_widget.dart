@@ -109,9 +109,9 @@ class _CellWidgetState extends State<CellWidget> {
         case CellState.blue:
           return 'assets/icons/box_blue.png';
         case CellState.yellow:
-          return 'assets/icons/player_yellow.png';
+          return 'assets/icons/box_yellow.png';
         case CellState.green:
-          return 'assets/icons/player_green.png';
+          return 'assets/icons/box_green.png';
         case CellState.neutral:
           return 'assets/icons/box_grey.png';
         case CellState.empty:
