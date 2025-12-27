@@ -331,6 +331,9 @@ class _GamePageState extends State<GamePage> {
         final redTotal = controller.scoreRedTotal();
         final blueTotal = controller.scoreBlueTotal();
         final isWide = _isWide(context);
+        final bool isMobile = Platform.isAndroid || Platform.isIOS;
+        final bool isTallMobile =
+            isMobile && MediaQuery.of(context).size.height > 1200;
         final winner = controller.gameOver
             ? (redTotal == blueTotal
                 ? null
@@ -351,13 +354,63 @@ class _GamePageState extends State<GamePage> {
             : 22.0;
         // Smaller size used for score-row chips/icons (keeps layout similar)
         final double scoreItemSize = boardCellSize * 0.595;
+        final double scoreFontScale = isTallMobile ? 0.9 : 1.0;
+        final double scoreTopPadding = isTallMobile ? 20.0 : 0.0;
 
         // Score-row text style: same height as icon, bold, and gold color
         final _chipTextStyle = TextStyle(
-          fontSize: scoreItemSize,
+          fontSize: scoreItemSize * scoreFontScale,
           height: 1.0,
           fontWeight: FontWeight.w800,
           color: const Color(0xFFE5AD3A),
+        );
+
+        final Widget aiLevelRow = Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(height: isMobile ? 20 : 14),
+            SizedBox(
+              height: boardCellSize * 0.36,
+              child: Center(
+                child: SizedBox(
+                  width: controller.boardPixelSize > 0
+                      ? controller.boardPixelSize
+                      : null,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Current AI Level',
+                        style: TextStyle(
+                          fontSize: boardCellSize * 0.288,
+                          height: 1.0,
+                          fontWeight: FontWeight.w700,
+                          color: _chipTextStyle.color,
+                        ),
+                      ),
+                      SizedBox(width: boardCellSize * 0.1),
+                      Image.asset(
+                        AiBelt.assetFor(controller.aiLevel),
+                        height: boardCellSize * 0.36,
+                        fit: BoxFit.contain,
+                      ),
+                      SizedBox(width: boardCellSize * 0.1),
+                      Text(
+                        '${AiBelt.nameFor(controller.aiLevel)} (${controller.aiLevel})',
+                        style: TextStyle(
+                          fontSize: boardCellSize * 0.288,
+                          height: 1.0,
+                          fontWeight: FontWeight.w700,
+                          color: _chipTextStyle.color,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         );
 
         // Auto-show end results dialog once
@@ -372,8 +425,11 @@ class _GamePageState extends State<GamePage> {
 
                 // Score row before the board — match board width (9 cells) and center the whole row
                 Padding(
-                  padding: const EdgeInsets.only(
-                      top: 4.0, bottom: 14.0, left: 16.0, right: 16.0),
+                  padding: EdgeInsets.only(
+                      top: 4.0 + scoreTopPadding,
+                      bottom: 14.0,
+                      left: 16.0,
+                      right: 16.0),
                   child: Center(
                     child: SizedBox(
                       width: controller.boardPixelSize > 0
@@ -447,89 +503,51 @@ class _GamePageState extends State<GamePage> {
                 // Board centered
                 Expanded(
                   child: Center(
-                    child: Stack(
-                      alignment: Alignment.center,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        BoardWidget(controller: controller),
-                        if (controller.isAiThinking || controller.isSimulating)
-                          Container(
-                            decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.35),
-                                borderRadius: BorderRadius.circular(12)),
-                            alignment: Alignment.center,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const SizedBox(height: 8),
-                                const CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white)),
-                                const SizedBox(height: 10),
-                                Text(
-                                  controller.isSimulating
-                                      ? 'Simulating game...'
-                                      : 'AI is thinking...',
-                                  style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w700),
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            BoardWidget(controller: controller),
+                            if (controller.isAiThinking ||
+                                controller.isSimulating)
+                              Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.35),
+                                    borderRadius: BorderRadius.circular(12)),
+                                alignment: Alignment.center,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const SizedBox(height: 8),
+                                    const CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.white)),
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      controller.isSimulating
+                                          ? 'Simulating game...'
+                                          : 'AI is thinking...',
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w700),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          ),
+                              ),
+                          ],
+                        ),
+                        if (isMobile && !controller.humanVsHuman)
+                          aiLevelRow,
                       ],
                     ),
                   ),
                 ),
 
                 // AI level row under the board
-                if (!controller.humanVsHuman)
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(height: 14),
-                      SizedBox(
-                        height: boardCellSize * 0.36,
-                        child: Center(
-                          child: SizedBox(
-                            width: controller.boardPixelSize > 0
-                                ? controller.boardPixelSize
-                                : null,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'Current AI Level',
-                                  style: TextStyle(
-                                    fontSize: boardCellSize * 0.288,
-                                    height: 1.0,
-                                    fontWeight: FontWeight.w700,
-                                    color: _chipTextStyle.color,
-                                  ),
-                                ),
-                                SizedBox(width: boardCellSize * 0.1),
-                                Image.asset(
-                                  AiBelt.assetFor(controller.aiLevel),
-                                  height: boardCellSize * 0.36,
-                                  fit: BoxFit.contain,
-                                ),
-                                SizedBox(width: boardCellSize * 0.1),
-                                Text(
-                                  '${AiBelt.nameFor(controller.aiLevel)} (${controller.aiLevel})',
-                                  style: TextStyle(
-                                    fontSize: boardCellSize * 0.288,
-                                    height: 1.0,
-                                    fontWeight: FontWeight.w700,
-                                    color: _chipTextStyle.color,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                if (!isMobile && !controller.humanVsHuman) aiLevelRow,
 
                 // Bottom actions under the board: Simulate and Undo
                 Padding(
