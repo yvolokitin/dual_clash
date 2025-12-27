@@ -1,4 +1,5 @@
-name: Dual Clash
+name: dual_clash
+description: Dual Clash
 publish_to: 'none'
 version: 1.0.0+1
 
