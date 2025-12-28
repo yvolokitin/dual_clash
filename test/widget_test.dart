@@ -1,30 +1,58 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+import 'dart:convert';
+import 'dart:typed_data';
 
+import 'package:dual_clash/logic/game_controller.dart';
+import 'package:dual_clash/ui/pages/main_menu_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:dual_clash/main.dart';
+class TestAssetBundle extends CachingAssetBundle {
+  static final Uint8List _imageBytes = base64Decode(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=',
+  );
+
+  @override
+  Future<ByteData> load(String key) async {
+    return ByteData.view(_imageBytes.buffer);
+  }
+}
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('main menu shows tiles after startup animation', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      DefaultAssetBundle(
+        bundle: TestAssetBundle(),
+        child: MaterialApp(
+          home: MainMenuPage(controller: GameController()),
+        ),
+      ),
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    await tester.pump(const Duration(seconds: 5));
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    expect(find.text('Game challange'), findsOneWidget);
+    expect(find.text('Duel mode'), findsOneWidget);
+    expect(find.text('Load game'), findsOneWidget);
+    expect(find.text('Profile'), findsOneWidget);
+  });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  testWidgets('duel tile opens flyout modes', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      DefaultAssetBundle(
+        bundle: TestAssetBundle(),
+        child: MaterialApp(
+          home: MainMenuPage(controller: GameController()),
+        ),
+      ),
+    );
+
+    await tester.pump(const Duration(seconds: 5));
+
+    await tester.tap(find.text('Duel mode'));
+    await tester.pump(const Duration(milliseconds: 350));
+
+    expect(find.text('Triple Threat'), findsOneWidget);
+    expect(find.text('Quad Clash'), findsOneWidget);
   });
 }
