@@ -88,9 +88,11 @@ class ResultsCard extends StatelessWidget {
       ),
     ];
 
+    final BorderRadius dialogRadius =
+        BorderRadius.circular(isCompact ? 0 : 22);
     final content = Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: dialogRadius,
         gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -270,7 +272,7 @@ class ResultsCard extends StatelessWidget {
       insetPadding: EdgeInsets.symmetric(
           horizontal: isCompact ? 0 : 24, vertical: isCompact ? 0 : 24),
       backgroundColor: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      shape: RoundedRectangleBorder(borderRadius: dialogRadius),
       child: isCompact
           ? SizedBox(width: size.width, height: size.height, child: content)
           : content,
