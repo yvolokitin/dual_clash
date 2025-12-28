@@ -157,7 +157,7 @@ class ResultsCard extends StatelessWidget {
                     if (tileCount == 3) {
                       columns = 3;
                     } else if (tileCount == 4) {
-                      columns = 2;
+                      columns = 3;
                     } else if (tileCount == 5) {
                       columns = 3;
                     } else {
