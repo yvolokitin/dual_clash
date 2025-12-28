@@ -12,299 +12,344 @@ class ResultsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final bool isCompact = size.width < 550;
     final bg = AppColors.bg;
     final redBase = controller.scoreRedBase();
     final blueBase = controller.scoreBlueBase();
     final neutrals = RulesEngine.countOf(controller.board, CellState.neutral);
     final redTotal = controller.scoreRedTotal();
     final blueTotal = controller.scoreBlueTotal();
-    final CellState? winner = controller.isMultiDuel
-        ? controller.duelWinner()
-        : (redTotal == blueTotal
-            ? null
-            : (redTotal > blueTotal ? CellState.red : CellState.blue));
     final bool isDuel = controller.humanVsHuman;
+    final bool isChallengeMode = !isDuel;
+    CellState? winner;
+    if (controller.isMultiDuel) {
+      winner = controller.duelWinner();
+    } else if (isChallengeMode) {
+      final int maxScore = [
+        redTotal,
+        blueTotal,
+        neutrals,
+      ].reduce((a, b) => a > b ? a : b);
+      final int topCount = [
+        redTotal,
+        blueTotal,
+        neutrals,
+      ].where((score) => score == maxScore).length;
+      if (topCount == 1) {
+        if (maxScore == redTotal) {
+          winner = CellState.red;
+        } else if (maxScore == blueTotal) {
+          winner = CellState.blue;
+        } else {
+          winner = CellState.neutral;
+        }
+      } else {
+        winner = null;
+      }
+    } else {
+      winner = redTotal == blueTotal
+          ? null
+          : (redTotal > blueTotal ? CellState.red : CellState.blue);
+    }
 
-    return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-      backgroundColor: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(22),
-          gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [bg, bg]),
-          boxShadow: const [
-            BoxShadow(
-                color: AppColors.dialogShadow,
-                blurRadius: 24,
-                offset: Offset(0, 12))
-          ],
-          border: Border.all(color: AppColors.dialogOutline, width: 1),
+    final bool hasWinner = winner != null;
+    final bool showYellow = isDuel && controller.isMultiDuel;
+    final bool showGreen =
+        isDuel && controller.isMultiDuel && controller.duelPlayerCount >= 4;
+
+    final tiles = [
+      _ResultTileData(
+        asset: 'assets/icons/box_red.png',
+        count: redBase,
+        state: CellState.red,
+      ),
+      _ResultTileData(
+        asset: 'assets/icons/box_blue.png',
+        count: blueBase,
+        state: CellState.blue,
+      ),
+      if (showYellow)
+        _ResultTileData(
+          asset: 'assets/icons/box_yellow.png',
+          count: controller.scoreYellowBase(),
+          state: CellState.yellow,
         ),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: 520,
-            maxHeight: MediaQuery.of(context).size.height * 0.9,
-          ),
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
+      if (showGreen)
+        _ResultTileData(
+          asset: 'assets/icons/box_green.png',
+          count: controller.scoreGreenBase(),
+          state: CellState.green,
+        ),
+      _ResultTileData(
+        asset: 'assets/icons/box_grey.png',
+        count: neutrals,
+        state: CellState.neutral,
+      ),
+    ];
+
+    final BorderRadius dialogRadius =
+        BorderRadius.circular(isCompact ? 0 : 22);
+    final content = Container(
+      decoration: BoxDecoration(
+        borderRadius: dialogRadius,
+        gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [bg, bg]),
+        boxShadow: const [
+          BoxShadow(
+              color: AppColors.dialogShadow,
+              blurRadius: 24,
+              offset: Offset(0, 12))
+        ],
+        border: Border.all(color: AppColors.dialogOutline, width: 1),
+      ),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: isCompact ? size.width : 520,
+          maxHeight: isCompact ? size.height : size.height * 0.9,
+          minWidth: isCompact ? size.width : 0,
+          minHeight: isCompact ? size.height : 0,
+        ),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    const Spacer(),
+                    const Text(
+                      'Results',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w900),
+                    ),
+                    const Spacer(),
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.08),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white24)),
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        iconSize: 20,
+                        icon: const Icon(Icons.close, color: Colors.white70),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final width = constraints.maxWidth;
+                    final int tileCount = tiles.length;
+                    int columns;
+                    if (tileCount == 3) {
+                      columns = 3;
+                    } else if (tileCount == 4) {
+                      columns = 3;
+                    } else if (tileCount == 5) {
+                      columns = 3;
+                    } else {
+                      columns = width >= 420 ? 3 : 2;
+                    }
+                    final double spacing = 10;
+                    final double ratio = width >= 420 ? 1.1 : 1.0;
+                    final bool compactRow = tileCount == 3 && width < 550;
+                    final double scale = compactRow ? 0.7 : 0.8;
+                    return GridView.count(
+                      crossAxisCount: columns,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisSpacing: spacing,
+                      mainAxisSpacing: spacing,
+                      childAspectRatio: ratio,
+                      children: tiles
+                          .map((tile) => _scoreTile(
+                                data: tile,
+                                isWinner: tile.state != null &&
+                                    tile.state == winner,
+                                isDisabled: hasWinner &&
+                                    (tile.state == null ||
+                                        tile.state != winner),
+                              ))
+                          .map((tile) => Transform.scale(
+                                scale: scale,
+                                child: tile,
+                              ))
+                          .toList(),
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 12),
+                // Points and time on the same row if fit; otherwise they will wrap to 2 rows automatically
+                Center(
+                  child: Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 12,
+                    runSpacing: 10,
                     children: [
-                      const Spacer(),
-                      if (winner != null)
-                        Padding(
-                          padding: const EdgeInsets.only(right: 8.0),
-                          child: Image.asset(
-                              controller.humanVsHuman
-                                  ? 'assets/icons/winner-removebg.png'
-                                  : (winner == CellState.red
-                                      ? 'assets/icons/winner-removebg.png'
-                                      : 'assets/icons/looser-removebg.png'),
-                              width: 36,
-                              height: 36),
-                        ),
-                      Text(
-                        winner == null
-                            ? 'Draw'
-                            : (controller.humanVsHuman
-                                ? (winner == CellState.red
-                                    ? 'Red wins!'
-                                    : (winner == CellState.blue
-                                        ? 'Blue wins!'
-                                        : (winner == CellState.yellow
-                                            ? 'Yellow wins!'
-                                            : 'Green wins!')))
-                                : (winner == CellState.red
-                                    ? 'Player Wins!'
-                                    : 'AI Wins!')),
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.w900),
-                      ),
-                      const Spacer(),
-                      Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.08),
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white24)),
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          iconSize: 20,
-                          icon: const Icon(Icons.close, color: Colors.white70),
-                          onPressed: () => Navigator.of(context).pop(),
-                        ),
-                      ),
+                      // AnimatedTotalCounter(value: controller.totalUserScore),
+                      _timeChip(
+                          label: 'Time played',
+                          value: _formatDuration(controller.lastGamePlayMs)),
                     ],
                   ),
-                  const SizedBox(height: 12),
-
-                  if (isDuel && controller.isMultiDuel) ...[
-                    _scoreRow(
-                        label: 'Red',
-                        color: AppColors.red,
-                        base: redBase,
-                        bonus: 0,
-                        total: redBase,
-                        highlight: winner == CellState.red),
-                    const SizedBox(height: 8),
-                    _scoreRow(
-                        label: 'Blue',
-                        color: AppColors.blue,
-                        base: blueBase,
-                        bonus: 0,
-                        total: blueBase,
-                        highlight: winner == CellState.blue),
-                    const SizedBox(height: 8),
-                    _scoreRow(
-                        label: 'Yellow',
-                        color: AppColors.yellow,
-                        base: controller.scoreYellowBase(),
-                        bonus: 0,
-                        total: controller.scoreYellowBase(),
-                        highlight: winner == CellState.yellow),
-                    if (controller.duelPlayerCount >= 4) ...[
-                      const SizedBox(height: 8),
-                      _scoreRow(
-                          label: 'Green',
-                          color: AppColors.green,
-                          base: controller.scoreGreenBase(),
-                          bonus: 0,
-                          total: controller.scoreGreenBase(),
-                          highlight: winner == CellState.green),
+                ),
+                const SizedBox(height: 12),
+                // Turns row beneath
+                if (isDuel && controller.isMultiDuel)
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 10,
+                    runSpacing: 8,
+                    children: [
+                      _statChip(
+                          icon: Icons.rotate_left,
+                          label: 'Red turns',
+                          value: controller.turnsRed.toString()),
+                      _statChip(
+                          icon: Icons.rotate_left,
+                          label: 'Blue turns',
+                          value: controller.turnsBlue.toString()),
+                      _statChip(
+                          icon: Icons.rotate_left,
+                          label: 'Yellow turns',
+                          value: controller.turnsYellow.toString()),
+                      if (controller.duelPlayerCount >= 4)
+                        _statChip(
+                            icon: Icons.rotate_left,
+                            label: 'Green turns',
+                            value: controller.turnsGreen.toString()),
                     ],
-                    const SizedBox(height: 8),
-                    _scoreRow(
-                        label: 'Grey',
-                        color: AppColors.neutral,
-                        base: neutrals,
-                        bonus: 0,
-                        total: neutrals,
-                        highlight: false),
-                  ] else if (isDuel) ...[
-                    _scoreRow(
-                        label: 'Red',
-                        color: AppColors.red,
-                        base: redBase,
-                        bonus: 0,
-                        total: redBase,
-                        highlight: winner == CellState.red),
-                    const SizedBox(height: 8),
-                    _scoreRow(
-                        label: 'Grey',
-                        color: AppColors.neutral,
-                        base: neutrals,
-                        bonus: 0,
-                        total: neutrals,
-                        highlight: false),
-                    const SizedBox(height: 8),
-                    _scoreRow(
-                        label: 'Blue',
-                        color: AppColors.blue,
-                        base: blueBase,
-                        bonus: 0,
-                        total: blueBase,
-                        highlight: winner == CellState.blue),
-                  ] else ...[
-                    _scoreRow(
-                        label: 'Player',
-                        color: AppColors.red,
-                        base: redBase,
-                        bonus: controller.bonusRed,
-                        total: redTotal,
-                        highlight: winner == CellState.red),
-                    const SizedBox(height: 8),
-                    _scoreRow(
-                        label: 'AI',
-                        color: AppColors.blue,
-                        base: blueBase,
-                        bonus: controller.bonusBlue,
-                        total: blueTotal,
-                        highlight: winner == CellState.blue),
-                  ],
-
-                  const SizedBox(height: 12),
-                  // Points and time on the same row if fit; otherwise they will wrap to 2 rows automatically
-                  Center(
-                    child: Wrap(
-                      alignment: WrapAlignment.center,
-                      spacing: 12,
-                      runSpacing: 10,
-                      children: [
-                        // AnimatedTotalCounter(value: controller.totalUserScore),
-                        _timeChip(
-                            label: 'Time played',
-                            value: _formatDuration(controller.lastGamePlayMs)),
-                      ],
-                    ),
+                  )
+                else
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _statChip(
+                          icon: Icons.rotate_left,
+                          label: isDuel ? 'Red turns' : 'Player turns',
+                          value: controller.turnsRed.toString()),
+                      _statChip(
+                          icon: Icons.rotate_right,
+                          label: isDuel ? 'Blue turns' : 'AI turns',
+                          value: controller.turnsBlue.toString()),
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                  // Turns row beneath
-                  if (isDuel && controller.isMultiDuel)
-                    Wrap(
-                      alignment: WrapAlignment.center,
-                      spacing: 10,
-                      runSpacing: 8,
-                      children: [
-                        _statChip(
-                            icon: Icons.rotate_left,
-                            label: 'Red turns',
-                            value: controller.turnsRed.toString()),
-                        _statChip(
-                            icon: Icons.rotate_left,
-                            label: 'Blue turns',
-                            value: controller.turnsBlue.toString()),
-                        _statChip(
-                            icon: Icons.rotate_left,
-                            label: 'Yellow turns',
-                            value: controller.turnsYellow.toString()),
-                        if (controller.duelPlayerCount >= 4)
-                          _statChip(
-                              icon: Icons.rotate_left,
-                              label: 'Green turns',
-                              value: controller.turnsGreen.toString()),
-                      ],
-                    )
-                  else
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _statChip(
-                            icon: Icons.rotate_left,
-                            label: isDuel ? 'Red turns' : 'Player turns',
-                            value: controller.turnsRed.toString()),
-                        _statChip(
-                            icon: Icons.rotate_right,
-                            label: isDuel ? 'Blue turns' : 'AI turns',
-                            value: controller.turnsBlue.toString()),
-                      ],
-                    ),
 
-                  if (!isDuel) ...[
-                    const SizedBox(height: 12),
-                    // Total user points summary per game outcome
-                    _TotalsSummary(controller: controller, winner: winner),
-                  ],
-
+                if (!isDuel) ...[
                   const SizedBox(height: 12),
-                  // Action buttons based on result and AI level
-                  _ResultsActions(controller: controller, winner: winner),
-                  const SizedBox(height: 16),
-                  // Mini board preview
-                  _MiniBoardPreview(controller: controller),
+                  // Total user points summary per game outcome
+                  _TotalsSummary(controller: controller, winner: winner),
                 ],
-              ),
+
+                const SizedBox(height: 12),
+                // Action buttons based on result and AI level
+                _ResultsActions(controller: controller, winner: winner),
+                const SizedBox(height: 16),
+                // Mini board preview
+                _MiniBoardPreview(controller: controller),
+              ],
             ),
           ),
         ),
       ),
     );
+
+    return Dialog(
+      insetPadding: EdgeInsets.symmetric(
+          horizontal: isCompact ? 0 : 24, vertical: isCompact ? 0 : 24),
+      backgroundColor: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: dialogRadius),
+      child: isCompact
+          ? SizedBox(width: size.width, height: size.height, child: content)
+          : content,
+    );
   }
 
-  Widget _scoreRow(
-      {required String label,
-      required Color color,
-      required int base,
-      required int bonus,
-      required int total,
-      required bool highlight}) {
+  Widget _scoreTile(
+      {required _ResultTileData data,
+      required bool isWinner,
+      required bool isDisabled}) {
+    final Color borderColor = Colors.transparent;
+    final Color countTextColor =
+        isWinner ? Colors.white : (isDisabled ? Colors.white54 : Colors.white);
+    final Color countBorderColor =
+        isWinner ? AppColors.brandGold : Colors.white24;
+    final Color countFillColor = isWinner
+        ? AppColors.brandGold
+        : Colors.white.withOpacity(isDisabled ? 0.08 : 0.14);
+    final double circleSize = 44;
+    final double overlap = circleSize / 2;
+
+    final ColorFilter? filter = isDisabled
+        ? const ColorFilter.mode(Colors.grey, BlendMode.saturation)
+        : null;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.06),
+        color: isDisabled
+            ? AppColors.neutral.withOpacity(0.35)
+            : Colors.white.withOpacity(0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-            color: highlight ? AppColors.brandGold : Colors.white24,
-            width: highlight ? 2 : 1),
+        border: Border.all(color: borderColor, width: 1),
       ),
-      child: Row(
+      child: Stack(
+        alignment: Alignment.bottomCenter,
         children: [
-          Container(
-              width: 16,
-              height: 16,
+          Positioned.fill(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: overlap),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: ColorFiltered(
+                  colorFilter: filter ??
+                      const ColorFilter.mode(
+                        Colors.transparent,
+                        BlendMode.multiply,
+                      ),
+                  child: Opacity(
+                    opacity: isDisabled ? 0.5 : 1,
+                    child: Image.asset(
+                      data.asset,
+                      fit: BoxFit.cover,
+                      alignment: Alignment.center,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            child: Container(
+              width: circleSize,
+              height: circleSize,
+              alignment: Alignment.center,
               decoration: BoxDecoration(
-                  color: color, borderRadius: BorderRadius.circular(4))),
-          const SizedBox(width: 8),
-          Text(label,
-              style: TextStyle(
-                  color: highlight ? AppColors.brandGold : Colors.white,
-                  fontWeight: FontWeight.w800)),
-          const Spacer(),
-          // Show only the number of boxes (base) without calculations
-          Text('$base',
-              style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.w900)),
+                shape: BoxShape.circle,
+                color: countFillColor,
+                border: Border.all(color: countBorderColor, width: 1),
+              ),
+              child: Text(
+                '${data.count}',
+                style: TextStyle(
+                    color: countTextColor, fontWeight: FontWeight.w900),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -361,6 +406,15 @@ class ResultsCard extends StatelessWidget {
   }
 }
 
+class _ResultTileData {
+  final String asset;
+  final int count;
+  final CellState? state;
+
+  const _ResultTileData(
+      {required this.asset, required this.count, required this.state});
+}
+
 class _TotalsSummary extends StatelessWidget {
   final GameController controller;
   final CellState? winner;
@@ -402,13 +456,32 @@ class _TotalsSummary extends StatelessWidget {
         ),
       );
     } else if (winner == null) {
-      line2 = const Padding(
-        padding: EdgeInsets.only(top: 8.0),
-        child: Text('Draw game: your total remains the same.',
-            textAlign: TextAlign.right,
-            style:
-                TextStyle(color: Colors.white70, fontWeight: FontWeight.w700)),
-      );
+      if (awarded > 0) {
+        final newTotal = before + awarded;
+        line2 = Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Draw game: half points awarded',
+                  style: TextStyle(
+                      color: Colors.white70, fontWeight: FontWeight.w700)),
+              Text('+$awarded = $before → $newTotal',
+                  style: const TextStyle(
+                      color: Colors.lightBlueAccent,
+                      fontWeight: FontWeight.w900)),
+            ],
+          ),
+        );
+      } else {
+        line2 = const Padding(
+          padding: EdgeInsets.only(top: 8.0),
+          child: Text('Draw game: your total remains the same.',
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                  color: Colors.white70, fontWeight: FontWeight.w700)),
+        );
+      }
     } else {
       line2 = const Padding(
         padding: EdgeInsets.only(top: 8.0),
