@@ -502,47 +502,49 @@ class _GamePageState extends State<GamePage> {
 
                 // Board centered
                 Expanded(
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            BoardWidget(controller: controller),
-                            if (controller.isAiThinking ||
-                                controller.isSimulating)
-                              Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.35),
-                                    borderRadius: BorderRadius.circular(12)),
-                                alignment: Alignment.center,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const SizedBox(height: 8),
-                                    const CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                                Colors.white)),
-                                    const SizedBox(height: 10),
-                                    Text(
-                                      controller.isSimulating
-                                          ? 'Simulating game...'
-                                          : 'AI is thinking...',
-                                      style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w700),
-                                    ),
-                                  ],
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Expanded(
+                        child: Center(
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              BoardWidget(controller: controller),
+                              if (controller.isAiThinking ||
+                                  controller.isSimulating)
+                                Container(
+                                  decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.35),
+                                      borderRadius: BorderRadius.circular(12)),
+                                  alignment: Alignment.center,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const SizedBox(height: 8),
+                                      const CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.white)),
+                                      const SizedBox(height: 10),
+                                      Text(
+                                        controller.isSimulating
+                                            ? 'Simulating game...'
+                                            : 'AI is thinking...',
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w700),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                          ],
+                            ],
+                          ),
                         ),
-                        if (isMobile && !controller.humanVsHuman)
-                          aiLevelRow,
-                      ],
-                    ),
+                      ),
+                      if (isMobile && !controller.humanVsHuman)
+                        aiLevelRow,
+                    ],
                   ),
                 ),
 
