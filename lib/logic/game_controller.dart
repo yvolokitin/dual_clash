@@ -1506,6 +1506,14 @@ class GameController extends ChangeNotifier {
     // Compute totals for legacy base/bonus scoring
     final redTotal = scoreRedTotal();
     final blueTotal = scoreBlueTotal();
+    final neutralTotal = RulesEngine.countOf(board, CellState.neutral);
+    final int maxScore = [redTotal, blueTotal, neutralTotal]
+        .reduce((a, b) => a > b ? a : b);
+    final bool isTie = [
+      redTotal,
+      blueTotal,
+      neutralTotal,
+    ].where((score) => score == maxScore).length > 1;
 
     // Also convert end-of-game red full lines into current-game points per spec (+50 each)
     if (redLinesInThisGame > 0) {
@@ -1513,7 +1521,7 @@ class GameController extends ChangeNotifier {
     }
 
     // Trigger winner border animation (1.5s) if there is a winner
-    final hasWinner = redTotal != blueTotal;
+    final hasWinner = !isTie;
     if (hasWinner) {
       showWinnerBorderAnim = true;
       notifyListeners();
@@ -1531,15 +1539,18 @@ class GameController extends ChangeNotifier {
 
     // Award badge for beating this AI level
     String? newBadge;
-    if (redTotal > blueTotal) {
+    if (redTotal > blueTotal && redTotal > neutralTotal) {
       newBadge = 'Beat AI L$aiLevel';
       badges.add(newBadge);
     }
 
     // Update persistent total per new rules: award only on win; otherwise unchanged
     lastTotalBeforeAward = totalUserScore;
-    if (redTotal > blueTotal) {
+    if (redTotal > blueTotal && redTotal > neutralTotal) {
       lastGamePointsAwarded = redGamePoints;
+      totalUserScore += lastGamePointsAwarded;
+    } else if (isTie) {
+      lastGamePointsAwarded = redGamePoints ~/ 2;
       totalUserScore += lastGamePointsAwarded;
     } else {
       lastGamePointsAwarded = 0;
