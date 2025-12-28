@@ -172,6 +172,10 @@ class ResultsCard extends StatelessWidget {
                                       (tile.state == null ||
                                           tile.state != winner),
                                 ))
+                            .map((tile) => Transform.scale(
+                                  scale: 0.8,
+                                  child: tile,
+                                ))
                             .toList(),
                       );
                     },
@@ -259,13 +263,14 @@ class ResultsCard extends StatelessWidget {
       {required _ResultTileData data,
       required bool isWinner,
       required bool isDisabled}) {
-    final Color borderColor = isWinner
-        ? AppColors.brandGold
-        : (isDisabled ? Colors.white12 : Colors.white24);
+    final Color borderColor = Colors.transparent;
     final Color countTextColor =
-        isDisabled ? Colors.white54 : Colors.white;
+        isWinner ? Colors.white : (isDisabled ? Colors.white54 : Colors.white);
     final Color countBorderColor =
         isWinner ? AppColors.brandGold : Colors.white24;
+    final Color countFillColor = isWinner
+        ? AppColors.brandGold
+        : Colors.white.withOpacity(isDisabled ? 0.08 : 0.14);
     final double circleSize = 44;
     final double overlap = circleSize / 2;
 
@@ -279,7 +284,7 @@ class ResultsCard extends StatelessWidget {
             ? AppColors.neutral.withOpacity(0.35)
             : Colors.white.withOpacity(0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderColor, width: isWinner ? 2 : 1),
+        border: Border.all(color: borderColor, width: 1),
       ),
       child: Stack(
         alignment: Alignment.bottomCenter,
@@ -315,7 +320,7 @@ class ResultsCard extends StatelessWidget {
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withOpacity(isDisabled ? 0.08 : 0.14),
+                color: countFillColor,
                 border: Border.all(color: countBorderColor, width: 1),
               ),
               child: Text(
