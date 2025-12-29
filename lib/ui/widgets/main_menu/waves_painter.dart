@@ -88,6 +88,11 @@ class WavesPainter extends CustomPainter {
     final yMid = height * 0.86;
     final yNear = height * 0.90;
 
+    // Center baselines
+    final yCenterFar = height * 0.46;
+    final yCenterMid = height * 0.50;
+    final yCenterNear = height * 0.54;
+
     // Top baselines positioned near the top
     final yTopNear = height * 0.10;
     final yTopMid = height * 0.14;
@@ -114,6 +119,29 @@ class WavesPainter extends CustomPainter {
       wavelength: math.max(140.0, width * 0.60),
       speed: 1.2,
       phase: math.pi * 2 / 3,
+    );
+
+    // Center waves (subtle, same motion as bottom)
+    final centerFarPath = makeWaveBottom(
+      baseY: yCenterFar,
+      amplitude: math.max(6.0, height * 0.008),
+      wavelength: math.max(200.0, width * 1.0),
+      speed: 0.5,
+      phase: math.pi / 5,
+    );
+    final centerMidPath = makeWaveBottom(
+      baseY: yCenterMid,
+      amplitude: math.max(9.0, height * 0.012),
+      wavelength: math.max(180.0, width * 0.85),
+      speed: 0.7,
+      phase: math.pi / 2,
+    );
+    final centerNearPath = makeWaveBottom(
+      baseY: yCenterNear,
+      amplitude: math.max(12.0, height * 0.015),
+      wavelength: math.max(160.0, width * 0.75),
+      speed: 0.9,
+      phase: math.pi * 3 / 4,
     );
 
     // Top waves (moving right → left for mirrored motion)
@@ -153,6 +181,11 @@ class WavesPainter extends CustomPainter {
     canvas.drawPath(farPath, paintFar);
     canvas.drawPath(midPath, paintMid);
     canvas.drawPath(nearPath, paintNear);
+
+    // Draw center waves from farthest to nearest
+    canvas.drawPath(centerFarPath, paintFar);
+    canvas.drawPath(centerMidPath, paintMid);
+    canvas.drawPath(centerNearPath, paintNear);
 
     // Draw top waves from farthest to nearest
     canvas.drawPath(topFarPath, paintFar);
