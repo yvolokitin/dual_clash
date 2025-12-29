@@ -571,7 +571,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
       ),
     );
   }
-
+}
 
 Route<T> buildMainMenuRoute<T>({required WidgetBuilder builder}) {
   // Cover effect: slide in from left on push, slide out to left on pop
