@@ -13,6 +13,12 @@ class WavesPainter extends CustomPainter {
     return hsl.withLightness(lightness).toColor();
   }
 
+  Color _darken(Color c, [double amount = 0.10]) {
+    final hsl = HSLColor.fromColor(c);
+    final lightness = (hsl.lightness - amount).clamp(0.0, 1.0);
+    return hsl.withLightness(lightness).toColor();
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
     if (size.isEmpty) return;
@@ -76,9 +82,19 @@ class WavesPainter extends CustomPainter {
     }
 
     // Colors for layers (same palette, semi-transparent)
-    final farColor = _lighten(baseColor, 0.06).withOpacity(0.18);
-    final midColor = _lighten(baseColor, 0.12).withOpacity(0.22);
-    final nearColor = _lighten(baseColor, 0.18).withOpacity(0.26);
+    final topFarColor = _lighten(baseColor, 0.06).withOpacity(0.18);
+    final topMidColor = _lighten(baseColor, 0.12).withOpacity(0.22);
+    final topNearColor = _lighten(baseColor, 0.18).withOpacity(0.26);
+
+    final centerBase = _darken(baseColor, 0.20);
+    final centerFarColor = _lighten(centerBase, 0.06).withOpacity(0.18);
+    final centerMidColor = _lighten(centerBase, 0.12).withOpacity(0.22);
+    final centerNearColor = _lighten(centerBase, 0.18).withOpacity(0.26);
+
+    final bottomBase = _darken(baseColor, 0.40);
+    final bottomFarColor = _lighten(bottomBase, 0.06).withOpacity(0.18);
+    final bottomMidColor = _lighten(bottomBase, 0.12).withOpacity(0.22);
+    final bottomNearColor = _lighten(bottomBase, 0.18).withOpacity(0.26);
 
     final height = size.height;
     final width = size.width;
@@ -167,30 +183,50 @@ class WavesPainter extends CustomPainter {
       phase: math.pi * 2 / 3,
     );
 
-    final paintFar = Paint()
-      ..color = farColor
+    final paintTopFar = Paint()
+      ..color = topFarColor
       ..style = PaintingStyle.fill;
-    final paintMid = Paint()
-      ..color = midColor
+    final paintTopMid = Paint()
+      ..color = topMidColor
       ..style = PaintingStyle.fill;
-    final paintNear = Paint()
-      ..color = nearColor
+    final paintTopNear = Paint()
+      ..color = topNearColor
+      ..style = PaintingStyle.fill;
+
+    final paintCenterFar = Paint()
+      ..color = centerFarColor
+      ..style = PaintingStyle.fill;
+    final paintCenterMid = Paint()
+      ..color = centerMidColor
+      ..style = PaintingStyle.fill;
+    final paintCenterNear = Paint()
+      ..color = centerNearColor
+      ..style = PaintingStyle.fill;
+
+    final paintBottomFar = Paint()
+      ..color = bottomFarColor
+      ..style = PaintingStyle.fill;
+    final paintBottomMid = Paint()
+      ..color = bottomMidColor
+      ..style = PaintingStyle.fill;
+    final paintBottomNear = Paint()
+      ..color = bottomNearColor
       ..style = PaintingStyle.fill;
 
     // Draw bottom waves from farthest to nearest
-    canvas.drawPath(farPath, paintFar);
-    canvas.drawPath(midPath, paintMid);
-    canvas.drawPath(nearPath, paintNear);
+    canvas.drawPath(farPath, paintBottomFar);
+    canvas.drawPath(midPath, paintBottomMid);
+    canvas.drawPath(nearPath, paintBottomNear);
 
     // Draw center waves from farthest to nearest
-    canvas.drawPath(centerFarPath, paintFar);
-    canvas.drawPath(centerMidPath, paintMid);
-    canvas.drawPath(centerNearPath, paintNear);
+    canvas.drawPath(centerFarPath, paintCenterFar);
+    canvas.drawPath(centerMidPath, paintCenterMid);
+    canvas.drawPath(centerNearPath, paintCenterNear);
 
     // Draw top waves from farthest to nearest
-    canvas.drawPath(topFarPath, paintFar);
-    canvas.drawPath(topMidPath, paintMid);
-    canvas.drawPath(topNearPath, paintNear);
+    canvas.drawPath(topFarPath, paintTopFar);
+    canvas.drawPath(topMidPath, paintTopMid);
+    canvas.drawPath(topNearPath, paintTopNear);
 
     // Subtle shimmering crest highlight on the nearest bottom wave
     final crestPaint = Paint()
