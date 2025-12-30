@@ -24,4 +24,22 @@ void main() {
     expect(find.byTooltip('Main Menu'), findsOneWidget);
     expect(find.text('42'), findsOneWidget);
   });
+
+  testWidgets('support links show when premium is disabled on desktop',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({'has_premium': false});
+    final controller = GameController();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: GamePage(controller: controller),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Support the dev'), findsOneWidget);
+    expect(find.text('Patreon'), findsOneWidget);
+    expect(find.text('Boosty'), findsOneWidget);
+    expect(find.text('Ko-fi'), findsOneWidget);
+  });
 }
