@@ -254,6 +254,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                             await showAnimatedSettingsDialog(context: context, controller: controller);
                           },
                         ),
+/*
                         const SizedBox(height: 6),
                         _menuTile(
                           context,
@@ -276,6 +277,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                             await showAnimatedHistoryDialog(context: context, controller: controller);
                           },
                         ),
+  */
                         const SizedBox(height: 6),
                         _menuTile(
                           context,
@@ -307,6 +309,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                             await _buyPremium();
                           },
                         ),
+
                         if (Platform.isIOS) ...[
                           const SizedBox(height: 6),
                           _menuTile(
