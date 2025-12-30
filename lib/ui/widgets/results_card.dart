@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dual_clash/core/colors.dart';
 import 'package:dual_clash/logic/game_controller.dart';
@@ -14,6 +15,9 @@ class ResultsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final bool isCompact = size.width < 550;
+    final bool isMobilePlatform = !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS);
     final bg = AppColors.bg;
     final redBase = controller.scoreRedBase();
     final blueBase = controller.scoreBlueBase();
@@ -131,20 +135,21 @@ class ResultsCard extends StatelessWidget {
                           fontWeight: FontWeight.w900),
                     ),
                     const Spacer(),
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.08),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white24)),
-                      child: IconButton(
-                        padding: EdgeInsets.zero,
-                        iconSize: 20,
-                        icon: const Icon(Icons.close, color: Colors.white70),
-                        onPressed: () => Navigator.of(context).pop(),
+                    if (!isMobilePlatform)
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.08),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white24)),
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          iconSize: 20,
+                          icon: const Icon(Icons.close, color: Colors.white70),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
                       ),
-                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -252,7 +257,10 @@ class ResultsCard extends StatelessWidget {
                 if (!isDuel) ...[
                   const SizedBox(height: 12),
                   // Total user points summary per game outcome
-                  _TotalsSummary(controller: controller, winner: winner),
+                  _TotalsSummary(
+                      controller: controller,
+                      winner: winner,
+                      isMobilePlatform: isMobilePlatform),
                 ],
 
                 const SizedBox(height: 12),
@@ -291,7 +299,8 @@ class ResultsCard extends StatelessWidget {
     final Color countFillColor = isWinner
         ? AppColors.brandGold
         : Colors.white.withOpacity(isDisabled ? 0.08 : 0.14);
-    final double circleSize = 44;
+    const double circleSize = 44 * 1.2;
+    const double countFontSize = 14 * 1.2;
     final double overlap = circleSize / 2;
 
     final ColorFilter? filter = isDisabled
@@ -346,7 +355,9 @@ class ResultsCard extends StatelessWidget {
               child: Text(
                 '${data.count}',
                 style: TextStyle(
-                    color: countTextColor, fontWeight: FontWeight.w900),
+                    color: countTextColor,
+                    fontWeight: FontWeight.w900,
+                    fontSize: countFontSize),
               ),
             ),
           ),
@@ -418,7 +429,11 @@ class _ResultTileData {
 class _TotalsSummary extends StatelessWidget {
   final GameController controller;
   final CellState? winner;
-  const _TotalsSummary({required this.controller, required this.winner});
+  final bool isMobilePlatform;
+  const _TotalsSummary(
+      {required this.controller,
+      required this.winner,
+      required this.isMobilePlatform});
 
   @override
   Widget build(BuildContext context) {
@@ -426,14 +441,19 @@ class _TotalsSummary extends StatelessWidget {
     final before = controller.lastTotalBeforeAward;
     final awarded = controller.lastGamePointsAwarded;
     final won = winner == CellState.red;
+    final double fontScale = isMobilePlatform ? 1.2 : 1.0;
+    final double baseFontSize = 14 * fontScale;
+    final double accentFontSize = 14 * fontScale;
 
     Widget line1 = Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text('Your total points',
-            style:
-                TextStyle(color: Colors.white70, fontWeight: FontWeight.w700)),
-        AnimatedTotalCounter(value: total),
+        Text('Your total points',
+            style: TextStyle(
+                color: Colors.white70,
+                fontWeight: FontWeight.w700,
+                fontSize: baseFontSize)),
+        AnimatedTotalCounter(value: total, fontScale: fontScale),
       ],
     );
 
@@ -447,11 +467,14 @@ class _TotalsSummary extends StatelessWidget {
           children: [
             const Text('This game earned',
                 style: TextStyle(
-                    color: Colors.white70, fontWeight: FontWeight.w700)),
+                    color: Colors.white70,
+                    fontWeight: FontWeight.w700,
+                    fontSize: baseFontSize)),
             Text('+$awarded = $before → $newTotal',
-                style: const TextStyle(
+                style: TextStyle(
                     color: Colors.lightGreenAccent,
-                    fontWeight: FontWeight.w900)),
+                    fontWeight: FontWeight.w900,
+                    fontSize: accentFontSize)),
           ],
         ),
       );
@@ -465,30 +488,37 @@ class _TotalsSummary extends StatelessWidget {
             children: [
               const Text('Draw game: half points awarded',
                   style: TextStyle(
-                      color: Colors.white70, fontWeight: FontWeight.w700)),
+                      color: Colors.white70,
+                      fontWeight: FontWeight.w700,
+                      fontSize: baseFontSize)),
               Text('+$awarded = $before → $newTotal',
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: Colors.lightBlueAccent,
-                      fontWeight: FontWeight.w900)),
+                      fontWeight: FontWeight.w900,
+                      fontSize: accentFontSize)),
             ],
           ),
         );
       } else {
-        line2 = const Padding(
-          padding: EdgeInsets.only(top: 8.0),
+        line2 = Padding(
+          padding: const EdgeInsets.only(top: 8.0),
           child: Text('Draw game: your total remains the same.',
               textAlign: TextAlign.right,
               style: TextStyle(
-                  color: Colors.white70, fontWeight: FontWeight.w700)),
+                  color: Colors.white70,
+                  fontWeight: FontWeight.w700,
+                  fontSize: baseFontSize)),
         );
       }
     } else {
-      line2 = const Padding(
-        padding: EdgeInsets.only(top: 8.0),
+      line2 = Padding(
+        padding: const EdgeInsets.only(top: 8.0),
         child: Text('You lost: your total remained the same.',
             textAlign: TextAlign.right,
-            style:
-                TextStyle(color: Colors.white70, fontWeight: FontWeight.w700)),
+            style: TextStyle(
+                color: Colors.white70,
+                fontWeight: FontWeight.w700,
+                fontSize: baseFontSize)),
       );
     }
 
@@ -651,14 +681,17 @@ class _ResultsActions extends StatelessWidget {
       ];
     }
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        for (int i = 0; i < buttons.length; i++) ...[
-          if (i > 0) const SizedBox(width: 10),
-          buttons[i],
-        ]
-      ],
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          for (int i = 0; i < buttons.length; i++) ...[
+            if (i > 0) const SizedBox(height: 10),
+            buttons[i],
+          ]
+        ],
+      ),
     );
   }
 }
