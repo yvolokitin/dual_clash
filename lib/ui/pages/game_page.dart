@@ -364,6 +364,48 @@ class _GamePageState extends State<GamePage> {
           fontWeight: FontWeight.w800,
           color: const Color(0xFFE5AD3A),
         );
+        final double menuIconSize =
+            isMobile ? boardCellSize * 1.2 : boardCellSize;
+        final double pointsItemSize =
+            isMobile ? scoreItemSize * 1.2 : scoreItemSize;
+        final TextStyle pointsTextStyle = isMobile
+            ? _chipTextStyle.copyWith(
+                fontSize: _chipTextStyle.fontSize! * 1.2,
+                fontWeight: FontWeight.w900,
+              )
+            : _chipTextStyle;
+
+        Future<void> openStatistics() async {
+          await showAnimatedStatisticsDialog(
+              context: context, controller: controller);
+        }
+
+        final Widget playerCountsRow = Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('$redBase', style: _chipTextStyle),
+            const SizedBox(width: 6),
+            Image.asset('assets/icons/player_red.png',
+                width: scoreItemSize, height: scoreItemSize),
+            const SizedBox(width: 18),
+            Text('$neutralsCount', style: _chipTextStyle),
+            const SizedBox(width: 6),
+            Image.asset('assets/icons/player_grey.png',
+                width: scoreItemSize, height: scoreItemSize),
+            const SizedBox(width: 18),
+            Text('$blueBase', style: _chipTextStyle),
+            const SizedBox(width: 6),
+            _HoverScaleBox(
+              size: scoreItemSize,
+              onTap: () => _openAiDifficultySelector(context),
+              child: Image.asset(
+                'assets/icons/player_blue.png',
+                width: scoreItemSize,
+                height: scoreItemSize,
+              ),
+            ),
+          ],
+        );
 
         final Widget aiLevelRow = Column(
           mainAxisSize: MainAxisSize.min,
@@ -435,67 +477,104 @@ class _GamePageState extends State<GamePage> {
                       width: controller.boardPixelSize > 0
                           ? controller.boardPixelSize
                           : null,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Left side: main_menu.png icon + game points chip
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                padding: EdgeInsets.zero,
-                                constraints: BoxConstraints.tightFor(
-                                  width: boardCellSize,
-                                  height: boardCellSize,
+                      child: isMobile
+                          ? Column(
+                              key: const Key('score-row-mobile'),
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    IconButton(
+                                      padding: EdgeInsets.zero,
+                                      constraints: BoxConstraints.tightFor(
+                                        width: menuIconSize,
+                                        height: menuIconSize,
+                                      ),
+                                      icon: Image.asset(
+                                        'assets/icons/menu_pvai.png',
+                                        width: menuIconSize,
+                                        height: menuIconSize,
+                                      ),
+                                      tooltip: 'Main Menu',
+                                      onPressed: () async {
+                                        await mmd.showAnimatedMainMenuDialog(
+                                            context: context,
+                                            controller: controller);
+                                        await _reloadPremiumStatus();
+                                      },
+                                    ),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        GestureDetector(
+                                          onTap: openStatistics,
+                                          behavior: HitTestBehavior.opaque,
+                                          child: Image.asset(
+                                            'assets/icons/points-removebg.png',
+                                            width: pointsItemSize,
+                                            height: pointsItemSize,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 6),
+                                        GestureDetector(
+                                          onTap: openStatistics,
+                                          behavior: HitTestBehavior.opaque,
+                                          child: Text(
+                                            '${controller.redGamePoints}',
+                                            style: pointsTextStyle,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                                icon: Image.asset(
-                                  'assets/icons/menu_pvai.png',
-                                  width: boardCellSize,
-                                  height: boardCellSize,
+                                const SizedBox(height: 10),
+                                Center(child: playerCountsRow),
+                              ],
+                            )
+                          : Row(
+                              key: const Key('score-row-desktop'),
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                // Left side: main_menu.png icon + game points chip
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      padding: EdgeInsets.zero,
+                                      constraints: BoxConstraints.tightFor(
+                                        width: boardCellSize,
+                                        height: boardCellSize,
+                                      ),
+                                      icon: Image.asset(
+                                        'assets/icons/menu_pvai.png',
+                                        width: boardCellSize,
+                                        height: boardCellSize,
+                                      ),
+                                      tooltip: 'Main Menu',
+                                      onPressed: () async {
+                                        await mmd.showAnimatedMainMenuDialog(
+                                            context: context,
+                                            controller: controller);
+                                        await _reloadPremiumStatus();
+                                      },
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Image.asset(
+                                        'assets/icons/points-removebg.png',
+                                        width: scoreItemSize,
+                                        height: scoreItemSize),
+                                    const SizedBox(width: 6),
+                                    Text('${controller.redGamePoints}',
+                                        style: _chipTextStyle),
+                                  ],
                                 ),
-                                tooltip: 'Main Menu',
-                                onPressed: () async {
-                                  await mmd.showAnimatedMainMenuDialog(
-                                      context: context, controller: controller);
-                                  await _reloadPremiumStatus();
-                                },
-                              ),
-                              const SizedBox(width: 8),
-                              Image.asset('assets/icons/points-removebg.png',
-                                  width: scoreItemSize, height: scoreItemSize),
-                              const SizedBox(width: 6),
-                              Text('${controller.redGamePoints}', style: _chipTextStyle),
-                            ],
-                          ),
-                          // Right side: red, grey, blue counts
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text('$redBase', style: _chipTextStyle),
-                              const SizedBox(width: 6),
-                              Image.asset('assets/icons/player_red.png',
-                                  width: scoreItemSize, height: scoreItemSize),
-                              const SizedBox(width: 18),
-                              Text('$neutralsCount', style: _chipTextStyle),
-                              const SizedBox(width: 6),
-                              Image.asset('assets/icons/player_grey.png',
-                                  width: scoreItemSize, height: scoreItemSize),
-                              const SizedBox(width: 18),
-                              Text('$blueBase', style: _chipTextStyle),
-                              const SizedBox(width: 6),
-                              _HoverScaleBox(
-                                size: scoreItemSize,
-                                onTap: () => _openAiDifficultySelector(context),
-                                child: Image.asset(
-                                  'assets/icons/player_blue.png',
-                                  width: scoreItemSize,
-                                  height: scoreItemSize,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                                // Right side: red, grey, blue counts
+                                playerCountsRow,
+                              ],
+                            ),
                     ),
                   ),
                 ),
