@@ -332,6 +332,7 @@ Future<bool?> showLoadGameDialog({
             List<Map<String, dynamic>> localItems = initialItems;
             bool initialized = false;
             String? deletingId;
+            bool closing = false;
             return StatefulBuilder(
               builder: (context, setState) {
                 if (!initialized) {
@@ -478,18 +479,22 @@ Future<bool?> showLoadGameDialog({
                                                                 'assets/icons/play-removebg.png',
                                                                 width: 31,
                                                                 height: 31),
-                                                            onPressed:
-                                                                () async {
-                                                              await controller
-                                                                  .loadSavedGameById(
-                                                                      id);
-                                                              if (context
-                                                                  .mounted) {
-                                                                Navigator.of(
-                                                                        context)
-                                                                    .pop(true);
-                                                              }
-                                                            },
+                                            onPressed: () async {
+                                              if (closing) return;
+                                              closing = true;
+                                              await controller
+                                                  .loadSavedGameById(id);
+                                              if (context.mounted &&
+                                                  Navigator.of(
+                                                    context,
+                                                    rootNavigator: true,
+                                                  ).canPop()) {
+                                                Navigator.of(
+                                                  context,
+                                                  rootNavigator: true,
+                                                ).pop(true);
+                                              }
+                                            },
                                                           ),
                                                           const SizedBox(
                                                               width: 6),
@@ -580,12 +585,20 @@ Future<bool?> showLoadGameDialog({
                                                         ],
                                                       ),
                                                       onTap: () async {
+                                                        if (closing) return;
+                                                        closing = true;
                                                         await controller
                                                             .loadSavedGameById(
                                                                 id);
-                                                        if (context.mounted) {
-                                                          Navigator.of(context)
-                                                              .pop(true);
+                                                        if (context.mounted &&
+                                                            Navigator.of(
+                                                              context,
+                                                              rootNavigator: true,
+                                                            ).canPop()) {
+                                                          Navigator.of(
+                                                            context,
+                                                            rootNavigator: true,
+                                                          ).pop(true);
                                                         }
                                                       },
                                                     ),
