@@ -13,6 +13,7 @@ Future<void> showAnimatedSaveGameDialog({
   String saveButtonLabel = 'Save',
   String cancelButtonLabel = 'Cancel',
 }) {
+  bool closing = false;
   return showGeneralDialog(
     context: context,
     barrierDismissible: true,
@@ -26,6 +27,15 @@ Future<void> showAnimatedSaveGameDialog({
         curve: Curves.easeOutCubic,
         reverseCurve: Curves.easeInCubic,
       );
+      void handleSave(String name) async {
+        if (closing) return;
+        closing = true;
+        await Future<void>.sync(() => onSave(name));
+        if (Navigator.of(ctx, rootNavigator: true).canPop()) {
+          Navigator.of(ctx, rootNavigator: true).pop();
+        }
+      }
+
       return Stack(
         children: [
           // Soft blur backdrop
@@ -47,7 +57,7 @@ Future<void> showAnimatedSaveGameDialog({
                 child: SaveGameCard(
                   title: title,
                   initialName: initialName,
-                  onSave: onSave,
+                  onSave: handleSave,
                   nameLabel: nameLabel,
                   saveButtonLabel: saveButtonLabel,
                   cancelButtonLabel: cancelButtonLabel,
