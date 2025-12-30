@@ -226,9 +226,9 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                     ),
                                     MenuTile(
                                       key: _settingsTileKey,
-                                      imagePath: 'assets/icons/menu_profile.png',
+                                      imagePath: 'assets/icons/menu_settings.png',
                                       label: 'Settings',
-                                      color: const Color(0xFFC0C0C0),
+                                      color: const Color(0xFF7C3AED),
                                       onTap: () {
                                         showAnimatedSettingsMenuDialog(
                                           context: context,
