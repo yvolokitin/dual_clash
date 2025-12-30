@@ -103,6 +103,8 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
   }
 
   Future<void> _saveGame(BuildContext context) async {
+    final rootNavigator = Navigator.of(context, rootNavigator: true);
+    final rootContext = rootNavigator.context;
     final red = controller.scoreRedBase();
     final blue = controller.scoreBlueBase();
     final now = DateTime.now();
@@ -111,15 +113,12 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
     final defaultName =
         '${now.year}-${two(now.month)}-${two(now.day)}-${two(now.hour)}-${two(now.minute)}-${two(now.second)}-AI_${belt}-RED-${red}-BLUE-${blue}';
     await showAnimatedSaveGameDialog(
-      context: context,
+      context: rootContext,
       initialName: defaultName,
       onSave: (name) async {
         await controller.saveCurrentGame(name: name);
-        if (context.mounted) {
-          Navigator.of(context).pop();
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Game saved')));
-        }
+        final messenger = ScaffoldMessenger.maybeOf(rootContext);
+        messenger?.showSnackBar(const SnackBar(content: Text('Game saved')));
       },
     );
   }
