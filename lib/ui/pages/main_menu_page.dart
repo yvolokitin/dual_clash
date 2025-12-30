@@ -8,7 +8,9 @@ import '../widgets/main_menu/menu_tile.dart';
 import '../widgets/main_menu/profile_full_screen.dart';
 import '../widgets/main_menu/startup_hero_logo.dart';
 import '../widgets/main_menu/waves_painter.dart';
+import 'history_page.dart';
 import 'menu_page.dart' show showLoadGameDialog; // reuse existing dialog
+import 'settings_page.dart';
 import 'game_page.dart';
 import 'duel_page.dart';
 
@@ -24,12 +26,13 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
   final GlobalKey _duelTileKey = GlobalKey();
   final GlobalKey _gameTileKey = GlobalKey();
   final GlobalKey _loadTileKey = GlobalKey();
-  final GlobalKey _profileTileKey = GlobalKey();
+  final GlobalKey _playerHubTileKey = GlobalKey();
   Animation<double>? _bgAnim;
   VoidCallback? _bgAnimListener;
   bool _showContent = true; // hidden until startup animation completes
   static const Color _violet = Color(0xFF8A2BE2);
   static const Color _menuGreen = Color(0xFF22B14C);
+  static const Color _playerHubColor = Color(0xFF7C3AED);
 
   bool _isCompactWidth(BuildContext context) => MediaQuery.of(context).size.width < 430;
 
@@ -225,19 +228,12 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                       },
                                     ),
                                     MenuTile(
-                                      key: _profileTileKey,
-                                      imagePath: 'assets/icons/menu_profile.png',
-                                      label: 'Profile',
-                                      color: const Color(0xFFC0C0C0),
+                                      key: _playerHubTileKey,
+                                      imagePath: 'assets/icons/menu_settings.png',
+                                      label: compactLabels ? 'Hub' : 'Player Hub',
+                                      color: _playerHubColor,
                                       onTap: () {
-                                        // Open profile with a top → down slide
-                                        _pushWithSlide(
-                                          context,
-                                          ProfileFullScreen(
-                                            controller: controller,
-                                          ),
-                                          const Offset(0.0, -1.0),
-                                        );
+                                        _openPlayerHubFlyout(context, controller);
                                       },
                                     ),
                                   ],
@@ -262,7 +258,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
     Rect rect = Rect.zero;
     Rect gameRect = Rect.zero;
     Rect loadRect = Rect.zero;
-    Rect profileRect = Rect.zero;
+    Rect playerHubRect = Rect.zero;
     try {
       final ctxDuel = _duelTileKey.currentContext;
       if (ctxDuel != null) {
@@ -288,18 +284,22 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
           loadRect = Rect.fromLTWH(topLeft.dx, topLeft.dy, box.size.width, box.size.height);
         }
       }
-      final ctxProfile = _profileTileKey.currentContext;
-      if (ctxProfile != null) {
-        final box = ctxProfile.findRenderObject() as RenderBox?;
+      final ctxPlayerHub = _playerHubTileKey.currentContext;
+      if (ctxPlayerHub != null) {
+        final box = ctxPlayerHub.findRenderObject() as RenderBox?;
         if (box != null && box.hasSize) {
           final topLeft = box.localToGlobal(Offset.zero);
-          profileRect = Rect.fromLTWH(topLeft.dx, topLeft.dy, box.size.width, box.size.height);
+          playerHubRect =
+              Rect.fromLTWH(topLeft.dx, topLeft.dy, box.size.width, box.size.height);
         }
       }
     } catch (_) {}
 
     // Fallback: if we couldn't measure required rects, show the old top overlay
-    if (rect == Rect.zero || gameRect == Rect.zero || loadRect == Rect.zero || profileRect == Rect.zero) {
+    if (rect == Rect.zero ||
+        gameRect == Rect.zero ||
+        loadRect == Rect.zero ||
+        playerHubRect == Rect.zero) {
       await _openDuelModesOverlay(context, controller);
       return;
     }
@@ -308,7 +308,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
     final Rect duelRect = rect;
     final Rect targetGameRect = gameRect;
     final Rect targetLoadRect = loadRect;
-    final Rect targetProfileRect = profileRect;
+    final Rect targetPlayerHubRect = playerHubRect;
 
     await showGeneralDialog<void>(
       context: context,
@@ -338,7 +338,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
           builder: (context, _) {
             final r1 = _lerpRect(from, targetGameRect, curved.value);
             final r2 = _lerpRect(from, targetLoadRect, curved.value);
-            final r3 = _lerpRect(from, targetProfileRect, curved.value);
+            final r3 = _lerpRect(from, targetPlayerHubRect, curved.value);
             return Stack(
               children: [
                 // Tapping anywhere dismisses
@@ -406,7 +406,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                   ),
                 ),
 
-                // Quad → lands over Profile
+                // Quad → lands over Player Hub
                 Positioned(
                   left: r3.left,
                   top: r3.top,
@@ -438,6 +438,275 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
               ],
             );
           },
+        );
+      },
+    );
+  }
+
+  Future<void> _openPlayerHubFlyout(BuildContext context, GameController controller) async {
+    final compactLabels = _isCompactWidth(context);
+    Rect rect = Rect.zero;
+    Rect gameRect = Rect.zero;
+    Rect duelRect = Rect.zero;
+    Rect loadRect = Rect.zero;
+    try {
+      final ctxHub = _playerHubTileKey.currentContext;
+      if (ctxHub != null) {
+        final box = ctxHub.findRenderObject() as RenderBox?;
+        if (box != null && box.hasSize) {
+          final topLeft = box.localToGlobal(Offset.zero);
+          rect = Rect.fromLTWH(topLeft.dx, topLeft.dy, box.size.width, box.size.height);
+        }
+      }
+      final ctxGame = _gameTileKey.currentContext;
+      if (ctxGame != null) {
+        final box = ctxGame.findRenderObject() as RenderBox?;
+        if (box != null && box.hasSize) {
+          final topLeft = box.localToGlobal(Offset.zero);
+          gameRect = Rect.fromLTWH(topLeft.dx, topLeft.dy, box.size.width, box.size.height);
+        }
+      }
+      final ctxDuel = _duelTileKey.currentContext;
+      if (ctxDuel != null) {
+        final box = ctxDuel.findRenderObject() as RenderBox?;
+        if (box != null && box.hasSize) {
+          final topLeft = box.localToGlobal(Offset.zero);
+          duelRect = Rect.fromLTWH(topLeft.dx, topLeft.dy, box.size.width, box.size.height);
+        }
+      }
+      final ctxLoad = _loadTileKey.currentContext;
+      if (ctxLoad != null) {
+        final box = ctxLoad.findRenderObject() as RenderBox?;
+        if (box != null && box.hasSize) {
+          final topLeft = box.localToGlobal(Offset.zero);
+          loadRect = Rect.fromLTWH(topLeft.dx, topLeft.dy, box.size.width, box.size.height);
+        }
+      }
+    } catch (_) {}
+
+    if (rect == Rect.zero ||
+        gameRect == Rect.zero ||
+        duelRect == Rect.zero ||
+        loadRect == Rect.zero) {
+      await _openPlayerHubOverlay(context, controller);
+      return;
+    }
+
+    final Rect hubRect = rect;
+    final Rect targetGameRect = gameRect;
+    final Rect targetDuelRect = duelRect;
+    final Rect targetLoadRect = loadRect;
+
+    await showGeneralDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Player Hub',
+      barrierColor: Colors.black.withOpacity(0.4),
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),
+      transitionBuilder: (ctx, anim, a2, child) {
+        final curved = CurvedAnimation(
+          parent: anim,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic,
+        );
+
+        Rect _lerpRect(Rect a, Rect b, double t) {
+          final l = a.left + (b.left - a.left) * t;
+          final tY = a.top + (b.top - a.top) * t;
+          final w = a.width + (b.width - a.width) * t;
+          final h = a.height + (b.height - a.height) * t;
+          return Rect.fromLTWH(l, tY, w, h);
+        }
+
+        return AnimatedBuilder(
+          animation: curved,
+          builder: (context, _) {
+            final r1 = _lerpRect(hubRect, targetGameRect, curved.value);
+            final r2 = _lerpRect(hubRect, targetDuelRect, curved.value);
+            final r3 = _lerpRect(hubRect, targetLoadRect, curved.value);
+            return Stack(
+              children: [
+                Positioned.fill(
+                  child: GestureDetector(onTap: () => Navigator.of(ctx).pop()),
+                ),
+                Positioned(
+                  left: r1.left,
+                  top: r1.top,
+                  width: r1.width,
+                  height: r1.height,
+                  child: FadeTransition(
+                    opacity: curved,
+                    child: ScaleTransition(
+                      scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
+                      child: FlyoutTile(
+                        imagePath: 'assets/icons/menu_profile.png',
+                        label: 'Profile',
+                        disabled: false,
+                        color: const Color(0xFFC0C0C0),
+                        onTap: () {
+                          Navigator.of(ctx).pop();
+                          _pushWithSlide(
+                            context,
+                            ProfileFullScreen(controller: controller),
+                            const Offset(0.0, -1.0),
+                          );
+                        },
+                        width: r1.width,
+                        height: r1.height,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: r2.left,
+                  top: r2.top,
+                  width: r2.width,
+                  height: r2.height,
+                  child: FadeTransition(
+                    opacity: curved,
+                    child: ScaleTransition(
+                      scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
+                      child: FlyoutTile(
+                        imagePath: 'assets/icons/menu_language.png',
+                        label: 'Language',
+                        disabled: false,
+                        color: AppColors.blue,
+                        onTap: () {
+                          Navigator.of(ctx).pop();
+                          showAnimatedSettingsDialog(
+                            context: context,
+                            controller: controller,
+                          );
+                        },
+                        width: r2.width,
+                        height: r2.height,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: r3.left,
+                  top: r3.top,
+                  width: r3.width,
+                  height: r3.height,
+                  child: FadeTransition(
+                    opacity: curved,
+                    child: ScaleTransition(
+                      scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
+                      child: FlyoutTile(
+                        imagePath: 'assets/icons/menu_history.png',
+                        label: 'History',
+                        disabled: false,
+                        color: Colors.orange,
+                        onTap: () {
+                          Navigator.of(ctx).pop();
+                          showAnimatedHistoryDialog(
+                            context: context,
+                            controller: controller,
+                          );
+                        },
+                        width: r3.width,
+                        height: r3.height,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _openPlayerHubOverlay(BuildContext context, GameController controller) async {
+    await showGeneralDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Player Hub',
+      barrierColor: Colors.black.withOpacity(0.55),
+      transitionDuration: const Duration(milliseconds: 260),
+      pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),
+      transitionBuilder: (ctx, anim, a2, child) {
+        final curved = CurvedAnimation(
+          parent: anim,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic,
+        );
+        return Center(
+          child: FadeTransition(
+            opacity: curved,
+            child: ScaleTransition(
+              scale: Tween<double>(begin: 0.96, end: 1.0).animate(curved),
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 24.0, left: 16, right: 16),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 720),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          FlyoutTile(
+                            imagePath: 'assets/icons/menu_profile.png',
+                            label: 'Profile',
+                            disabled: false,
+                            width: 190,
+                            height: 170,
+                            color: const Color(0xFFC0C0C0),
+                            onTap: () {
+                              Navigator.of(ctx).pop();
+                              _pushWithSlide(
+                                context,
+                                ProfileFullScreen(controller: controller),
+                                const Offset(0.0, -1.0),
+                              );
+                            },
+                          ),
+                          const SizedBox(width: 14),
+                          FlyoutTile(
+                            imagePath: 'assets/icons/menu_language.png',
+                            label: 'Language',
+                            disabled: false,
+                            width: 190,
+                            height: 170,
+                            color: AppColors.blue,
+                            onTap: () {
+                              Navigator.of(ctx).pop();
+                              showAnimatedSettingsDialog(
+                                context: context,
+                                controller: controller,
+                              );
+                            },
+                          ),
+                          const SizedBox(width: 14),
+                          FlyoutTile(
+                            imagePath: 'assets/icons/menu_history.png',
+                            label: 'History',
+                            disabled: false,
+                            width: 190,
+                            height: 170,
+                            color: Colors.orange,
+                            onTap: () {
+                              Navigator.of(ctx).pop();
+                              showAnimatedHistoryDialog(
+                                context: context,
+                                controller: controller,
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
         );
       },
     );
