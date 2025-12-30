@@ -241,7 +241,11 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                             controller: controller,
                                           );
                                           if (ok == true && context.mounted) {
-                                            Navigator.of(context).pop('loaded');
+                                            await _pushWithSlide(
+                                              context,
+                                              GamePage(controller: controller),
+                                              const Offset(-1.0, 0.0),
+                                            );
                                           }
                                         });
                                       },
