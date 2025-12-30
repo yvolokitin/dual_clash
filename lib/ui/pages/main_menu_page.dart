@@ -5,11 +5,11 @@ import '../../logic/game_controller.dart';
 import '../../core/colors.dart';
 import '../widgets/main_menu/flyout_tile.dart';
 import '../widgets/main_menu/menu_tile.dart';
-import '../widgets/main_menu/profile_full_screen.dart';
 import '../widgets/main_menu/startup_hero_logo.dart';
 import '../widgets/main_menu/waves_painter.dart';
 import 'history_page.dart';
 import 'menu_page.dart' show showLoadGameDialog; // reuse existing dialog
+import 'profile_page.dart';
 import 'settings_page.dart';
 import 'game_page.dart';
 import 'duel_page.dart';
@@ -546,10 +546,9 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         color: AppColors.red,
                         onTap: () {
                           Navigator.of(ctx).pop();
-                          _pushWithSlide(
-                            context,
-                            ProfileFullScreen(controller: controller),
-                            const Offset(0.0, -1.0),
+                          showAnimatedProfileDialog(
+                            context: context,
+                            controller: controller,
                           );
                         },
                         width: r1.width,
@@ -660,10 +659,9 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                             color: AppColors.red,
                             onTap: () {
                               Navigator.of(ctx).pop();
-                              _pushWithSlide(
-                                context,
-                                ProfileFullScreen(controller: controller),
-                                const Offset(0.0, -1.0),
+                              showAnimatedProfileDialog(
+                                context: context,
+                                controller: controller,
                               );
                             },
                           ),
