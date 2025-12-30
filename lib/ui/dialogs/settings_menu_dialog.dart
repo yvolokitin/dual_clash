@@ -120,6 +120,7 @@ Future<void> showAnimatedSettingsMenuDialog({
                               icon: Icons.person_outline,
                               label: 'Profile',
                               onTap: () async {
+                                Navigator.of(context).pop();
                                 await showAnimatedProfileDialog(
                                   context: context,
                                   controller: controller,
@@ -130,6 +131,7 @@ Future<void> showAnimatedSettingsMenuDialog({
                               icon: Icons.language,
                               label: 'Language',
                               onTap: () async {
+                                Navigator.of(context).pop();
                                 await showAnimatedLanguageDialog(
                                   context: context,
                                   controller: controller,
@@ -140,6 +142,7 @@ Future<void> showAnimatedSettingsMenuDialog({
                               icon: Icons.history,
                               label: 'History',
                               onTap: () async {
+                                Navigator.of(context).pop();
                                 await showAnimatedHistoryDialog(
                                   context: context,
                                   controller: controller,
