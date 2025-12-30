@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 /// Now uses an odometer-like rolling digit animation on changes.
 class AnimatedTotalCounter extends StatefulWidget {
   final int value;
-  const AnimatedTotalCounter({super.key, required this.value});
+  final double fontScale;
+  const AnimatedTotalCounter({super.key, required this.value, this.fontScale = 1.0});
 
   @override
   State<AnimatedTotalCounter> createState() => _AnimatedTotalCounterState();
@@ -34,6 +35,7 @@ class _AnimatedTotalCounterState extends State<AnimatedTotalCounter> {
   Widget build(BuildContext context) {
     final increased = _delta > 0;
     final decreased = _delta < 0;
+    final double fontSize = 20 * widget.fontScale;
     final color = increased
         ? Colors.lightGreenAccent
         : decreased
@@ -64,7 +66,7 @@ class _AnimatedTotalCounterState extends State<AnimatedTotalCounter> {
                     value: widget.value,
                     previousValue: _oldValue,
                     textStyle: TextStyle(
-                        fontSize: 20,
+                        fontSize: fontSize,
                         fontWeight: FontWeight.w900,
                         color: color,
                         letterSpacing: 0.5),
