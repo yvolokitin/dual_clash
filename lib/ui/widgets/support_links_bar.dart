@@ -37,7 +37,8 @@ class SupportLinksBar extends StatelessWidget {
 
   final List<SupportLink> links;
 
-  const SupportLinksBar({super.key, this.links = defaultLinks});
+  SupportLinksBar({super.key, List<SupportLink>? links})
+      : links = links ?? defaultLinks;
 
   @override
   Widget build(BuildContext context) {

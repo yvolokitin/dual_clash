@@ -251,9 +251,9 @@ class _GamePageState extends State<GamePage> {
           ),
         );
       }
-      return const SupportLinksBar();
+      return SupportLinksBar();
     }
-    return const SupportLinksBar();
+    return SupportLinksBar();
   }
 
   @override
