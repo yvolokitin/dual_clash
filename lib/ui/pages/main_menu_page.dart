@@ -543,7 +543,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         imagePath: 'assets/icons/menu_profile.png',
                         label: 'Profile',
                         disabled: false,
-                        color: const Color(0xFFC0C0C0),
+                        color: AppColors.red,
                         onTap: () {
                           Navigator.of(ctx).pop();
                           _pushWithSlide(
@@ -657,7 +657,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                             disabled: false,
                             width: 190,
                             height: 170,
-                            color: const Color(0xFFC0C0C0),
+                            color: AppColors.red,
                             onTap: () {
                               Navigator.of(ctx).pop();
                               _pushWithSlide(
