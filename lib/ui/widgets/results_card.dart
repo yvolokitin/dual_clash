@@ -465,7 +465,7 @@ class _TotalsSummary extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('This game earned',
+            Text('This game earned',
                 style: TextStyle(
                     color: Colors.white70,
                     fontWeight: FontWeight.w700,
@@ -486,7 +486,7 @@ class _TotalsSummary extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Draw game: half points awarded',
+              Text('Draw game: half points awarded',
                   style: TextStyle(
                       color: Colors.white70,
                       fontWeight: FontWeight.w700,
