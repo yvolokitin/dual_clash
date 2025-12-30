@@ -390,14 +390,12 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         disabled: false,
                         color: AppColors.blue,
                         onTap: () {
-                          _runMenuAction(() async {
-                            Navigator.of(ctx).pop();
-                            await _pushWithSlide(
-                              context,
-                              DuelPage(controller: controller),
-                              const Offset(1.0, 0.0),
-                            );
-                          });
+                          Navigator.of(ctx).pop();
+                          _pushWithSlide(
+                            context,
+                            DuelPage(controller: controller),
+                            const Offset(1.0, 0.0),
+                          );
                         },
                         width: r1.width,
                         height: r1.height,
@@ -422,14 +420,12 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         disabled: false,
                         color: AppColors.yellow,
                         onTap: () {
-                          _runMenuAction(() async {
-                            Navigator.of(ctx).pop();
-                            await _pushWithSlide(
-                              context,
-                              DuelPage(controller: controller, playerCount: 3),
-                              const Offset(1.0, 0.0),
-                            );
-                          });
+                          Navigator.of(ctx).pop();
+                          _pushWithSlide(
+                            context,
+                            DuelPage(controller: controller, playerCount: 3),
+                            const Offset(1.0, 0.0),
+                          );
                         },
                         width: r2.width,
                         height: r2.height,
@@ -454,14 +450,12 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         disabled: false,
                         color: AppColors.green,
                         onTap: () {
-                          _runMenuAction(() async {
-                            Navigator.of(ctx).pop();
-                            await _pushWithSlide(
-                              context,
-                              DuelPage(controller: controller, playerCount: 4),
-                              const Offset(1.0, 0.0),
-                            );
-                          });
+                          Navigator.of(ctx).pop();
+                          _pushWithSlide(
+                            context,
+                            DuelPage(controller: controller, playerCount: 4),
+                            const Offset(1.0, 0.0),
+                          );
                         },
                         width: r3.width,
                         height: r3.height,
@@ -579,13 +573,11 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         disabled: false,
                         color: AppColors.red,
                         onTap: () {
-                          _runMenuAction(() async {
-                            Navigator.of(ctx).pop();
-                            await showAnimatedProfileDialog(
-                              context: context,
-                              controller: controller,
-                            );
-                          });
+                          Navigator.of(ctx).pop();
+                          showAnimatedProfileDialog(
+                            context: context,
+                            controller: controller,
+                          );
                         },
                         width: r1.width,
                         height: r1.height,
@@ -608,13 +600,11 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         disabled: false,
                         color: AppColors.blue,
                         onTap: () {
-                          _runMenuAction(() async {
-                            Navigator.of(ctx).pop();
-                            await showAnimatedSettingsDialog(
-                              context: context,
-                              controller: controller,
-                            );
-                          });
+                          Navigator.of(ctx).pop();
+                          showAnimatedSettingsDialog(
+                            context: context,
+                            controller: controller,
+                          );
                         },
                         width: r2.width,
                         height: r2.height,
@@ -637,13 +627,11 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         disabled: false,
                         color: Colors.orange,
                         onTap: () {
-                          _runMenuAction(() async {
-                            Navigator.of(ctx).pop();
-                            await showAnimatedHistoryDialog(
-                              context: context,
-                              controller: controller,
-                            );
-                          });
+                          Navigator.of(ctx).pop();
+                          showAnimatedHistoryDialog(
+                            context: context,
+                            controller: controller,
+                          );
                         },
                         width: r3.width,
                         height: r3.height,
@@ -698,13 +686,11 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                             height: 170,
                             color: AppColors.red,
                             onTap: () {
-                              _runMenuAction(() async {
-                                Navigator.of(ctx).pop();
-                                await showAnimatedProfileDialog(
-                                  context: context,
-                                  controller: controller,
-                                );
-                              });
+                              Navigator.of(ctx).pop();
+                              showAnimatedProfileDialog(
+                                context: context,
+                                controller: controller,
+                              );
                             },
                           ),
                           const SizedBox(width: 14),
@@ -716,13 +702,11 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                             height: 170,
                             color: AppColors.blue,
                             onTap: () {
-                              _runMenuAction(() async {
-                                Navigator.of(ctx).pop();
-                                await showAnimatedSettingsDialog(
-                                  context: context,
-                                  controller: controller,
-                                );
-                              });
+                              Navigator.of(ctx).pop();
+                              showAnimatedSettingsDialog(
+                                context: context,
+                                controller: controller,
+                              );
                             },
                           ),
                           const SizedBox(width: 14),
@@ -734,13 +718,11 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                             height: 170,
                             color: Colors.orange,
                             onTap: () {
-                              _runMenuAction(() async {
-                                Navigator.of(ctx).pop();
-                                await showAnimatedHistoryDialog(
-                                  context: context,
-                                  controller: controller,
-                                );
-                              });
+                              Navigator.of(ctx).pop();
+                              showAnimatedHistoryDialog(
+                                context: context,
+                                controller: controller,
+                              );
                             },
                           ),
                         ],
@@ -796,14 +778,12 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                             height: 170,
                             color: AppColors.blue,
                             onTap: () {
-                              _runMenuAction(() async {
-                                Navigator.of(ctx).pop();
-                                await _pushWithSlide(
-                                  context,
-                                  DuelPage(controller: controller),
-                                  const Offset(1.0, 0.0),
-                                );
-                              });
+                              Navigator.of(ctx).pop();
+                              _pushWithSlide(
+                                context,
+                                DuelPage(controller: controller),
+                                const Offset(1.0, 0.0),
+                              );
                             },
                           ),
                           const SizedBox(width: 14),
@@ -815,17 +795,15 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                             height: 170,
                             color: AppColors.yellow,
                             onTap: () {
-                              _runMenuAction(() async {
-                                Navigator.of(ctx).pop();
-                                await _pushWithSlide(
-                                  context,
-                                  DuelPage(
-                                    controller: controller,
-                                    playerCount: 3,
-                                  ),
-                                  const Offset(1.0, 0.0),
-                                );
-                              });
+                              Navigator.of(ctx).pop();
+                              _pushWithSlide(
+                                context,
+                                DuelPage(
+                                  controller: controller,
+                                  playerCount: 3,
+                                ),
+                                const Offset(1.0, 0.0),
+                              );
                             },
                           ),
                           const SizedBox(width: 14),
@@ -837,17 +815,15 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                             height: 170,
                             color: AppColors.green,
                             onTap: () {
-                              _runMenuAction(() async {
-                                Navigator.of(ctx).pop();
-                                await _pushWithSlide(
-                                  context,
-                                  DuelPage(
-                                    controller: controller,
-                                    playerCount: 4,
-                                  ),
-                                  const Offset(1.0, 0.0),
-                                );
-                              });
+                              Navigator.of(ctx).pop();
+                              _pushWithSlide(
+                                context,
+                                DuelPage(
+                                  controller: controller,
+                                  playerCount: 4,
+                                ),
+                                const Offset(1.0, 0.0),
+                              );
                             },
                           ),
                         ],
