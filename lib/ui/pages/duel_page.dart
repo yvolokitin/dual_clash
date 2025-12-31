@@ -7,6 +7,7 @@ import 'package:dual_clash/core/constants.dart';
 import 'package:dual_clash/models/cell_state.dart';
 import 'package:dual_clash/logic/rules_engine.dart';
 import 'package:dual_clash/ui/widgets/board_widget.dart';
+import 'package:dual_clash/ui/dialogs/main_menu_dialog.dart' as mmd;
 import 'package:dual_clash/ui/dialogs/results_dialog.dart' as results;
 
 class DuelPage extends StatefulWidget {
@@ -285,12 +286,12 @@ class _DuelPageState extends State<DuelPage> {
                                   width: boardCellSize,
                                   height: boardCellSize,
                                 ),
-                                tooltip: 'Main Menu',
+                                tooltip: 'Menu',
                                 onPressed: () async {
-                                  final ok = await _confirmLeaveDuel(context);
-                                  if (ok) {
-                                    if (context.mounted) Navigator.of(context).pop();
-                                  }
+                                  await mmd.showAnimatedMainMenuDialog(
+                                      context: context,
+                                      controller: controller,
+                                      config: const mmd.MenuDialogConfig.duel());
                                 },
                               ),
                             ],
