@@ -351,14 +351,14 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
             defaultTargetPlatform == TargetPlatform.iOS);
     final bool isTabletDevice = isTablet(context);
     final bool isPhoneFullscreen = isMobilePlatform && !isTabletDevice;
-    final double topInset =
-        isPhoneFullscreen ? MediaQuery.of(context).padding.top + 20 : 0;
     final EdgeInsets dialogInsetPadding = isPhoneFullscreen
-        ? EdgeInsets.only(top: topInset)
+        ? EdgeInsets.zero
         : EdgeInsets.symmetric(
             horizontal: size.width * 0.1, vertical: size.height * 0.1);
     final BorderRadius dialogRadius =
         BorderRadius.circular(isPhoneFullscreen ? 0 : 22);
+    final EdgeInsets contentPadding = EdgeInsets.fromLTRB(
+        18, isPhoneFullscreen ? 20 : 18, 18, 18);
     return Dialog(
       insetPadding: dialogInsetPadding,
       backgroundColor: Colors.transparent,
@@ -384,16 +384,15 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
           constraints: BoxConstraints(
             maxWidth: isPhoneFullscreen ? size.width : size.width * 0.8,
             maxHeight:
-                isPhoneFullscreen ? size.height - topInset : size.height * 0.8,
+                isPhoneFullscreen ? size.height : size.height * 0.8,
             minWidth: isPhoneFullscreen ? size.width : 0,
-            minHeight:
-                isPhoneFullscreen ? size.height - topInset : 0,
+            minHeight: isPhoneFullscreen ? size.height : 0,
           ),
           child: SafeArea(
-            top: false,
+            top: isPhoneFullscreen,
             bottom: isPhoneFullscreen,
             child: Padding(
-              padding: const EdgeInsets.all(18.0),
+              padding: contentPadding,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -598,6 +597,29 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                               onTap: () async {
                                 await _iap?.restorePurchases();
                               },
+                            ),
+                          ],
+                          if (isPhoneFullscreen) ...[
+                            const SizedBox(height: 12),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: ElevatedButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.brandGold,
+                                  foregroundColor: const Color(0xFF2B221D),
+                                  shadowColor: Colors.black54,
+                                  elevation: 4,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(24)),
+                                  textStyle: const TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: 0.2),
+                                ),
+                                child: const Text('Close'),
+                              ),
                             ),
                           ],
                       ],
