@@ -36,8 +36,9 @@ class SupportLinksBar extends StatelessWidget {
   ];
 
   final List<SupportLink> links;
+  final double? height;
 
-  SupportLinksBar({super.key, List<SupportLink>? links})
+  SupportLinksBar({super.key, List<SupportLink>? links, this.height})
       : links = links ?? defaultLinks;
 
   @override
@@ -46,7 +47,7 @@ class SupportLinksBar extends StatelessWidget {
       bottom: true,
       top: false,
       child: SizedBox(
-        height: 100,
+        height: height ?? 100,
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 520),

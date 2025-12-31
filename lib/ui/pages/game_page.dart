@@ -109,6 +109,7 @@ class GamePageLayoutMetrics {
 
 class _GamePageState extends State<GamePage> {
   BannerAd? _bannerAd;
+  AdSize? _adaptiveBannerSize;
   bool _isAdLoaded = false;
   bool _hasPremium = false;
   bool _isLoadingAd = false;
@@ -149,11 +150,10 @@ class _GamePageState extends State<GamePage> {
     });
     if (!hasPremium) {
       _startAdRetryTimer();
-      await _loadBannerIfEligible();
     }
   }
 
-  Future<void> _reloadPremiumStatus() async {
+  Future<void> _reloadPremiumStatus(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     final hasPremium = prefs.getBool('has_premium') ?? false;
     if (!mounted) return;
@@ -167,7 +167,7 @@ class _GamePageState extends State<GamePage> {
       });
     } else if (!hasPremium && !_hasPremium && _bannerAd == null) {
       _startAdRetryTimer();
-      await _loadBannerIfEligible();
+      await _loadBannerIfEligible(context);
     }
   }
 
@@ -177,7 +177,8 @@ class _GamePageState extends State<GamePage> {
     if (_adRetryTimer?.isActive ?? false) return;
     _adRetryTimer = Timer.periodic(const Duration(seconds: 15), (_) async {
       if (_hasPremium || _isAdLoaded || _bannerAd != null) return;
-      await _loadBannerIfEligible();
+      if (!mounted) return;
+      await _loadBannerIfEligible(context);
     });
   }
 
@@ -191,23 +192,37 @@ class _GamePageState extends State<GamePage> {
     }
   }
 
-  Future<void> _loadBannerIfEligible() async {
+  Future<void> _loadBannerIfEligible(BuildContext context) async {
     if (!(Platform.isAndroid || Platform.isIOS)) return;
     if (_hasPremium) return;
     if (_bannerAd != null) return;
     if (_isLoadingAd) return;
+    final bannerWidth = MediaQuery.of(context).size.width.truncate();
+    if (bannerWidth <= 0) return;
     _isLoadingAd = true;
     final hasNetwork = await _hasNetwork();
     if (!hasNetwork) {
       _isLoadingAd = false;
       return;
     }
+    final adaptiveSize =
+        await AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(
+            bannerWidth);
+    if (adaptiveSize == null) {
+      _isLoadingAd = false;
+      return;
+    }
+    if (mounted && _adaptiveBannerSize != adaptiveSize) {
+      setState(() {
+        _adaptiveBannerSize = adaptiveSize;
+      });
+    }
     final adUnitId = Platform.isAndroid
         ? 'ca-app-pub-3940256099942544/9214589741'
         : 'ca-app-pub-3940256099942544/2435281174';
     final banner = BannerAd(
       adUnitId: adUnitId,
-      size: AdSize.largeBanner,
+      size: adaptiveSize,
       request: const AdRequest(),
       listener: BannerAdListener(
         onAdLoaded: (ad) {
@@ -226,6 +241,32 @@ class _GamePageState extends State<GamePage> {
       ),
     );
     await banner.load();
+  }
+
+  Future<void> _resolveAdaptiveBannerSize(BuildContext context) async {
+    if (_adaptiveBannerSize != null) return;
+    final bannerWidth = MediaQuery.of(context).size.width.truncate();
+    if (bannerWidth <= 0) return;
+    final adaptiveSize =
+        await AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(
+            bannerWidth);
+    if (!mounted || adaptiveSize == null) return;
+    if (_adaptiveBannerSize != adaptiveSize) {
+      setState(() {
+        _adaptiveBannerSize = adaptiveSize;
+      });
+    }
+  }
+
+  void _scheduleBannerLoad(BuildContext context) {
+    if (!(Platform.isAndroid || Platform.isIOS)) return;
+    if (_hasPremium) return;
+    if (_bannerAd != null || _isLoadingAd) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _resolveAdaptiveBannerSize(context);
+      _loadBannerIfEligible(context);
+    });
   }
 
   Widget _buildBottomBar(BuildContext context) {
@@ -251,7 +292,9 @@ class _GamePageState extends State<GamePage> {
           ),
         );
       }
-      return SupportLinksBar();
+      return SupportLinksBar(
+        height: _adaptiveBannerSize?.height.toDouble(),
+      );
     }
     return SupportLinksBar();
   }
@@ -261,6 +304,7 @@ class _GamePageState extends State<GamePage> {
     return AnimatedBuilder(
       animation: controller,
       builder: (context, _) {
+        _scheduleBannerLoad(context);
         final redBase = controller.scoreRedBase();
         final blueBase = controller.scoreBlueBase();
         final neutralsCount =
@@ -300,7 +344,7 @@ class _GamePageState extends State<GamePage> {
                   onOpenMenu: () async {
                     await mmd.showAnimatedMainMenuDialog(
                         context: context, controller: controller);
-                    await _reloadPremiumStatus();
+                    await _reloadPremiumStatus(context);
                   },
                   onOpenStatistics: openStatistics,
                   onOpenAiSelector: () => showAiDifficultyDialog(
