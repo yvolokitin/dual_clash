@@ -814,54 +814,120 @@ class GameController extends ChangeNotifier {
     resultsShown = false; // allow results dialog after end
     isSimulating = true; // newGame() resets flags
 
-    // Choose a random winner (no draws)
     final rnd = math.Random();
-    final bool redWins = rnd.nextBool();
-
-    // Optionally randomize who started this simulated game
-    startingPlayer = rnd.nextBool() ? CellState.red : CellState.blue;
-    current = startingPlayer;
-
-    // Build a random full board with slightly more cells for the chosen winner
     final int n = K.n;
     final int total = n * n;
-    int redCountTarget;
-    int blueCountTarget;
-    // Ensure at least 1-cell advantage for the winner; bias by up to ~10% of board
-    final int bias = 1 + rnd.nextInt(math.max(2, total ~/ 10));
-    if (redWins) {
-      redCountTarget = (total ~/ 2) + bias;
-      blueCountTarget = total - redCountTarget;
+
+    if (humanVsHuman) {
+      final players = activePlayers;
+      final int playerCount = players.length;
+      int neutralCountTarget = rnd.nextInt(math.max(1, total ~/ 8 + 1));
+      int remaining = total - neutralCountTarget;
+      const int minPerPlayer = 1;
+      if (remaining < playerCount * minPerPlayer) {
+        neutralCountTarget = 0;
+        remaining = total;
+      }
+
+      final CellState winner = players[rnd.nextInt(playerCount)];
+      final int bias = 1 + rnd.nextInt(math.max(2, remaining ~/ 10));
+      final int maxWinner = remaining - (playerCount - 1) * minPerPlayer;
+      int winnerCount = (remaining ~/ playerCount) + bias;
+      if (winnerCount > maxWinner) {
+        winnerCount = maxWinner;
+      }
+
+      final List<int> counts = List<int>.filled(playerCount, minPerPlayer);
+      final int winnerIndex = players.indexOf(winner);
+      counts[winnerIndex] = winnerCount;
+      int remainingForOthers =
+          remaining - winnerCount - minPerPlayer * (playerCount - 1);
+      while (remainingForOthers > 0) {
+        final int idx = rnd.nextInt(playerCount - 1);
+        final int targetIndex = idx >= winnerIndex ? idx + 1 : idx;
+        counts[targetIndex] += 1;
+        remainingForOthers--;
+      }
+
+      final flat = <CellState>[];
+      for (int i = 0; i < players.length; i++) {
+        flat.addAll(List<CellState>.filled(counts[i], players[i]));
+      }
+      flat.addAll(
+          List<CellState>.filled(neutralCountTarget, CellState.neutral));
+      flat.shuffle(rnd);
+
+      final newBoard = List<List<CellState>>.generate(
+          n, (_) => List<CellState>.filled(n, CellState.empty));
+      for (int i = 0; i < total; i++) {
+        final r = i ~/ n;
+        final c = i % n;
+        newBoard[r][c] = flat[i];
+      }
+      board = newBoard;
+
+      startingPlayer = players[rnd.nextInt(playerCount)];
+      current = startingPlayer;
+
+      turnsRed = players.contains(CellState.red)
+          ? counts[players.indexOf(CellState.red)]
+          : 0;
+      turnsBlue = players.contains(CellState.blue)
+          ? counts[players.indexOf(CellState.blue)]
+          : 0;
+      turnsYellow = players.contains(CellState.yellow)
+          ? counts[players.indexOf(CellState.yellow)]
+          : 0;
+      turnsGreen = players.contains(CellState.green)
+          ? counts[players.indexOf(CellState.green)]
+          : 0;
     } else {
-      blueCountTarget = (total ~/ 2) + bias;
-      redCountTarget = total - blueCountTarget;
+      // Choose a random winner (no draws)
+      final bool redWins = rnd.nextBool();
+
+      // Optionally randomize who started this simulated game
+      startingPlayer = rnd.nextBool() ? CellState.red : CellState.blue;
+      current = startingPlayer;
+
+      // Build a random full board with slightly more cells for the chosen winner
+      int redCountTarget;
+      int blueCountTarget;
+      // Ensure at least 1-cell advantage for the winner; bias by up to ~10% of board
+      final int bias = 1 + rnd.nextInt(math.max(2, total ~/ 10));
+      if (redWins) {
+        redCountTarget = (total ~/ 2) + bias;
+        blueCountTarget = total - redCountTarget;
+      } else {
+        blueCountTarget = (total ~/ 2) + bias;
+        redCountTarget = total - blueCountTarget;
+      }
+      // Clamp just in case
+      redCountTarget = redCountTarget.clamp(0, total);
+      blueCountTarget = total - redCountTarget;
+
+      // Create flat list and shuffle
+      final flat = <CellState>[]
+        ..addAll(List<CellState>.filled(redCountTarget, CellState.red))
+        ..addAll(List<CellState>.filled(blueCountTarget, CellState.blue));
+      flat.shuffle(rnd);
+
+      // Fill board
+      final newBoard = List<List<CellState>>.generate(
+          n, (_) => List<CellState>.filled(n, CellState.empty));
+      for (int i = 0; i < total; i++) {
+        final r = i ~/ n;
+        final c = i % n;
+        newBoard[r][c] = flat[i];
+      }
+      board = newBoard;
+
+      // Plausible turns counts: alternate moves starting from startingPlayer
+      final int redTurns =
+          startingPlayer == CellState.red ? (total + 1) ~/ 2 : total ~/ 2;
+      final int blueTurns = total - redTurns;
+      turnsRed = redTurns;
+      turnsBlue = blueTurns;
     }
-    // Clamp just in case
-    redCountTarget = redCountTarget.clamp(0, total);
-    blueCountTarget = total - redCountTarget;
-
-    // Create flat list and shuffle
-    final flat = <CellState>[]
-      ..addAll(List<CellState>.filled(redCountTarget, CellState.red))
-      ..addAll(List<CellState>.filled(blueCountTarget, CellState.blue));
-    flat.shuffle(rnd);
-
-    // Fill board
-    final newBoard = List<List<CellState>>.generate(
-        n, (_) => List<CellState>.filled(n, CellState.empty));
-    for (int i = 0; i < total; i++) {
-      final r = i ~/ n;
-      final c = i % n;
-      newBoard[r][c] = flat[i];
-    }
-    board = newBoard;
-
-    // Plausible turns counts: alternate moves starting from startingPlayer
-    final int redTurns =
-        startingPlayer == CellState.red ? (total + 1) ~/ 2 : total ~/ 2;
-    final int blueTurns = total - redTurns;
-    turnsRed = redTurns;
-    turnsBlue = blueTurns;
 
     // Randomize "played" duration: 45s .. 45 days
     final int minSec = 45;
