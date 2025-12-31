@@ -154,7 +154,7 @@ class GameController extends ChangeNotifier {
   int themeColorHex = 0xFF38518F; // 0xFF3B7D23;
   String languageCode = 'en';
   int boardSize = 9; // not yet applied to engine (future enhancement)
-  int aiLevel = 3; // 1..7
+  int aiLevel = 1; // 1..7
 
   // Game session stats
   int turnsRed = 0;

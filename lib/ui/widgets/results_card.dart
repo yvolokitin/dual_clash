@@ -20,8 +20,8 @@ class ResultsCard extends StatelessWidget {
             defaultTargetPlatform == TargetPlatform.iOS);
     final bool isTabletDevice = isTablet(context);
     final bool isPhoneFullscreen = isMobilePlatform && !isTabletDevice;
-    final double topInset =
-        isPhoneFullscreen ? MediaQuery.of(context).padding.top + 20 : 0;
+    final EdgeInsets contentPadding =
+        EdgeInsets.fromLTRB(16, isPhoneFullscreen ? 20 : 16, 16, 16);
     final bg = AppColors.bg;
     final redBase = controller.scoreRedBase();
     final blueBase = controller.scoreBlueBase();
@@ -116,18 +116,17 @@ class ResultsCard extends StatelessWidget {
       child: ConstrainedBox(
         constraints: BoxConstraints(
           maxWidth: isPhoneFullscreen ? size.width : size.width * 0.8,
-          maxHeight:
-              isPhoneFullscreen ? size.height - topInset : size.height * 0.8,
+          maxHeight: isPhoneFullscreen ? size.height : size.height * 0.8,
           minWidth: isPhoneFullscreen ? size.width : 0,
-          minHeight: isPhoneFullscreen ? size.height - topInset : 0,
+          minHeight: isPhoneFullscreen ? size.height : 0,
         ),
         child: SafeArea(
-          top: false,
+          top: isPhoneFullscreen,
           bottom: isPhoneFullscreen,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: contentPadding,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -285,7 +284,7 @@ class ResultsCard extends StatelessWidget {
     );
 
     final EdgeInsets dialogInsetPadding = isPhoneFullscreen
-        ? EdgeInsets.only(top: topInset)
+        ? EdgeInsets.zero
         : EdgeInsets.symmetric(
             horizontal: size.width * 0.1, vertical: size.height * 0.1);
     return Dialog(
@@ -295,7 +294,7 @@ class ResultsCard extends StatelessWidget {
       child: isPhoneFullscreen
           ? SizedBox(
               width: size.width,
-              height: size.height - topInset,
+              height: size.height,
               child: content,
             )
           : content,
