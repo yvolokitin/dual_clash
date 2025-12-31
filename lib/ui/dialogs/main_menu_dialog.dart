@@ -431,54 +431,56 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                   const SizedBox(height: 12),
                   Expanded(
                     child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _menuTile(
-                          context,
-                          icon: Icons.arrow_back,
-                          label: 'Return to main menu',
-                          onTap: () async {
-                            // Use captured navigator to avoid disposed context
-                            final nav = Navigator.of(context);
-                            // Close menu dialog
-                            nav.pop();
-                            await Future.delayed(const Duration(milliseconds: 30));
-                            if (config.confirmReturnToMenu) {
-                              final confirmed = await _confirmAction(
-                                context: context,
-                                title: 'Return to main menu',
-                                message:
-                                    'Do you want to return to the main menu?\n\nProgress will not be saved.',
-                              );
-                              if (!confirmed) return;
-                            }
-                            // Then pop the GamePage route to return to Main Menu
-                            if (nav.canPop()) {
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _menuTile(
+                            context,
+                            icon: Icons.arrow_back,
+                            label: 'Return to main menu',
+                            onTap: () async {
+                              // Use captured navigator to avoid disposed context
+                              final nav = Navigator.of(context);
+                              // Close menu dialog
                               nav.pop();
-                            }
-                          },
-                        ),
-                        const SizedBox(height: 6),
-                        _menuTile(
-                          context,
-                          icon: Icons.refresh,
-                          label: 'Restart/Start the game',
-                          onTap: () async {
-                            Navigator.of(context).pop();
-                            await Future.delayed(const Duration(milliseconds: 30));
-                            if (config.confirmRestart) {
-                              final confirmed = await _confirmAction(
-                                context: context,
-                                title: 'Restart game',
-                                message:
-                                    'Restart the game from scratch?\n\nCurrent progress will be lost.',
-                              );
-                              if (!confirmed) return;
-                            }
-                            controller.newGame();
-                          },
-                        ),
+                              await Future.delayed(
+                                  const Duration(milliseconds: 30));
+                              if (config.confirmReturnToMenu) {
+                                final confirmed = await _confirmAction(
+                                  context: context,
+                                  title: 'Return to main menu',
+                                  message:
+                                      'Do you want to return to the main menu?\n\nProgress will not be saved.',
+                                );
+                                if (!confirmed) return;
+                              }
+                              // Then pop the GamePage route to return to Main Menu
+                              if (nav.canPop()) {
+                                nav.pop();
+                              }
+                            },
+                          ),
+                          const SizedBox(height: 6),
+                          _menuTile(
+                            context,
+                            icon: Icons.refresh,
+                            label: 'Restart/Start the game',
+                            onTap: () async {
+                              Navigator.of(context).pop();
+                              await Future.delayed(
+                                  const Duration(milliseconds: 30));
+                              if (config.confirmRestart) {
+                                final confirmed = await _confirmAction(
+                                  context: context,
+                                  title: 'Restart game',
+                                  message:
+                                      'Restart the game from scratch?\n\nCurrent progress will be lost.',
+                                );
+                                if (!confirmed) return;
+                              }
+                              controller.newGame();
+                            },
+                          ),
                         if (config.showStatistics) ...[
                           const SizedBox(height: 6),
                           _menuTile(
