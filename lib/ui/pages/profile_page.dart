@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ui' as ui;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../logic/game_controller.dart';
@@ -338,17 +339,31 @@ class _ProfileDialogState extends State<ProfileDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final bool isMobilePlatform = !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS);
+    final bool isTabletDevice = isTablet(context);
+    final bool isPhoneFullscreen = isMobilePlatform && !isTabletDevice;
     final bg = AppColors.bg;
     final controller = widget.controller;
     // Legacy badges are deprecated in UI; keep only Achievements and Belts sections
     // final badges = controller.badges.toList()..sort();
+    final EdgeInsets dialogInsetPadding = isPhoneFullscreen
+        ? EdgeInsets.zero
+        : EdgeInsets.symmetric(
+            horizontal: size.width * 0.1, vertical: size.height * 0.1);
+    final BorderRadius dialogRadius =
+        BorderRadius.circular(isPhoneFullscreen ? 0 : 22);
+    final EdgeInsets contentPadding =
+        const EdgeInsets.fromLTRB(18, 20, 18, 18);
     return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      insetPadding: dialogInsetPadding,
       backgroundColor: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      shape: RoundedRectangleBorder(borderRadius: dialogRadius),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: dialogRadius,
           gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
@@ -362,132 +377,143 @@ class _ProfileDialogState extends State<ProfileDialog> {
           border: Border.all(color: AppColors.dialogOutline, width: 1),
         ),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 560, maxHeight: 560),
-          child: Padding(
-            padding: const EdgeInsets.all(18.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Spacer(),
-                    const Text('Profile',
-                        style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.dialogTitle,
-                            letterSpacing: 0.2)),
-                    const Spacer(),
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.08),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white24, width: 1)),
-                      child: IconButton(
-                        padding: EdgeInsets.zero,
-                        iconSize: 20,
-                        icon: const Icon(Icons.close, color: Colors.white70),
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _nicknameRow(),
-                        const SizedBox(height: 8),
-                        _countryRow(),
-                        const SizedBox(height: 8),
-                        _ageRow(),
-                        const SizedBox(height: 16),
-                        const Text('Belts',
-                            style: TextStyle(
-                                color: AppColors.dialogSubtitle,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.2)),
-                        const SizedBox(height: 8),
-                        beltsGridWidget(controller.badges),
-                        const SizedBox(height: 16),
-                        const Text('Achievements',
-                            style: TextStyle(
-                                color: AppColors.dialogSubtitle,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.2)),
-                        const SizedBox(height: 8),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            _achChip('Full Row', controller.achievedRedRow),
-                            _achChip(
-                                'Full Column', controller.achievedRedColumn),
-                            _achChip(
-                                'Diagonal', controller.achievedRedDiagonal),
-                          ],
-                        ),
-                        // Legacy badges section removed as per spec; only Achievements and Belts remain
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
+          constraints: BoxConstraints(
+            maxWidth: isPhoneFullscreen ? size.width : size.width * 0.8,
+            maxHeight: isPhoneFullscreen ? size.height : size.height * 0.8,
+            minWidth: isPhoneFullscreen ? size.width : 0,
+            minHeight: isPhoneFullscreen ? size.height : 0,
+          ),
+          child: SafeArea(
+            top: isPhoneFullscreen,
+            bottom: isPhoneFullscreen,
+            child: Padding(
+              padding: contentPadding,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      ElevatedButton(
-                        onPressed: () async {
-                          Navigator.of(context).pop();
-                          await Future.delayed(
-                              const Duration(milliseconds: 50));
-                          if (context.mounted) {
-                            await showAnimatedHistoryDialog(
-                                context: context, controller: controller);
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white.withOpacity(0.12),
-                          foregroundColor: Colors.white,
-                          shadowColor: Colors.transparent,
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(24)),
-                          textStyle: const TextStyle(
-                              fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                      const Spacer(),
+                      const Text('Profile',
+                          style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.dialogTitle,
+                              letterSpacing: 0.2)),
+                      const Spacer(),
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.08),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white24, width: 1)),
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          iconSize: 20,
+                          icon: const Icon(Icons.close, color: Colors.white70),
+                          onPressed: () => Navigator.of(context).pop(),
                         ),
-                        child: const Text('History'),
-                      ),
-                      const SizedBox(width: 10),
-                      ElevatedButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white.withOpacity(0.12),
-                          foregroundColor: Colors.white,
-                          shadowColor: Colors.transparent,
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 12),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(24)),
-                          textStyle: const TextStyle(
-                              fontWeight: FontWeight.w800, letterSpacing: 0.2),
-                        ),
-                        child: const Text('Close'),
                       ),
                     ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _nicknameRow(),
+                          const SizedBox(height: 8),
+                          _countryRow(),
+                          const SizedBox(height: 8),
+                          _ageRow(),
+                          const SizedBox(height: 16),
+                          const Text('Belts',
+                              style: TextStyle(
+                                  color: AppColors.dialogSubtitle,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.2)),
+                          const SizedBox(height: 8),
+                          beltsGridWidget(controller.badges),
+                          const SizedBox(height: 16),
+                          const Text('Achievements',
+                              style: TextStyle(
+                                  color: AppColors.dialogSubtitle,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.2)),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              _achChip('Full Row', controller.achievedRedRow),
+                              _achChip(
+                                  'Full Column', controller.achievedRedColumn),
+                              _achChip(
+                                  'Diagonal', controller.achievedRedDiagonal),
+                            ],
+                          ),
+                          // Legacy badges section removed as per spec; only Achievements and Belts remain
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () async {
+                            Navigator.of(context).pop();
+                            await Future.delayed(
+                                const Duration(milliseconds: 50));
+                            if (context.mounted) {
+                              await showAnimatedHistoryDialog(
+                                  context: context, controller: controller);
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white.withOpacity(0.12),
+                            foregroundColor: Colors.white,
+                            shadowColor: Colors.transparent,
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24)),
+                            textStyle: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 0.2),
+                          ),
+                          child: const Text('History'),
+                        ),
+                        const SizedBox(width: 10),
+                        ElevatedButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white.withOpacity(0.12),
+                            foregroundColor: Colors.white,
+                            shadowColor: Colors.transparent,
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24)),
+                            textStyle: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 0.2),
+                          ),
+                          child: const Text('Close'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

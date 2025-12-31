@@ -42,3 +42,8 @@ class AiBelt {
     return 'assets/icons/belt_${name}.png';
   }
 }
+
+bool isTablet(BuildContext context) {
+  final data = MediaQuery.of(context);
+  return data.size.shortestSide >= 600;
+}
