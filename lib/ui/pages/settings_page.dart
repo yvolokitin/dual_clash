@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import '../../logic/game_controller.dart';
@@ -81,18 +82,32 @@ class _SettingsDialogState extends State<SettingsDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final bool isMobilePlatform = !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS);
+    final bool isTabletDevice = isTablet(context);
+    final bool isPhoneFullscreen = isMobilePlatform && !isTabletDevice;
     // Dialog background: exactly the same as main background
     final bg = AppColors.bg;
     final Color dialogTop = bg;
     final Color dialogBottom = bg;
+    final EdgeInsets dialogInsetPadding = isPhoneFullscreen
+        ? EdgeInsets.zero
+        : EdgeInsets.symmetric(
+            horizontal: size.width * 0.1, vertical: size.height * 0.1);
+    final BorderRadius dialogRadius =
+        BorderRadius.circular(isPhoneFullscreen ? 0 : 22);
+    final EdgeInsets contentPadding =
+        const EdgeInsets.fromLTRB(18, 20, 18, 18);
     // The dialog window — centered, not fullscreen. showDialog will dim the background.
     return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      insetPadding: dialogInsetPadding,
       backgroundColor: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      shape: RoundedRectangleBorder(borderRadius: dialogRadius),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: dialogRadius,
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -107,123 +122,139 @@ class _SettingsDialogState extends State<SettingsDialog> {
           border: Border.all(color: AppColors.dialogOutline, width: 1),
         ),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 560, maxHeight: 560),
-          child: Padding(
-            padding: const EdgeInsets.all(18.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Spacer(),
-                    const Text(
-                      'Settings',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.dialogTitle,
-                        letterSpacing: 0.2,
+          constraints: BoxConstraints(
+            maxWidth: isPhoneFullscreen ? size.width : size.width * 0.8,
+            maxHeight: isPhoneFullscreen ? size.height : size.height * 0.8,
+            minWidth: isPhoneFullscreen ? size.width : 0,
+            minHeight: isPhoneFullscreen ? size.height : 0,
+          ),
+          child: SafeArea(
+            top: isPhoneFullscreen,
+            bottom: isPhoneFullscreen,
+            child: Padding(
+              padding: contentPadding,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Spacer(),
+                      const Text(
+                        'Settings',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.dialogTitle,
+                          letterSpacing: 0.2,
+                        ),
                       ),
-                    ),
-                    const Spacer(),
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.08),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white24, width: 1),
+                      const Spacer(),
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.08),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white24, width: 1),
+                        ),
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          iconSize: 20,
+                          icon: const Icon(Icons.close, color: Colors.white70),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
                       ),
-                      child: IconButton(
-                        padding: EdgeInsets.zero,
-                        iconSize: 20,
-                        icon: const Icon(Icons.close, color: Colors.white70),
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                // Language selector
-                _label('Language'),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: _languageOptions().map((opt) {
-                    final code = opt.$1;
-                    final title = opt.$2;
-                    return _choiceTile(
-                      selected: _language == code,
-                      label: title,
-                      onTap: () async {
-                        setState(() => _language = code);
-                        await widget.controller.setLanguage(code);
-                      },
-                    );
-                  }).toList(),
-                ),
-                // separator between sections
-                _separator(),
-
-                // Board size selector (removed as per spec)
-                // Intentionally removed UI for board size to simplify settings.
-                // The game continues using controller.boardSize; changes may come from elsewhere if needed.
-                const SizedBox(height: 0),
-
-
-                // Who starts selector
-                _label('Who starts first'),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    _choiceTile(
-                      selected: _startingPlayer == CellState.red,
-                      label: 'Red (Player)',
-                      colorDot: AppColors.red,
-                      onTap: () async {
-                        setState(() => _startingPlayer = CellState.red);
-                        await widget.controller
-                            .setStartingPlayer(CellState.red);
-                      },
-                    ),
-                    _choiceTile(
-                      selected: _startingPlayer == CellState.blue,
-                      label: 'Blue (AI)',
-                      colorDot: AppColors.blue,
-                      onTap: () async {
-                        setState(() => _startingPlayer = CellState.blue);
-                        await widget.controller
-                            .setStartingPlayer(CellState.blue);
-                      },
-                    ),
-                  ],
-                ),
-
-                const Spacer(),
-
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.brandGold,
-                      foregroundColor: const Color(0xFF2B221D),
-                      shadowColor: Colors.black54,
-                      elevation: 4,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24)),
-                      textStyle: const TextStyle(
-                          fontWeight: FontWeight.w800, letterSpacing: 0.2),
-                    ),
-                    child: const Text('Close'),
+                    ],
                   ),
-                ),
-              ], // Added closing bracket here
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Language selector
+                          _label('Language'),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: _languageOptions().map((opt) {
+                              final code = opt.$1;
+                              final title = opt.$2;
+                              return _choiceTile(
+                                selected: _language == code,
+                                label: title,
+                                onTap: () async {
+                                  setState(() => _language = code);
+                                  await widget.controller.setLanguage(code);
+                                },
+                              );
+                            }).toList(),
+                          ),
+                          // separator between sections
+                          _separator(),
+
+                          // Board size selector (removed as per spec)
+                          // Intentionally removed UI for board size to simplify settings.
+                          // The game continues using controller.boardSize; changes may come from elsewhere if needed.
+                          const SizedBox(height: 0),
+
+                          // Who starts selector
+                          _label('Who starts first'),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              _choiceTile(
+                                selected: _startingPlayer == CellState.red,
+                                label: 'Red (Player)',
+                                colorDot: AppColors.red,
+                                onTap: () async {
+                                  setState(
+                                      () => _startingPlayer = CellState.red);
+                                  await widget.controller
+                                      .setStartingPlayer(CellState.red);
+                                },
+                              ),
+                              _choiceTile(
+                                selected: _startingPlayer == CellState.blue,
+                                label: 'Blue (AI)',
+                                colorDot: AppColors.blue,
+                                onTap: () async {
+                                  setState(
+                                      () => _startingPlayer = CellState.blue);
+                                  await widget.controller
+                                      .setStartingPlayer(CellState.blue);
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.brandGold,
+                        foregroundColor: const Color(0xFF2B221D),
+                        shadowColor: Colors.black54,
+                        elevation: 4,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24)),
+                        textStyle: const TextStyle(
+                            fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                      ),
+                      child: const Text('Close'),
+                    ),
+                  ),
+                ], // Added closing bracket here
+              ),
             ),
           ),
         ),

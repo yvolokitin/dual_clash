@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import '../../logic/game_controller.dart';
@@ -33,15 +34,29 @@ class _HistoryDialogState extends State<HistoryDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final bool isMobilePlatform = !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS);
+    final bool isTabletDevice = isTablet(context);
+    final bool isPhoneFullscreen = isMobilePlatform && !isTabletDevice;
     final bg = AppColors.bg;
     final items = widget.controller.history.reversed.toList();
+    final EdgeInsets dialogInsetPadding = isPhoneFullscreen
+        ? EdgeInsets.zero
+        : EdgeInsets.symmetric(
+            horizontal: size.width * 0.1, vertical: size.height * 0.1);
+    final BorderRadius dialogRadius =
+        BorderRadius.circular(isPhoneFullscreen ? 0 : 22);
+    final EdgeInsets contentPadding =
+        const EdgeInsets.fromLTRB(18, 20, 18, 18);
     return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      insetPadding: dialogInsetPadding,
       backgroundColor: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      shape: RoundedRectangleBorder(borderRadius: dialogRadius),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: dialogRadius,
           gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
@@ -55,68 +70,77 @@ class _HistoryDialogState extends State<HistoryDialog> {
           border: Border.all(color: AppColors.dialogOutline, width: 1),
         ),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 680, maxHeight: 560),
-          child: Padding(
-            padding: const EdgeInsets.all(18.0),
-            child: DefaultTabController(
-              length: 2,
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      const Spacer(),
-                      const Text('History',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.w800)),
-                      const Spacer(),
-                      Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.08),
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white24)),
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          iconSize: 20,
-                          icon: const Icon(Icons.close, color: Colors.white70),
-                          onPressed: () => Navigator.of(context).pop(),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    height: 42,
-                    decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.04),
-                        borderRadius: BorderRadius.circular(12),
-                        border:
-                            Border.all(color: Colors.white.withOpacity(0.12))),
-                    child: const TabBar(
-                      indicator: BoxDecoration(
-                          color: Colors.white12,
-                          borderRadius: BorderRadius.all(Radius.circular(10))),
-                      labelColor: Colors.white,
-                      unselectedLabelColor: Colors.white70,
-                      tabs: [
-                        Tab(text: 'Games'),
-                        Tab(text: 'Daily activity'),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Expanded(
-                    child: TabBarView(
+          constraints: BoxConstraints(
+            maxWidth: isPhoneFullscreen ? size.width : size.width * 0.8,
+            maxHeight: isPhoneFullscreen ? size.height : size.height * 0.8,
+            minWidth: isPhoneFullscreen ? size.width : 0,
+            minHeight: isPhoneFullscreen ? size.height : 0,
+          ),
+          child: SafeArea(
+            top: isPhoneFullscreen,
+            bottom: isPhoneFullscreen,
+            child: Padding(
+              padding: contentPadding,
+              child: DefaultTabController(
+                length: 2,
+                child: Column(
+                  children: [
+                    Row(
                       children: [
-                        _buildGamesTab(items),
-                        _buildDailyActivityTab(items),
+                        const Spacer(),
+                        const Text('History',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800)),
+                        const Spacer(),
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.08),
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white24)),
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            iconSize: 20,
+                            icon: const Icon(Icons.close, color: Colors.white70),
+                            onPressed: () => Navigator.of(context).pop(),
+                          ),
+                        ),
                       ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 12),
+                    Container(
+                      height: 42,
+                      decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.04),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                              color: Colors.white.withOpacity(0.12))),
+                      child: const TabBar(
+                        indicator: BoxDecoration(
+                            color: Colors.white12,
+                            borderRadius: BorderRadius.all(Radius.circular(10))),
+                        labelColor: Colors.white,
+                        unselectedLabelColor: Colors.white70,
+                        tabs: [
+                          Tab(text: 'Games'),
+                          Tab(text: 'Daily activity'),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Expanded(
+                      child: TabBarView(
+                        children: [
+                          _buildGamesTab(items),
+                          _buildDailyActivityTab(items),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
