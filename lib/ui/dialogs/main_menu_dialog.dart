@@ -33,8 +33,8 @@ class MenuDialogConfig {
     this.showSimulateGame = true,
     this.showRemoveAds = true,
     this.showRestorePurchases = true,
-    this.confirmReturnToMenu = false,
-    this.confirmRestart = false,
+    this.confirmReturnToMenu = true,
+    this.confirmRestart = true,
   });
 
   const MenuDialogConfig.duel()
