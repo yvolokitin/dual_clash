@@ -28,8 +28,9 @@ split into focused widgets:
 - `HoverScaleBox` (`lib/ui/widgets/hover_scale_box.dart`)  
   Safe hover scale helper that preserves layout sizing.
 
-Layout sizing is centralized in `GamePageLayoutMetrics` (inside
-`lib/ui/pages/game_page.dart`) to keep board and score rows in sync.
+Layout sizing is centralized in `GameLayoutMetrics`
+(`lib/ui/widgets/game_layout_metrics.dart`) so Game Challenge and Duel mode
+share the same board/score sizing rules.
 
 ### Dialogs
 
@@ -38,7 +39,8 @@ Dialogs have been extracted into `lib/ui/dialogs` for reuse:
 - `showAnimatedResultsDialog` in `results_dialog.dart`
 - `showAiDifficultyDialog` in `ai_difficulty_dialog.dart`
 
-Each dialog includes detailed in-code documentation for future adjustments.
+Dialogs now share responsive sizing rules: phone dialogs are fullscreen with a
+top offset, while tablet/desktop dialogs render at 80% width/height.
 
 ## Testing
 

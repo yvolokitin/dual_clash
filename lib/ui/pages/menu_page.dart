@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import '../../logic/game_controller.dart';
 import '../../core/colors.dart';
+import '../../core/constants.dart';
 import 'history_page.dart';
 import 'profile_page.dart';
 
@@ -41,110 +43,149 @@ Future<void> showAnimatedMainMenuDialog(
               opacity: curved,
               child: ScaleTransition(
                 scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
-                child: Dialog(
-                  insetPadding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-                  backgroundColor: Colors.transparent,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(22)),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(22),
-                      gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [bg, bg]),
-                      boxShadow: const [
-                        BoxShadow(
-                            color: AppColors.dialogShadow,
-                            blurRadius: 24,
-                            offset: Offset(0, 12))
-                      ],
-                      border:
-                          Border.all(color: AppColors.dialogOutline, width: 1),
-                    ),
-                    child: ConstrainedBox(
-                      constraints:
-                          const BoxConstraints(maxWidth: 520, maxHeight: 560),
-                      child: Padding(
-                        padding: const EdgeInsets.all(18.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Row(
-                              children: [
-                                const Spacer(),
-                                const Text('Game Menu',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.w800)),
-                                const Spacer(),
-                                Container(
-                                  width: 36,
-                                  height: 36,
-                                  decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.08),
-                                      shape: BoxShape.circle,
-                                      border:
-                                          Border.all(color: Colors.white24)),
-                                  child: IconButton(
-                                    padding: EdgeInsets.zero,
-                                    iconSize: 20,
-                                    icon: const Icon(Icons.close,
-                                        color: Colors.white70),
-                                    onPressed: () =>
-                                        Navigator.of(context).pop(),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            _StatsAnimatedBox(
-                                totalScore: controller.totalUserScore,
-                                totalPlayTimeMs: controller.totalPlayTimeMs),
-                            const SizedBox(height: 16),
-                            _MenuTile(
-                              icon: Icons.flash_on,
-                              label: 'Game challenge',
-                              onTap: () {
-                                Navigator.of(context).pop();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text(
-                                            'Game Challenge is coming soon')));
-                              },
-                            ),
-                            _MenuTile(
-                              icon: Icons.folder_open,
-                              label: 'Load game',
-                              onTap: () async {
-                                await showLoadGameDialog(
-                                    context: context, controller: controller);
-                              },
-                            ),
-                            _MenuTile(
-                              icon: Icons.history,
-                              label: 'History',
-                              onTap: () async {
-                                await showAnimatedHistoryDialog(
-                                    context: context, controller: controller);
-                              },
-                            ),
-                            _MenuTile(
-                              icon: Icons.person_outline,
-                              label: 'User Profile',
-                              onTap: () async {
-                                await showAnimatedProfileDialog(
-                                    context: context, controller: controller);
-                              },
-                            ),
+                child: Builder(
+                  builder: (dialogContext) {
+                    final size = MediaQuery.of(dialogContext).size;
+                    final bool isMobilePlatform = !kIsWeb &&
+                        (defaultTargetPlatform == TargetPlatform.android ||
+                            defaultTargetPlatform == TargetPlatform.iOS);
+                    final bool isTabletDevice = isTablet(dialogContext);
+                    final bool isPhoneFullscreen =
+                        isMobilePlatform && !isTabletDevice;
+                    final double topInset = isPhoneFullscreen
+                        ? MediaQuery.of(dialogContext).padding.top + 20
+                        : 0;
+                    final EdgeInsets dialogInsetPadding = isPhoneFullscreen
+                        ? EdgeInsets.only(top: topInset)
+                        : EdgeInsets.symmetric(
+                            horizontal: size.width * 0.1,
+                            vertical: size.height * 0.1);
+                    final BorderRadius dialogRadius =
+                        BorderRadius.circular(isPhoneFullscreen ? 0 : 22);
+                    return Dialog(
+                      insetPadding: dialogInsetPadding,
+                      backgroundColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(borderRadius: dialogRadius),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: dialogRadius,
+                          gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [bg, bg]),
+                          boxShadow: const [
+                            BoxShadow(
+                                color: AppColors.dialogShadow,
+                                blurRadius: 24,
+                                offset: Offset(0, 12))
                           ],
+                          border: Border.all(
+                              color: AppColors.dialogOutline, width: 1),
+                        ),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: isPhoneFullscreen
+                                ? size.width
+                                : size.width * 0.8,
+                            maxHeight: isPhoneFullscreen
+                                ? size.height - topInset
+                                : size.height * 0.8,
+                            minWidth: isPhoneFullscreen ? size.width : 0,
+                            minHeight: isPhoneFullscreen
+                                ? size.height - topInset
+                                : 0,
+                          ),
+                          child: SafeArea(
+                            top: false,
+                            bottom: isPhoneFullscreen,
+                            child: Padding(
+                              padding: const EdgeInsets.all(18.0),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.stretch,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Spacer(),
+                                      const Text('Game Menu',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.w800)),
+                                      const Spacer(),
+                                      Container(
+                                        width: 36,
+                                        height: 36,
+                                        decoration: BoxDecoration(
+                                            color:
+                                                Colors.white.withOpacity(0.08),
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                                color: Colors.white24)),
+                                        child: IconButton(
+                                          padding: EdgeInsets.zero,
+                                          iconSize: 20,
+                                          icon: const Icon(Icons.close,
+                                              color: Colors.white70),
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  _StatsAnimatedBox(
+                                      totalScore: controller.totalUserScore,
+                                      totalPlayTimeMs:
+                                          controller.totalPlayTimeMs),
+                                  const SizedBox(height: 16),
+                                  _MenuTile(
+                                    icon: Icons.flash_on,
+                                    label: 'Game challenge',
+                                    onTap: () {
+                                      Navigator.of(context).pop();
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(const SnackBar(
+                                              content: Text(
+                                                  'Game Challenge is coming soon')));
+                                    },
+                                  ),
+                                  _MenuTile(
+                                    icon: Icons.folder_open,
+                                    label: 'Load game',
+                                    onTap: () async {
+                                      await showLoadGameDialog(
+                                          context: context,
+                                          controller: controller);
+                                    },
+                                  ),
+                                  _MenuTile(
+                                    icon: Icons.history,
+                                    label: 'History',
+                                    onTap: () async {
+                                      await showAnimatedHistoryDialog(
+                                          context: context,
+                                          controller: controller);
+                                    },
+                                  ),
+                                  _MenuTile(
+                                    icon: Icons.person_outline,
+                                    label: 'User Profile',
+                                    onTap: () async {
+                                      await showAnimatedProfileDialog(
+                                          context: context,
+                                          controller: controller);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ),
             ),

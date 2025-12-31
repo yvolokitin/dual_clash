@@ -1,7 +1,9 @@
 import 'dart:ui' as ui;
 
+import 'package:dual_clash/core/constants.dart';
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/ui/widgets/results_card.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Results dialog extracted from GamePage so it can be reused and maintained independently.
@@ -21,6 +23,13 @@ Future<void> showAnimatedResultsDialog({
           parent: anim,
           curve: Curves.easeOutCubic,
           reverseCurve: Curves.easeInCubic);
+      final bool isMobilePlatform = !kIsWeb &&
+          (defaultTargetPlatform == TargetPlatform.android ||
+              defaultTargetPlatform == TargetPlatform.iOS);
+      final bool isTabletDevice = isTablet(ctx);
+      final bool isPhoneFullscreen = isMobilePlatform && !isTabletDevice;
+      final Alignment dialogAlignment =
+          isPhoneFullscreen ? Alignment.topCenter : Alignment.center;
       return Stack(
         children: [
           Positioned.fill(
@@ -33,7 +42,8 @@ Future<void> showAnimatedResultsDialog({
               ),
             ),
           ),
-          Center(
+          Align(
+            alignment: dialogAlignment,
             child: FadeTransition(
               opacity: curved,
               child: ScaleTransition(
@@ -46,4 +56,18 @@ Future<void> showAnimatedResultsDialog({
       );
     },
   );
+}
+
+/// Show the results dialog once when the game ends.
+void maybeShowResultsDialog({
+  required BuildContext context,
+  required GameController controller,
+}) {
+  if (controller.gameOver && !controller.resultsShown) {
+    controller.resultsShown = true;
+    Future.delayed(Duration(milliseconds: controller.winnerBorderAnimMs), () {
+      if (!context.mounted) return;
+      showAnimatedResultsDialog(context: context, controller: controller);
+    });
+  }
 }

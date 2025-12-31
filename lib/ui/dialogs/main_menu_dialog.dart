@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/core/colors.dart';
@@ -345,12 +346,19 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final bool isCompact = size.width < 550;
-    final EdgeInsets dialogInsetPadding = isCompact
-        ? EdgeInsets.zero
-        : const EdgeInsets.symmetric(horizontal: 24, vertical: 24);
+    final bool isMobilePlatform = !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS);
+    final bool isTabletDevice = isTablet(context);
+    final bool isPhoneFullscreen = isMobilePlatform && !isTabletDevice;
+    final double topInset =
+        isPhoneFullscreen ? MediaQuery.of(context).padding.top + 20 : 0;
+    final EdgeInsets dialogInsetPadding = isPhoneFullscreen
+        ? EdgeInsets.only(top: topInset)
+        : EdgeInsets.symmetric(
+            horizontal: size.width * 0.1, vertical: size.height * 0.1);
     final BorderRadius dialogRadius =
-        BorderRadius.circular(isCompact ? 0 : 22);
+        BorderRadius.circular(isPhoneFullscreen ? 0 : 22);
     return Dialog(
       insetPadding: dialogInsetPadding,
       backgroundColor: Colors.transparent,
@@ -374,50 +382,55 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
         ),
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            maxWidth: isCompact ? size.width : 520,
-            maxHeight: isCompact ? size.height : 560,
-            minWidth: isCompact ? size.width : 0,
-            minHeight: isCompact ? size.height : 0,
+            maxWidth: isPhoneFullscreen ? size.width : size.width * 0.8,
+            maxHeight:
+                isPhoneFullscreen ? size.height - topInset : size.height * 0.8,
+            minWidth: isPhoneFullscreen ? size.width : 0,
+            minHeight:
+                isPhoneFullscreen ? size.height - topInset : 0,
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(18.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    const Spacer(),
-                    const Text(
-                      'Menu',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.dialogTitle,
-                        letterSpacing: 0.2,
+          child: SafeArea(
+            top: false,
+            bottom: isPhoneFullscreen,
+            child: Padding(
+              padding: const EdgeInsets.all(18.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      const Spacer(),
+                      const Text(
+                        'Menu',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.dialogTitle,
+                          letterSpacing: 0.2,
+                        ),
                       ),
-                    ),
-                    const Spacer(),
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.08),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white24, width: 1),
+                      const Spacer(),
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.08),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white24, width: 1),
+                        ),
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          iconSize: 20,
+                          icon: const Icon(Icons.close, color: Colors.white70),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
                       ),
-                      child: IconButton(
-                        padding: EdgeInsets.zero,
-                        iconSize: 20,
-                        icon: const Icon(Icons.close, color: Colors.white70),
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Expanded(
-                  child: SingleChildScrollView(
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
