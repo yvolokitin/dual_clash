@@ -481,49 +481,51 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                               controller.newGame();
                             },
                           ),
-                        if (config.showStatistics) ...[
+                          if (config.showStatistics) ...[
+                            const SizedBox(height: 6),
+                            _menuTile(
+                              context,
+                              icon: Icons.bar_chart,
+                              label: 'Statistics',
+                              onTap: () async {
+                                Navigator.of(context).pop();
+                                await Future.delayed(
+                                    const Duration(milliseconds: 30));
+                                await showAnimatedStatisticsDialog(
+                                  context: context,
+                                  controller: controller,
+                                );
+                              },
+                            ),
+                          ],
                           const SizedBox(height: 6),
                           _menuTile(
                             context,
-                            icon: Icons.bar_chart,
-                            label: 'Statistics',
+                            icon: Icons.help_outline,
+                            label: 'Help',
                             onTap: () async {
                               Navigator.of(context).pop();
                               await Future.delayed(
                                   const Duration(milliseconds: 30));
-                              await showAnimatedStatisticsDialog(
-                                context: context,
-                                controller: controller,
-                              );
-                            },
-                          ),
-                        ],
-                        const SizedBox(height: 6),
-                        _menuTile(
-                          context,
-                          icon: Icons.help_outline,
-                          label: 'Help',
-                          onTap: () async {
-                            Navigator.of(context).pop();
-                            await Future.delayed(const Duration(milliseconds: 30));
-                            await showAnimatedHelpDialog(context: context, controller: controller);
-                          },
-                        ),
-                        if (config.showSettings) ...[
-                          const SizedBox(height: 6),
-                          _menuTile(
-                            context,
-                            icon: Icons.settings,
-                            label: 'Settings',
-                            onTap: () async {
-                              Navigator.of(context).pop();
-                              await Future.delayed(
-                                  const Duration(milliseconds: 30));
-                              await showAnimatedSettingsDialog(
+                              await showAnimatedHelpDialog(
                                   context: context, controller: controller);
                             },
                           ),
-                        ],
+                          if (config.showSettings) ...[
+                            const SizedBox(height: 6),
+                            _menuTile(
+                              context,
+                              icon: Icons.settings,
+                              label: 'Settings',
+                              onTap: () async {
+                                Navigator.of(context).pop();
+                                await Future.delayed(
+                                    const Duration(milliseconds: 30));
+                                await showAnimatedSettingsDialog(
+                                    context: context, controller: controller);
+                              },
+                            ),
+                          ],
 /*
                         const SizedBox(height: 6),
                         _menuTile(
@@ -548,57 +550,56 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                           },
                         ),
   */
-                        if (config.showSaveGame) ...[
-                          const SizedBox(height: 6),
-                          _menuTile(
-                            context,
-                            icon: Icons.save_alt,
-                            label: 'Save game',
-                            onTap: () async {
-                              Navigator.of(context).pop();
-                              await Future.delayed(
-                                  const Duration(milliseconds: 30));
-                              await _saveGame(context);
-                            },
-                          ),
-                        ],
-                        if (config.showSimulateGame) ...[
-                          const SizedBox(height: 6),
-                          _menuTile(
-                            context,
-                            icon: Icons.auto_awesome,
-                            label: 'Simulate game',
-                            onTap: () async {
-                              Navigator.of(context).pop();
-                              await Future.delayed(
-                                  const Duration(milliseconds: 30));
-                              await controller.simulateGame();
-                            },
-                          ),
-                        ],
-                        if (config.showRemoveAds) ...[
-                          const SizedBox(height: 6),
-                          _menuTile(
-                            context,
-                            icon: Icons.block,
-                            label: 'Remove Ads — 1€',
-                            onTap: () async {
-                              await _buyPremium();
-                            },
-                          ),
-                        ],
-
-                        if (config.showRestorePurchases && Platform.isIOS) ...[
-                          const SizedBox(height: 6),
-                          _menuTile(
-                            context,
-                            icon: Icons.restore,
-                            label: 'Restore Purchases',
-                            onTap: () async {
-                              await _iap?.restorePurchases();
-                            },
-                          ),
-                        ],
+                          if (config.showSaveGame) ...[
+                            const SizedBox(height: 6),
+                            _menuTile(
+                              context,
+                              icon: Icons.save_alt,
+                              label: 'Save game',
+                              onTap: () async {
+                                Navigator.of(context).pop();
+                                await Future.delayed(
+                                    const Duration(milliseconds: 30));
+                                await _saveGame(context);
+                              },
+                            ),
+                          ],
+                          if (config.showSimulateGame) ...[
+                            const SizedBox(height: 6),
+                            _menuTile(
+                              context,
+                              icon: Icons.auto_awesome,
+                              label: 'Simulate game',
+                              onTap: () async {
+                                Navigator.of(context).pop();
+                                await Future.delayed(
+                                    const Duration(milliseconds: 30));
+                                await controller.simulateGame();
+                              },
+                            ),
+                          ],
+                          if (config.showRemoveAds) ...[
+                            const SizedBox(height: 6),
+                            _menuTile(
+                              context,
+                              icon: Icons.block,
+                              label: 'Remove Ads — 1€',
+                              onTap: () async {
+                                await _buyPremium();
+                              },
+                            ),
+                          ],
+                          if (config.showRestorePurchases && Platform.isIOS) ...[
+                            const SizedBox(height: 6),
+                            _menuTile(
+                              context,
+                              icon: Icons.restore,
+                              label: 'Restore Purchases',
+                              onTap: () async {
+                                await _iap?.restorePurchases();
+                              },
+                            ),
+                          ],
                       ],
                     ),
                   ),
@@ -608,6 +609,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
           ),
         ),
       ),
+    ),
     );
   }
 
