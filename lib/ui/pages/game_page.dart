@@ -109,6 +109,7 @@ class GamePageLayoutMetrics {
 
 class _GamePageState extends State<GamePage> {
   BannerAd? _bannerAd;
+  AdSize? _adaptiveBannerSize;
   bool _isAdLoaded = false;
   bool _hasPremium = false;
   bool _isLoadingAd = false;
@@ -211,6 +212,11 @@ class _GamePageState extends State<GamePage> {
       _isLoadingAd = false;
       return;
     }
+    if (mounted && _adaptiveBannerSize != adaptiveSize) {
+      setState(() {
+        _adaptiveBannerSize = adaptiveSize;
+      });
+    }
     final adUnitId = Platform.isAndroid
         ? 'ca-app-pub-3940256099942544/9214589741'
         : 'ca-app-pub-3940256099942544/2435281174';
@@ -237,12 +243,28 @@ class _GamePageState extends State<GamePage> {
     await banner.load();
   }
 
+  Future<void> _resolveAdaptiveBannerSize(BuildContext context) async {
+    if (_adaptiveBannerSize != null) return;
+    final bannerWidth = MediaQuery.of(context).size.width.truncate();
+    if (bannerWidth <= 0) return;
+    final adaptiveSize =
+        await AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(
+            bannerWidth);
+    if (!mounted || adaptiveSize == null) return;
+    if (_adaptiveBannerSize != adaptiveSize) {
+      setState(() {
+        _adaptiveBannerSize = adaptiveSize;
+      });
+    }
+  }
+
   void _scheduleBannerLoad(BuildContext context) {
     if (!(Platform.isAndroid || Platform.isIOS)) return;
     if (_hasPremium) return;
     if (_bannerAd != null || _isLoadingAd) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      _resolveAdaptiveBannerSize(context);
       _loadBannerIfEligible(context);
     });
   }
@@ -270,7 +292,9 @@ class _GamePageState extends State<GamePage> {
           ),
         );
       }
-      return SupportLinksBar();
+      return SupportLinksBar(
+        height: _adaptiveBannerSize?.height.toDouble(),
+      );
     }
     return SupportLinksBar();
   }
