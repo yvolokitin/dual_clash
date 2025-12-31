@@ -258,11 +258,14 @@ class _GamePageState extends State<GamePage> {
         return SafeArea(
           bottom: true,
           top: false,
-          child: Center(
-            child: SizedBox(
-              width: bannerWidth,
-              height: bannerHeight,
-              child: AdWidget(ad: _bannerAd!),
+          child: SizedBox(
+            height: bannerHeight,
+            child: Center(
+              child: SizedBox(
+                width: bannerWidth,
+                height: bannerHeight,
+                child: AdWidget(ad: _bannerAd!),
+              ),
             ),
           ),
         );
