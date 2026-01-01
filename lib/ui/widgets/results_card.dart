@@ -305,7 +305,8 @@ class ResultsCard extends StatelessWidget {
       {required _ResultTileData data,
       required bool isWinner,
       required bool isDisabled}) {
-    final Color borderColor = Colors.transparent;
+    final Color borderColor =
+        isWinner ? AppColors.brandGold : Colors.transparent;
     final Color countTextColor =
         isWinner ? Colors.white : (isDisabled ? Colors.white54 : Colors.white);
     final Color countBorderColor =
@@ -327,7 +328,7 @@ class ResultsCard extends StatelessWidget {
             ? AppColors.neutral.withOpacity(0.35)
             : Colors.white.withOpacity(0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderColor, width: 1),
+        border: Border.all(color: borderColor, width: isWinner ? 2 : 1),
       ),
       child: Stack(
         alignment: Alignment.bottomCenter,
@@ -562,8 +563,6 @@ class _ResultsActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final int ai = controller.aiLevel;
-    final bool atMin = ai <= 1;
-    final bool atMax = ai >= 7;
 
     // Helper builders copied from GamePage to preserve styles
     Widget goldButton(
@@ -637,8 +636,8 @@ class _ResultsActions extends StatelessWidget {
 
     List<Widget> buttons;
 
-    if (atMin || atMax || winner == null) {
-      // At bounds or draw: single Next Game
+    if (winner == null) {
+      // Draw: single Next Game
       buttons = [
         goldButton(
           text: 'Play next game',
