@@ -89,26 +89,44 @@ class HelpDialog extends StatelessWidget {
                         children: const [
                           _SectionTitle('Goal'),
                           _BodyText(
-                              'Fill the 9x9 board by taking turns with the AI. You are Red, the AI is Blue. The player with the higher TOTAL score wins.'),
+                              'Fill the 9×9 board by taking turns. You are Red, the AI is Blue. Grey tiles are neutral.'),
                           SizedBox(height: 12),
-                          _SectionTitle('Turns & Placement'),
+                          _SectionTitle('Turns & Actions'),
                           _BodyText(
-                              'Tap any empty cell to place your color. After your move, the AI places blue. The starting player can be changed in Settings.'),
+                              'Tap an empty cell to place your color. After your move, the AI takes its turn. The starting player can be changed in Settings.'),
+                          _BodyText(
+                              'Tap one of your own pieces to preview a “blow.” Tap the same piece again to detonate it. The detonated cell and any orthogonal non-empty neighbors are removed.'),
+                          _BodyText(
+                              'Tap a Grey (neutral) tile to preview all Grey tiles. Tap again to drop all Grey tiles off the board at once.'),
                           SizedBox(height: 12),
-                          _SectionTitle('Scoring'),
+                          _SectionTitle('Placement Effects'),
                           _BodyText(
-                              'Base Score: number of cells of your color on the board when the game ends.'),
+                              'When you place a piece, any orthogonal opponent neighbor becomes Grey. Any orthogonal Grey neighbor becomes your color.'),
+                          SizedBox(height: 12),
+                          _SectionTitle('Scoring (Final Totals)'),
                           _BodyText(
-                              'Bonus: +50 points for every full row or full column filled with your color.'),
+                              'Base Score: number of tiles of your color when the game ends.'),
+                          _BodyText(
+                              'Bonus: +50 for every full row or full column filled with one color (counted separately for each color).'),
                           _BodyText('Total Score: Base Score + Bonus.'),
+                          SizedBox(height: 12),
+                          _SectionTitle('Scoring (In-Game Points for Red)'),
                           _BodyText(
-                              'Earning Points During Play (Red): +1 for each placement, +2 extra if placed in a corner, +2 for each Blue turned Neutral, +3 for each Neutral turned Red, +50 for each new full Red row/column.'),
+                              '+1 per placement, +2 extra if placed in a corner, +2 for each Blue turned Grey, +3 for each Grey turned Red.'),
                           _BodyText(
-                              'Your cumulative trophy counter only increases. Points are added after each finished game based on your Red Total. Opponent actions never reduce your cumulative total.'),
+                              'Blowing up pieces and Grey drops give 0 points. Full Red rows/columns add +50 each at game end.'),
+                          _BodyText(
+                              'Your trophy total is awarded after the game ends: win = full Red game points, draw = half, loss = 0.'),
                           SizedBox(height: 12),
                           _SectionTitle('Winning'),
                           _BodyText(
-                              'When the board has no empty cells, the game ends. The player with the higher Total Score wins. Draws are possible.'),
+                              'When the board is full, the game ends. The highest Total Score wins. Grey counts too—if Grey has the biggest total, you lose even if Blue is lower. Draws are possible.'),
+                          SizedBox(height: 12),
+                          _SectionTitle('Duel Mode vs Game Challenge'),
+                          _BodyText(
+                              'Game Challenge is you vs the AI (Red vs Blue) with points, bonuses, and trophies.'),
+                          _BodyText(
+                              'Duel Mode is local multiplayer: 2–4 human players take turns (Red/Blue/Yellow/Green). There is no AI, trophies, or bonus points; the winner is the player with the most tiles on the board when it fills.'),
                           SizedBox(height: 12),
                           _SectionTitle('AI Level'),
                           _BodyText(
@@ -116,7 +134,7 @@ class HelpDialog extends StatelessWidget {
                           SizedBox(height: 12),
                           _SectionTitle('History & Profile'),
                           _BodyText(
-                              'Your finished games are saved in History with all details.'),
+                              'Finished games are saved in History with all details.'),
                         ],
                       ),
                     ),
