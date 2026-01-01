@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/core/colors.dart';
@@ -345,12 +346,19 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final bool isCompact = size.width < 550;
-    final EdgeInsets dialogInsetPadding = isCompact
+    final bool isMobilePlatform = !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS);
+    final bool isTabletDevice = isTablet(context);
+    final bool isPhoneFullscreen = isMobilePlatform && !isTabletDevice;
+    final EdgeInsets dialogInsetPadding = isPhoneFullscreen
         ? EdgeInsets.zero
-        : const EdgeInsets.symmetric(horizontal: 24, vertical: 24);
+        : EdgeInsets.symmetric(
+            horizontal: size.width * 0.1, vertical: size.height * 0.1);
     final BorderRadius dialogRadius =
-        BorderRadius.circular(isCompact ? 0 : 22);
+        BorderRadius.circular(isPhoneFullscreen ? 0 : 22);
+    final EdgeInsets contentPadding = EdgeInsets.fromLTRB(
+        18, isPhoneFullscreen ? 20 : 18, 18, 18);
     return Dialog(
       insetPadding: dialogInsetPadding,
       backgroundColor: Colors.transparent,
@@ -374,141 +382,149 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
         ),
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            maxWidth: isCompact ? size.width : 520,
-            maxHeight: isCompact ? size.height : 560,
-            minWidth: isCompact ? size.width : 0,
-            minHeight: isCompact ? size.height : 0,
+            maxWidth: isPhoneFullscreen ? size.width : size.width * 0.8,
+            maxHeight:
+                isPhoneFullscreen ? size.height : size.height * 0.8,
+            minWidth: isPhoneFullscreen ? size.width : 0,
+            minHeight: isPhoneFullscreen ? size.height : 0,
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(18.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    const Spacer(),
-                    const Text(
-                      'Menu',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.dialogTitle,
-                        letterSpacing: 0.2,
-                      ),
-                    ),
-                    const Spacer(),
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.08),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white24, width: 1),
-                      ),
-                      child: IconButton(
-                        padding: EdgeInsets.zero,
-                        iconSize: 20,
-                        icon: const Icon(Icons.close, color: Colors.white70),
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _menuTile(
-                          context,
-                          icon: Icons.arrow_back,
-                          label: 'Return to main menu',
-                          onTap: () async {
-                            // Use captured navigator to avoid disposed context
-                            final nav = Navigator.of(context);
-                            // Close menu dialog
-                            nav.pop();
-                            await Future.delayed(const Duration(milliseconds: 30));
-                            if (config.confirmReturnToMenu) {
-                              final confirmed = await _confirmAction(
-                                context: context,
-                                title: 'Return to main menu',
-                                message:
-                                    'Do you want to return to the main menu?\n\nProgress will not be saved.',
-                              );
-                              if (!confirmed) return;
-                            }
-                            // Then pop the GamePage route to return to Main Menu
-                            if (nav.canPop()) {
-                              nav.pop();
-                            }
-                          },
+          child: SafeArea(
+            top: isPhoneFullscreen,
+            bottom: isPhoneFullscreen,
+            child: Padding(
+              padding: contentPadding,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      const Spacer(),
+                      const Text(
+                        'Menu',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.dialogTitle,
+                          letterSpacing: 0.2,
                         ),
-                        const SizedBox(height: 6),
-                        _menuTile(
-                          context,
-                          icon: Icons.refresh,
-                          label: 'Restart/Start the game',
-                          onTap: () async {
-                            Navigator.of(context).pop();
-                            await Future.delayed(const Duration(milliseconds: 30));
-                            if (config.confirmRestart) {
-                              final confirmed = await _confirmAction(
-                                context: context,
-                                title: 'Restart game',
-                                message:
-                                    'Restart the game from scratch?\n\nCurrent progress will be lost.',
-                              );
-                              if (!confirmed) return;
-                            }
-                            controller.newGame();
-                          },
+                      ),
+                      const Spacer(),
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.08),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white24, width: 1),
                         ),
-                        if (config.showStatistics) ...[
-                          const SizedBox(height: 6),
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          iconSize: 20,
+                          icon: const Icon(Icons.close, color: Colors.white70),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
                           _menuTile(
                             context,
-                            icon: Icons.bar_chart,
-                            label: 'Statistics',
+                            icon: Icons.arrow_back,
+                            label: 'Return to main menu',
                             onTap: () async {
-                              Navigator.of(context).pop();
+                              // Use captured navigator to avoid disposed context
+                              final nav = Navigator.of(context);
+                              // Close menu dialog
+                              nav.pop();
                               await Future.delayed(
                                   const Duration(milliseconds: 30));
-                              await showAnimatedStatisticsDialog(
-                                context: context,
-                                controller: controller,
-                              );
+                              if (config.confirmReturnToMenu) {
+                                final confirmed = await _confirmAction(
+                                  context: context,
+                                  title: 'Return to main menu',
+                                  message:
+                                      'Do you want to return to the main menu?\n\nProgress will not be saved.',
+                                );
+                                if (!confirmed) return;
+                              }
+                              // Then pop the GamePage route to return to Main Menu
+                              if (nav.canPop()) {
+                                nav.pop();
+                              }
                             },
                           ),
-                        ],
-                        const SizedBox(height: 6),
-                        _menuTile(
-                          context,
-                          icon: Icons.help_outline,
-                          label: 'Help',
-                          onTap: () async {
-                            Navigator.of(context).pop();
-                            await Future.delayed(const Duration(milliseconds: 30));
-                            await showAnimatedHelpDialog(context: context, controller: controller);
-                          },
-                        ),
-                        if (config.showSettings) ...[
                           const SizedBox(height: 6),
                           _menuTile(
                             context,
-                            icon: Icons.settings,
-                            label: 'Settings',
+                            icon: Icons.refresh,
+                            label: 'Restart/Start the game',
                             onTap: () async {
                               Navigator.of(context).pop();
                               await Future.delayed(
                                   const Duration(milliseconds: 30));
-                              await showAnimatedSettingsDialog(
+                              if (config.confirmRestart) {
+                                final confirmed = await _confirmAction(
+                                  context: context,
+                                  title: 'Restart game',
+                                  message:
+                                      'Restart the game from scratch?\n\nCurrent progress will be lost.',
+                                );
+                                if (!confirmed) return;
+                              }
+                              controller.newGame();
+                            },
+                          ),
+                          if (config.showStatistics) ...[
+                            const SizedBox(height: 6),
+                            _menuTile(
+                              context,
+                              icon: Icons.bar_chart,
+                              label: 'Statistics',
+                              onTap: () async {
+                                Navigator.of(context).pop();
+                                await Future.delayed(
+                                    const Duration(milliseconds: 30));
+                                await showAnimatedStatisticsDialog(
+                                  context: context,
+                                  controller: controller,
+                                );
+                              },
+                            ),
+                          ],
+                          const SizedBox(height: 6),
+                          _menuTile(
+                            context,
+                            icon: Icons.help_outline,
+                            label: 'Help',
+                            onTap: () async {
+                              Navigator.of(context).pop();
+                              await Future.delayed(
+                                  const Duration(milliseconds: 30));
+                              await showAnimatedHelpDialog(
                                   context: context, controller: controller);
                             },
                           ),
-                        ],
+                          if (config.showSettings) ...[
+                            const SizedBox(height: 6),
+                            _menuTile(
+                              context,
+                              icon: Icons.settings,
+                              label: 'Settings',
+                              onTap: () async {
+                                Navigator.of(context).pop();
+                                await Future.delayed(
+                                    const Duration(milliseconds: 30));
+                                await showAnimatedSettingsDialog(
+                                    context: context, controller: controller);
+                              },
+                            ),
+                          ],
 /*
                         const SizedBox(height: 6),
                         _menuTile(
@@ -533,57 +549,79 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                           },
                         ),
   */
-                        if (config.showSaveGame) ...[
-                          const SizedBox(height: 6),
-                          _menuTile(
-                            context,
-                            icon: Icons.save_alt,
-                            label: 'Save game',
-                            onTap: () async {
-                              Navigator.of(context).pop();
-                              await Future.delayed(
-                                  const Duration(milliseconds: 30));
-                              await _saveGame(context);
-                            },
-                          ),
-                        ],
-                        if (config.showSimulateGame) ...[
-                          const SizedBox(height: 6),
-                          _menuTile(
-                            context,
-                            icon: Icons.auto_awesome,
-                            label: 'Simulate game',
-                            onTap: () async {
-                              Navigator.of(context).pop();
-                              await Future.delayed(
-                                  const Duration(milliseconds: 30));
-                              await controller.simulateGame();
-                            },
-                          ),
-                        ],
-                        if (config.showRemoveAds) ...[
-                          const SizedBox(height: 6),
-                          _menuTile(
-                            context,
-                            icon: Icons.block,
-                            label: 'Remove Ads — 1€',
-                            onTap: () async {
-                              await _buyPremium();
-                            },
-                          ),
-                        ],
-
-                        if (config.showRestorePurchases && Platform.isIOS) ...[
-                          const SizedBox(height: 6),
-                          _menuTile(
-                            context,
-                            icon: Icons.restore,
-                            label: 'Restore Purchases',
-                            onTap: () async {
-                              await _iap?.restorePurchases();
-                            },
-                          ),
-                        ],
+                          if (config.showSaveGame) ...[
+                            const SizedBox(height: 6),
+                            _menuTile(
+                              context,
+                              icon: Icons.save_alt,
+                              label: 'Save game',
+                              onTap: () async {
+                                Navigator.of(context).pop();
+                                await Future.delayed(
+                                    const Duration(milliseconds: 30));
+                                await _saveGame(context);
+                              },
+                            ),
+                          ],
+                          if (config.showSimulateGame) ...[
+                            const SizedBox(height: 6),
+                            _menuTile(
+                              context,
+                              icon: Icons.auto_awesome,
+                              label: 'Simulate game',
+                              onTap: () async {
+                                Navigator.of(context).pop();
+                                await Future.delayed(
+                                    const Duration(milliseconds: 30));
+                                await controller.simulateGame();
+                              },
+                            ),
+                          ],
+                          if (config.showRemoveAds) ...[
+                            const SizedBox(height: 6),
+                            _menuTile(
+                              context,
+                              icon: Icons.block,
+                              label: 'Remove Ads — 1€',
+                              onTap: () async {
+                                await _buyPremium();
+                              },
+                            ),
+                          ],
+                          if (config.showRestorePurchases && Platform.isIOS) ...[
+                            const SizedBox(height: 6),
+                            _menuTile(
+                              context,
+                              icon: Icons.restore,
+                              label: 'Restore Purchases',
+                              onTap: () async {
+                                await _iap?.restorePurchases();
+                              },
+                            ),
+                          ],
+                          if (isPhoneFullscreen) ...[
+                            const SizedBox(height: 12),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: ElevatedButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.brandGold,
+                                  foregroundColor: const Color(0xFF2B221D),
+                                  shadowColor: Colors.black54,
+                                  elevation: 4,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(24)),
+                                  textStyle: const TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: 0.2),
+                                ),
+                                child: const Text('Close'),
+                              ),
+                            ),
+                          ],
                       ],
                     ),
                   ),
@@ -593,6 +631,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
           ),
         ),
       ),
+    ),
     );
   }
 

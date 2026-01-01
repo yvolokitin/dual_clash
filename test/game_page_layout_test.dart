@@ -1,5 +1,6 @@
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/ui/pages/game_page.dart';
+import 'package:dual_clash/ui/widgets/game_layout_metrics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -41,5 +42,25 @@ void main() {
     expect(find.text('Patreon'), findsOneWidget);
     expect(find.text('Boosty'), findsOneWidget);
     expect(find.text('Ko-fi'), findsOneWidget);
+  });
+
+  testWidgets('layout metrics reuse board sizing rules', (tester) async {
+    final controller = GameController()..boardPixelSize = 900;
+    late GameLayoutMetrics metrics;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) {
+            metrics = GameLayoutMetrics.from(context, controller);
+            return const SizedBox.shrink();
+          },
+        ),
+      ),
+    );
+
+    expect(metrics.boardCellSize, closeTo(97.555, 0.01));
+    expect(metrics.scoreItemSize,
+        closeTo(metrics.boardCellSize * 0.595, 0.01));
   });
 }

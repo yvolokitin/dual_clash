@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
 import 'dart:ui' as ui; // for potential future effects
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/core/colors.dart';
-import 'package:dual_clash/core/constants.dart';
 import 'package:dual_clash/models/cell_state.dart';
 import 'package:dual_clash/logic/rules_engine.dart';
 import 'package:dual_clash/ui/widgets/board_widget.dart';
+import 'package:dual_clash/ui/widgets/game_layout_metrics.dart';
 import 'package:dual_clash/ui/dialogs/main_menu_dialog.dart' as mmd;
 import 'package:dual_clash/ui/dialogs/results_dialog.dart' as results;
 
@@ -200,18 +199,6 @@ class _DuelPageState extends State<DuelPage> {
     super.dispose();
   }
 
-  void _maybeShowResultsDialog(BuildContext context) {
-    final c = widget.controller;
-    if (c.gameOver && !c.resultsShown) {
-      c.resultsShown = true; // guard
-      // Small delay so the user can see the border animation
-      Future.delayed(Duration(milliseconds: c.winnerBorderAnimMs), () {
-        if (!context.mounted) return;
-        results.showAnimatedResultsDialog(context: context, controller: c);
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final controller = widget.controller;
@@ -223,37 +210,20 @@ class _DuelPageState extends State<DuelPage> {
         final yellowBase = controller.scoreYellowBase();
         final greenBase = controller.scoreGreenBase();
         final neutralsCount = RulesEngine.countOf(controller.board, CellState.neutral);
-        final bool isTallMobile = (Platform.isAndroid || Platform.isIOS) &&
-            MediaQuery.of(context).size.height > 1200;
+        final metrics = GameLayoutMetrics.from(context, controller);
+        final boardCellSize = metrics.boardCellSize;
+        final scoreItemSize = metrics.scoreItemSize;
+        final scoreTopPadding = metrics.scoreTopPadding;
+        final textStyle = metrics.scoreTextStyle;
 
-        // Match score row icon size to exact board cell image size, scaled same as GamePage
-        const double _boardBorderPx = 3.0; // keep in sync with BoardWidget
-        final double _gridSpacingPx = K.n == 9 ? 2.0 : 0.0; // keep in sync with BoardWidget
-        final bool _hasBoardSize = controller.boardPixelSize > 0;
-        final double _innerBoardSide =
-            _hasBoardSize ? controller.boardPixelSize - 2 * _boardBorderPx : 0;
-        // The exact pixel size of one board cell
-        final double boardCellSize = _hasBoardSize
-            ? (_innerBoardSide - _gridSpacingPx * (K.n - 1)) / K.n
-            : 22.0;
-        // Smaller size used for score-row chips/icons (keeps layout similar)
-        final double scoreItemSize = boardCellSize * 0.595; // keep consistent with GamePage
-        final double scoreFontScale = isTallMobile ? 0.9 : 1.0;
-        final double scoreTopPadding = isTallMobile ? 20.0 : 0.0;
-
-        // Score-row text style: same height as icon, bold, and gold color
-        final textStyle = TextStyle(
-          fontSize: scoreItemSize * scoreFontScale,
-          height: 1.0,
-          fontWeight: FontWeight.w800,
-          color: const Color(0xFFE5AD3A),
+        results.maybeShowResultsDialog(
+          context: context,
+          controller: controller,
         );
 
-        _maybeShowResultsDialog(context);
-
         return WillPopScope(
-                  onWillPop: () => _confirmLeaveDuel(context),
-                  child: Scaffold(
+          onWillPop: () => _confirmLeaveDuel(context),
+          child: Scaffold(
           backgroundColor: AppColors.bg,
           body: SafeArea(
             child: Column(
@@ -267,7 +237,7 @@ class _DuelPageState extends State<DuelPage> {
                       right: 16.0),
                   child: Center(
                     child: SizedBox(
-                      width: controller.boardPixelSize > 0 ? controller.boardPixelSize : null,
+                      width: metrics.boardWidth,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -369,7 +339,7 @@ class _DuelPageState extends State<DuelPage> {
                   padding: const EdgeInsets.only(bottom: 12.0, top: 6.0),
                   child: Center(
                     child: SizedBox(
-                      width: controller.boardPixelSize > 0 ? controller.boardPixelSize : null,
+                      width: metrics.boardWidth,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [

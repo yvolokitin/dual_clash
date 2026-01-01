@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:dual_clash/core/colors.dart';
-import 'package:dual_clash/core/constants.dart';
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/logic/rules_engine.dart';
 import 'package:dual_clash/models/cell_state.dart';
@@ -13,6 +12,7 @@ import 'package:dual_clash/ui/widgets/board_widget.dart';
 import 'package:dual_clash/ui/widgets/game_page_ai_level_row.dart';
 import 'package:dual_clash/ui/widgets/game_page_score_row.dart';
 import 'package:dual_clash/ui/widgets/support_links_bar.dart';
+import 'package:dual_clash/ui/widgets/game_layout_metrics.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,86 +25,6 @@ class GamePage extends StatefulWidget {
 
   @override
   State<GamePage> createState() => _GamePageState();
-}
-
-/// Layout values derived from the board size and platform characteristics.
-///
-/// Centralizing these calculations keeps the UI consistent across widgets and
-/// avoids accidental drift from the board sizing logic.
-class GamePageLayoutMetrics {
-  final bool isMobile;
-  final double boardCellSize;
-  final double scoreItemSize;
-  final double scoreTopPadding;
-  final double menuIconSize;
-  final double pointsItemSize;
-  final TextStyle scoreTextStyle;
-  final TextStyle pointsTextStyle;
-  final double? boardWidth;
-
-  const GamePageLayoutMetrics({
-    required this.isMobile,
-    required this.boardCellSize,
-    required this.scoreItemSize,
-    required this.scoreTopPadding,
-    required this.menuIconSize,
-    required this.pointsItemSize,
-    required this.scoreTextStyle,
-    required this.pointsTextStyle,
-    required this.boardWidth,
-  });
-
-  factory GamePageLayoutMetrics.from(
-      BuildContext context, GameController controller) {
-    final bool isMobile = Platform.isAndroid || Platform.isIOS;
-    final bool isTallMobile =
-        isMobile && MediaQuery.of(context).size.height > 1200;
-
-    // Match score row icon sizes relative to exact board cell size.
-    // Keep the border and grid spacing in sync with BoardWidget.
-    const double boardBorderPx = 3.0;
-    final double gridSpacingPx = K.n == 9 ? 2.0 : 0.0;
-    final bool hasBoardSize = controller.boardPixelSize > 0;
-    final double innerBoardSide =
-        hasBoardSize ? controller.boardPixelSize - 2 * boardBorderPx : 0;
-    final double boardCellSize = hasBoardSize
-        ? (innerBoardSide - gridSpacingPx * (K.n - 1)) / K.n
-        : 22.0;
-    final double scoreItemSize = boardCellSize * 0.595;
-    final double scoreFontScale = isTallMobile ? 0.9 : 1.0;
-    final double scoreTopPadding = isTallMobile ? 20.0 : 0.0;
-
-    final scoreTextStyle = TextStyle(
-      fontSize: scoreItemSize * scoreFontScale,
-      height: 1.0,
-      fontWeight: FontWeight.w800,
-      color: const Color(0xFFE5AD3A),
-    );
-
-    final double menuIconSize =
-        isMobile ? boardCellSize * 1.2 : boardCellSize;
-    final double pointsItemSize =
-        isMobile ? scoreItemSize * 1.2 : scoreItemSize;
-
-    final TextStyle pointsTextStyle = isMobile
-        ? scoreTextStyle.copyWith(
-            fontSize: scoreTextStyle.fontSize! * 1.2,
-            fontWeight: FontWeight.w900,
-          )
-        : scoreTextStyle;
-
-    return GamePageLayoutMetrics(
-      isMobile: isMobile,
-      boardCellSize: boardCellSize,
-      scoreItemSize: scoreItemSize,
-      scoreTopPadding: scoreTopPadding,
-      menuIconSize: menuIconSize,
-      pointsItemSize: pointsItemSize,
-      scoreTextStyle: scoreTextStyle,
-      pointsTextStyle: pointsTextStyle,
-      boardWidth: hasBoardSize ? controller.boardPixelSize : null,
-    );
-  }
 }
 
 class _GamePageState extends State<GamePage> {
@@ -128,17 +48,6 @@ class _GamePageState extends State<GamePage> {
     _adRetryTimer?.cancel();
     _bannerAd?.dispose();
     super.dispose();
-  }
-
-  void _maybeShowResultsDialog(BuildContext context) {
-    if (controller.gameOver && !controller.resultsShown) {
-      controller.resultsShown = true; // guard
-      // Wait so player can see the winner border animation
-      Future.delayed(Duration(milliseconds: controller.winnerBorderAnimMs), () {
-        if (!context.mounted) return;
-        showAnimatedResultsDialog(context: context, controller: controller);
-      });
-    }
   }
 
   Future<void> _loadPremiumAndMaybeAd() async {
@@ -309,7 +218,7 @@ class _GamePageState extends State<GamePage> {
         final blueBase = controller.scoreBlueBase();
         final neutralsCount =
             RulesEngine.countOf(controller.board, CellState.neutral);
-        final metrics = GamePageLayoutMetrics.from(context, controller);
+        final metrics = GameLayoutMetrics.from(context, controller);
         final bool isMobile = metrics.isMobile;
 
         Future<void> openStatistics() async {
@@ -318,7 +227,7 @@ class _GamePageState extends State<GamePage> {
         }
 
         // Auto-show end results dialog once
-        _maybeShowResultsDialog(context);
+        maybeShowResultsDialog(context: context, controller: controller);
 
         return Scaffold(
           backgroundColor: AppColors.bg,
