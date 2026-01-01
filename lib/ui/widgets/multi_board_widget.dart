@@ -51,18 +51,18 @@ class MultiBoardWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               child: GridView.builder(
                 physics: const NeverScrollableScrollPhysics(),
-                padding: K.n == 9 ? EdgeInsets.zero : const EdgeInsets.only(bottom: 6),
+                padding: EdgeInsets.zero,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: K.n,
-                  mainAxisSpacing: K.n == 9 ? 2 : 0,
-                  crossAxisSpacing: K.n == 9 ? 2 : 0,
+                  mainAxisSpacing: 2,
+                  crossAxisSpacing: 2,
                 ),
                 itemCount: K.n * K.n,
                 itemBuilder: (context, index) {
                   final r = index ~/ K.n;
                   final c = index % K.n;
                   final st = controller.board[r][c];
-                  final radius = BorderRadius.circular(K.n == 9 ? 2 : 8);
+                  final radius = BorderRadius.circular(2);
                   return Stack(
                     fit: StackFit.expand,
                     children: [

@@ -13,22 +13,15 @@ class BoardWidget extends StatelessWidget {
   const BoardWidget({super.key, required this.controller});
 
   List<Color> _borderGradientColors() {
-    // For 9x9 board, use a darker-to-lighter green gradient around the current bg (#3B7D23)
+    // Use a darker-to-lighter green gradient around the current bg (#3B7D23)
     final base = AppColors.bg;
     final hsl = HSLColor.fromColor(base);
 
-    if (K.n == 9) {
-      final darker =
-          hsl.withLightness((hsl.lightness - 0.18).clamp(0.0, 1.0)).toColor();
-      final lighter =
-          hsl.withLightness((hsl.lightness + 0.22).clamp(0.0, 1.0)).toColor();
-      return [darker, lighter];
-    }
-
-    // Default: subtle from base to a slightly lighter shade
+    final darker =
+        hsl.withLightness((hsl.lightness - 0.18).clamp(0.0, 1.0)).toColor();
     final lighter =
-        hsl.withLightness((hsl.lightness + 0.20).clamp(0.0, 1.0)).toColor();
-    return [base, lighter];
+        hsl.withLightness((hsl.lightness + 0.22).clamp(0.0, 1.0)).toColor();
+    return [darker, lighter];
   }
 
   @override
@@ -39,7 +32,7 @@ class BoardWidget extends StatelessWidget {
         final availableWidth = constraints.maxWidth;
         final availableHeight = constraints.maxHeight;
         final sizeWithoutPadding = math.min(availableWidth, availableHeight);
-        final minSidePadding = K.n == 9 ? 10.0 : 0.0;
+        const minSidePadding = 10.0;
         final sideMargin = (availableWidth - sizeWithoutPadding) / 2;
         final horizontalPadding = sideMargin < minSidePadding ? minSidePadding : 0.0;
         final paddedWidth =
@@ -84,21 +77,19 @@ class BoardWidget extends StatelessWidget {
                     offset: Offset(0, 2)),
               ],
             ),
-            foregroundDecoration: K.n == 9
-                ? BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    // Vignette: transparent center fading to a subtle dark edge for better visibility
-                    gradient: RadialGradient(
-                      center: Alignment.center,
-                      radius: 0.90,
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withOpacity(0.25),
-                      ],
-                      stops: const [0.55, 1.0],
-                    ),
-                  )
-                : null,
+            foregroundDecoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              // Vignette: transparent center fading to a subtle dark edge for better visibility
+              gradient: RadialGradient(
+                center: Alignment.center,
+                radius: 0.90,
+                colors: [
+                  Colors.transparent,
+                  Colors.black.withOpacity(0.25),
+                ],
+                stops: const [0.55, 1.0],
+              ),
+            ),
             child: Stack(
               fit: StackFit.expand,
               children: [
@@ -108,15 +99,15 @@ class BoardWidget extends StatelessWidget {
                     fit: StackFit.expand,
                     children: [
                       // Solid backdrop to eliminate any tiny seams between cells
-                      Container(color: K.n == 9 ? const Color(0xFF171D3F) : AppColors.cellDark),
+                      Container(color: const Color(0xFF171D3F)),
                       GridView.builder(
                         physics: const NeverScrollableScrollPhysics(),
-                        padding: K.n == 9 ? EdgeInsets.zero : const EdgeInsets.only(bottom: 6),
+                        padding: EdgeInsets.zero,
                         gridDelegate:
                             SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: K.n,
-                          mainAxisSpacing: K.n == 9 ? 2 : 0,
-                          crossAxisSpacing: K.n == 9 ? 2 : 0,
+                          mainAxisSpacing: 2,
+                          crossAxisSpacing: 2,
                         ),
                         itemCount: K.n * K.n,
                         itemBuilder: (context, index) {
@@ -126,10 +117,9 @@ class BoardWidget extends StatelessWidget {
                           final isGold = controller.gameOver &&
                               controller.goldCells.contains((r, c));
 
-                          // For 9x9 board, cells should have slight rounding (2px). For others keep 8px.
-                          final BorderRadius cellRadius = (K.n == 9)
-                              ? BorderRadius.circular(2)
-                              : BorderRadius.circular(8);
+                          // For 9x9 board, cells should have slight rounding (2px).
+                          final BorderRadius cellRadius =
+                              BorderRadius.circular(2);
 
                           Widget cellStack = Stack(
                             fit: StackFit.expand,

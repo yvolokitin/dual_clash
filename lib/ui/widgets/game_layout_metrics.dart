@@ -40,7 +40,7 @@ class GameLayoutMetrics {
     // Match score row icon sizes relative to exact board cell size.
     // Keep the border and grid spacing in sync with BoardWidget.
     const double boardBorderPx = 3.0;
-    final double gridSpacingPx = K.n == 9 ? 2.0 : 0.0;
+    const double gridSpacingPx = 2.0;
     final bool hasBoardSize = controller.boardPixelSize > 0;
     final double innerBoardSide =
         hasBoardSize ? controller.boardPixelSize - 2 * boardBorderPx : 0;

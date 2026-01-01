@@ -175,14 +175,9 @@ class _EmptyCell extends StatelessWidget {
         // Base dark panel
         Container(
           decoration: BoxDecoration(
-            color: K.n == 9 ? const Color(0xFF1F2547) : AppColors.cellDark,
+            color: const Color(0xFF1F2547),
             borderRadius: radius,
-            border: K.n == 9
-                ? null
-                : Border.all(
-                    color: AppColors.cellDarkBorder,
-                    width: 2,
-                  ),
+            border: null,
           ),
         ),
 

@@ -34,18 +34,18 @@ class MultiCellWidget extends StatelessWidget {
   }
 
   Widget _emptyCell() {
-    final radius = borderRadius ?? BorderRadius.circular(K.n == 9 ? 2 : 8);
+    final radius = borderRadius ?? BorderRadius.circular(2);
     return Container(
       decoration: BoxDecoration(
-        color: K.n == 9 ? const Color(0xFF1F2547) : const Color(0xFF1C4011),
+        color: const Color(0xFF1F2547),
         borderRadius: radius,
-        border: K.n == 9 ? null : Border.all(color: const Color(0xFF121317), width: 2),
+        border: null,
       ),
     );
   }
 
   Widget _tile(Color color) {
-    final radius = borderRadius ?? BorderRadius.circular(K.n == 9 ? 2 : 8);
+    final radius = borderRadius ?? BorderRadius.circular(2);
     return Container(
       decoration: BoxDecoration(
         color: color,
