@@ -7,6 +7,7 @@ import '../../logic/game_controller.dart';
 import '../../core/colors.dart';
 import '../../core/constants.dart';
 import '../../core/countries.dart';
+import 'help_page.dart';
 import 'history_page.dart';
 
 Widget _beltCard(String name, Color color, bool achieved) {
@@ -477,10 +478,10 @@ class _ProfileDialogState extends State<ProfileDialog> {
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white.withOpacity(0.12),
+                            backgroundColor: AppColors.green,
                             foregroundColor: Colors.white,
-                            shadowColor: Colors.transparent,
-                            elevation: 0,
+                            shadowColor: Colors.black54,
+                            elevation: 4,
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 12),
                             shape: RoundedRectangleBorder(
@@ -493,12 +494,38 @@ class _ProfileDialogState extends State<ProfileDialog> {
                         ),
                         const SizedBox(width: 10),
                         ElevatedButton(
+                          onPressed: () async {
+                            Navigator.of(context).pop();
+                            await Future.delayed(
+                                const Duration(milliseconds: 50));
+                            if (context.mounted) {
+                              await showAnimatedHelpDialog(
+                                  context: context, controller: controller);
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.red,
+                            foregroundColor: Colors.white,
+                            shadowColor: Colors.black54,
+                            elevation: 4,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24)),
+                            textStyle: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 0.2),
+                          ),
+                          child: const Text('Help'),
+                        ),
+                        const SizedBox(width: 10),
+                        ElevatedButton(
                           onPressed: () => Navigator.of(context).pop(),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white.withOpacity(0.12),
-                            foregroundColor: Colors.white,
-                            shadowColor: Colors.transparent,
-                            elevation: 0,
+                            backgroundColor: AppColors.brandGold,
+                            foregroundColor: const Color(0xFF2B221D),
+                            shadowColor: Colors.black54,
+                            elevation: 4,
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 20, vertical: 12),
                             shape: RoundedRectangleBorder(
