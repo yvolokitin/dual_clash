@@ -178,7 +178,9 @@ class ResultsCard extends StatelessWidget {
                       final double spacing = 10;
                       final double ratio = width >= 420 ? 1.1 : 1.0;
                       final bool compactRow = tileCount == 3 && width < 550;
-                      final double scale = compactRow ? 0.7 : 0.8;
+                      final double baseScale = compactRow ? 0.7 : 0.8;
+                      final double scale =
+                          isPhoneFullscreen ? baseScale : baseScale * 0.8;
                       return GridView.count(
                         crossAxisCount: columns,
                         shrinkWrap: true,
