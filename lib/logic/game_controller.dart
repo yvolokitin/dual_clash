@@ -1520,7 +1520,7 @@ class GameController extends ChangeNotifier {
       return;
     }
 
-    final (r, c) = placeChoice;
+    final (r, c) = placeChoice!;
     final before = board;
     final next = RulesEngine.place(board, r, c, CellState.blue);
     if (next != null) {
