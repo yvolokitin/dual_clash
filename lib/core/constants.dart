@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class K {
-  static const int n = 9; // 9x9 grid
+  static int n = 9; // 9x9 grid (runtime override for phone sizing)
 }
 
 class AiBelt {

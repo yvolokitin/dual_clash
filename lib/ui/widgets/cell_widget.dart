@@ -175,14 +175,9 @@ class _EmptyCell extends StatelessWidget {
         // Base dark panel
         Container(
           decoration: BoxDecoration(
-            color: K.n == 9 ? const Color(0xFF1F2547) : AppColors.cellDark,
+            color: const Color(0xFF1F2547),
             borderRadius: radius,
-            border: K.n == 9
-                ? null
-                : Border.all(
-                    color: AppColors.cellDarkBorder,
-                    width: 2,
-                  ),
+            border: null,
           ),
         ),
 
@@ -260,48 +255,51 @@ class _InsetTile extends StatelessWidget {
   Widget build(BuildContext context) {
     // Draw the tile content without any outer padding/border to avoid
     // the dark rim showing through at rounded corners.
-    return ClipRRect(
-      borderRadius: radius,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          // Base image. Disable linear sampling to avoid dark fringe
-          // around transparent pixels when the image is scaled.
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
-            child: Image.asset(
-              asset,
-              key: ValueKey(asset),
-              fit: BoxFit.cover,
-              filterQuality: FilterQuality.none,
+    return Padding(
+      padding: const EdgeInsets.all(1),
+      child: ClipRRect(
+        borderRadius: radius,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Base image. Disable linear sampling to avoid dark fringe
+            // around transparent pixels when the image is scaled.
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: Image.asset(
+                asset,
+                key: ValueKey(asset),
+                fit: BoxFit.cover,
+                filterQuality: FilterQuality.none,
+              ),
             ),
-          ),
 
-          // Flash overlay when color is changing
-          Positioned.fill(
-            child: IgnorePointer(
-              child: AnimatedOpacity(
-                opacity: flashing ? 0.9 : 0.0,
-                duration: const Duration(milliseconds: 120),
-                curve: Curves.easeOut,
-                child: const DecoratedBox(
-                  decoration: BoxDecoration(
-                    // warm white flash with slight radial falloff via gradient
-                    gradient: RadialGradient(
-                      center: Alignment.topLeft,
-                      radius: 1.2,
-                      colors: [Color(0xCCFFFFFF), Color(0x00FFFFFF)],
-                      stops: [0.0, 1.0],
+            // Flash overlay when color is changing
+            Positioned.fill(
+              child: IgnorePointer(
+                child: AnimatedOpacity(
+                  opacity: flashing ? 0.9 : 0.0,
+                  duration: const Duration(milliseconds: 120),
+                  curve: Curves.easeOut,
+                  child: const DecoratedBox(
+                    decoration: BoxDecoration(
+                      // warm white flash with slight radial falloff via gradient
+                      gradient: RadialGradient(
+                        center: Alignment.topLeft,
+                        radius: 1.2,
+                        colors: [Color(0xCCFFFFFF), Color(0x00FFFFFF)],
+                        stops: [0.0, 1.0],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
 
-          // Removed extra highlight/shadow overlays to prevent any rim or darkening
-          // bleeding into the transparent corners of the tile image.
-        ],
+            // Removed extra highlight/shadow overlays to prevent any rim or darkening
+            // bleeding into the transparent corners of the tile image.
+          ],
+        ),
       ),
     );
   }

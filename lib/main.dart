@@ -1,3 +1,10 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'dart:ui' as ui;
+import 'ui/pages/main_menu_page.dart';
+import 'logic/game_controller.dart';
+import 'core/constants.dart';
+
 import 'dart:io';
 
 import 'package:dual_clash/core/feature_flags.dart';
@@ -10,6 +17,7 @@ import 'ui/pages/main_menu_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  _configureBoardSizeForDevice();
 
   // AdMob SDK init, Инициализируем AdMob только там, где поддерживается плагин
   if (FF_ADS && (Platform.isAndroid || Platform.isIOS)) {
@@ -61,7 +69,7 @@ class _TwoTouchAppState extends State<TwoTouchApp> {
   Widget build(BuildContext context) {
     final base = ThemeData();
     return MaterialApp(
-      title: 'Two Touch 9x9',
+      title: 'Two Touch ${K.n}x${K.n}',
       debugShowCheckedModeBanner: false,
       theme: base.copyWith(
         textTheme: _boldAll(base.textTheme.apply(fontFamily: 'Fredoka')),
@@ -71,4 +79,18 @@ class _TwoTouchAppState extends State<TwoTouchApp> {
       home: MainMenuPage(controller: controller),
     );
   }
+}
+
+void _configureBoardSizeForDevice() {
+  const double tabletBreakpoint = 600.0;
+  final bool isMobilePlatform = !kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS);
+  final views = WidgetsBinding.instance.platformDispatcher.views;
+  final ui.FlutterView? view = views.isNotEmpty ? views.first : null;
+  final double shortestSide = view == null
+      ? 0
+      : (view.physicalSize / view.devicePixelRatio).shortestSide;
+  final bool isPhone = isMobilePlatform && shortestSide < tabletBreakpoint;
+  K.n = isPhone ? 8 : 9;
 }
