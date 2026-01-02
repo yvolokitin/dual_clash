@@ -94,7 +94,8 @@ class WavesPainter extends CustomPainter {
     final bottomBase = _darken(baseColor, 0.40);
     final bottomFarColor = _lighten(bottomBase, 0.06).withOpacity(0.18);
     final bottomMidColor = _lighten(bottomBase, 0.12).withOpacity(0.22);
-    final bottomNearColor = _lighten(bottomBase, 0.18).withOpacity(0.26);
+    final bottomNearColor =
+        _darken(_lighten(bottomBase, 0.18), 0.20).withOpacity(0.26);
 
     final height = size.height;
     final width = size.width;
