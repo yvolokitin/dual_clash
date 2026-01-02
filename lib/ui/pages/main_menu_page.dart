@@ -418,7 +418,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         imagePath: 'assets/icons/menu_323.png',
                         label: compactLabels ? 'Triple' : 'Triple Threat',
                         disabled: false,
-                        color: AppColors.yellow,
+                        color: AppColors.red,
                         onTap: () {
                           Navigator.of(ctx).pop();
                           _pushWithSlide(
