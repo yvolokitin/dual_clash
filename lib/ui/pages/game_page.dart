@@ -250,6 +250,8 @@ class _GamePageState extends State<GamePage> {
           body: SafeArea(
             child: Column(
               children: [
+                if (Platform.isAndroid || Platform.isIOS)
+                  const SizedBox(height: 20),
 
                 // Score row before the board — kept width-aligned with board.
                 GamePageScoreRow(
