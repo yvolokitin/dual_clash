@@ -72,6 +72,8 @@ class GameController extends ChangeNotifier {
   bool achievedRedRow = false;
   bool achievedRedColumn = false;
   bool achievedRedDiagonal = false;
+  bool achievedGamePoints100 = false;
+  bool achievedGamePoints1000 = false;
   // --- Playtime tracking for current game ---
   int _playAccumMs =
       0; // accumulated active milliseconds for this game (excludes app downtime)
@@ -154,6 +156,8 @@ class GameController extends ChangeNotifier {
   static const _kAchievedRedRow = 'achievedRedRow';
   static const _kAchievedRedColumn = 'achievedRedColumn';
   static const _kAchievedRedDiagonal = 'achievedRedDiagonal';
+  static const _kAchievedGamePoints100 = 'achievedGamePoints100';
+  static const _kAchievedGamePoints1000 = 'achievedGamePoints1000';
   static final RegExp nicknameRegExp = RegExp(r'^[A-Za-z0-9._-]{1,32}$');
 
   // In-memory settings
@@ -666,6 +670,10 @@ class GameController extends ChangeNotifier {
     achievedRedColumn = prefs.getBool(_kAchievedRedColumn) ?? achievedRedColumn;
     achievedRedDiagonal =
         prefs.getBool(_kAchievedRedDiagonal) ?? achievedRedDiagonal;
+    achievedGamePoints100 =
+        prefs.getBool(_kAchievedGamePoints100) ?? achievedGamePoints100;
+    achievedGamePoints1000 =
+        prefs.getBool(_kAchievedGamePoints1000) ?? achievedGamePoints1000;
 
     // Apply theme immediately
     AppColors.bg = Color(themeColorHex);
@@ -1741,6 +1749,12 @@ class GameController extends ChangeNotifier {
     if (anyRedDiag || anyRedAntiDiag) {
       achievedRedDiagonal = achievedRedDiagonal || true;
     }
+    if (redGamePoints >= 100) {
+      achievedGamePoints100 = true;
+    }
+    if (redGamePoints >= 1000) {
+      achievedGamePoints1000 = true;
+    }
 
     // Append to history
     final result = GameResult(
@@ -1781,6 +1795,8 @@ class GameController extends ChangeNotifier {
     await prefs.setBool(_kAchievedRedRow, achievedRedRow);
     await prefs.setBool(_kAchievedRedColumn, achievedRedColumn);
     await prefs.setBool(_kAchievedRedDiagonal, achievedRedDiagonal);
+    await prefs.setBool(_kAchievedGamePoints100, achievedGamePoints100);
+    await prefs.setBool(_kAchievedGamePoints1000, achievedGamePoints1000);
     notifyListeners();
   }
 

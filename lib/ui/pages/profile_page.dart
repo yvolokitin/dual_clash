@@ -10,43 +10,39 @@ import '../../core/countries.dart';
 import 'help_page.dart';
 import 'history_page.dart';
 
-Widget _beltCard(String name, Color color, bool achieved) {
+Widget _beltTile(String name, Color color) {
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
     decoration: BoxDecoration(
-      color:
-          achieved ? color.withOpacity(0.25) : Colors.white.withOpacity(0.08),
-      borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: achieved ? color : Colors.white24, width: 1),
+      color: color.withOpacity(0.2),
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(color: color, width: 1),
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-            width: 12,
-            height: 12,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
-        const SizedBox(width: 8),
-        const Text(' ',
-            style:
-                TextStyle(fontSize: 0)), // ensure constant first, then dynamic
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 6),
         Text(name,
             style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w800,
-                letterSpacing: 0.2)),
-        if (achieved) ...[
-          const SizedBox(width: 8),
-          const Icon(Icons.check_circle,
-              color: Colors.lightGreenAccent, size: 16),
-        ]
+                letterSpacing: 0.2,
+                fontSize: 12)),
       ],
     ),
   );
 }
 
 Widget beltsGridWidget(Set<String> badges) {
-  bool achievedLevel(int lvl) => badges.contains('Beat AI L$lvl');
+  final achievedLevels = <int>[
+    for (int lvl = 1; lvl <= 7; lvl++)
+      if (badges.contains('Beat AI L$lvl')) lvl
+  ];
   return Container(
     width: double.infinity,
     padding: const EdgeInsets.all(12),
@@ -55,15 +51,17 @@ Widget beltsGridWidget(Set<String> badges) {
       borderRadius: BorderRadius.circular(12),
       border: Border.all(color: Colors.white24, width: 1),
     ),
-    child: Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        for (int lvl = 1; lvl <= 7; lvl++)
-          _beltCard(
-              AiBelt.nameFor(lvl), AiBelt.colorFor(lvl), achievedLevel(lvl)),
-      ],
-    ),
+    child: achievedLevels.isEmpty
+        ? const Text('No belts earned yet.',
+            style: TextStyle(color: Colors.white54))
+        : Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final lvl in achievedLevels)
+                _beltTile(AiBelt.nameFor(lvl), AiBelt.colorFor(lvl)),
+            ],
+          ),
   );
 }
 
@@ -454,6 +452,10 @@ class _ProfileDialogState extends State<ProfileDialog> {
                                   'Full Column', controller.achievedRedColumn),
                               _achChip(
                                   'Diagonal', controller.achievedRedDiagonal),
+                              _achChip('100 Game Points',
+                                  controller.achievedGamePoints100),
+                              _achChip('1000 Game Points',
+                                  controller.achievedGamePoints1000),
                             ],
                           ),
                           // Legacy badges section removed as per spec; only Achievements and Belts remain
