@@ -1,0 +1,7 @@
+Dual Clash is a turn-based board game where players take turns claiming squares to score points.
+
+Supported modes:
+- Game Challenge: single-player vs AI with adjustable difficulty.
+- Duel Mode: two-player human vs human.
+- Triple Threat: three-player human vs human.
+- Quad Clash: four-player human vs human.
