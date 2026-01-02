@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:dual_clash/core/feature_flags.dart';
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/core/colors.dart';
 import 'package:dual_clash/core/constants.dart';
@@ -78,7 +79,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
   @override
   void initState() {
     super.initState();
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (FF_ADS && (Platform.isAndroid || Platform.isIOS)) {
       _iap = InAppPurchase.instance;
       _purchaseSub = _iap!.purchaseStream.listen(
         _handlePurchases,
@@ -134,6 +135,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
   }
 
   Future<void> _buyPremium() async {
+    if (!FF_ADS) return;
     if (_iap == null || !_iapAvailable || _premiumProduct == null) {
       return;
     }
@@ -577,7 +579,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                               },
                             ),
                           ],
-                          if (config.showRemoveAds) ...[
+                          if (FF_ADS && config.showRemoveAds) ...[
                             const SizedBox(height: 6),
                             _menuTile(
                               context,
@@ -588,7 +590,9 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                               },
                             ),
                           ],
-                          if (config.showRestorePurchases && Platform.isIOS) ...[
+                          if (FF_ADS &&
+                              config.showRestorePurchases &&
+                              Platform.isIOS) ...[
                             const SizedBox(height: 6),
                             _menuTile(
                               context,

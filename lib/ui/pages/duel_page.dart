@@ -214,7 +214,9 @@ class _DuelPageState extends State<DuelPage> {
         final boardCellSize = metrics.boardCellSize;
         final scoreItemSize = metrics.scoreItemSize;
         final scoreTopPadding = metrics.scoreTopPadding;
+        final menuIconSize = metrics.menuIconSize;
         final textStyle = metrics.scoreTextStyle;
+        final isMobile = metrics.isMobile;
 
         results.maybeShowResultsDialog(
           context: context,
@@ -238,38 +240,9 @@ class _DuelPageState extends State<DuelPage> {
                   child: Center(
                     child: SizedBox(
                       width: metrics.boardWidth,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Left side: main menu button pops back directly
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                padding: EdgeInsets.zero,
-                                constraints: BoxConstraints.tightFor(
-                                  width: boardCellSize,
-                                  height: boardCellSize,
-                                ),
-                                icon: Image.asset(
-                                  'assets/icons/menu_121.png',
-                                  width: boardCellSize,
-                                  height: boardCellSize,
-                                ),
-                                tooltip: 'Menu',
-                                onPressed: () async {
-                                  await mmd.showAnimatedMainMenuDialog(
-                                      context: context,
-                                      controller: controller,
-                                      config: const mmd.MenuDialogConfig.duel());
-                                },
-                              ),
-                            ],
-                          ),
-                          // Middle: turn indicator moved to bottom row
-                          const SizedBox.shrink(),
-                          // Right side: counts only (number -> icon) for red, grey, blue
-                          Row(
+                      child: Builder(
+                        builder: (context) {
+                          final playerCountsRow = Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               if (!controller.isMultiDuel) ...[
@@ -316,8 +289,80 @@ class _DuelPageState extends State<DuelPage> {
                                     width: scoreItemSize, height: scoreItemSize),
                               ],
                             ],
-                          ),
-                        ],
+                          );
+
+                          if (isMobile) {
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    IconButton(
+                                      padding: EdgeInsets.zero,
+                                      constraints: BoxConstraints.tightFor(
+                                        width: menuIconSize,
+                                        height: menuIconSize,
+                                      ),
+                                      icon: Image.asset(
+                                        'assets/icons/menu_pvai.png',
+                                        width: menuIconSize,
+                                        height: menuIconSize,
+                                      ),
+                                      tooltip: 'Menu',
+                                      onPressed: () async {
+                                        await mmd.showAnimatedMainMenuDialog(
+                                            context: context,
+                                            controller: controller,
+                                            config:
+                                                const mmd.MenuDialogConfig.duel());
+                                      },
+                                    ),
+                                    const SizedBox(width: 1),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                Center(child: playerCountsRow),
+                              ],
+                            );
+                          }
+
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // Left side: main menu button pops back directly
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    padding: EdgeInsets.zero,
+                                    constraints: BoxConstraints.tightFor(
+                                      width: menuIconSize,
+                                      height: menuIconSize,
+                                    ),
+                                    icon: Image.asset(
+                                      'assets/icons/menu_pvai.png',
+                                      width: menuIconSize,
+                                      height: menuIconSize,
+                                    ),
+                                    tooltip: 'Menu',
+                                    onPressed: () async {
+                                      await mmd.showAnimatedMainMenuDialog(
+                                          context: context,
+                                          controller: controller,
+                                          config: const mmd.MenuDialogConfig.duel());
+                                    },
+                                  ),
+                                ],
+                              ),
+                              // Middle: turn indicator moved to bottom row
+                              const SizedBox.shrink(),
+                              // Right side: counts only (number -> icon) for red, grey, blue
+                              playerCountsRow,
+                            ],
+                          );
+                        },
                       ),
                     ),
                   ),

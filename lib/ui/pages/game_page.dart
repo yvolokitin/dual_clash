@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:dual_clash/core/colors.dart';
+import 'package:dual_clash/core/feature_flags.dart';
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/logic/rules_engine.dart';
 import 'package:dual_clash/models/cell_state.dart';
@@ -40,7 +41,9 @@ class _GamePageState extends State<GamePage> {
   @override
   void initState() {
     super.initState();
-    _loadPremiumAndMaybeAd();
+    if (FF_ADS) {
+      _loadPremiumAndMaybeAd();
+    }
   }
 
   @override
@@ -63,6 +66,7 @@ class _GamePageState extends State<GamePage> {
   }
 
   Future<void> _reloadPremiumStatus(BuildContext context) async {
+    if (!FF_ADS) return;
     final prefs = await SharedPreferences.getInstance();
     final hasPremium = prefs.getBool('has_premium') ?? false;
     if (!mounted) return;
@@ -81,6 +85,7 @@ class _GamePageState extends State<GamePage> {
   }
 
   void _startAdRetryTimer() {
+    if (!FF_ADS) return;
     if (!Platform.isAndroid && !Platform.isIOS) return;
     if (_hasPremium) return;
     if (_adRetryTimer?.isActive ?? false) return;
@@ -102,6 +107,7 @@ class _GamePageState extends State<GamePage> {
   }
 
   Future<void> _loadBannerIfEligible(BuildContext context) async {
+    if (!FF_ADS) return;
     if (!(Platform.isAndroid || Platform.isIOS)) return;
     if (_hasPremium) return;
     if (_bannerAd != null) return;
@@ -168,6 +174,7 @@ class _GamePageState extends State<GamePage> {
   }
 
   void _scheduleBannerLoad(BuildContext context) {
+    if (!FF_ADS) return;
     if (!(Platform.isAndroid || Platform.isIOS)) return;
     if (_hasPremium) return;
     if (_bannerAd != null || _isLoadingAd) return;
@@ -179,6 +186,14 @@ class _GamePageState extends State<GamePage> {
   }
 
   Widget _buildBottomBar(BuildContext context) {
+    if (!FF_ADS) {
+      return SizedBox(
+        height: AdSize.banner.height.toDouble(),
+        child: const DecoratedBox(
+          decoration: BoxDecoration(color: Colors.transparent),
+        ),
+      );
+    }
     if (_hasPremium) {
       return const SizedBox.shrink();
     }

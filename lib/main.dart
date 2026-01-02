@@ -6,7 +6,13 @@ import 'logic/game_controller.dart';
 import 'core/constants.dart';
 
 import 'dart:io';
+
+import 'package:dual_clash/core/feature_flags.dart';
+import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+
+import 'logic/game_controller.dart';
+import 'ui/pages/main_menu_page.dart';
 
 
 Future<void> main() async {
@@ -14,7 +20,7 @@ Future<void> main() async {
   _configureBoardSizeForDevice();
 
   // AdMob SDK init, Инициализируем AdMob только там, где поддерживается плагин
-  if (Platform.isAndroid || Platform.isIOS) {
+  if (FF_ADS && (Platform.isAndroid || Platform.isIOS)) {
     await MobileAds.instance.initialize();
   }
 
