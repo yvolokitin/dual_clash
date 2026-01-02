@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui; // for potential future effects
 import 'package:dual_clash/logic/game_controller.dart';
@@ -230,6 +232,8 @@ class _DuelPageState extends State<DuelPage> {
           body: SafeArea(
             child: Column(
               children: [
+                if (Platform.isAndroid || Platform.isIOS)
+                  const SizedBox(height: 20),
                 // Score row (no game points, only back to main menu)
                 Padding(
                   padding: EdgeInsets.only(
