@@ -32,6 +32,24 @@ class SimpleAI {
   /// Backward-compat: L2 greedy
   (int, int)? chooseMove(List<List<CellState>> board) => _l2Greedy(board);
 
+  /// Estimate blue win rate from a position by random rollouts.
+  double estimateWinRate(List<List<CellState>> board, CellState turn,
+      {int rollouts = 300, int timeLimitMs = 250}) {
+    final start = DateTime.now();
+    int wins = 0;
+    int plays = 0;
+    while (plays < rollouts &&
+        DateTime.now().difference(start).inMilliseconds < timeLimitMs) {
+      final blueWon = _randomPlayout(board, turn);
+      plays++;
+      if (blueWon) wins++;
+    }
+    if (plays == 0) {
+      return _score(board) > 0 ? 1.0 : 0.0;
+    }
+    return wins / plays;
+  }
+
   // L1 Random empty
   (int, int)? _l1Random(List<List<CellState>> board) {
     final empties = <(int, int)>[];

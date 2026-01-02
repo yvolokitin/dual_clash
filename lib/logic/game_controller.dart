@@ -11,6 +11,12 @@ import '../core/constants.dart';
 import '../models/game_result.dart';
 import '../core/countries.dart';
 
+enum _AiAction {
+  place,
+  blow,
+  greyDrop,
+}
+
 class _GameSnapshot {
   final List<List<CellState>> board;
   final CellState current;
@@ -1353,6 +1359,11 @@ class GameController extends ChangeNotifier {
     // Also evaluate best blow for BLUE
     int bestBlowSwing = -0x7fffffff;
     (int, int)? bestBlowCell;
+    final blowCandidates = <({
+      (int, int) cell,
+      Set<(int, int)> affected,
+      int swing
+    })>[];
     final redBefore = RulesEngine.countOf(board, CellState.red);
     final blueBefore = RulesEngine.countOf(board, CellState.blue);
     for (int r = 0; r < K.n; r++) {
@@ -1366,6 +1377,11 @@ class GameController extends ChangeNotifier {
         final redAfter = RulesEngine.countOf(after, CellState.red);
         final blueAfter = RulesEngine.countOf(after, CellState.blue);
         final swing = (blueAfter - blueBefore) - (redAfter - redBefore);
+        blowCandidates.add((
+          cell: (r, c),
+          affected: affected,
+          swing: swing,
+        ));
         if (swing > bestBlowSwing) {
           bestBlowSwing = swing;
           bestBlowCell = (r, c);
@@ -1382,12 +1398,13 @@ class GameController extends ChangeNotifier {
     // Compute best placement swing baseline
     int bestPlaceSwing = -0x7fffffff;
     (int, int)? placeChoice = mv;
+    List<List<CellState>>? placeSim;
     if (mv != null) {
       final (pr, pc) = mv;
-      final sim = RulesEngine.place(board, pr, pc, CellState.blue);
-      if (sim != null) {
-        final redAfter = RulesEngine.countOf(sim, CellState.red);
-        final blueAfter = RulesEngine.countOf(sim, CellState.blue);
+      placeSim = RulesEngine.place(board, pr, pc, CellState.blue);
+      if (placeSim != null) {
+        final redAfter = RulesEngine.countOf(placeSim, CellState.red);
+        final blueAfter = RulesEngine.countOf(placeSim, CellState.blue);
         bestPlaceSwing = (blueAfter - blueBefore) - (redAfter - redBefore);
       }
     }
@@ -1395,10 +1412,80 @@ class GameController extends ChangeNotifier {
     // Consider AI grey-drop option if neutrals exist and other options are not strictly beneficial
     final neutralsExist = _allNeutralCells().isNotEmpty;
 
-    // If blow is strictly better than placement, or placement doesn't exist, choose blow
+    _AiAction? strategicAction;
+    (int, int)? strategicBlowCell;
+    if (aiLevel >= 7) {
+      double bestWinRate = -1.0;
+      if (placeSim != null) {
+        final rate = _ai.estimateWinRate(placeSim, CellState.red,
+            rollouts: 220, timeLimitMs: 200);
+        bestWinRate = rate;
+        strategicAction = _AiAction.place;
+      }
+      if (blowCandidates.isNotEmpty) {
+        final sorted = [...blowCandidates]
+          ..sort((a, b) => b.swing.compareTo(a.swing));
+        final limit = math.min(3, sorted.length);
+        for (int i = 0; i < limit; i++) {
+          final candidate = sorted[i];
+          final after = RulesEngine.blow(board, candidate.affected);
+          final rate = _ai.estimateWinRate(after, CellState.red,
+              rollouts: 220, timeLimitMs: 200);
+          if (rate > bestWinRate) {
+            bestWinRate = rate;
+            strategicAction = _AiAction.blow;
+            strategicBlowCell = candidate.cell;
+          }
+        }
+      }
+      if (neutralsExist) {
+        final after = RulesEngine.removeAllNeutrals(board);
+        final rate = _ai.estimateWinRate(after, CellState.red,
+            rollouts: 220, timeLimitMs: 200);
+        if (rate > bestWinRate) {
+          bestWinRate = rate;
+          strategicAction = _AiAction.greyDrop;
+        }
+      }
+    }
+
+    _AiAction? action;
+    (int, int)? blowChoice = bestBlowCell;
     if (bestBlowCell != null &&
         (placeChoice == null || bestBlowSwing > bestPlaceSwing)) {
-      final (br, bc) = bestBlowCell!;
+      action = _AiAction.blow;
+    } else if (neutralsExist &&
+        (placeChoice == null || (bestPlaceSwing <= 0 && bestBlowSwing <= 0))) {
+      action = _AiAction.greyDrop;
+    } else if (placeChoice != null) {
+      action = _AiAction.place;
+    }
+
+    if (aiLevel >= 7 && strategicAction != null) {
+      bool isValid = false;
+      if (strategicAction == _AiAction.place) {
+        isValid = placeChoice != null;
+      } else if (strategicAction == _AiAction.blow) {
+        isValid = strategicBlowCell != null;
+      } else if (strategicAction == _AiAction.greyDrop) {
+        isValid = neutralsExist;
+      }
+      if (isValid) {
+        action = strategicAction;
+        blowChoice = strategicBlowCell ?? blowChoice;
+      }
+    }
+
+    if (action == null || placeChoice == null && action == _AiAction.place) {
+      // no moves; end
+      _checkEnd(force: true);
+      isAiThinking = false;
+      notifyListeners();
+      return;
+    }
+
+    if (action == _AiAction.blow && blowChoice != null) {
+      final (br, bc) = blowChoice;
       // Preselect for animation parity with user: show border+icon and affected preview
       selectedCell = (br, bc);
       blowPreview = RulesEngine.blowAffected(board, br, bc);
@@ -1415,9 +1502,7 @@ class GameController extends ChangeNotifier {
       return;
     }
 
-    // If neutrals exist and neither blow nor placement yields positive swing, perform grey-drop with animations
-    if (neutralsExist &&
-        (placeChoice == null || (bestPlaceSwing <= 0 && bestBlowSwing <= 0))) {
+    if (action == _AiAction.greyDrop) {
       // Preselect one neutral for clarity and preview all neutrals
       final allNeutrals = _allNeutralCells();
       final sel = allNeutrals.first;
@@ -1430,14 +1515,6 @@ class GameController extends ChangeNotifier {
       if (!gameOver && current == CellState.red) {
         _saveUndoPoint();
       }
-      isAiThinking = false;
-      notifyListeners();
-      return;
-    }
-
-    if (placeChoice == null) {
-      // no moves; end
-      _checkEnd(force: true);
       isAiThinking = false;
       notifyListeners();
       return;
