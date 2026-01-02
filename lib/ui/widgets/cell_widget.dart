@@ -264,11 +264,14 @@ class _InsetTile extends StatelessWidget {
           // around transparent pixels when the image is scaled.
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 200),
-            child: Image.asset(
-              asset,
-              key: ValueKey(asset),
-              fit: BoxFit.cover,
-              filterQuality: FilterQuality.none,
+            child: Padding(
+              padding: const EdgeInsets.all(1),
+              child: Image.asset(
+                asset,
+                key: ValueKey(asset),
+                fit: BoxFit.cover,
+                filterQuality: FilterQuality.none,
+              ),
             ),
           ),
 
