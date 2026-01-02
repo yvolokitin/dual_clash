@@ -793,7 +793,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                             disabled: false,
                             width: 190,
                             height: 170,
-                            color: AppColors.yellow,
+                            color: AppColors.red,
                             onTap: () {
                               Navigator.of(ctx).pop();
                               _pushWithSlide(
