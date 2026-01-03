@@ -168,6 +168,7 @@ class ResultsCard extends StatelessWidget {
                       bestScore: controller.bestChallengeScore,
                       isNewBest: controller.lastGameWasNewBest,
                       boardSize: controller.board.length,
+                      isPhoneFullscreen: isPhoneFullscreen,
                     )
                   else ...[
                     LayoutBuilder(
@@ -452,6 +453,7 @@ class _ChallengeOutcomeSummary extends StatelessWidget {
   final int bestScore;
   final bool isNewBest;
   final int boardSize;
+  final bool isPhoneFullscreen;
   const _ChallengeOutcomeSummary({
     required this.winner,
     required this.redTotal,
@@ -459,6 +461,7 @@ class _ChallengeOutcomeSummary extends StatelessWidget {
     required this.bestScore,
     required this.isNewBest,
     required this.boardSize,
+    required this.isPhoneFullscreen,
   });
 
   @override
@@ -481,7 +484,10 @@ class _ChallengeOutcomeSummary extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final double tileSize = (constraints.maxWidth * 0.45).clamp(140, 200);
+        final double tileBaseSize =
+            (constraints.maxWidth * 0.45).clamp(140, 200);
+        final double tileSize =
+            isPhoneFullscreen ? tileBaseSize : tileBaseSize * 0.75;
         return Column(
           children: [
             Center(
