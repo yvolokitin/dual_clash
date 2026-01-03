@@ -359,7 +359,7 @@ import 'package:flutter/material.dart';
 class _ResultsActions extends StatelessWidget {
   final GameController controller;
   final CellState? winner;
-  const _ResultsActions({required this.controller, required this.winner});
+  _ResultsActions({required this.controller, required this.winner});
 
   @override
   Widget build(BuildContext context) {
