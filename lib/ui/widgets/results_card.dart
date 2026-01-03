@@ -1,6 +1,6 @@
+import 'package:dual_clash/logic/rules_engine.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-    final String duelOutcomeLine = _duelOutcomeLine(winner);
         redTotal,
         blueTotal,
         neutrals,
@@ -174,9 +174,7 @@ import 'package:flutter/material.dart';
                             ),
                             const SizedBox(height: 8),
                             Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 12),
-                              child: Text(
+                              isChallengeMode ? outcomeLine : duelOutcomeLine,
                                 bestScoreLine,
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
@@ -358,7 +356,7 @@ import 'package:flutter/material.dart';
 class _ResultsActions extends StatelessWidget {
   final GameController controller;
   final CellState? winner;
-  _ResultsActions({required this.controller, required this.winner});
+  const _ResultsActions({required this.controller, required this.winner});
 
   @override
   Widget build(BuildContext context) {
@@ -385,7 +383,8 @@ class _ResultsActions extends StatelessWidget {
               elevation: 4,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24)),
+                borderRadius: BorderRadius.circular(24),
+              ),
               textStyle: const TextStyle(
                 fontWeight: FontWeight.w800,
                 letterSpacing: 0.2,
