@@ -648,52 +648,63 @@ class _ResultsActions extends StatelessWidget {
       );
     }
 
-    Widget primaryButton(
-        {required String text,
-        required Widget icon,
-        required VoidCallback onPressed}) {
-      return SizedBox(
-        width: double.infinity,
-        child: ElevatedButton.icon(
-          onPressed: onPressed,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.brandGold,
-            foregroundColor: const Color(0xFF2B221D),
-            shadowColor: Colors.black54,
-            elevation: 6,
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
-            textStyle: const TextStyle(
-                fontWeight: FontWeight.w900, letterSpacing: 0.2, fontSize: 16),
+    Widget actionTile({
+      required String text,
+      required String asset,
+      required bool isPrimary,
+      required VoidCallback onPressed,
+    }) {
+      final Color borderColor =
+          isPrimary ? AppColors.brandGold : Colors.white24;
+      final Color tileColor = isPrimary
+          ? AppColors.brandGold.withOpacity(0.18)
+          : Colors.white.withOpacity(0.06);
+      final Color textColor =
+          isPrimary ? Colors.white : Colors.white.withOpacity(0.9);
+      return InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: tileColor,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: borderColor, width: isPrimary ? 2 : 1),
+            boxShadow: [
+              if (isPrimary)
+                BoxShadow(
+                  color: AppColors.brandGold.withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 8),
+                ),
+            ],
           ),
-          icon: icon,
-          label: Text(text),
-        ),
-      );
-    }
-
-    Widget secondaryButton(
-        {required String text,
-        required Widget icon,
-        required VoidCallback onPressed}) {
-      return SizedBox(
-        width: double.infinity,
-        child: TextButton.icon(
-          onPressed: onPressed,
-          style: TextButton.styleFrom(
-            backgroundColor: Colors.white.withOpacity(0.08),
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24),
-              side: const BorderSide(color: Colors.white24),
-            ),
-            textStyle:
-                const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.2),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.18),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Image.asset(asset, fit: BoxFit.contain),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  text,
+                  style: TextStyle(
+                    color: textColor,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
           ),
-          icon: icon,
-          label: Text(text),
         ),
       );
     }
@@ -719,10 +730,10 @@ class _ResultsActions extends StatelessWidget {
 
     if (winner == CellState.red && ai < 7) {
       buttons.add(
-        primaryButton(
+        actionTile(
           text: 'Continue to Next AI Level',
-          icon: Image.asset('assets/icons/play-removebg.png',
-              width: 22, height: 22),
+          asset: 'assets/icons/play-removebg.png',
+          isPrimary: true,
           onPressed: () async {
             Navigator.of(context).pop();
             final next = (ai + 1).clamp(1, 7);
@@ -732,10 +743,10 @@ class _ResultsActions extends StatelessWidget {
         ),
       );
       buttons.add(
-        secondaryButton(
+        actionTile(
           text: 'Play Again',
-          icon: Image.asset('assets/icons/restart-removebg.png',
-              width: 20, height: 20),
+          asset: 'assets/icons/restart-removebg.png',
+          isPrimary: false,
           onPressed: () {
             Navigator.of(context).pop();
             controller.newGame();
@@ -744,10 +755,10 @@ class _ResultsActions extends StatelessWidget {
       );
     } else {
       buttons.add(
-        primaryButton(
+        actionTile(
           text: 'Play Again',
-          icon: Image.asset('assets/icons/restart-removebg.png',
-              width: 22, height: 22),
+          asset: 'assets/icons/restart-removebg.png',
+          isPrimary: true,
           onPressed: () {
             Navigator.of(context).pop();
             controller.newGame();
@@ -756,9 +767,10 @@ class _ResultsActions extends StatelessWidget {
       );
       if (winner != null && winner != CellState.red && ai > 1) {
         buttons.add(
-          secondaryButton(
+          actionTile(
             text: 'Play Lower AI Level',
-            icon: const Icon(Icons.trending_down, size: 20),
+            asset: 'assets/icons/play-removebg.png',
+            isPrimary: false,
             onPressed: () async {
               Navigator.of(context).pop();
               final lower = (ai - 1).clamp(1, 7);
@@ -769,9 +781,10 @@ class _ResultsActions extends StatelessWidget {
         );
       } else if (winner == CellState.red && ai >= 7) {
         buttons.add(
-          secondaryButton(
+          actionTile(
             text: 'Replay Same Level',
-            icon: const Icon(Icons.replay, size: 20),
+            asset: 'assets/icons/restart-removebg.png',
+            isPrimary: false,
             onPressed: () {
               Navigator.of(context).pop();
               controller.newGame();
