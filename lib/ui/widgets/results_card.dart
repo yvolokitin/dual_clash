@@ -143,8 +143,7 @@ import 'package:flutter/material.dart';
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 12),
-                            Padding(
+                          (constraints.maxWidth * 0.5).clamp(140.0, 220.0);
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 8),
                               child: Text(
