@@ -133,6 +133,7 @@ class GameController extends ChangeNotifier {
   bool isAiThinking = false;
   // Simulation progress state
   bool isSimulating = false;
+  final _rng = math.Random();
 
   // Settings persistence keys
   static const _kThemeColorHex = 'themeColorHex';
@@ -1419,6 +1420,13 @@ class GameController extends ChangeNotifier {
 
     // Consider AI grey-drop option if neutrals exist and other options are not strictly beneficial
     final neutralsExist = _allNeutralCells().isNotEmpty;
+    int bestGreySwing = -0x7fffffff;
+    if (neutralsExist) {
+      final after = RulesEngine.removeAllNeutrals(board);
+      final redAfter = RulesEngine.countOf(after, CellState.red);
+      final blueAfter = RulesEngine.countOf(after, CellState.blue);
+      bestGreySwing = (blueAfter - blueBefore) - (redAfter - redBefore);
+    }
 
     _AiAction? strategicAction;
     (int, int)? strategicBlowCell;
@@ -1459,14 +1467,98 @@ class GameController extends ChangeNotifier {
 
     _AiAction? action;
     (int, int)? blowChoice = bestBlowCell;
-    if (bestBlowCell != null &&
-        (placeChoice == null || bestBlowSwing > bestPlaceSwing)) {
-      action = _AiAction.blow;
-    } else if (neutralsExist &&
-        (placeChoice == null || (bestPlaceSwing <= 0 && bestBlowSwing <= 0))) {
-      action = _AiAction.greyDrop;
-    } else if (placeChoice != null) {
-      action = _AiAction.place;
+    final actionScores = <_AiAction, int>{};
+    if (placeChoice != null) {
+      actionScores[_AiAction.place] = bestPlaceSwing;
+    }
+    if (bestBlowCell != null) {
+      actionScores[_AiAction.blow] = bestBlowSwing;
+    }
+    if (neutralsExist) {
+      actionScores[_AiAction.greyDrop] = bestGreySwing;
+    }
+
+    _AiAction? bestAction;
+    int bestActionScore = -0x7fffffff;
+    for (final entry in actionScores.entries) {
+      final score = entry.value;
+      if (score > bestActionScore ||
+          (score == bestActionScore && _rng.nextBool())) {
+        bestActionScore = score;
+        bestAction = entry.key;
+      }
+    }
+
+    _AiAction? bestNonPlaceAction;
+    int bestNonPlaceScore = -0x7fffffff;
+    for (final entry in actionScores.entries) {
+      if (entry.key == _AiAction.place) continue;
+      final score = entry.value;
+      if (score > bestNonPlaceScore ||
+          (score == bestNonPlaceScore && _rng.nextBool())) {
+        bestNonPlaceScore = score;
+        bestNonPlaceAction = entry.key;
+      }
+    }
+
+    switch (aiLevel) {
+      case 1:
+        if (actionScores.isNotEmpty) {
+          final keys = actionScores.keys.toList();
+          action = keys[_rng.nextInt(keys.length)];
+        }
+        break;
+      case 2:
+        if (bestNonPlaceAction != null &&
+            bestNonPlaceScore > 0 &&
+            _rng.nextDouble() < 0.35) {
+          action = bestNonPlaceAction;
+        } else {
+          action = placeChoice != null ? _AiAction.place : bestAction;
+        }
+        break;
+      case 3:
+        if (bestNonPlaceAction != null &&
+            bestNonPlaceScore > 0 &&
+            (actionScores[_AiAction.place] == null ||
+                bestNonPlaceScore >= actionScores[_AiAction.place]!)) {
+          action = bestNonPlaceAction;
+        } else {
+          action = placeChoice != null ? _AiAction.place : bestAction;
+        }
+        break;
+      case 4:
+        if (bestAction != null && bestActionScore > 0) {
+          action = bestAction;
+        } else {
+          action = placeChoice != null ? _AiAction.place : bestAction;
+        }
+        break;
+      case 5:
+        if (bestAction != null &&
+            bestActionScore >= 0 &&
+            (actionScores[_AiAction.place] == null ||
+                bestActionScore >= actionScores[_AiAction.place]!)) {
+          action = bestAction;
+        } else {
+          action = placeChoice != null ? _AiAction.place : bestAction;
+        }
+        break;
+      case 6:
+        action = bestAction ?? (placeChoice != null ? _AiAction.place : null);
+        break;
+      default:
+        if (bestBlowCell != null &&
+            (placeChoice == null || bestBlowSwing > bestPlaceSwing)) {
+          action = _AiAction.blow;
+        } else if (neutralsExist &&
+            (placeChoice == null ||
+                (bestPlaceSwing <= 0 && bestBlowSwing <= 0))) {
+          action = _AiAction.greyDrop;
+        } else if (placeChoice != null) {
+          action = _AiAction.place;
+        }
+        break;
     }
 
     if (aiLevel >= 7 && strategicAction != null) {
