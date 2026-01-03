@@ -139,6 +139,9 @@ class GameController extends ChangeNotifier {
   static const _kLanguageCode = 'languageCode';
   static const _kBoardSize = 'boardSize';
   static const _kAiLevel = 'aiLevel';
+  static const _kBestChallengeScore = 'bestChallengeScore';
+  static const _kLastBestChallengeScoreBefore = 'lastBestChallengeScoreBefore';
+  static const _kLastGameWasNewBest = 'lastGameWasNewBest';
   static const _kTotalUserScore = 'totalUserScore';
   static const _kStartingPlayer = 'startingPlayer'; // 'red' or 'blue'
   static const _kHistory = 'historyJson';
@@ -178,6 +181,9 @@ class GameController extends ChangeNotifier {
   // For results dialog: remember what we added and from which total
   int lastGamePointsAwarded = 0;
   int lastTotalBeforeAward = 0;
+  int bestChallengeScore = 0;
+  int lastBestChallengeScoreBefore = 0;
+  bool lastGameWasNewBest = false;
   bool _endProcessed = false; // bonuses awarded and totals persisted
   bool resultsShown = false; // guard for UI dialog
   Set<(int, int)> goldCells =
@@ -319,6 +325,9 @@ class GameController extends ChangeNotifier {
       'redGamePoints': redGamePoints,
       'lastGamePointsAwarded': lastGamePointsAwarded,
       'lastTotalBeforeAward': lastTotalBeforeAward,
+      'bestChallengeScore': bestChallengeScore,
+      'lastBestChallengeScoreBefore': lastBestChallengeScoreBefore,
+      'lastGameWasNewBest': lastGameWasNewBest,
       'playAccumMs': _currentAccumMs(),
     };
   }
@@ -375,6 +384,10 @@ class GameController extends ChangeNotifier {
     redGamePoints = m['redGamePoints'] as int? ?? redGamePoints;
     lastGamePointsAwarded = m['lastGamePointsAwarded'] as int? ?? 0;
     lastTotalBeforeAward = m['lastTotalBeforeAward'] as int? ?? totalUserScore;
+    bestChallengeScore = m['bestChallengeScore'] as int? ?? bestChallengeScore;
+    lastBestChallengeScoreBefore =
+        m['lastBestChallengeScoreBefore'] as int? ?? bestChallengeScore;
+    lastGameWasNewBest = m['lastGameWasNewBest'] as bool? ?? false;
 
     // Clear transient/animation states
     selectedCell = null;
@@ -624,6 +637,10 @@ class GameController extends ChangeNotifier {
     boardSize = prefs.getInt(_kBoardSize) ?? boardSize;
     aiLevel = prefs.getInt(_kAiLevel) ?? aiLevel;
     totalUserScore = prefs.getInt(_kTotalUserScore) ?? 0;
+    bestChallengeScore = prefs.getInt(_kBestChallengeScore) ?? 0;
+    lastBestChallengeScoreBefore =
+        prefs.getInt(_kLastBestChallengeScoreBefore) ?? bestChallengeScore;
+    lastGameWasNewBest = prefs.getBool(_kLastGameWasNewBest) ?? false;
     // Starting player
     final sp = prefs.getString(_kStartingPlayer);
     if (sp == 'blue') {
@@ -1707,6 +1724,16 @@ class GameController extends ChangeNotifier {
       lastGamePointsAwarded = 0;
     }
 
+    if (!humanVsHuman) {
+      lastBestChallengeScoreBefore = bestChallengeScore;
+      if (redTotal > bestChallengeScore) {
+        bestChallengeScore = redTotal;
+        lastGameWasNewBest = true;
+      } else {
+        lastGameWasNewBest = false;
+      }
+    }
+
     // Check diagonals for red achievements (not part of bonus rules, used only for achievements)
     bool anyRedDiag = true;
     for (int i = 0; i < K.n; i++) {
@@ -1785,6 +1812,10 @@ class GameController extends ChangeNotifier {
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_kTotalUserScore, totalUserScore);
+    await prefs.setInt(_kBestChallengeScore, bestChallengeScore);
+    await prefs.setInt(
+        _kLastBestChallengeScoreBefore, lastBestChallengeScoreBefore);
+    await prefs.setBool(_kLastGameWasNewBest, lastGameWasNewBest);
     await prefs.setInt(_kRedLinesTotal, redLinesCompletedTotal);
     await prefs.setStringList(_kBadges, badges.toList());
     await prefs.setString(_kHistory, GameResult.encodeList(history));
