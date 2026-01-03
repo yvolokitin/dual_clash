@@ -650,7 +650,7 @@ class _ResultsActions extends StatelessWidget {
 
     Widget primaryButton(
         {required String text,
-        required IconData icon,
+        required Widget icon,
         required VoidCallback onPressed}) {
       return SizedBox(
         width: double.infinity,
@@ -667,7 +667,7 @@ class _ResultsActions extends StatelessWidget {
             textStyle: const TextStyle(
                 fontWeight: FontWeight.w900, letterSpacing: 0.2, fontSize: 16),
           ),
-          icon: Icon(icon, size: 22),
+          icon: icon,
           label: Text(text),
         ),
       );
@@ -675,7 +675,7 @@ class _ResultsActions extends StatelessWidget {
 
     Widget secondaryButton(
         {required String text,
-        required IconData icon,
+        required Widget icon,
         required VoidCallback onPressed}) {
       return SizedBox(
         width: double.infinity,
@@ -692,7 +692,7 @@ class _ResultsActions extends StatelessWidget {
             textStyle:
                 const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.2),
           ),
-          icon: Icon(icon, size: 20),
+          icon: icon,
           label: Text(text),
         ),
       );
@@ -721,7 +721,8 @@ class _ResultsActions extends StatelessWidget {
       buttons.add(
         primaryButton(
           text: 'Continue to Next AI Level',
-          icon: Icons.trending_up,
+          icon: Image.asset('assets/icons/play-removebg.png',
+              width: 22, height: 22),
           onPressed: () async {
             Navigator.of(context).pop();
             final next = (ai + 1).clamp(1, 7);
@@ -733,7 +734,8 @@ class _ResultsActions extends StatelessWidget {
       buttons.add(
         secondaryButton(
           text: 'Play Again',
-          icon: Icons.replay,
+          icon: Image.asset('assets/icons/restart-removebg.png',
+              width: 20, height: 20),
           onPressed: () {
             Navigator.of(context).pop();
             controller.newGame();
@@ -744,7 +746,8 @@ class _ResultsActions extends StatelessWidget {
       buttons.add(
         primaryButton(
           text: 'Play Again',
-          icon: Icons.play_arrow,
+          icon: Image.asset('assets/icons/restart-removebg.png',
+              width: 22, height: 22),
           onPressed: () {
             Navigator.of(context).pop();
             controller.newGame();
@@ -755,7 +758,7 @@ class _ResultsActions extends StatelessWidget {
         buttons.add(
           secondaryButton(
             text: 'Play Lower AI Level',
-            icon: Icons.trending_down,
+            icon: const Icon(Icons.trending_down, size: 20),
             onPressed: () async {
               Navigator.of(context).pop();
               final lower = (ai - 1).clamp(1, 7);
@@ -768,7 +771,7 @@ class _ResultsActions extends StatelessWidget {
         buttons.add(
           secondaryButton(
             text: 'Replay Same Level',
-            icon: Icons.replay,
+            icon: const Icon(Icons.replay, size: 20),
             onPressed: () {
               Navigator.of(context).pop();
               controller.newGame();
