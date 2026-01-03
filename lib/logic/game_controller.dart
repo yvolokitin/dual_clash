@@ -1433,6 +1433,8 @@ class GameController extends ChangeNotifier {
     if (aiLevel >= 7) {
       double bestWinRate = -1.0;
       double? placeWinRate;
+      const minWinRateEdge = 0.08;
+      const minPositiveSwing = 2;
       if (placeSim != null) {
         final rate = _ai.estimateWinRate(placeSim, CellState.red,
             rollouts: 220, timeLimitMs: 200);
@@ -1449,9 +1451,10 @@ class GameController extends ChangeNotifier {
           final after = RulesEngine.blow(board, candidate.affected);
           final rate = _ai.estimateWinRate(after, CellState.red,
               rollouts: 220, timeLimitMs: 200);
-          final improvesWinRate =
-              placeWinRate == null || rate >= placeWinRate + 0.05;
-          if ((candidate.swing > 0 && rate >= bestWinRate) ||
+          final improvesWinRate = placeWinRate == null ||
+              rate >= placeWinRate + minWinRateEdge;
+          final strongSwing = candidate.swing >= minPositiveSwing;
+          if ((strongSwing && rate >= bestWinRate) ||
               (improvesWinRate && rate > bestWinRate)) {
             bestWinRate = rate;
             strategicAction = _AiAction.blow;
@@ -1463,9 +1466,10 @@ class GameController extends ChangeNotifier {
         final after = RulesEngine.removeAllNeutrals(board);
         final rate = _ai.estimateWinRate(after, CellState.red,
             rollouts: 220, timeLimitMs: 200);
-        final improvesWinRate =
-            placeWinRate == null || rate >= placeWinRate + 0.05;
-        if ((bestGreySwing > 0 && rate >= bestWinRate) ||
+        final improvesWinRate = placeWinRate == null ||
+            rate >= placeWinRate + minWinRateEdge;
+        final strongSwing = bestGreySwing >= minPositiveSwing;
+        if ((strongSwing && rate >= bestWinRate) ||
             (improvesWinRate && rate > bestWinRate)) {
           bestWinRate = rate;
           strategicAction = _AiAction.greyDrop;
