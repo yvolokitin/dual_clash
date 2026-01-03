@@ -276,28 +276,27 @@ import 'package:flutter/material.dart';
                       },
                     ),
                   ],
-
-                const SizedBox(height: 12),
-                // Action buttons based on result and AI level
-                _ResultsActions(controller: controller, winner: winner),
-                const SizedBox(height: 16),
-                TextButton.icon(
-                  onPressed: () => Navigator.of(context).pop(),
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.white.withOpacity(0.06),
-                    foregroundColor: Colors.white,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                      side: const BorderSide(color: Colors.white24),
+                  const SizedBox(height: 12),
+                  // Action buttons based on result and AI level
+                  _ResultsActions(controller: controller, winner: winner),
+                  const SizedBox(height: 16),
+                  TextButton.icon(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.white.withOpacity(0.06),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                        side: const BorderSide(color: Colors.white24),
+                      ),
+                      textStyle: const TextStyle(
+                          fontWeight: FontWeight.w800, letterSpacing: 0.2),
                     ),
-                    textStyle: const TextStyle(
-                        fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                    icon: const Icon(Icons.grid_on),
+                    label: const Text('Show final board'),
                   ),
-                  icon: const Icon(Icons.grid_on),
-                  label: const Text('Show final board'),
-                ),
               ],
             ),
           ),
