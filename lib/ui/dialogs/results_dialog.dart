@@ -2,7 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:dual_clash/core/constants.dart';
 import 'package:dual_clash/logic/game_controller.dart';
-import 'package:dual_clash/ui/widgets/results_card.dart' show ResultsCard;
+import 'package:dual_clash/ui/widgets/results_card.dart' as results;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -48,7 +48,7 @@ Future<void> showAnimatedResultsDialog({
               opacity: curved,
               child: ScaleTransition(
                 scale: Tween<double>(begin: 0.94, end: 1.0).animate(curved),
-                child: ResultsCard(controller: controller),
+                child: results.ResultsCard(controller: controller),
               ),
             ),
           ),
