@@ -279,8 +279,6 @@ class ResultsCard extends StatelessWidget {
                 // Action buttons based on result and AI level
                 _ResultsActions(controller: controller, winner: winner),
                 const SizedBox(height: 16),
-                // Mini board preview
-                _MiniBoardPreview(controller: controller),
               ],
             ),
           ),
@@ -764,85 +762,6 @@ class _ResultsActions extends StatelessWidget {
           children: buttons,
         );
       },
-    );
-  }
-}
-
-class _MiniBoardPreview extends StatelessWidget {
-  final GameController controller;
-  const _MiniBoardPreview({required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    final b = controller.board;
-    final n = b.length;
-    if (n == 0) return const SizedBox.shrink();
-    // Fixed small squares; overall about 3-4x smaller than main board
-    const double cell = 14.0;
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.04),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white24, width: 1),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Final board',
-                style: TextStyle(
-                    color: Colors.white70, fontWeight: FontWeight.w700)),
-            const SizedBox(height: 8),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (int r = 0; r < n; r++)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      for (int c = 0; c < n; c++) _miniCell(b[r][c], cell),
-                    ],
-                  ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _miniCell(CellState s, double cell) {
-    Color fill;
-    switch (s) {
-      case CellState.red:
-        fill = AppColors.red;
-        break;
-      case CellState.blue:
-        fill = AppColors.blue;
-        break;
-      case CellState.yellow:
-        fill = AppColors.yellow;
-        break;
-      case CellState.green:
-        fill = AppColors.green;
-        break;
-      case CellState.neutral:
-        fill = Colors.grey;
-        break;
-      case CellState.empty:
-      default:
-        fill = Colors.transparent;
-    }
-    return Container(
-      width: cell,
-      height: cell,
-      margin: const EdgeInsets.all(1),
-      decoration: BoxDecoration(
-        color: fill.withOpacity(s == CellState.empty ? 0.0 : 0.9),
-        borderRadius: BorderRadius.circular(2),
-        border: Border.all(color: Colors.white12, width: 1),
-      ),
     );
   }
 }
