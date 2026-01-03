@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
         blueTotal,
         neutrals,
       ].reduce((a, b) => a > b ? a : b);
+
       final int topCount = [
         redTotal,
         blueTotal,
@@ -28,132 +29,93 @@ import 'package:flutter/material.dart';
     }
 
     final bool hasWinner = winner != null;
-    final bool showYellow = isDuel && controller.isMultiDuel;
-    final bool showGreen =
-        isDuel && controller.isMultiDuel && controller.duelPlayerCount >= 4;
 
-    final tiles = [
-      _ResultTileData(
-        asset: 'assets/icons/box_red.png',
-        count: redBase,
-        state: CellState.red,
-      ),
-      _ResultTileData(
-        asset: 'assets/icons/box_blue.png',
-        count: blueBase,
-        state: CellState.blue,
-      ),
-      if (showYellow)
-        _ResultTileData(
-          asset: 'assets/icons/box_yellow.png',
-          count: controller.scoreYellowBase(),
-          state: CellState.yellow,
-        ),
-      if (showGreen)
-        _ResultTileData(
-          asset: 'assets/icons/box_green.png',
-          count: controller.scoreGreenBase(),
-          state: CellState.green,
-        ),
-      _ResultTileData(
-        asset: 'assets/icons/box_grey.png',
-        count: neutrals,
-        state: CellState.neutral,
-      ),
-    ];
 
-    final BorderRadius dialogRadius =
-        BorderRadius.circular(isPhoneFullscreen ? 0 : 22);
-    final int playerScore = redTotal;
-    final int opponentScore = [blueTotal, neutrals].reduce(math.max);
-    final List<GameResult> history = controller.history;
-    final bool lastMatchesCurrent = history.isNotEmpty &&
-        history.last.redTotal == redTotal &&
-        history.last.blueTotal == blueTotal &&
-        history.last.playMs == controller.lastGamePlayMs;
-    final List<GameResult> previousResults =
-        lastMatchesCurrent && history.length > 1
-            ? history.sublist(0, history.length - 1)
-            : history;
-    final int previousBestScore = previousResults.isEmpty
-        ? 0
-        : previousResults.map((r) => r.redTotal).reduce(math.max);
-    final int bestScore = math.max(playerScore, previousBestScore);
-    final bool isNewBest = playerScore >= bestScore;
-    final String bestScoreLine = isNewBest
-        ? 'New Best Score'
-        : '${bestScore - playerScore} points below your best score';
-    final String performanceRating =
-        _performanceRating(playerScore, opponentScore, isNewBest);
-    final String outcomeLine = _challengeOutcomeLine(winner);
-    final String winnerAsset = _winnerAsset(winner);
-    final content = Container(
-      decoration: BoxDecoration(
-        borderRadius: dialogRadius,
-        gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [bg, bg]),
-        boxShadow: const [
-          BoxShadow(
-              color: AppColors.dialogShadow,
-              blurRadius: 24,
-              offset: Offset(0, 12))
-        ],
-        border: Border.all(color: AppColors.dialogOutline, width: 1),
-      ),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: isPhoneFullscreen ? size.width : size.width * 0.8,
-          maxHeight: isPhoneFullscreen ? size.height : size.height * 0.8,
-          minWidth: isPhoneFullscreen ? size.width : 0,
-          minHeight: isPhoneFullscreen ? size.height : 0,
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [bg, bg],
         ),
-        child: SafeArea(
-          top: isPhoneFullscreen,
-          bottom: isPhoneFullscreen,
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Padding(
-              padding: contentPadding,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    children: [
-                      const Spacer(),
-                      const Text(
-                        'Results',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.w900),
-                      ),
-                      const Spacer(),
-                      if (!isMobilePlatform)
-                        Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.08),
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white24)),
-                          child: IconButton(
-                            padding: EdgeInsets.zero,
-                            iconSize: 20,
-                            icon:
-                                const Icon(Icons.close, color: Colors.white70),
-                            onPressed: () => Navigator.of(context).pop(),
-                          ),
+            color: AppColors.dialogShadow,
+            blurRadius: 24,
+            offset: Offset(0, 12),
+          )
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w900,
                         ),
-                    ],
+                            color: Colors.white.withOpacity(0.08),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white24),
+                          ),
+                            icon: const Icon(Icons.close,
+                                color: Colors.white70),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final double baseTileSize =
+                          (constraints.maxWidth * 0.5)
+                              .clamp(140.0, 220.0);
+                      final double tileSize = isPhoneFullscreen
+                          ? baseTileSize
+                          : baseTileSize * 0.8;
+                      return Column(
+                        children: [
+                          Center(
+                            child: Container(
+                              width: tileSize,
+                              height: tileSize,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.08),
+                                borderRadius: BorderRadius.circular(24),
+                                border: Border.all(
+                                  color: hasWinner
+                                      ? AppColors.brandGold
+                                      : Colors.white24,
+                                  width: 2,
+                              padding: EdgeInsets.all(tileSize * 0.1),
+                              child: Image.asset(
+                                winnerAsset,
+                                fit: BoxFit.contain,
+                              ),
+                          ),
+                          const SizedBox(height: 12),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Text(
+                              isChallengeMode
+                                  ? outcomeLine
+                                  : duelOutcomeLine,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w900,
+                          ),
+                          if (isChallengeMode) ...[
+                        ],
+                      );
+                    },
                   ),
-                  const SizedBox(height: 12),
-                  if (isChallengeMode) ...[
-                    LayoutBuilder(
-                      builder: (context, constraints) {
-                        final double tileSize = (constraints.maxWidth * 0.5)
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton.icon(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.white.withOpacity(0.06),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          side: const BorderSide(color: Colors.white24),
+                        ),
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.2,
+                        ),
+                      icon: const Icon(Icons.grid_on),
+                      label: const Text('Show final board'),
+                ],
+              ),
                             .clamp(140.0, 220.0);
                         return Column(
                           children: [
@@ -390,7 +352,6 @@ import 'package:flutter/material.dart';
     }
   }
 
-}
 
 class _ResultsActions extends StatelessWidget {
   final GameController controller;
@@ -421,8 +382,12 @@ class _ResultsActions extends StatelessWidget {
               shadowColor: Colors.black54,
               elevation: 4,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-              textStyle: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.2),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24)),
+              textStyle: const TextStyle(
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.2,
+              ),
             ),
             icon: const Icon(Icons.play_arrow),
             label: const Text('Play again'),
@@ -431,11 +396,16 @@ class _ResultsActions extends StatelessWidget {
       );
     }
 
-        ),
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.4,
+              fontSize: 16,
+            ),
       );
     }
 
-    Widget primaryButton(
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.2,
+            ),
         {required String text,
         required IconData icon,
         required VoidCallback onPressed}) {
