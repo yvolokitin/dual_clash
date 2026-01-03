@@ -5,6 +5,7 @@ import 'package:dual_clash/core/constants.dart';
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/models/cell_state.dart';
 import 'package:dual_clash/logic/rules_engine.dart';
+import 'package:dual_clash/ui/widgets/main_menu/menu_tile.dart';
 
 // Independent ResultsCard widget extracted to be reusable across the app.
 class ResultsCard extends StatelessWidget {
@@ -625,104 +626,47 @@ class _ResultsActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final int ai = controller.aiLevel;
+    const String primaryTileAsset = 'assets/icons/menu_pvai.png';
+    const String secondaryTileAsset = 'assets/icons/menu_121.png';
 
-    // Helper builders copied from GamePage to preserve styles
-    Widget goldButton(
-        {required String text,
-        required IconData icon,
-        required VoidCallback onPressed}) {
-      return ElevatedButton.icon(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.brandGold,
-          foregroundColor: const Color(0xFF2B221D),
-          shadowColor: Colors.black54,
-          elevation: 4,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          textStyle:
-              const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.2),
-        ),
-        icon: Icon(icon),
-        label: Text(text),
-      );
-    }
-
-    Widget actionTile({
-      required String text,
+    Widget menuActionTile({
+      required String label,
       required String asset,
-      required bool isPrimary,
-      required VoidCallback onPressed,
+      required Color color,
+      required VoidCallback onTap,
     }) {
-      final Color borderColor =
-          isPrimary ? AppColors.brandGold : Colors.white24;
-      final Color tileColor = isPrimary
-          ? AppColors.brandGold.withOpacity(0.18)
-          : Colors.white.withOpacity(0.06);
-      final Color textColor =
-          isPrimary ? Colors.white : Colors.white.withOpacity(0.9);
-      return InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          decoration: BoxDecoration(
-            color: tileColor,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: borderColor, width: isPrimary ? 2 : 1),
-            boxShadow: [
-              if (isPrimary)
-                BoxShadow(
-                  color: AppColors.brandGold.withOpacity(0.3),
-                  blurRadius: 12,
-                  offset: const Offset(0, 8),
-                ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.18),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Image.asset(asset, fit: BoxFit.contain),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  text,
-                  style: TextStyle(
-                    color: textColor,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+      return MenuTile(
+        imagePath: asset,
+        label: label,
+        color: color,
+        onTap: onTap,
       );
     }
 
     // Duel mode: single Play again button
     if (controller.humanVsHuman) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          goldButton(
-            text: 'Play again',
-            icon: Icons.play_arrow,
-            onPressed: () {
-              Navigator.of(context).pop();
-              controller.newGame();
-            },
-          ),
-        ],
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final double tileWidth =
+              constraints.maxWidth < 240 ? constraints.maxWidth : 240;
+          return Center(
+            child: SizedBox(
+              width: tileWidth,
+              child: AspectRatio(
+                aspectRatio: 1.1,
+                child: menuActionTile(
+                  label: 'Play again',
+                  asset: secondaryTileAsset,
+                  color: AppColors.blue,
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    controller.newGame();
+                  },
+                ),
+              ),
+            ),
+          );
+        },
       );
     }
 
@@ -730,11 +674,11 @@ class _ResultsActions extends StatelessWidget {
 
     if (winner == CellState.red && ai < 7) {
       buttons.add(
-        actionTile(
-          text: 'Continue to Next AI Level',
-          asset: 'assets/icons/play-removebg.png',
-          isPrimary: true,
-          onPressed: () async {
+        menuActionTile(
+          label: 'Continue to Next AI Level',
+          asset: primaryTileAsset,
+          color: AppColors.red,
+          onTap: () async {
             Navigator.of(context).pop();
             final next = (ai + 1).clamp(1, 7);
             await controller.setAiLevel(next);
@@ -743,11 +687,11 @@ class _ResultsActions extends StatelessWidget {
         ),
       );
       buttons.add(
-        actionTile(
-          text: 'Play Again',
-          asset: 'assets/icons/restart-removebg.png',
-          isPrimary: false,
-          onPressed: () {
+        menuActionTile(
+          label: 'Play again',
+          asset: secondaryTileAsset,
+          color: AppColors.blue,
+          onTap: () {
             Navigator.of(context).pop();
             controller.newGame();
           },
@@ -755,11 +699,11 @@ class _ResultsActions extends StatelessWidget {
       );
     } else {
       buttons.add(
-        actionTile(
-          text: 'Play Again',
-          asset: 'assets/icons/restart-removebg.png',
-          isPrimary: true,
-          onPressed: () {
+        menuActionTile(
+          label: 'Play again',
+          asset: primaryTileAsset,
+          color: AppColors.red,
+          onTap: () {
             Navigator.of(context).pop();
             controller.newGame();
           },
@@ -767,11 +711,11 @@ class _ResultsActions extends StatelessWidget {
       );
       if (winner != null && winner != CellState.red && ai > 1) {
         buttons.add(
-          actionTile(
-            text: 'Play Lower AI Level',
-            asset: 'assets/icons/play-removebg.png',
-            isPrimary: false,
-            onPressed: () async {
+          menuActionTile(
+            label: 'Play Lower AI Level',
+            asset: secondaryTileAsset,
+            color: AppColors.blue,
+            onTap: () async {
               Navigator.of(context).pop();
               final lower = (ai - 1).clamp(1, 7);
               await controller.setAiLevel(lower);
@@ -781,11 +725,11 @@ class _ResultsActions extends StatelessWidget {
         );
       } else if (winner == CellState.red && ai >= 7) {
         buttons.add(
-          actionTile(
-            text: 'Replay Same Level',
-            asset: 'assets/icons/restart-removebg.png',
-            isPrimary: false,
-            onPressed: () {
+          menuActionTile(
+            label: 'Replay Same Level',
+            asset: secondaryTileAsset,
+            color: AppColors.blue,
+            onTap: () {
               Navigator.of(context).pop();
               controller.newGame();
             },
@@ -794,14 +738,32 @@ class _ResultsActions extends StatelessWidget {
       }
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (int i = 0; i < buttons.length; i++) ...[
-          if (i > 0) const SizedBox(height: 10),
-          buttons[i],
-        ],
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (buttons.length == 1) {
+          final double tileWidth =
+              constraints.maxWidth < 240 ? constraints.maxWidth : 240;
+          return Center(
+            child: SizedBox(
+              width: tileWidth,
+              child: AspectRatio(
+                aspectRatio: 1.1,
+                child: buttons.first,
+              ),
+            ),
+          );
+        }
+
+        return GridView.count(
+          crossAxisCount: 2,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 1.1,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          children: buttons,
+        );
+      },
     );
   }
 }
