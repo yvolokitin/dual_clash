@@ -65,6 +65,9 @@ import 'package:flutter/material.dart';
                               height: tileSize,
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.08),
+    final bool isChallengeLoss = isChallengeMode &&
+        winner != null &&
+        winner != CellState.red;
                                 borderRadius: BorderRadius.circular(24),
                                 border: Border.all(
                                   color: hasWinner
@@ -189,7 +192,7 @@ import 'package:flutter/material.dart';
                     ),
                   ] else ...[
                     LayoutBuilder(
-                      builder: (context, constraints) {
+                                isChallengeLoss
                         final double baseTileSize =
                             (constraints.maxWidth * 0.5)
                                 .clamp(140.0, 220.0);
