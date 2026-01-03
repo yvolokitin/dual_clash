@@ -4,7 +4,6 @@ import 'package:dual_clash/core/colors.dart';
 import 'package:dual_clash/core/constants.dart';
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/models/cell_state.dart';
-import 'package:dual_clash/ui/widgets/animated_total_counter.dart';
 import 'package:dual_clash/logic/rules_engine.dart';
 
 // Independent ResultsCard widget extracted to be reusable across the app.
@@ -161,115 +160,119 @@ class ResultsCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      final width = constraints.maxWidth;
-                      final int tileCount = tiles.length;
-                      int columns;
-                      if (tileCount == 3) {
-                        columns = 3;
-                      } else if (tileCount == 4) {
-                        columns = 3;
-                      } else if (tileCount == 5) {
-                        columns = 3;
-                      } else {
-                        columns = width >= 420 ? 3 : 2;
-                      }
-                      final double spacing = 10;
-                      final double ratio = width >= 420 ? 1.1 : 1.0;
-                      final bool compactRow = tileCount == 3 && width < 550;
-                      final double baseScale = compactRow ? 0.7 : 0.8;
-                      final double scale =
-                          isPhoneFullscreen ? baseScale : baseScale * 0.8;
-                      return GridView.count(
-                        crossAxisCount: columns,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        crossAxisSpacing: spacing,
-                        mainAxisSpacing: spacing,
-                        childAspectRatio: ratio,
-                        children: tiles
-                            .map((tile) => _scoreTile(
-                                  data: tile,
-                                  isWinner: tile.state != null &&
-                                      tile.state == winner,
-                                  isDisabled: hasWinner &&
-                                      (tile.state == null ||
-                                          tile.state != winner),
-                                ))
-                            .map((tile) => Transform.scale(
-                                  scale: scale,
-                                  child: tile,
-                                ))
-                            .toList(),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  // Points and time on the same row if fit; otherwise they will wrap to 2 rows automatically
-                  Center(
-                    child: Wrap(
-                      alignment: WrapAlignment.center,
-                      spacing: 12,
-                      runSpacing: 10,
-                      children: [
-                        // AnimatedTotalCounter(value: controller.totalUserScore),
-                        _timeChip(
-                            label: 'Time played',
-                            value: _formatDuration(controller.lastGamePlayMs)),
-                      ],
+                  if (isChallengeMode)
+                    _ChallengeOutcomeSummary(
+                      winner: winner,
+                      redTotal: redTotal,
+                      blueTotal: blueTotal,
+                      bestScore: controller.bestChallengeScore,
+                      isNewBest: controller.lastGameWasNewBest,
+                      boardSize: controller.board.length,
+                      isPhoneFullscreen: isPhoneFullscreen,
+                    )
+                  else ...[
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final width = constraints.maxWidth;
+                        final int tileCount = tiles.length;
+                        int columns;
+                        if (tileCount == 3) {
+                          columns = 3;
+                        } else if (tileCount == 4) {
+                          columns = 3;
+                        } else if (tileCount == 5) {
+                          columns = 3;
+                        } else {
+                          columns = width >= 420 ? 3 : 2;
+                        }
+                        final double spacing = 10;
+                        final double ratio = width >= 420 ? 1.1 : 1.0;
+                        final bool compactRow = tileCount == 3 && width < 550;
+                        final double baseScale = compactRow ? 0.7 : 0.8;
+                        final double scale =
+                            isPhoneFullscreen ? baseScale : baseScale * 0.8;
+                        return GridView.count(
+                          crossAxisCount: columns,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          crossAxisSpacing: spacing,
+                          mainAxisSpacing: spacing,
+                          childAspectRatio: ratio,
+                          children: tiles
+                              .map((tile) => _scoreTile(
+                                    data: tile,
+                                    isWinner: tile.state != null &&
+                                        tile.state == winner,
+                                    isDisabled: hasWinner &&
+                                        (tile.state == null ||
+                                            tile.state != winner),
+                                  ))
+                              .map((tile) => Transform.scale(
+                                    scale: scale,
+                                    child: tile,
+                                  ))
+                              .toList(),
+                        );
+                      },
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  // Turns row beneath
-                  if (isDuel && controller.isMultiDuel)
-                    Wrap(
-                      alignment: WrapAlignment.center,
-                      spacing: 10,
-                      runSpacing: 8,
-                      children: [
-                        _statChip(
-                            icon: Icons.rotate_left,
-                            label: 'Red turns',
-                            value: controller.turnsRed.toString()),
-                        _statChip(
-                            icon: Icons.rotate_left,
-                            label: 'Blue turns',
-                            value: controller.turnsBlue.toString()),
-                        _statChip(
-                            icon: Icons.rotate_left,
-                            label: 'Yellow turns',
-                            value: controller.turnsYellow.toString()),
-                        if (controller.duelPlayerCount >= 4)
+                    const SizedBox(height: 12),
+                    // Points and time on the same row if fit; otherwise they will wrap to 2 rows automatically
+                    Center(
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 12,
+                        runSpacing: 10,
+                        children: [
+                          // AnimatedTotalCounter(value: controller.totalUserScore),
+                          _timeChip(
+                              label: 'Time played',
+                              value:
+                                  _formatDuration(controller.lastGamePlayMs)),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    // Turns row beneath
+                    if (isDuel && controller.isMultiDuel)
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 10,
+                        runSpacing: 8,
+                        children: [
                           _statChip(
                               icon: Icons.rotate_left,
-                              label: 'Green turns',
-                              value: controller.turnsGreen.toString()),
-                      ],
-                    )
-                  else
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _statChip(
-                            icon: Icons.rotate_left,
-                            label: isDuel ? 'Red turns' : 'Player turns',
-                            value: controller.turnsRed.toString()),
-                        _statChip(
-                            icon: Icons.rotate_right,
-                            label: isDuel ? 'Blue turns' : 'AI turns',
-                            value: controller.turnsBlue.toString()),
-                      ],
-                    ),
-
-                if (!isDuel) ...[
-                  const SizedBox(height: 12),
-                  // Total user points summary per game outcome
-                  _TotalsSummary(
-                      controller: controller,
-                      winner: winner,
-                      isMobilePlatform: isMobilePlatform),
-                ],
+                              label: 'Red turns',
+                              value: controller.turnsRed.toString()),
+                          _statChip(
+                              icon: Icons.rotate_left,
+                              label: 'Blue turns',
+                              value: controller.turnsBlue.toString()),
+                          _statChip(
+                              icon: Icons.rotate_left,
+                              label: 'Yellow turns',
+                              value: controller.turnsYellow.toString()),
+                          if (controller.duelPlayerCount >= 4)
+                            _statChip(
+                                icon: Icons.rotate_left,
+                                label: 'Green turns',
+                                value: controller.turnsGreen.toString()),
+                        ],
+                      )
+                    else
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _statChip(
+                              icon: Icons.rotate_left,
+                              label: isDuel ? 'Red turns' : 'Player turns',
+                              value: controller.turnsRed.toString()),
+                          _statChip(
+                              icon: Icons.rotate_right,
+                              label: isDuel ? 'Blue turns' : 'AI turns',
+                              value: controller.turnsBlue.toString()),
+                        ],
+                      ),
+                  ],
 
                 const SizedBox(height: 12),
                 // Action buttons based on result and AI level
@@ -443,118 +446,175 @@ class _ResultTileData {
       {required this.asset, required this.count, required this.state});
 }
 
-class _TotalsSummary extends StatelessWidget {
-  final GameController controller;
+class _ChallengeOutcomeSummary extends StatelessWidget {
   final CellState? winner;
-  final bool isMobilePlatform;
-  const _TotalsSummary(
-      {required this.controller,
-      required this.winner,
-      required this.isMobilePlatform});
+  final int redTotal;
+  final int blueTotal;
+  final int bestScore;
+  final bool isNewBest;
+  final int boardSize;
+  final bool isPhoneFullscreen;
+  const _ChallengeOutcomeSummary({
+    required this.winner,
+    required this.redTotal,
+    required this.blueTotal,
+    required this.bestScore,
+    required this.isNewBest,
+    required this.boardSize,
+    required this.isPhoneFullscreen,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final total = controller.totalUserScore;
-    final before = controller.lastTotalBeforeAward;
-    final awarded = controller.lastGamePointsAwarded;
-    final won = winner == CellState.red;
-    final double fontScale = isMobilePlatform ? 1.2 : 1.0;
-    final double baseFontSize = 14 * fontScale;
-    final double accentFontSize = 14 * fontScale;
-
-    Widget line1 = Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text('Your total points',
-            style: TextStyle(
-                color: Colors.white70,
-                fontWeight: FontWeight.w700,
-                fontSize: baseFontSize)),
-        AnimatedTotalCounter(value: total, fontScale: fontScale),
-      ],
+    final data = _challengeOutcomeData(winner);
+    final int totalCells = boardSize * boardSize;
+    final int margin = redTotal - blueTotal;
+    final int clearWinMargin = (totalCells * 0.25).ceil();
+    final int solidWinMargin = (totalCells * 0.12).ceil();
+    final String rating = _performanceRating(
+      margin: margin,
+      isNewBest: isNewBest,
+      clearWinMargin: clearWinMargin,
+      solidWinMargin: solidWinMargin,
     );
+    final int pointsBelowBest = (bestScore - redTotal).clamp(0, bestScore);
+    final String bestLine = isNewBest
+        ? 'New Best Score'
+        : '$pointsBelowBest points below best score';
 
-    Widget line2;
-    if (won) {
-      final newTotal = before + awarded;
-      line2 = Padding(
-        padding: const EdgeInsets.only(top: 8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double tileBaseSize =
+            (constraints.maxWidth * 0.45).clamp(140, 200);
+        final double tileSize =
+            isPhoneFullscreen ? tileBaseSize : tileBaseSize * 0.75;
+        return Column(
           children: [
-            Text('This game earned',
+            Center(
+              child: Container(
+                width: tileSize,
+                height: tileSize,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: data.accentColor, width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: data.accentColor.withOpacity(0.35),
+                      blurRadius: 16,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.asset(
+                    data.asset,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              data.summary,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+                fontSize: 18,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.06),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.white24, width: 1),
+              ),
+              child: Text(
+                bestLine,
+                textAlign: TextAlign.center,
                 style: TextStyle(
-                    color: Colors.white70,
-                    fontWeight: FontWeight.w700,
-                    fontSize: baseFontSize)),
-            Text('+$awarded = $before → $newTotal',
-                style: TextStyle(
-                    color: Colors.lightGreenAccent,
-                    fontWeight: FontWeight.w900,
-                    fontSize: accentFontSize)),
-          ],
-        ),
-      );
-    } else if (winner == null) {
-      if (awarded > 0) {
-        final newTotal = before + awarded;
-        line2 = Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Draw game: half points awarded',
-                  style: TextStyle(
-                      color: Colors.white70,
-                      fontWeight: FontWeight.w700,
-                      fontSize: baseFontSize)),
-              Text('+$awarded = $before → $newTotal',
-                  style: TextStyle(
-                      color: Colors.lightBlueAccent,
-                      fontWeight: FontWeight.w900,
-                      fontSize: accentFontSize)),
-            ],
-          ),
-        );
-      } else {
-        line2 = Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: Text('Draw game: your total remains the same.',
-              textAlign: TextAlign.right,
+                  color: isNewBest ? Colors.lightGreenAccent : Colors.white70,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              rating,
+              textAlign: TextAlign.center,
               style: TextStyle(
-                  color: Colors.white70,
-                  fontWeight: FontWeight.w700,
-                  fontSize: baseFontSize)),
-        );
-      }
-    } else {
-      line2 = Padding(
-        padding: const EdgeInsets.only(top: 8.0),
-        child: Text('You lost: your total remained the same.',
-            textAlign: TextAlign.right,
-            style: TextStyle(
-                color: Colors.white70,
+                color: Colors.white.withOpacity(0.9),
                 fontWeight: FontWeight.w700,
-                fontSize: baseFontSize)),
-      );
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.06),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white24, width: 1),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          line1,
-          line2,
-        ],
-      ),
+                fontSize: 16,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
+}
+
+class _ChallengeOutcomeData {
+  final String asset;
+  final String summary;
+  final Color accentColor;
+
+  const _ChallengeOutcomeData({
+    required this.asset,
+    required this.summary,
+    required this.accentColor,
+  });
+}
+
+_ChallengeOutcomeData _challengeOutcomeData(CellState? winner) {
+  switch (winner) {
+    case CellState.red:
+      return const _ChallengeOutcomeData(
+        asset: 'assets/icons/box_red.png',
+        summary: 'Red player territory controlled.',
+        accentColor: AppColors.red,
+      );
+    case CellState.blue:
+      return const _ChallengeOutcomeData(
+        asset: 'assets/icons/box_blue.png',
+        summary: 'Blue player territory controlled.',
+        accentColor: AppColors.blue,
+      );
+    case CellState.neutral:
+      return const _ChallengeOutcomeData(
+        asset: 'assets/icons/box_grey.png',
+        summary: 'Neutral territory controlled.',
+        accentColor: Colors.grey,
+      );
+    default:
+      return const _ChallengeOutcomeData(
+        asset: 'assets/icons/box_grey.png',
+        summary: 'Territory balanced.',
+        accentColor: Colors.white54,
+      );
+  }
+}
+
+String _performanceRating({
+  required int margin,
+  required bool isNewBest,
+  required int clearWinMargin,
+  required int solidWinMargin,
+}) {
+  if (isNewBest || margin >= clearWinMargin) {
+    return 'Brilliant Endgame';
+  }
+  if (margin >= solidWinMargin) {
+    return 'Great Control';
+  }
+  if (margin > 0) {
+    return 'Risky, but Effective';
+  }
+  return 'Solid Strategy';
 }
 
 class _ResultsActions extends StatelessWidget {
@@ -588,25 +648,64 @@ class _ResultsActions extends StatelessWidget {
       );
     }
 
-    Widget outlineButton(
-        {required String text,
-        required IconData icon,
-        required VoidCallback onPressed}) {
-      return TextButton.icon(
-        onPressed: onPressed,
-        style: TextButton.styleFrom(
-          backgroundColor: Colors.white.withOpacity(0.08),
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-            side: const BorderSide(color: Colors.white24),
+    Widget actionTile({
+      required String text,
+      required String asset,
+      required bool isPrimary,
+      required VoidCallback onPressed,
+    }) {
+      final Color borderColor =
+          isPrimary ? AppColors.brandGold : Colors.white24;
+      final Color tileColor = isPrimary
+          ? AppColors.brandGold.withOpacity(0.18)
+          : Colors.white.withOpacity(0.06);
+      final Color textColor =
+          isPrimary ? Colors.white : Colors.white.withOpacity(0.9);
+      return InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: tileColor,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: borderColor, width: isPrimary ? 2 : 1),
+            boxShadow: [
+              if (isPrimary)
+                BoxShadow(
+                  color: AppColors.brandGold.withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 8),
+                ),
+            ],
           ),
-          textStyle:
-              const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.2),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.18),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Image.asset(asset, fit: BoxFit.contain),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  text,
+                  style: TextStyle(
+                    color: textColor,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-        icon: Icon(icon, size: 20),
-        label: Text(text),
       );
     }
 
@@ -615,55 +714,26 @@ class _ResultsActions extends StatelessWidget {
       return Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          ElevatedButton.icon(
+          goldButton(
+            text: 'Play again',
+            icon: Icons.play_arrow,
             onPressed: () {
               Navigator.of(context).pop();
               controller.newGame();
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.brandGold,
-              foregroundColor: const Color(0xFF2B221D),
-              shadowColor: Colors.black54,
-              elevation: 4,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-              textStyle: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.2),
-            ),
-            icon: const Icon(Icons.play_arrow),
-            label: const Text('Play again'),
           ),
         ],
       );
     }
 
-    List<Widget> buttons;
+    List<Widget> buttons = [];
 
-    if (winner == null) {
-      // Draw: single Next Game
-      buttons = [
-        goldButton(
-          text: 'Play next game',
-          icon: Icons.play_arrow,
-          onPressed: () {
-            Navigator.of(context).pop();
-            controller.newGame();
-          },
-        ),
-      ];
-    } else if (winner == CellState.red) {
-      // User won
-      buttons = [
-        outlineButton(
-          text: 'Continue play same level',
-          icon: Icons.replay,
-          onPressed: () {
-            Navigator.of(context).pop();
-            controller.newGame();
-          },
-        ),
-        goldButton(
-          text: 'Play next AI level',
-          icon: Icons.trending_up,
+    if (winner == CellState.red && ai < 7) {
+      buttons.add(
+        actionTile(
+          text: 'Continue to Next AI Level',
+          asset: 'assets/icons/play-removebg.png',
+          isPrimary: true,
           onPressed: () async {
             Navigator.of(context).pop();
             final next = (ai + 1).clamp(1, 7);
@@ -671,42 +741,67 @@ class _ResultsActions extends StatelessWidget {
             controller.newGame();
           },
         ),
-      ];
-    } else {
-      // User lost
-      buttons = [
-        goldButton(
-          text: 'Play lower AI level',
-          icon: Icons.trending_down,
-          onPressed: () async {
-            Navigator.of(context).pop();
-            final lower = (ai - 1).clamp(1, 7);
-            await controller.setAiLevel(lower);
-            controller.newGame();
-          },
-        ),
-        outlineButton(
-          text: 'Continue play same level',
-          icon: Icons.replay,
+      );
+      buttons.add(
+        actionTile(
+          text: 'Play Again',
+          asset: 'assets/icons/restart-removebg.png',
+          isPrimary: false,
           onPressed: () {
             Navigator.of(context).pop();
             controller.newGame();
           },
         ),
-      ];
+      );
+    } else {
+      buttons.add(
+        actionTile(
+          text: 'Play Again',
+          asset: 'assets/icons/restart-removebg.png',
+          isPrimary: true,
+          onPressed: () {
+            Navigator.of(context).pop();
+            controller.newGame();
+          },
+        ),
+      );
+      if (winner != null && winner != CellState.red && ai > 1) {
+        buttons.add(
+          actionTile(
+            text: 'Play Lower AI Level',
+            asset: 'assets/icons/play-removebg.png',
+            isPrimary: false,
+            onPressed: () async {
+              Navigator.of(context).pop();
+              final lower = (ai - 1).clamp(1, 7);
+              await controller.setAiLevel(lower);
+              controller.newGame();
+            },
+          ),
+        );
+      } else if (winner == CellState.red && ai >= 7) {
+        buttons.add(
+          actionTile(
+            text: 'Replay Same Level',
+            asset: 'assets/icons/restart-removebg.png',
+            isPrimary: false,
+            onPressed: () {
+              Navigator.of(context).pop();
+              controller.newGame();
+            },
+          ),
+        );
+      }
     }
 
-    return Align(
-      alignment: Alignment.centerRight,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          for (int i = 0; i < buttons.length; i++) ...[
-            if (i > 0) const SizedBox(height: 10),
-            buttons[i],
-          ]
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (int i = 0; i < buttons.length; i++) ...[
+          if (i > 0) const SizedBox(height: 10),
+          buttons[i],
         ],
-      ),
+      ],
     );
   }
 }
