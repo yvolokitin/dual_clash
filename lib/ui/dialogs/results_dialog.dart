@@ -2,7 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:dual_clash/core/constants.dart';
 import 'package:dual_clash/logic/game_controller.dart';
-import 'package:dual_clash/ui/widgets/results_card.dart';
+import 'package:dual_clash/ui/widgets/results_card.dart' show ResultsCard;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
