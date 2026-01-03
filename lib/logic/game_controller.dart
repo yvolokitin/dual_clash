@@ -1432,11 +1432,13 @@ class GameController extends ChangeNotifier {
     (int, int)? strategicBlowCell;
     if (aiLevel >= 7) {
       double bestWinRate = -1.0;
+      double? placeWinRate;
       if (placeSim != null) {
         final rate = _ai.estimateWinRate(placeSim, CellState.red,
             rollouts: 220, timeLimitMs: 200);
         bestWinRate = rate;
         strategicAction = _AiAction.place;
+        placeWinRate = rate;
       }
       if (blowCandidates.isNotEmpty) {
         final sorted = [...blowCandidates]
@@ -1447,7 +1449,10 @@ class GameController extends ChangeNotifier {
           final after = RulesEngine.blow(board, candidate.affected);
           final rate = _ai.estimateWinRate(after, CellState.red,
               rollouts: 220, timeLimitMs: 200);
-          if (rate > bestWinRate) {
+          final improvesWinRate =
+              placeWinRate == null || rate >= placeWinRate + 0.05;
+          if ((candidate.swing > 0 && rate >= bestWinRate) ||
+              (improvesWinRate && rate > bestWinRate)) {
             bestWinRate = rate;
             strategicAction = _AiAction.blow;
             strategicBlowCell = candidate.cell;
@@ -1458,7 +1463,10 @@ class GameController extends ChangeNotifier {
         final after = RulesEngine.removeAllNeutrals(board);
         final rate = _ai.estimateWinRate(after, CellState.red,
             rollouts: 220, timeLimitMs: 200);
-        if (rate > bestWinRate) {
+        final improvesWinRate =
+            placeWinRate == null || rate >= placeWinRate + 0.05;
+        if ((bestGreySwing > 0 && rate >= bestWinRate) ||
+            (improvesWinRate && rate > bestWinRate)) {
           bestWinRate = rate;
           strategicAction = _AiAction.greyDrop;
         }
