@@ -674,8 +674,20 @@ class _ResultsActions extends StatelessWidget {
     }
 
     List<Widget> buttons = [];
+    final bool shouldReduceTiles = winner == CellState.red && ai < 7;
 
     if (winner == CellState.red && ai < 7) {
+      buttons.add(
+        menuActionTile(
+          label: 'Play again',
+          asset: secondaryTileAsset,
+          color: AppColors.blue,
+          onTap: () {
+            Navigator.of(context).pop();
+            controller.newGame();
+          },
+        ),
+      );
       buttons.add(
         menuActionTile(
           label: 'Continue to Next AI Level',
@@ -685,17 +697,6 @@ class _ResultsActions extends StatelessWidget {
             Navigator.of(context).pop();
             final next = (ai + 1).clamp(1, 7);
             await controller.setAiLevel(next);
-            controller.newGame();
-          },
-        ),
-      );
-      buttons.add(
-        menuActionTile(
-          label: 'Play again',
-          asset: secondaryTileAsset,
-          color: AppColors.blue,
-          onTap: () {
-            Navigator.of(context).pop();
             controller.newGame();
           },
         ),
@@ -754,6 +755,31 @@ class _ResultsActions extends StatelessWidget {
                 child: buttons.first,
               ),
             ),
+          );
+        }
+
+        if (shouldReduceTiles && buttons.length == 2) {
+          final double tileWidth = (constraints.maxWidth - 12) / 2;
+          final double reducedTileWidth = tileWidth / 2;
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: reducedTileWidth,
+                child: AspectRatio(
+                  aspectRatio: 1.1,
+                  child: buttons.first,
+                ),
+              ),
+              const SizedBox(width: 12),
+              SizedBox(
+                width: reducedTileWidth,
+                child: AspectRatio(
+                  aspectRatio: 1.1,
+                  child: buttons.last,
+                ),
+              ),
+            ],
           );
         }
 
