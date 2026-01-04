@@ -631,6 +631,7 @@ class _ResultsActions extends StatelessWidget {
     final int ai = controller.aiLevel;
     const String primaryTileAsset = 'assets/icons/play-removebg.png';
     const String secondaryTileAsset = 'assets/icons/restart-removebg.png';
+    const double tileAspectRatio = 0.9;
 
     Widget menuActionTile({
       required String label,
@@ -643,6 +644,7 @@ class _ResultsActions extends StatelessWidget {
         label: label,
         color: color,
         onTap: onTap,
+        labelBelow: true,
       );
     }
 
@@ -656,7 +658,7 @@ class _ResultsActions extends StatelessWidget {
             child: SizedBox(
               width: tileWidth,
               child: AspectRatio(
-                aspectRatio: 1.1,
+                aspectRatio: tileAspectRatio,
                 child: menuActionTile(
                   label: 'Play again',
                   asset: secondaryTileAsset,
@@ -751,7 +753,7 @@ class _ResultsActions extends StatelessWidget {
             child: SizedBox(
               width: tileWidth,
               child: AspectRatio(
-                aspectRatio: 1.1,
+                aspectRatio: tileAspectRatio,
                 child: buttons.first,
               ),
             ),
@@ -767,7 +769,7 @@ class _ResultsActions extends StatelessWidget {
               SizedBox(
                 width: reducedTileWidth,
                 child: AspectRatio(
-                  aspectRatio: 1.1,
+                  aspectRatio: tileAspectRatio,
                   child: buttons.first,
                 ),
               ),
@@ -775,7 +777,7 @@ class _ResultsActions extends StatelessWidget {
               SizedBox(
                 width: reducedTileWidth,
                 child: AspectRatio(
-                  aspectRatio: 1.1,
+                  aspectRatio: tileAspectRatio,
                   child: buttons.last,
                 ),
               ),
@@ -787,7 +789,7 @@ class _ResultsActions extends StatelessWidget {
           crossAxisCount: 2,
           mainAxisSpacing: 12,
           crossAxisSpacing: 12,
-          childAspectRatio: 1.1,
+          childAspectRatio: tileAspectRatio,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           children: buttons,

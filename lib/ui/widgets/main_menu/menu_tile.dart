@@ -5,12 +5,14 @@ class MenuTile extends StatefulWidget {
   final String label;
   final VoidCallback onTap;
   final Color color;
+  final bool labelBelow;
   const MenuTile({
     super.key,
     required this.imagePath,
     required this.label,
     required this.onTap,
     required this.color,
+    this.labelBelow = false,
   });
 
   @override
@@ -51,6 +53,40 @@ class _MenuTileState extends State<MenuTile> {
     );
 
     // Entire tile scales a bit on press to mimic a button press
+    final tileContents = <Widget>[
+      Expanded(
+        child: Center(
+          child: ClipRect(
+            child: AnimatedScale(
+              scale: _hovered ? 1.05 : 1.0,
+              duration: _hoverDuration,
+              curve: Curves.easeOutCubic,
+              child: AnimatedRotation(
+                turns: _hovered ? (5 / 360) : 0,
+                duration: _hoverDuration,
+                curve: Curves.easeOutCubic,
+                child: Image.asset(
+                  widget.imagePath,
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+      if (!widget.labelBelow) ...[
+        const SizedBox(height: 6),
+        Text(
+          widget.label,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w800,
+            fontSize: 16,
+          ),
+        ),
+      ],
+    ];
+
     return AnimatedScale(
       scale: _pressed ? 0.97 : 1.0,
       duration: _pressDuration,
@@ -62,60 +98,47 @@ class _MenuTileState extends State<MenuTile> {
           onHover: (h) => setState(() => _hovered = h),
           onHighlightChanged: (v) => setState(() => _pressed = v),
           borderRadius: outerRadius,
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: gradient,
-              borderRadius: outerRadius,
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 10,
-                  offset: Offset(0, 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  gradient: gradient,
+                  borderRadius: outerRadius,
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(3), // 3px gradient border
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: widget.color.withOpacity(0.9),
+                    borderRadius: innerRadius,
+                  ),
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: tileContents,
+                  ),
+                ),
+              ),
+              if (widget.labelBelow) ...[
+                const SizedBox(height: 8),
+                Text(
+                  widget.label,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16,
+                  ),
                 ),
               ],
-            ),
-            padding: const EdgeInsets.all(3), // 3px gradient border
-            child: Container(
-              decoration: BoxDecoration(
-                color: widget.color.withOpacity(0.9),
-                borderRadius: innerRadius,
-              ),
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Center(
-                      child: ClipRect(
-                        child: AnimatedScale(
-                          scale: _hovered ? 1.05 : 1.0,
-                          duration: _hoverDuration,
-                          curve: Curves.easeOutCubic,
-                          child: AnimatedRotation(
-                            turns: _hovered ? (5 / 360) : 0,
-                            duration: _hoverDuration,
-                            curve: Curves.easeOutCubic,
-                            child: Image.asset(
-                              widget.imagePath,
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    widget.label,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 16,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            ],
           ),
         ),
       ),
