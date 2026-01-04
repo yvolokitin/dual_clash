@@ -42,7 +42,6 @@ flutter:
   uses-material-design: true
   assets:
     - assets/icons/
-    - assets/removed/
   fonts:
     - family: Fredoka
       fonts:
