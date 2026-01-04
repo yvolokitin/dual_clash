@@ -13,6 +13,7 @@ import 'package:dual_clash/ui/pages/settings_page.dart';
 import 'package:dual_clash/ui/pages/profile_page.dart';
 import 'package:dual_clash/ui/pages/history_page.dart';
 import 'package:dual_clash/ui/pages/statistics_page.dart';
+import 'package:dual_clash/models/cell_state.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -567,17 +568,58 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                           ],
                           if (config.showSimulateGame) ...[
                             const SizedBox(height: 6),
-                            _menuTile(
-                              context,
-                              icon: Icons.auto_awesome,
-                              label: 'Simulate game',
-                              onTap: () async {
-                                Navigator.of(context).pop();
-                                await Future.delayed(
-                                    const Duration(milliseconds: 30));
-                                await controller.simulateGame();
-                              },
-                            ),
+                            if (controller.humanVsHuman)
+                              _menuTile(
+                                context,
+                                icon: Icons.auto_awesome,
+                                label: 'Simulate game',
+                                onTap: () async {
+                                  Navigator.of(context).pop();
+                                  await Future.delayed(
+                                      const Duration(milliseconds: 30));
+                                  await controller.simulateGame();
+                                },
+                              )
+                            else ...[
+                              _menuTile(
+                                context,
+                                icon: Icons.auto_awesome,
+                                label: 'Simulate game (human win)',
+                                onTap: () async {
+                                  Navigator.of(context).pop();
+                                  await Future.delayed(
+                                      const Duration(milliseconds: 30));
+                                  await controller.simulateGame(
+                                      forcedWinner: CellState.red);
+                                },
+                              ),
+                              const SizedBox(height: 6),
+                              _menuTile(
+                                context,
+                                icon: Icons.auto_awesome,
+                                label: 'Simulate game (AI win)',
+                                onTap: () async {
+                                  Navigator.of(context).pop();
+                                  await Future.delayed(
+                                      const Duration(milliseconds: 30));
+                                  await controller.simulateGame(
+                                      forcedWinner: CellState.blue);
+                                },
+                              ),
+                              const SizedBox(height: 6),
+                              _menuTile(
+                                context,
+                                icon: Icons.auto_awesome,
+                                label: 'Simulate game (Grey win)',
+                                onTap: () async {
+                                  Navigator.of(context).pop();
+                                  await Future.delayed(
+                                      const Duration(milliseconds: 30));
+                                  await controller.simulateGame(
+                                      forcedWinner: CellState.neutral);
+                                },
+                              ),
+                            ],
                           ],
                           if (FF_ADS && config.showRemoveAds) ...[
                             const SizedBox(height: 6),
