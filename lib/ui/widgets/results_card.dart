@@ -528,7 +528,7 @@ class _ChallengeOutcomeSummary extends StatelessWidget {
             const SizedBox(height: 6),
             if (humanWon) ...[
               Text(
-                'You win and reached $redTotal score',
+                'You win and reached $redTotal score points',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: const Color(0xFFFFD700),
