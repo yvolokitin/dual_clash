@@ -477,6 +477,7 @@ class _ChallengeOutcomeSummary extends StatelessWidget {
       solidWinMargin: solidWinMargin,
       aiWon: blueTotal > redTotal,
     );
+    final bool humanWon = winner == CellState.red;
     final int pointsBelowBest = (bestScore - redTotal).clamp(0, bestScore);
     final String bestLine = isNewBest
         ? 'New Best Score'
@@ -525,33 +526,36 @@ class _ChallengeOutcomeSummary extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 6),
-            Text(
-              'Score reached: $redTotal',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: const Color(0xFFFFD700),
-                fontWeight: FontWeight.w700,
-                fontFamily: 'ArchivoBlack',
-                fontSize: 22.5,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.06),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white24, width: 1),
-              ),
-              child: Text(
-                bestLine,
+            if (humanWon) ...[
+              Text(
+                'You win and reached $redTotal score',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: isNewBest ? Colors.lightGreenAccent : Colors.white70,
-                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFFFFD700),
+                  fontWeight: FontWeight.w700,
+                  fontFamily: 'ArchivoBlack',
+                  fontSize: 22.5,
                 ),
               ),
-            ),
+              const SizedBox(height: 10),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.06),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.white24, width: 1),
+                ),
+                child: Text(
+                  bestLine,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: isNewBest ? Colors.lightGreenAccent : Colors.white70,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
             const SizedBox(height: 10),
             Text(
               rating,
