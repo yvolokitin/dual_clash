@@ -648,12 +648,33 @@ class _ResultsActions extends StatelessWidget {
       required String asset,
       required Color color,
       required VoidCallback onTap,
+      bool labelBelow = false,
     }) {
-      return MenuTile(
+      final tile = MenuTile(
         imagePath: asset,
         label: label,
         color: color,
         onTap: onTap,
+        showLabel: !labelBelow,
+      );
+      if (!labelBelow) {
+        return tile;
+      }
+      return Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Expanded(child: tile),
+          const SizedBox(height: 6),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+              fontSize: 14,
+            ),
+          ),
+        ],
       );
     }
 
@@ -693,6 +714,7 @@ class _ResultsActions extends StatelessWidget {
           label: 'Play again',
           asset: secondaryTileAsset,
           color: AppColors.blue,
+          labelBelow: true,
           onTap: () {
             Navigator.of(context).pop();
             controller.newGame();
@@ -704,6 +726,7 @@ class _ResultsActions extends StatelessWidget {
           label: 'Continue to Next AI Level',
           asset: primaryTileAsset,
           color: AppColors.red,
+          labelBelow: true,
           onTap: () async {
             Navigator.of(context).pop();
             final next = (ai + 1).clamp(1, 7);

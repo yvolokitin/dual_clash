@@ -5,12 +5,14 @@ class MenuTile extends StatefulWidget {
   final String label;
   final VoidCallback onTap;
   final Color color;
+  final bool showLabel;
   const MenuTile({
     super.key,
     required this.imagePath,
     required this.label,
     required this.onTap,
     required this.color,
+    this.showLabel = true,
   });
 
   @override
@@ -104,15 +106,17 @@ class _MenuTileState extends State<MenuTile> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    widget.label,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 16,
+                  if (widget.showLabel) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      widget.label,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 16,
+                      ),
                     ),
-                  ),
+                  ],
                 ],
               ),
             ),
