@@ -833,7 +833,7 @@ class GameController extends ChangeNotifier {
 
   /// Simulate a game instantly with a random winner (red or blue) and a plausible random duration.
   /// This builds a random full board biased to the chosen winner, then finalizes the game.
-  Future<void> simulateGame() async {
+  Future<void> simulateGame({CellState? forcedWinner}) async {
     if (isSimulating) return;
     isSimulating = true;
     notifyListeners();
@@ -861,7 +861,9 @@ class GameController extends ChangeNotifier {
         remaining = total;
       }
 
-      final CellState winner = players[rnd.nextInt(playerCount)];
+      final CellState winner = players.contains(forcedWinner)
+          ? forcedWinner!
+          : players[rnd.nextInt(playerCount)];
       final int bias = 1 + rnd.nextInt(math.max(2, remaining ~/ 10));
       final int maxWinner = remaining - (playerCount - 1) * minPerPlayer;
       int winnerCount = (remaining ~/ playerCount) + bias;
@@ -914,8 +916,20 @@ class GameController extends ChangeNotifier {
           ? counts[players.indexOf(CellState.green)]
           : 0;
     } else {
-      // Choose a random winner (no draws)
-      final bool redWins = rnd.nextBool();
+      // Choose a random winner (no draws) or honor a forced winner.
+      final Set<CellState> allowedWinners = {
+        CellState.red,
+        CellState.blue,
+        CellState.neutral
+      };
+      final CellState? winner =
+          allowedWinners.contains(forcedWinner) ? forcedWinner : null;
+      final bool neutralWins = winner == CellState.neutral;
+      final bool redWins = winner == CellState.red
+          ? true
+          : winner == CellState.blue
+              ? false
+              : rnd.nextBool();
 
       // Optionally randomize who started this simulated game
       startingPlayer = rnd.nextBool() ? CellState.red : CellState.blue;
@@ -924,23 +938,40 @@ class GameController extends ChangeNotifier {
       // Build a random full board with slightly more cells for the chosen winner
       int redCountTarget;
       int blueCountTarget;
-      // Ensure at least 1-cell advantage for the winner; bias by up to ~10% of board
+      int neutralCountTarget = 0;
+      final int totalPlayable;
       final int bias = 1 + rnd.nextInt(math.max(2, total ~/ 10));
-      if (redWins) {
-        redCountTarget = (total ~/ 2) + bias;
-        blueCountTarget = total - redCountTarget;
+
+      if (neutralWins) {
+        neutralCountTarget = (total ~/ 2) + bias;
+        if (neutralCountTarget > total - 2) {
+          neutralCountTarget = total - 2;
+        }
+        final int remaining = total - neutralCountTarget;
+        redCountTarget = remaining ~/ 2;
+        blueCountTarget = remaining - redCountTarget;
+        totalPlayable = remaining;
       } else {
-        blueCountTarget = (total ~/ 2) + bias;
-        redCountTarget = total - blueCountTarget;
+        totalPlayable = total;
+        // Ensure at least 1-cell advantage for the winner; bias by up to ~10% of board
+        if (redWins) {
+          redCountTarget = (totalPlayable ~/ 2) + bias;
+          blueCountTarget = totalPlayable - redCountTarget;
+        } else {
+          blueCountTarget = (totalPlayable ~/ 2) + bias;
+          redCountTarget = totalPlayable - blueCountTarget;
+        }
+        // Clamp just in case
+        redCountTarget = redCountTarget.clamp(0, totalPlayable);
+        blueCountTarget = totalPlayable - redCountTarget;
       }
-      // Clamp just in case
-      redCountTarget = redCountTarget.clamp(0, total);
-      blueCountTarget = total - redCountTarget;
 
       // Create flat list and shuffle
       final flat = <CellState>[]
         ..addAll(List<CellState>.filled(redCountTarget, CellState.red))
-        ..addAll(List<CellState>.filled(blueCountTarget, CellState.blue));
+        ..addAll(List<CellState>.filled(blueCountTarget, CellState.blue))
+        ..addAll(
+            List<CellState>.filled(neutralCountTarget, CellState.neutral));
       flat.shuffle(rnd);
 
       // Fill board
@@ -954,9 +985,10 @@ class GameController extends ChangeNotifier {
       board = newBoard;
 
       // Plausible turns counts: alternate moves starting from startingPlayer
-      final int redTurns =
-          startingPlayer == CellState.red ? (total + 1) ~/ 2 : total ~/ 2;
-      final int blueTurns = total - redTurns;
+      final int redTurns = startingPlayer == CellState.red
+          ? (totalPlayable + 1) ~/ 2
+          : totalPlayable ~/ 2;
+      final int blueTurns = totalPlayable - redTurns;
       turnsRed = redTurns;
       turnsBlue = blueTurns;
     }
