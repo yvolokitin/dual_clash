@@ -21,7 +21,7 @@ class ResultsCard extends StatelessWidget {
     final bool isTabletDevice = isTablet(context);
     final bool isPhoneFullscreen = isMobilePlatform && !isTabletDevice;
     final EdgeInsets contentPadding =
-        EdgeInsets.fromLTRB(16, isPhoneFullscreen ? 20 : 16, 16, 16);
+        const EdgeInsets.fromLTRB(16, 20, 16, 16);
     final bg = AppColors.bg;
     final redBase = controller.scoreRedBase();
     final blueBase = controller.scoreBlueBase();
