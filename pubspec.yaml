@@ -46,4 +46,7 @@ flutter:
     - family: Fredoka
       fonts:
         - asset: assets/fonts/Fredoka-VariableFont_wdth,wght.ttf
+    - family: BBHHegarty
+      fonts:
+        - asset: assets/fonts/BBHHegarty-Regular.ttf
           weight: 700

@@ -524,6 +524,17 @@ class _ChallengeOutcomeSummary extends StatelessWidget {
                 fontSize: 18,
               ),
             ),
+            const SizedBox(height: 6),
+            Text(
+              'Score reached: $redTotal',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.95),
+                fontWeight: FontWeight.w700,
+                fontFamily: 'BBHHegarty',
+                fontSize: 18,
+              ),
+            ),
             const SizedBox(height: 10),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
