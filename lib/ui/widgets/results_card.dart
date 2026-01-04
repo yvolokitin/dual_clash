@@ -652,18 +652,14 @@ class _ResultsActions extends StatelessWidget {
       required String asset,
       required Color color,
       required VoidCallback onTap,
-      bool labelBelow = false,
     }) {
       final tile = MenuTile(
         imagePath: asset,
         label: label,
         color: color,
         onTap: onTap,
-        showLabel: !labelBelow,
+        showLabel: false,
       );
-      if (!labelBelow) {
-        return tile;
-      }
       return Column(
         mainAxisSize: MainAxisSize.max,
         children: [
@@ -710,15 +706,12 @@ class _ResultsActions extends StatelessWidget {
     }
 
     List<Widget> buttons = [];
-    final bool shouldReduceTiles = winner == CellState.red && ai < 7;
-
     if (winner == CellState.red && ai < 7) {
       buttons.add(
         menuActionTile(
           label: 'Play again',
           asset: secondaryTileAsset,
           color: AppColors.blue,
-          labelBelow: true,
           onTap: () {
             Navigator.of(context).pop();
             controller.newGame();
@@ -730,7 +723,6 @@ class _ResultsActions extends StatelessWidget {
           label: 'Continue to Next AI Level',
           asset: primaryTileAsset,
           color: AppColors.red,
-          labelBelow: true,
           onTap: () async {
             Navigator.of(context).pop();
             final next = (ai + 1).clamp(1, 7);
@@ -793,31 +785,6 @@ class _ResultsActions extends StatelessWidget {
                 child: buttons.first,
               ),
             ),
-          );
-        }
-
-        if (shouldReduceTiles && buttons.length == 2) {
-          final double tileWidth = (constraints.maxWidth - 12) / 2;
-          final double reducedTileWidth = tileWidth / 2;
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: reducedTileWidth,
-                child: AspectRatio(
-                  aspectRatio: 1.1,
-                  child: buttons.first,
-                ),
-              ),
-              const SizedBox(width: 12),
-              SizedBox(
-                width: reducedTileWidth,
-                child: AspectRatio(
-                  aspectRatio: 1.1,
-                  child: buttons.last,
-                ),
-              ),
-            ],
           );
         }
 
