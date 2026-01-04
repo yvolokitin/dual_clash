@@ -475,6 +475,7 @@ class _ChallengeOutcomeSummary extends StatelessWidget {
       isNewBest: isNewBest,
       clearWinMargin: clearWinMargin,
       solidWinMargin: solidWinMargin,
+      aiWon: blueTotal > redTotal,
     );
     final int pointsBelowBest = (bestScore - redTotal).clamp(0, bestScore);
     final String bestLine = isNewBest
@@ -603,7 +604,11 @@ String _performanceRating({
   required bool isNewBest,
   required int clearWinMargin,
   required int solidWinMargin,
+  required bool aiWon,
 }) {
+  if (aiWon) {
+    return 'You lost. Strategy required.';
+  }
   if (isNewBest || margin >= clearWinMargin) {
     return 'Brilliant Endgame';
   }
@@ -624,7 +629,7 @@ class _ResultsActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final int ai = controller.aiLevel;
-    const String primaryTileAsset = 'assets/icons/menu_pvai.png';
+    const String primaryTileAsset = 'assets/removed/play-removebg.png';
     const String secondaryTileAsset = 'assets/icons/menu_121.png';
 
     Widget menuActionTile({
