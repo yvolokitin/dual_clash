@@ -529,10 +529,10 @@ class _ChallengeOutcomeSummary extends StatelessWidget {
               'Score reached: $redTotal',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.95),
+                color: const Color(0xFFFFD700),
                 fontWeight: FontWeight.w700,
-                fontFamily: 'BBHHegarty',
-                fontSize: 18,
+                fontFamily: 'ArchivoBlack',
+                fontSize: 22.5,
               ),
             ),
             const SizedBox(height: 10),
