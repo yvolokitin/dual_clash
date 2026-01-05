@@ -72,6 +72,7 @@ class _TwoTouchAppState extends State<TwoTouchApp> {
       builder: (context, _) {
         final localeCode = switch (controller.languageCode) {
           'ru' => 'ru',
+          'es' => 'es',
           _ => 'en',
         };
         return MaterialApp(
@@ -88,6 +89,7 @@ class _TwoTouchAppState extends State<TwoTouchApp> {
           supportedLocales: const [
             Locale('en'),
             Locale('ru'),
+            Locale('es'),
           ],
           locale: Locale(localeCode),
           theme: base.copyWith(
