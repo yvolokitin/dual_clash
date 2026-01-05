@@ -186,10 +186,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                                 selected: _language == code,
                                 label: title,
                                 asset: asset,
-                                onTap: () async {
-                                  setState(() => _language = code);
-                                  await widget.controller.setLanguage(code);
-                                },
+                                onTap: () => setState(() => _language = code),
                               );
                             }).toList(),
                           ),
@@ -212,24 +209,16 @@ class _SettingsDialogState extends State<SettingsDialog> {
                                 label: 'Human (Red)',
                                 asset: 'assets/icons/human.png',
                                 accent: AppColors.red,
-                                onTap: () async {
-                                  setState(
-                                      () => _startingPlayer = CellState.red);
-                                  await widget.controller
-                                      .setStartingPlayer(CellState.red);
-                                },
+                                onTap: () => setState(
+                                    () => _startingPlayer = CellState.red),
                               ),
                               _startingPlayerTile(
                                 selected: _startingPlayer == CellState.blue,
                                 label: 'AI (Blue)',
                                 asset: 'assets/icons/ai.png',
                                 accent: AppColors.blue,
-                                onTap: () async {
-                                  setState(
-                                      () => _startingPlayer = CellState.blue);
-                                  await widget.controller
-                                      .setStartingPlayer(CellState.blue);
-                                },
+                                onTap: () => setState(
+                                    () => _startingPlayer = CellState.blue),
                               ),
                             ],
                           ),
@@ -238,24 +227,45 @@ class _SettingsDialogState extends State<SettingsDialog> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.brandGold,
-                        foregroundColor: const Color(0xFF2B221D),
-                        shadowColor: Colors.black54,
-                        elevation: 4,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 12),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24)),
-                        textStyle: const TextStyle(
-                            fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.white70,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 18, vertical: 12),
+                          textStyle: const TextStyle(
+                              fontWeight: FontWeight.w700, letterSpacing: 0.2),
+                        ),
+                        child: const Text('Close'),
                       ),
-                      child: const Text('Close'),
-                    ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: () async {
+                          await widget.controller.setLanguage(_language);
+                          await widget.controller
+                              .setStartingPlayer(_startingPlayer);
+                          if (context.mounted) {
+                            Navigator.of(context).pop();
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.red,
+                          foregroundColor: Colors.white,
+                          shadowColor: Colors.black54,
+                          elevation: 4,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(24)),
+                          textStyle: const TextStyle(
+                              fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                        ),
+                        child: const Text('Save'),
+                      ),
+                    ],
                   ),
                 ], // Added closing bracket here
               ),
@@ -302,12 +312,12 @@ class _SettingsDialogState extends State<SettingsDialog> {
   List<(String, String, String)> _languageOptions() {
     return const [
       ('en', 'English', 'assets/icons/lang_en.png'),
-      ('de', 'German', 'assets/icons/lang_de.png'),
-      ('es', 'Spain', 'assets/icons/lang_es.png'),
-      ('fr', 'French', 'assets/icons/lang_fr.png'),
+      ('de', 'Deutsch', 'assets/icons/lang_de.png'),
+      ('es', 'Español', 'assets/icons/lang_es.png'),
+      ('fr', 'Français', 'assets/icons/lang_fr.png'),
       ('pl', 'Polski', 'assets/icons/lang_pl.png'),
-      ('ru', 'Russian', 'assets/icons/lang_ru.png'),
-      ('ua', 'Ukranian', 'assets/icons/lang_ua.png'),
+      ('ru', 'Русский', 'assets/icons/lang_ru.png'),
+      ('ua', 'Українська', 'assets/icons/lang_ua.png'),
     ];
   }
 
