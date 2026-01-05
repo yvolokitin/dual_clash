@@ -546,7 +546,7 @@ Future<bool?> showLoadGameDialog({
                                                             IconButton(
                                                               tooltip: 'Play',
                                                               icon: Image.asset(
-                                                                  'assets/icons/play-removebg.png',
+                                                                  'assets/icons/play.png',
                                                                   width: 31,
                                                                   height: 31),
                                                               onPressed:
