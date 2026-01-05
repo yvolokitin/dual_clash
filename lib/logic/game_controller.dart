@@ -1313,6 +1313,7 @@ class GameController extends ChangeNotifier {
     } else if (who != CellState.red || current != CellState.red) {
       return;
     }
+    _clearScorePopup();
     // Determine all neutral cells to drop
     final neutrals = _allNeutralCells();
     if (neutrals.isEmpty) return;
@@ -2018,6 +2019,7 @@ class GameController extends ChangeNotifier {
 
   Future<void> _performGreyDropAi() async {
     if (gameOver || isExploding || isFalling || isQuaking) return;
+    _clearScorePopup();
     // Determine all neutral cells to drop
     final neutrals = _allNeutralCells();
     if (neutrals.isEmpty) {
