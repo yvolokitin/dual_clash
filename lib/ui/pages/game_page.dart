@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:dual_clash/core/colors.dart';
 import 'package:dual_clash/core/feature_flags.dart';
+import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/logic/rules_engine.dart';
 import 'package:dual_clash/models/cell_state.dart';
@@ -309,8 +310,8 @@ class _GamePageState extends State<GamePage> {
                                       const SizedBox(height: 10),
                                       Text(
                                         controller.isSimulating
-                                            ? 'Simulating game...'
-                                            : 'AI is thinking...',
+                                            ? context.l10n.simulatingGameLabel
+                                            : context.l10n.aiThinkingLabel,
                                         style: const TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.w700),

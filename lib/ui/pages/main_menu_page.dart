@@ -1,3 +1,4 @@
+import 'package:dual_clash/core/localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart' show RenderBox;
@@ -116,6 +117,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
     final controller = widget.controller;
     final size = MediaQuery.of(context).size;
     final compactLabels = _isCompactWidth(context);
+    final l10n = context.l10n;
     final double topHeroHeight = size.height * 0.35; // 35% of top page for the image
     final Color bgColor = _bgAnim != null
         ? ColorTween(begin: _violet, end: _menuGreen).evaluate(_bgAnim!)!
@@ -222,8 +224,9 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                     MenuTile(
                                       key: _gameTileKey,
                                       imagePath: 'assets/icons/menu_pvai.png',
-                                      label:
-                                          compactLabels ? 'Game' : 'Game challange',
+                                      label: compactLabels
+                                          ? l10n.menuGameShort
+                                          : l10n.menuGameChallenge,
                                       color: AppColors.red,
                                       onTap: () {
                                         _runMenuAction(() async {
@@ -240,8 +243,9 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                     MenuTile(
                                       key: _duelTileKey,
                                       imagePath: 'assets/icons/menu_121.png',
-                                      label:
-                                          compactLabels ? 'Duel' : 'Duel mode',
+                                      label: compactLabels
+                                          ? l10n.menuDuelShort
+                                          : l10n.menuDuelMode,
                                       color: AppColors.blue,
                                       onTap: () {
                                         _runMenuAction(() async {
@@ -252,8 +256,9 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                     MenuTile(
                                       key: _loadTileKey,
                                       imagePath: 'assets/icons/menu_load.png',
-                                      label:
-                                          compactLabels ? 'Load' : 'Load game',
+                                      label: compactLabels
+                                          ? l10n.menuLoadShort
+                                          : l10n.menuLoadGame,
                                       color: Colors.orange,
                                       onTap: () async {
                                         await _runMenuAction(() async {
@@ -265,7 +270,9 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                     MenuTile(
                                       key: _playerHubTileKey,
                                       imagePath: 'assets/icons/menu_settings.png',
-                                      label: compactLabels ? 'Hub' : 'Player Hub',
+                                      label: compactLabels
+                                          ? l10n.menuHubShort
+                                          : l10n.menuPlayerHub,
                                       color: _playerHubColor,
                                       onTap: () {
                                         _runMenuAction(() async {
@@ -353,7 +360,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
     await showGeneralDialog<void>(
       context: context,
       barrierDismissible: true,
-      barrierLabel: 'Modes',
+      barrierLabel: context.l10n.modesBarrierLabel,
       barrierColor: Colors.black.withOpacity(0.4),
       transitionDuration: const Duration(milliseconds: 300),
       pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),
@@ -398,7 +405,9 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: FlyoutTile(
                         imagePath: 'assets/icons/menu_121.png',
-                        label: compactLabels ? 'Duel' : 'Duel mode',
+                        label: compactLabels
+                            ? l10n.menuDuelShort
+                            : l10n.menuDuelMode,
                         disabled: false,
                         color: AppColors.blue,
                         onTap: () {
@@ -428,7 +437,9 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: FlyoutTile(
                         imagePath: 'assets/icons/menu_323.png',
-                        label: compactLabels ? 'Triple' : 'Triple Threat',
+                        label: compactLabels
+                            ? l10n.menuTripleShort
+                            : l10n.menuTripleThreat,
                         disabled: false,
                         color: AppColors.red,
                         onTap: () {
@@ -458,7 +469,9 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: FlyoutTile(
                         imagePath: 'assets/icons/menu_424.png',
-                        label: compactLabels ? 'Quad' : 'Quad Clash',
+                        label: compactLabels
+                            ? l10n.menuQuadShort
+                            : l10n.menuQuadClash,
                         disabled: false,
                         color: AppColors.green,
                         onTap: () {
@@ -540,7 +553,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
     await showGeneralDialog<void>(
       context: context,
       barrierDismissible: true,
-      barrierLabel: 'Player Hub',
+      barrierLabel: context.l10n.playerHubBarrierLabel,
       barrierColor: Colors.black.withOpacity(0.4),
       transitionDuration: const Duration(milliseconds: 300),
       pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),
@@ -582,7 +595,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: FlyoutTile(
                         imagePath: 'assets/icons/menu_profile.png',
-                        label: 'Profile',
+                        label: l10n.profileTitle,
                         disabled: false,
                         color: AppColors.red,
                         onTap: () {
@@ -609,7 +622,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: FlyoutTile(
                         imagePath: 'assets/icons/menu_options.png',
-                        label: 'Language',
+                        label: l10n.languageTitle,
                         disabled: false,
                         color: _violet,
                         onTap: () {
@@ -636,7 +649,9 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: FlyoutTile(
                         imagePath: 'assets/icons/menu_load.png',
-                        label: compactLabels ? 'Load' : 'Load game',
+                        label: compactLabels
+                            ? l10n.menuLoadShort
+                            : l10n.menuLoadGame,
                         disabled: false,
                         color: Colors.orange,
                         onTap: () {
@@ -660,7 +675,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: FlyoutTile(
                         imagePath: 'assets/icons/menu_history.png',
-                        label: 'History',
+                        label: l10n.historyTitle,
                         disabled: false,
                         color: AppColors.blue,
                         onTap: () {
@@ -688,7 +703,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
     await showGeneralDialog<void>(
       context: context,
       barrierDismissible: true,
-      barrierLabel: 'Player Hub',
+      barrierLabel: context.l10n.playerHubBarrierLabel,
       barrierColor: Colors.black.withOpacity(0.55),
       transitionDuration: const Duration(milliseconds: 260),
       pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),
@@ -718,7 +733,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         children: [
                           FlyoutTile(
                             imagePath: 'assets/icons/menu_profile.png',
-                            label: 'Profile',
+                            label: l10n.profileTitle,
                             disabled: false,
                             width: 190,
                             height: 170,
@@ -733,7 +748,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                           ),
                           FlyoutTile(
                             imagePath: 'assets/icons/menu_options.png',
-                            label: 'Language',
+                            label: l10n.languageTitle,
                             disabled: false,
                             width: 190,
                             height: 170,
@@ -748,7 +763,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                           ),
                           FlyoutTile(
                             imagePath: 'assets/icons/menu_history.png',
-                            label: 'History',
+                            label: l10n.historyTitle,
                             disabled: false,
                             width: 190,
                             height: 170,
@@ -763,7 +778,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                           ),
                           FlyoutTile(
                             imagePath: 'assets/icons/menu_load.png',
-                            label: 'Load game',
+                            label: l10n.menuLoadGame,
                             disabled: false,
                             width: 190,
                             height: 170,
@@ -791,7 +806,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
     await showGeneralDialog<void>(
       context: context,
       barrierDismissible: true,
-      barrierLabel: 'Modes',
+      barrierLabel: context.l10n.modesBarrierLabel,
       barrierColor: Colors.black.withOpacity(0.55),
       transitionDuration: const Duration(milliseconds: 260),
       pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),
@@ -820,7 +835,9 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         children: [
                           FlyoutTile(
                             imagePath: 'assets/icons/menu_121.png',
-                            label: compactLabels ? 'Duel' : 'Duel mode',
+                            label: compactLabels
+                                ? l10n.menuDuelShort
+                                : l10n.menuDuelMode,
                             disabled: false,
                             width: 190,
                             height: 170,
@@ -837,7 +854,9 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                           const SizedBox(width: 14),
                           FlyoutTile(
                             imagePath: 'assets/icons/menu_323.png',
-                            label: compactLabels ? 'Triple' : 'Triple Threat',
+                            label: compactLabels
+                                ? l10n.menuTripleShort
+                                : l10n.menuTripleThreat,
                             disabled: false,
                             width: 190,
                             height: 170,
@@ -857,7 +876,9 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                           const SizedBox(width: 14),
                           FlyoutTile(
                             imagePath: 'assets/icons/menu_424.png',
-                            label: compactLabels ? 'Quad' : 'Quad Clash',
+                            label: compactLabels
+                                ? l10n.menuQuadShort
+                                : l10n.menuQuadClash,
                             disabled: false,
                             width: 190,
                             height: 170,

@@ -1,6 +1,8 @@
+import 'dart:ui' as ui;
+
+import 'package:dual_clash/core/localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'dart:ui' as ui;
 import '../../logic/game_controller.dart';
 import '../../core/colors.dart';
 import '../../core/constants.dart';
@@ -13,7 +15,7 @@ Future<void> showAnimatedMainMenuDialog(
   await showGeneralDialog<void>(
     context: context,
     barrierDismissible: true,
-    barrierLabel: 'Main Menu',
+    barrierLabel: context.l10n.mainMenuBarrierLabel,
     barrierColor: Colors.black.withOpacity(0.55),
     transitionDuration: const Duration(milliseconds: 260),
     pageBuilder: (ctx, anim1, anim2) => const SizedBox.shrink(),
@@ -45,6 +47,7 @@ Future<void> showAnimatedMainMenuDialog(
                 scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                 child: Builder(
                   builder: (dialogContext) {
+                    final l10n = dialogContext.l10n;
                     final size = MediaQuery.of(dialogContext).size;
                     final bool isMobilePlatform = !kIsWeb &&
                         (defaultTargetPlatform == TargetPlatform.android ||
@@ -108,8 +111,8 @@ Future<void> showAnimatedMainMenuDialog(
                                   Row(
                                     children: [
                                       const Spacer(),
-                                      const Text('Game Menu',
-                                          style: TextStyle(
+                                      Text(l10n.gameMenuTitle,
+                                          style: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 22,
                                               fontWeight: FontWeight.w800)),
@@ -142,18 +145,18 @@ Future<void> showAnimatedMainMenuDialog(
                                   const SizedBox(height: 16),
                                   _MenuTile(
                                     icon: Icons.flash_on,
-                                    label: 'Game challenge',
+                                    label: l10n.gameChallengeLabel,
                                     onTap: () {
                                       Navigator.of(context).pop();
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(const SnackBar(
                                               content: Text(
-                                                  'Game Challenge is coming soon')));
+                                                  l10n.gameChallengeComingSoon)));
                                     },
                                   ),
                                   _MenuTile(
                                     icon: Icons.folder_open,
-                                    label: 'Load game',
+                                    label: l10n.menuLoadGame,
                                     onTap: () async {
                                       await showLoadGameDialog(
                                           context: context,
@@ -162,7 +165,7 @@ Future<void> showAnimatedMainMenuDialog(
                                   ),
                                   _MenuTile(
                                     icon: Icons.history,
-                                    label: 'History',
+                                    label: l10n.historyTitle,
                                     onTap: () async {
                                       await showAnimatedHistoryDialog(
                                           context: context,
@@ -171,7 +174,7 @@ Future<void> showAnimatedMainMenuDialog(
                                   ),
                                   _MenuTile(
                                     icon: Icons.person_outline,
-                                    label: 'User Profile',
+                                    label: l10n.userProfileLabel,
                                     onTap: () async {
                                       await showAnimatedProfileDialog(
                                           context: context,
@@ -203,15 +206,19 @@ class _StatsAnimatedBox extends StatelessWidget {
       {required this.totalScore, required this.totalPlayTimeMs});
 
   String _formatDuration(int ms) {
-    if (ms <= 0) return '0s';
-    int seconds = (ms / 1000).floor();
-    final hours = seconds ~/ 3600;
-    seconds %= 3600;
-    final minutes = seconds ~/ 60;
-    seconds %= 60;
-    if (hours > 0) return '${hours}h ${minutes}m';
-    if (minutes > 0) return '${minutes}m ${seconds}s';
-    return '${seconds}s';
+    final l10n = appLocalizations();
+    if (l10n == null) {
+      if (ms <= 0) return '0s';
+      int seconds = (ms / 1000).floor();
+      final hours = seconds ~/ 3600;
+      seconds %= 3600;
+      final minutes = seconds ~/ 60;
+      seconds %= 60;
+      if (hours > 0) return '${hours}h ${minutes}m';
+      if (minutes > 0) return '${minutes}m ${seconds}s';
+      return '${seconds}s';
+    }
+    return formatDurationShort(l10n, ms);
   }
 
   @override
@@ -354,7 +361,7 @@ Future<bool?> showLoadGameDialog({
     return await showGeneralDialog<bool?>(
       context: context,
       barrierDismissible: true,
-      barrierLabel: 'Load Game',
+      barrierLabel: context.l10n.loadGameBarrierLabel,
       barrierColor: Colors.black.withOpacity(0.55),
       transitionDuration: const Duration(milliseconds: 260),
       pageBuilder: (ctx, anim1, anim2) => const SizedBox.shrink(),
@@ -388,6 +395,7 @@ Future<bool?> showLoadGameDialog({
             bool closing = false;
             return StatefulBuilder(
               builder: (context, setState) {
+                final l10n = context.l10n;
                 if (!initialized) {
                   // Copy initial items once
                   localItems = List<Map<String, dynamic>>.from(initialItems);
@@ -461,8 +469,8 @@ Future<bool?> showLoadGameDialog({
                                         Row(
                                           children: [
                                             const Spacer(),
-                                            const Text('Load game',
-                                                style: TextStyle(
+                                            Text(l10n.menuLoadGame,
+                                                style: const TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 22,
                                                     fontWeight:
@@ -491,9 +499,10 @@ Future<bool?> showLoadGameDialog({
                                         const SizedBox(height: 12),
                                         Expanded(
                                           child: localItems.isEmpty
-                                              ? const Center(
-                                                  child: Text('No saved games',
-                                                      style: TextStyle(
+                                              ? Center(
+                                                  child: Text(
+                                                      l10n.noSavedGamesMessage,
+                                                      style: const TextStyle(
                                                           color:
                                                               Colors.white70)))
                                               : ListView.separated(
@@ -510,9 +519,11 @@ Future<bool?> showLoadGameDialog({
                                                             it['ts'] as int);
                                                     final title =
                                                         it['name'] as String? ??
-                                                            'Saved game';
+                                                            l10n.savedGameDefaultName;
                                                     final subtitle =
-                                                        '${when.toLocal()} • Turn: ${(it['current'] as String)}';
+                                                        l10n.savedGameSubtitle(
+                                                            when.toLocal().toString(),
+                                                            it['current'] as String);
                                                     final id =
                                                         it['id'] as String;
                                                     return Container(
@@ -544,7 +555,7 @@ Future<bool?> showLoadGameDialog({
                                                           children: [
                                                             // Play button opens the saved game (same as tapping the row)
                                                             IconButton(
-                                                              tooltip: 'Play',
+                                                              tooltip: l10n.playLabel,
                                                               icon: Image.asset(
                                                                   'assets/icons/play.png',
                                                                   width: 31,
@@ -589,7 +600,7 @@ Future<bool?> showLoadGameDialog({
                                                             else
                                                               IconButton(
                                                                 tooltip:
-                                                                    'Delete',
+                                                                    l10n.deleteLabel,
                                                                 icon:
                                                                     Image.asset(
                                                                         'assets/icons/delete.png',
@@ -607,18 +618,18 @@ Future<bool?> showLoadGameDialog({
                                                                     builder:
                                                                         (dCtx) {
                                                                       return AlertDialog(
-                                                                        title: const Text(
-                                                                            'Delete save?'),
+                                                                        title: Text(
+                                                                            l10n.deleteSaveTitle),
                                                                         content:
-                                                                            const Text(
-                                                                                'Are you sure you want to delete this saved game?'),
+                                                                            Text(
+                                                                                l10n.deleteSaveMessage),
                                                                         actions: [
                                                                           TextButton(
                                                                               onPressed: () => Navigator.of(dCtx).pop(false),
-                                                                              child: const Text('Cancel')),
+                                                                              child: Text(l10n.commonCancel)),
                                                                           TextButton(
                                                                               onPressed: () => Navigator.of(dCtx).pop(true),
-                                                                              child: const Text('Delete')),
+                                                                              child: Text(l10n.deleteLabel)),
                                                                         ],
                                                                       );
                                                                     },
@@ -652,7 +663,7 @@ Future<bool?> showLoadGameDialog({
                                                                                   context);
                                                                       messenger?.showSnackBar(const SnackBar(
                                                                           content:
-                                                                              Text('Failed to delete'),
+                                                                              Text(l10n.failedToDeleteMessage),
                                                                           backgroundColor:
                                                                               Colors.red));
                                                                     }
@@ -710,7 +721,7 @@ Future<bool?> showLoadGameDialog({
                                                   fontWeight: FontWeight.w800,
                                                   letterSpacing: 0.2),
                                             ),
-                                            child: const Text('Close'),
+                                            child: Text(l10n.commonClose),
                                           ),
                                         ),
                                       ],

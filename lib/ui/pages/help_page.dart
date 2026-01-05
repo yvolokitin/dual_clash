@@ -1,6 +1,8 @@
+import 'dart:ui' as ui;
+
+import 'package:dual_clash/core/localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'dart:ui' as ui;
 import '../../logic/game_controller.dart';
 import '../../core/colors.dart';
 import '../../core/constants.dart';
@@ -12,6 +14,7 @@ class HelpDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final l10n = context.l10n;
     final bool isMobilePlatform = !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
@@ -60,8 +63,8 @@ class HelpDialog extends StatelessWidget {
                   Row(
                     children: [
                       const Spacer(),
-                      const Text('How to Play',
-                          style: TextStyle(
+                      Text(l10n.helpTitle,
+                          style: const TextStyle(
                               color: Colors.white,
                               fontSize: 22,
                               fontWeight: FontWeight.w800)),
@@ -88,36 +91,27 @@ class HelpDialog extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const _SectionTitle('Goal'),
-                          _BodyText(
-                              'Fill the $boardLabel board by taking turns with the AI. You are Red, the AI is Blue. The player with the higher TOTAL score wins.'),
+                          _SectionTitle(l10n.helpGoalTitle),
+                          _BodyText(l10n.helpGoalBody(boardLabel)),
                           const SizedBox(height: 12),
-                          const _SectionTitle('Turns & Placement'),
-                          const _BodyText(
-                              'Tap any empty cell to place your color. After your move, the AI places blue. The starting player can be changed in Settings.'),
+                          _SectionTitle(l10n.helpTurnsTitle),
+                          _BodyText(l10n.helpTurnsBody),
                           const SizedBox(height: 12),
-                          const _SectionTitle('Scoring'),
-                          const _BodyText(
-                              'Base Score: number of cells of your color on the board when the game ends.'),
-                          const _BodyText(
-                              'Bonus: +50 points for every full row or full column filled with your color.'),
-                          const _BodyText('Total Score: Base Score + Bonus.'),
-                          const _BodyText(
-                              'Earning Points During Play (Red): +1 for each placement, +2 extra if placed in a corner, +2 for each Blue turned Neutral, +3 for each Neutral turned Red, +50 for each new full Red row/column.'),
-                          const _BodyText(
-                              'Your cumulative trophy counter only increases. Points are added after each finished game based on your Red Total. Opponent actions never reduce your cumulative total.'),
+                          _SectionTitle(l10n.helpScoringTitle),
+                          _BodyText(l10n.helpScoringBase),
+                          _BodyText(l10n.helpScoringBonus),
+                          _BodyText(l10n.helpScoringTotal),
+                          _BodyText(l10n.helpScoringEarning),
+                          _BodyText(l10n.helpScoringCumulative),
                           const SizedBox(height: 12),
-                          const _SectionTitle('Winning'),
-                          const _BodyText(
-                              'When the board has no empty cells, the game ends. The player with the higher Total Score wins. Draws are possible.'),
+                          _SectionTitle(l10n.helpWinningTitle),
+                          _BodyText(l10n.helpWinningBody),
                           const SizedBox(height: 12),
-                          const _SectionTitle('AI Level'),
-                          const _BodyText(
-                              'Choose the AI difficulty in Settings (1–7). Higher levels think further ahead but take longer.'),
+                          _SectionTitle(l10n.helpAiLevelTitle),
+                          _BodyText(l10n.helpAiLevelBody),
                           const SizedBox(height: 12),
-                          const _SectionTitle('History & Profile'),
-                          const _BodyText(
-                              'Your finished games are saved in History with all details.'),
+                          _SectionTitle(l10n.helpHistoryProfileTitle),
+                          _BodyText(l10n.helpHistoryProfileBody),
                         ],
                       ),
                     ),
@@ -139,7 +133,7 @@ class HelpDialog extends StatelessWidget {
                         textStyle: const TextStyle(
                             fontWeight: FontWeight.w800, letterSpacing: 0.2),
                       ),
-                      child: const Text('Close'),
+                      child: Text(l10n.commonClose),
                     ),
                   ),
                 ],
@@ -186,7 +180,7 @@ Future<void> showAnimatedHelpDialog(
   return showGeneralDialog(
     context: context,
     barrierDismissible: true,
-    barrierLabel: 'Help',
+    barrierLabel: context.l10n.helpTitle,
     barrierColor: Colors.black.withOpacity(0.55),
     transitionDuration: const Duration(milliseconds: 260),
     pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),

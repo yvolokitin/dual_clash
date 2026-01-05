@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 
 import 'package:dual_clash/core/constants.dart';
+import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/ui/widgets/results_card.dart';
 import 'package:flutter/foundation.dart';
@@ -14,7 +15,7 @@ Future<void> showAnimatedResultsDialog({
   return showGeneralDialog(
     context: context,
     barrierDismissible: true,
-    barrierLabel: 'Results',
+    barrierLabel: context.l10n.resultsTitle,
     barrierColor: Colors.black.withOpacity(0.55),
     transitionDuration: const Duration(milliseconds: 260),
     pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),

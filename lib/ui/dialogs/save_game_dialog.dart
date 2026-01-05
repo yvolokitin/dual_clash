@@ -1,6 +1,8 @@
-import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
+
+import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/ui/widgets/save_game_card.dart';
+import 'package:flutter/material.dart';
 
 /// Shows the animated Save Game dialog with soft blur, fade and scale
 /// transitions, wrapping the universal SaveGameCard.
@@ -8,16 +10,17 @@ Future<void> showAnimatedSaveGameDialog({
   required BuildContext context,
   required String initialName,
   required ValueChanged<String> onSave,
-  String title = 'Save game',
-  String nameLabel = 'Name for this save',
-  String saveButtonLabel = 'Save',
-  String cancelButtonLabel = 'Cancel',
+  required String title,
+  required String nameLabel,
+  required String nameHint,
+  required String saveButtonLabel,
+  required String cancelButtonLabel,
 }) {
   bool closing = false;
   return showGeneralDialog(
     context: context,
     barrierDismissible: true,
-    barrierLabel: 'Save Game',
+    barrierLabel: context.l10n.saveGameBarrierLabel,
     barrierColor: Colors.black.withOpacity(0.55),
     transitionDuration: const Duration(milliseconds: 260),
     pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),
@@ -59,6 +62,7 @@ Future<void> showAnimatedSaveGameDialog({
                   initialName: initialName,
                   onSave: handleSave,
                   nameLabel: nameLabel,
+                  nameHint: nameHint,
                   saveButtonLabel: saveButtonLabel,
                   cancelButtonLabel: cancelButtonLabel,
                 ),

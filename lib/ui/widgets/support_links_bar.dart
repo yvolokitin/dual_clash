@@ -1,3 +1,4 @@
+import 'package:dual_clash/core/localization.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -70,7 +71,7 @@ class SupportLinksBar extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Support the dev',
+                      context.l10n.supportTheDevLabel,
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w800,

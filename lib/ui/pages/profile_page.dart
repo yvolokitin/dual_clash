@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ui' as ui;
+import 'package:dual_clash/core/localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -39,6 +40,7 @@ Widget _beltTile(String name, Color color) {
 }
 
 Widget beltsGridWidget(Set<String> badges) {
+  final l10n = appLocalizations();
   final achievedLevels = <int>[
     for (int lvl = 1; lvl <= 7; lvl++)
       if (badges.contains('Beat AI L$lvl')) lvl
@@ -52,14 +54,16 @@ Widget beltsGridWidget(Set<String> badges) {
       border: Border.all(color: Colors.white24, width: 1),
     ),
     child: achievedLevels.isEmpty
-        ? const Text('No belts earned yet.',
-            style: TextStyle(color: Colors.white54))
+        ? Text(l10n?.noBeltsEarnedYetMessage ?? 'No belts earned yet.',
+            style: const TextStyle(color: Colors.white54))
         : Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
               for (final lvl in achievedLevels)
-                _beltTile(AiBelt.nameFor(lvl), AiBelt.colorFor(lvl)),
+                _beltTile(
+                    l10n == null ? AiBelt.nameFor(lvl) : aiBeltName(l10n, lvl),
+                    AiBelt.colorFor(lvl)),
             ],
           ),
   );
@@ -102,13 +106,13 @@ class _ProfileDialogState extends State<ProfileDialog> {
   String? _validateNickname(String value) {
     final trimmed = value.trim();
     if (trimmed.isEmpty) {
-      return 'Nickname is required';
+      return context.l10n.nicknameRequiredError;
     }
     if (trimmed.length > 32) {
-      return 'Maximum 32 characters allowed';
+      return context.l10n.nicknameMaxLengthError;
     }
     if (!GameController.nicknameRegExp.hasMatch(trimmed)) {
-      return 'Use letters, numbers, dot, dash, or underscore';
+      return context.l10n.nicknameInvalidCharsError;
     }
     return null;
   }
@@ -123,12 +127,12 @@ class _ProfileDialogState extends State<ProfileDialog> {
     if (!mounted) return;
     if (!saved) {
       setState(() {
-        _nicknameError = 'Use letters, numbers, dot, dash, or underscore';
+        _nicknameError = context.l10n.nicknameInvalidCharsError;
       });
       return;
     }
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Nickname updated')),
+      SnackBar(content: Text(context.l10n.nicknameUpdatedMessage)),
     );
   }
 
@@ -183,12 +187,13 @@ class _ProfileDialogState extends State<ProfileDialog> {
   }
 
   Widget _ageRow() {
+    final l10n = context.l10n;
     return Row(
       children: [
-        const SizedBox(
+        SizedBox(
           width: 140,
-          child: Text('Age',
-              style: TextStyle(
+          child: Text(l10n.ageLabel,
+              style: const TextStyle(
                   color: AppColors.dialogSubtitle,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.2)),
@@ -231,15 +236,16 @@ class _ProfileDialogState extends State<ProfileDialog> {
   }
 
   Widget _nicknameRow() {
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            const SizedBox(
+            SizedBox(
               width: 140,
-              child: Text('Nickname',
-                  style: TextStyle(
+              child: Text(l10n.nicknameLabel,
+                  style: const TextStyle(
                       color: AppColors.dialogSubtitle,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.2)),
@@ -263,10 +269,10 @@ class _ProfileDialogState extends State<ProfileDialog> {
                   ],
                   style: const TextStyle(
                       color: Colors.white, fontWeight: FontWeight.w700),
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     isCollapsed: true,
-                    hintText: 'Enter nickname',
-                    hintStyle: TextStyle(color: Colors.white38),
+                    hintText: l10n.enterNicknameHint,
+                    hintStyle: const TextStyle(color: Colors.white38),
                     border: InputBorder.none,
                   ),
                   onChanged: _handleNicknameChanged,
@@ -286,13 +292,14 @@ class _ProfileDialogState extends State<ProfileDialog> {
   }
 
   Widget _countryRow() {
+    final l10n = context.l10n;
     final options = Countries.optionsForSelection(_selectedCountry);
     return Row(
       children: [
-        const SizedBox(
+        SizedBox(
           width: 140,
-          child: Text('Country',
-              style: TextStyle(
+          child: Text(l10n.countryLabel,
+              style: const TextStyle(
                   color: AppColors.dialogSubtitle,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.2)),
@@ -318,7 +325,7 @@ class _ProfileDialogState extends State<ProfileDialog> {
                     .map((country) => DropdownMenuItem<String>(
                           value: country,
                           enabled: country != Countries.defaultCountry,
-                          child: Text(country),
+                          child: Text(Countries.localizedName(l10n, country)),
                         ))
                     .toList(),
                 onChanged: (value) async {
@@ -339,6 +346,7 @@ class _ProfileDialogState extends State<ProfileDialog> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final l10n = context.l10n;
     final bool isMobilePlatform = !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
@@ -394,8 +402,8 @@ class _ProfileDialogState extends State<ProfileDialog> {
                   Row(
                     children: [
                       const Spacer(),
-                      const Text('Profile',
-                          style: TextStyle(
+                      Text(l10n.profileTitle,
+                          style: const TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w800,
                               color: AppColors.dialogTitle,
@@ -429,16 +437,16 @@ class _ProfileDialogState extends State<ProfileDialog> {
                           const SizedBox(height: 8),
                           _ageRow(),
                           const SizedBox(height: 16),
-                          const Text('Belts',
-                              style: TextStyle(
+                          Text(l10n.beltsTitle,
+                              style: const TextStyle(
                                   color: AppColors.dialogSubtitle,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 0.2)),
                           const SizedBox(height: 8),
                           beltsGridWidget(controller.badges),
                           const SizedBox(height: 16),
-                          const Text('Achievements',
-                              style: TextStyle(
+                          Text(l10n.achievementsTitle,
+                              style: const TextStyle(
                                   color: AppColors.dialogSubtitle,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 0.2)),
@@ -447,14 +455,17 @@ class _ProfileDialogState extends State<ProfileDialog> {
                             spacing: 8,
                             runSpacing: 8,
                             children: [
-                              _achChip('Full Row', controller.achievedRedRow),
+                              _achChip(l10n.achievementFullRow,
+                                  controller.achievedRedRow),
                               _achChip(
-                                  'Full Column', controller.achievedRedColumn),
+                                  l10n.achievementFullColumn,
+                                  controller.achievedRedColumn),
                               _achChip(
-                                  'Diagonal', controller.achievedRedDiagonal),
-                              _achChip('100 Game Points',
+                                  l10n.achievementDiagonal,
+                                  controller.achievedRedDiagonal),
+                              _achChip(l10n.achievement100GamePoints,
                                   controller.achievedGamePoints100),
-                              _achChip('1000 Game Points',
+                              _achChip(l10n.achievement1000GamePoints,
                                   controller.achievedGamePoints1000),
                             ],
                           ),
@@ -492,7 +503,7 @@ class _ProfileDialogState extends State<ProfileDialog> {
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 0.2),
                           ),
-                          child: const Text('History'),
+                          child: Text(l10n.historyTitle),
                         ),
                         const SizedBox(width: 10),
                         ElevatedButton(
@@ -518,7 +529,7 @@ class _ProfileDialogState extends State<ProfileDialog> {
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 0.2),
                           ),
-                          child: const Text('Help'),
+                          child: Text(l10n.helpTitle),
                         ),
                         const SizedBox(width: 10),
                         ElevatedButton(
@@ -536,7 +547,7 @@ class _ProfileDialogState extends State<ProfileDialog> {
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 0.2),
                           ),
-                          child: const Text('Close'),
+                          child: Text(l10n.commonClose),
                         ),
                       ],
                     ),
@@ -556,7 +567,7 @@ Future<void> showAnimatedProfileDialog(
   return showGeneralDialog(
     context: context,
     barrierDismissible: true,
-    barrierLabel: 'Profile',
+    barrierLabel: context.l10n.profileTitle,
     barrierColor: Colors.black.withOpacity(0.55),
     transitionDuration: const Duration(milliseconds: 260),
     pageBuilder: (ctx, anim1, anim2) => const SizedBox.shrink(),

@@ -1,3 +1,4 @@
+import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/ui/widgets/hover_scale_box.dart';
 import 'package:flutter/material.dart';
 
@@ -145,7 +146,7 @@ class GamePageScoreRow extends StatelessWidget {
                             width: menuIconSize,
                             height: menuIconSize,
                           ),
-                          tooltip: 'Main Menu',
+                          tooltip: context.l10n.mainMenuTooltip,
                           onPressed: onOpenMenu,
                         ),
                         Row(
@@ -195,7 +196,7 @@ class GamePageScoreRow extends StatelessWidget {
                             width: menuIconSize,
                             height: menuIconSize,
                           ),
-                          tooltip: 'Main Menu',
+                          tooltip: context.l10n.mainMenuTooltip,
                           onPressed: onOpenMenu,
                         ),
                         const SizedBox(width: 8),

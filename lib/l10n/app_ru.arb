@@ -1,0 +1,289 @@
+{
+  "@@locale": "ru",
+  "appTitle": "Two Touch {size}",
+  "@appTitle": {
+    "placeholders": {
+      "size": {}
+    }
+  },
+  "commonClose": "Закрыть",
+  "commonCancel": "Отмена",
+  "commonSave": "Сохранить",
+  "commonConfirm": "Подтвердить",
+  "commonYes": "Да",
+  "commonNo": "Нет",
+  "deleteLabel": "Удалить",
+  "playLabel": "Играть",
+  "leaveLabel": "Выйти",
+  "menuTitle": "Меню",
+  "mainMenuBarrierLabel": "Главное меню",
+  "mainMenuTooltip": "Главное меню",
+  "gameMenuTitle": "Игровое меню",
+  "returnToMainMenuLabel": "Вернуться в главное меню",
+  "returnToMainMenuTitle": "Вернуться в главное меню",
+  "returnToMainMenuMessage": "Хотите вернуться в главное меню?\n\nПрогресс не будет сохранён.",
+  "restartGameLabel": "Перезапустить/начать игру",
+  "restartGameTitle": "Перезапустить игру",
+  "restartGameMessage": "Перезапустить игру с нуля?\n\nТекущий прогресс будет потерян.",
+  "statisticsTitle": "Статистика",
+  "helpTitle": "Как играть",
+  "settingsTitle": "Настройки",
+  "profileTitle": "Профиль",
+  "historyTitle": "История",
+  "saveGameTitle": "Сохранить игру",
+  "saveGameNameLabel": "Название сохранения",
+  "saveGameNameHint": "Введите название...",
+  "saveGameBarrierLabel": "Сохранение игры",
+  "gameSavedMessage": "Игра сохранена",
+  "simulateGameLabel": "Симуляция игры",
+  "simulateGameHumanWinLabel": "Симуляция игры (победа человека)",
+  "simulateGameAiWinLabel": "Симуляция игры (победа ИИ)",
+  "simulateGameGreyWinLabel": "Симуляция игры (победа серых)",
+  "removeAdsLabel": "Убрать рекламу — 1€",
+  "restorePurchasesLabel": "Восстановить покупки",
+  "menuGameShort": "Игра",
+  "menuGameChallenge": "Игра челлендж",
+  "menuDuelShort": "Дуэль",
+  "menuDuelMode": "Режим дуэли",
+  "menuLoadShort": "Загрузить",
+  "menuLoadGame": "Загрузить игру",
+  "menuHubShort": "Хаб",
+  "menuPlayerHub": "Хаб игрока",
+  "menuTripleShort": "Тройной",
+  "menuTripleThreat": "Тройная угроза",
+  "menuQuadShort": "Четверной",
+  "menuQuadClash": "Четверной бой",
+  "playerHubBarrierLabel": "Хаб игрока",
+  "modesBarrierLabel": "Режимы",
+  "languageTitle": "Язык",
+  "userProfileLabel": "Профиль игрока",
+  "gameChallengeLabel": "Игра вызов",
+  "gameChallengeComingSoon": "Режим вызова скоро появится",
+  "loadGameBarrierLabel": "Загрузка игры",
+  "noSavedGamesMessage": "Нет сохранённых игр",
+  "savedGameDefaultName": "Сохранённая игра",
+  "savedGameSubtitle": "{when} • Ход: {turn}",
+  "@savedGameSubtitle": {
+    "placeholders": {
+      "when": {},
+      "turn": {}
+    }
+  },
+  "helpGoalTitle": "Цель",
+  "helpGoalBody": "Заполните поле {board}, по очереди с ИИ. Вы — Красный, ИИ — Синий. Побеждает игрок с более высоким ОБЩИМ счётом.",
+  "@helpGoalBody": {
+    "placeholders": {
+      "board": {}
+    }
+  },
+  "helpTurnsTitle": "Ходы и размещение",
+  "helpTurnsBody": "Нажмите на любую пустую клетку, чтобы поставить свой цвет. После вашего хода ИИ ставит синий. Кто ходит первым, можно изменить в настройках.",
+  "helpScoringTitle": "Подсчёт очков",
+  "helpScoringBase": "Базовый счёт: количество клеток вашего цвета на поле к концу игры.",
+  "helpScoringBonus": "Бонус: +50 очков за каждый полностью заполненный вашим цветом ряд или столбец.",
+  "helpScoringTotal": "Итоговый счёт: базовый счёт + бонус.",
+  "helpScoringEarning": "Заработок очков во время игры (Красный): +1 за каждое размещение, +2 дополнительно за угол, +2 за каждую синюю клетку, ставшую нейтральной, +3 за каждую нейтральную, ставшую красной, +50 за каждый новый полный красный ряд/столбец.",
+  "helpScoringCumulative": "Ваш общий счёт трофеев только увеличивается. Очки добавляются после каждой завершённой игры по вашему красному итогу. Действия соперника никогда не уменьшают ваш общий итог.",
+  "helpWinningTitle": "Победа",
+  "helpWinningBody": "Когда на поле не остаётся пустых клеток, игра заканчивается. Побеждает игрок с более высоким итоговым счётом. Возможна ничья.",
+  "helpAiLevelTitle": "Уровень ИИ",
+  "helpAiLevelBody": "Выберите сложность ИИ в настройках (1–7). Более высокие уровни думают дальше, но дольше.",
+  "helpHistoryProfileTitle": "История и профиль",
+  "helpHistoryProfileBody": "Ваши завершённые игры сохраняются в Истории со всеми деталями.",
+  "aiDifficultyTitle": "Сложность ИИ",
+  "aiDifficultyTipBeginner": "Белый — Новичок: делает случайные ходы.",
+  "aiDifficultyTipEasy": "Жёлтый — Лёгкий: предпочитает мгновенную выгоду.",
+  "aiDifficultyTipNormal": "Оранжевый — Нормальный: жадный с базовым позиционированием.",
+  "aiDifficultyTipChallenging": "Зелёный — Сложный: неглубокий поиск с некоторым предвидением.",
+  "aiDifficultyTipHard": "Синий — Тяжёлый: более глубокий поиск с отсечением.",
+  "aiDifficultyTipExpert": "Коричневый — Эксперт: продвинутое отсечение и кэш.",
+  "aiDifficultyTipMaster": "Чёрный — Мастер: самый сильный и расчётливый.",
+  "aiDifficultyTipSelect": "Выберите уровень пояса.",
+  "aiDifficultyDetailBeginner": "Белый — Новичок: случайные пустые клетки. Непредсказуем, но слаб.",
+  "aiDifficultyDetailEasy": "Жёлтый — Лёгкий: жадные ходы, максимизирующие мгновенную выгоду.",
+  "aiDifficultyDetailNormal": "Оранжевый — Нормальный: жадный, с приоритетом центра при равенстве.",
+  "aiDifficultyDetailChallenging": "Зелёный — Сложный: неглубокий минимакс (глубина 2), без отсечения.",
+  "aiDifficultyDetailHard": "Синий — Тяжёлый: более глубокий минимакс с альфа–бета отсечением и упорядочиванием ходов.",
+  "aiDifficultyDetailExpert": "Коричневый — Эксперт: более глубокий минимакс с отсечением и таблицей транспозиций.",
+  "aiDifficultyDetailMaster": "Чёрный — Мастер: Monte Carlo Tree Search (~1500 симуляций в лимит времени).",
+  "aiDifficultyDetailSelect": "Выберите сложность ИИ, чтобы увидеть детали.",
+  "currentAiLevelLabel": "Текущий уровень ИИ",
+  "aiLevelDisplay": "{belt} ({level})",
+  "@aiLevelDisplay": {
+    "placeholders": {
+      "belt": {},
+      "level": {}
+    }
+  },
+  "resultsTitle": "Результаты",
+  "timePlayedLabel": "Время игры",
+  "redTurnsLabel": "Ходы красных",
+  "blueTurnsLabel": "Ходы синих",
+  "yellowTurnsLabel": "Ходы жёлтых",
+  "greenTurnsLabel": "Ходы зелёных",
+  "playerTurnsLabel": "Ходы игрока",
+  "aiTurnsLabel": "Ходы ИИ",
+  "newBestScoreLabel": "Новый лучший результат",
+  "pointsBelowBestScore": "На {points} очков меньше лучшего результата",
+  "@pointsBelowBestScore": {
+    "placeholders": {
+      "points": {}
+    }
+  },
+  "youWinReachedScore": "Вы победили и набрали {score} очков",
+  "@youWinReachedScore": {
+    "placeholders": {
+      "score": {}
+    }
+  },
+  "redTerritoryControlled": "Территория красного игрока под контролем.",
+  "blueTerritoryControlled": "Территория синего игрока под контролем.",
+  "neutralTerritoryControlled": "Нейтральная территория под контролем.",
+  "territoryBalanced": "Территория сбалансирована.",
+  "performanceLost": "Вы проиграли. Нужна стратегия.",
+  "performanceBrilliantEndgame": "Блестящий эндшпиль",
+  "performanceGreatControl": "Отличный контроль",
+  "performanceRiskyEffective": "Рискованно, но эффективно",
+  "performanceSolidStrategy": "Солидная стратегия",
+  "playAgainLabel": "Играть снова",
+  "continueNextAiLevelLabel": "Перейти к следующему уровню ИИ",
+  "playLowerAiLevelLabel": "Играть на более низком уровне ИИ",
+  "replaySameLevelLabel": "Повторить этот уровень",
+  "aiThinkingLabel": "ИИ думает...",
+  "simulatingGameLabel": "Симуляция игры...",
+  "noTurnsYetMessage": "В этой игре ещё нет ходов",
+  "turnLabel": "Ход {turn}",
+  "@turnLabel": {
+    "placeholders": {
+      "turn": {}
+    }
+  },
+  "undoLastActionTooltip": "Отменить последнее действие",
+  "historyTabGames": "Игры",
+  "historyTabDailyActivity": "Дневная активность",
+  "noFinishedGamesYet": "Ещё нет завершённых игр",
+  "gamesCountLabel": "Игр: {count}",
+  "@gamesCountLabel": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "winsLabel": "Победы",
+  "lossesLabel": "Поражения",
+  "drawsLabel": "Ничьи",
+  "totalTimeLabel": "Общее время",
+  "resultDraw": "Ничья",
+  "resultPlayerWins": "Победа игрока",
+  "resultAiWins": "Победа ИИ",
+  "aiLabelWithName": "ИИ: {name}",
+  "@aiLabelWithName": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "winnerLabel": "Победитель: {result}",
+  "@winnerLabel": {
+    "placeholders": {
+      "result": {}
+    }
+  },
+  "yourScoreLabel": "Ваш счёт",
+  "timeLabel": "Время",
+  "redBaseLabel": "Красная база",
+  "blueBaseLabel": "Синяя база",
+  "totalBlueLabel": "Итого синих",
+  "turnsRedLabel": "Ходы К",
+  "turnsBlueLabel": "Ходы С",
+  "ageLabel": "Возраст",
+  "nicknameLabel": "Ник",
+  "enterNicknameHint": "Введите ник",
+  "countryLabel": "Страна",
+  "beltsTitle": "Пояса",
+  "achievementsTitle": "Достижения",
+  "achievementFullRow": "Полный ряд",
+  "achievementFullColumn": "Полный столбец",
+  "achievementDiagonal": "Диагональ",
+  "achievement100GamePoints": "100 очков игры",
+  "achievement1000GamePoints": "1000 очков игры",
+  "nicknameRequiredError": "Ник обязателен",
+  "nicknameMaxLengthError": "Максимум 32 символа",
+  "nicknameInvalidCharsError": "Используйте буквы, цифры, точку, дефис или подчёркивание",
+  "nicknameUpdatedMessage": "Ник обновлён",
+  "noBeltsEarnedYetMessage": "Пояса ещё не заработаны.",
+  "whoStartsFirstLabel": "Кто ходит первым",
+  "startingPlayerHuman": "Человек (Красный)",
+  "startingPlayerAi": "ИИ (Синий)",
+  "leaveDuelBarrierLabel": "Выйти из дуэли",
+  "leaveDuelTitle": "Выйти из дуэли",
+  "leaveDuelMessage": "Выйти из режима дуэли и вернуться в главное меню?\n\nПрогресс не будет сохранён.",
+  "leaveBarrierLabel": "Выйти",
+  "leaveModeTitle": "Выйти из режима {mode}",
+  "@leaveModeTitle": {
+    "placeholders": {
+      "mode": {}
+    }
+  },
+  "leaveMultiModeMessage": "Вернуться в главное меню?\n\nПрогресс не будет сохранён.",
+  "colorRedLabel": "КРАСНЫЙ",
+  "colorBlueLabel": "СИНИЙ",
+  "colorYellowLabel": "ЖЁЛТЫЙ",
+  "colorGreenLabel": "ЗЕЛЁНЫЙ",
+  "redShortLabel": "К",
+  "blueShortLabel": "С",
+  "yellowShortLabel": "Ж",
+  "greenShortLabel": "З",
+  "supportTheDevLabel": "Поддержать разработчика",
+  "aiBeltWhite": "Белый",
+  "aiBeltYellow": "Жёлтый",
+  "aiBeltOrange": "Оранжевый",
+  "aiBeltGreen": "Зелёный",
+  "aiBeltBlue": "Синий",
+  "aiBeltBrown": "Коричневый",
+  "aiBeltBlack": "Чёрный",
+  "scorePlace": "+1 размещение",
+  "scoreCorner": "+2 угол",
+  "scoreBlueToGrey": "+2 x{count} синий→серый",
+  "@scoreBlueToGrey": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "scoreGreyToRed": "+3 x{count} серый→красный",
+  "@scoreGreyToRed": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "scorePlaceShort": "Ход",
+  "scoreZeroBlow": "0 ударов",
+  "scoreZeroGreyDrop": "0 серых падений",
+  "durationSeconds": "{seconds}с",
+  "@durationSeconds": {
+    "placeholders": {
+      "seconds": {}
+    }
+  },
+  "durationMinutesSeconds": "{minutes}м {seconds}с",
+  "@durationMinutesSeconds": {
+    "placeholders": {
+      "minutes": {},
+      "seconds": {}
+    }
+  },
+  "durationHoursMinutes": "{hours}ч {minutes}м",
+  "@durationHoursMinutes": {
+    "placeholders": {
+      "hours": {},
+      "minutes": {}
+    }
+  },
+  "countryName": "{country, select, Afghanistan{Афганистан} Albania{Албания} Algeria{Алжир} Andorra{Андорра} Angola{Ангола} Antigua_and_Barbuda{Антигуа и Барбуда} Argentina{Аргентина} Armenia{Армения} Australia{Австралия} Austria{Австрия} Azerbaijan{Азербайджан} Bahamas{Багамы} Bahrain{Бахрейн} Bangladesh{Бангладеш} Barbados{Барбадос} Belarus{Беларусь} Belgium{Бельгия} Belize{Белиз} Benin{Бенин} Bhutan{Бутан} Bolivia{Боливия} Bosnia_and_Herzegovina{Босния и Герцеговина} Botswana{Ботсвана} Brazil{Бразилия} Brunei{Бруней} Bulgaria{Болгария} Burkina_Faso{Буркина-Фасо} Burundi{Бурунди} Cabo_Verde{Кабо-Верде} Cambodia{Камбоджа} Cameroon{Камерун} Canada{Канада} Central_African_Republic{Центральноафриканская Республика} Chad{Чад} Chile{Чили} China{Китай} Colombia{Колумбия} Comoros{Коморы} Congo_Congo_Brazzaville{Конго (Браззавиль)} Costa_Rica{Коста-Рика} Croatia{Хорватия} Cuba{Куба} Cyprus{Кипр} Czechia{Чехия} Democratic_Republic_of_the_Congo{Демократическая Республика Конго} Denmark{Дания} Djibouti{Джибути} Dominica{Доминика} Dominican_Republic{Доминиканская Республика} Ecuador{Эквадор} Egypt{Египет} El_Salvador{Сальвадор} Equatorial_Guinea{Экваториальная Гвинея} Eritrea{Эритрея} Estonia{Эстония} Eswatini{Эсватини} Ethiopia{Эфиопия} Fiji{Фиджи} Finland{Финляндия} France{Франция} Gabon{Габон} Gambia{Гамбия} Georgia{Грузия} Germany{Германия} Ghana{Гана} Greece{Греция} Grenada{Гренада} Guatemala{Гватемала} Guinea{Гвинея} Guinea_Bissau{Гвинея-Бисау} Guyana{Гайана} Haiti{Гаити} Honduras{Гондурас} Hungary{Венгрия} Iceland{Исландия} India{Индия} Indonesia{Индонезия} Iran{Иран} Iraq{Ирак} Ireland{Ирландия} Israel{Израиль} Italy{Италия} Jamaica{Ямайка} Japan{Япония} Jordan{Иордания} Kazakhstan{Казахстан} Kenya{Кения} Kiribati{Кирибати} Kuwait{Кувейт} Kyrgyzstan{Киргизия} Laos{Лаос} Latvia{Латвия} Lebanon{Ливан} Lesotho{Лесото} Liberia{Либерия} Libya{Ливия} Liechtenstein{Лихтенштейн} Lithuania{Литва} Luxembourg{Люксембург} Madagascar{Мадагаскар} Malawi{Малави} Malaysia{Малайзия} Maldives{Мальдивы} Mali{Мали} Malta{Мальта} Marshall_Islands{Маршалловы Острова} Mauritania{Мавритания} Mauritius{Маврикий} Mexico{Мексика} Micronesia{Микронезия} Moldova{Молдова} Monaco{Монако} Mongolia{Монголия} Montenegro{Черногория} Morocco{Марокко} Mozambique{Мозамбик} Myanmar{Мьянма} Namibia{Намибия} Nauru{Науру} Nepal{Непал} Netherlands{Нидерланды} New_Zealand{Новая Зеландия} Nicaragua{Никарагуа} Niger{Нигер} Nigeria{Нигерия} North_Korea{КНДР} North_Macedonia{Северная Македония} Norway{Норвегия} Oman{Оман} Pakistan{Пакистан} Palau{Палау} Panama{Панама} Papua_New_Guinea{Папуа — Новая Гвинея} Paraguay{Парагвай} Peru{Перу} Philippines{Филиппины} Poland{Польша} Portugal{Португалия} Qatar{Катар} Romania{Румыния} Russia{Россия} Rwanda{Руанда} Saint_Kitts_and_Nevis{Сент-Китс и Невис} Saint_Lucia{Сент-Люсия} Saint_Vincent_and_the_Grenadines{Сент-Винсент и Гренадины} Samoa{Самоа} San_Marino{Сан-Марино} Sao_Tome_and_Principe{Сан-Томе и Принсипи} Saudi_Arabia{Саудовская Аравия} Senegal{Сенегал} Serbia{Сербия} Seychelles{Сейшельские Острова} Sierra_Leone{Сьерра-Леоне} Singapore{Сингапур} Slovakia{Словакия} Slovenia{Словения} Solomon_Islands{Соломоновы Острова} Somalia{Сомали} South_Africa{Южная Африка} South_Korea{Республика Корея} South_Sudan{Южный Судан} Spain{Испания} Sri_Lanka{Шри-Ланка} Sudan{Судан} Suriname{Суринам} Sweden{Швеция} Switzerland{Швейцария} Syria{Сирия} Taiwan{Тайвань} Tajikistan{Таджикистан} Tanzania{Танзания} Thailand{Таиланд} Timor_Leste{Восточный Тимор} Togo{Того} Tonga{Тонга} Trinidad_and_Tobago{Тринидад и Тобаго} Tunisia{Тунис} Turkey{Турция} Turkmenistan{Туркменистан} Tuvalu{Тувалу} Uganda{Уганда} Ukraine{Украина} United_Arab_Emirates{Объединённые Арабские Эмираты} United_Kingdom{Великобритания} United_States{США} Uruguay{Уругвай} Uzbekistan{Узбекистан} Vanuatu{Вануату} Vatican_City{Ватикан} Venezuela{Венесуэла} Vietnam{Вьетнам} Yemen{Йемен} Zambia{Замбия} Zimbabwe{Зимбабве} other{Ваканда}}",
+  "@countryName": {
+    "placeholders": {
+      "country": {}
+    }
+  },
+  "deleteSaveTitle": "Удалить сохранение?",
+  "deleteSaveMessage": "Вы уверены, что хотите удалить это сохранение?",
+  "failedToDeleteMessage": "Не удалось удалить"
+}
