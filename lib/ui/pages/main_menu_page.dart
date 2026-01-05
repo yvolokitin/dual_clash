@@ -69,6 +69,28 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
     }
   }
 
+  Future<void> _handleLoadGame(BuildContext context, GameController controller) async {
+    final ok = await showLoadGameDialog(
+      context: context,
+      controller: controller,
+    );
+    if (ok == true && context.mounted) {
+      await _pushWithSlide(
+        context,
+        GamePage(controller: controller),
+        const Offset(-1.0, 0.0),
+      );
+    }
+  }
+
+  void _openLoadGameAfterClose(BuildContext context, GameController controller) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (context.mounted) {
+        _handleLoadGame(context, controller);
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -236,17 +258,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                       onTap: () async {
                                         await _runMenuAction(() async {
                                           // Press effect comes from InkWell; keep dialog for loading
-                                          final ok = await showLoadGameDialog(
-                                            context: context,
-                                            controller: controller,
-                                          );
-                                          if (ok == true && context.mounted) {
-                                            await _pushWithSlide(
-                                              context,
-                                              GamePage(controller: controller),
-                                              const Offset(-1.0, 0.0),
-                                            );
-                                          }
+                                          await _handleLoadGame(context, controller);
                                         });
                                       },
                                     ),
@@ -553,6 +565,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
             final r1 = _lerpRect(hubRect, targetGameRect, curved.value);
             final r2 = _lerpRect(hubRect, targetDuelRect, curved.value);
             final r3 = _lerpRect(hubRect, targetLoadRect, curved.value);
+            final r4 = _lerpRect(hubRect, hubRect, curved.value);
             return Stack(
               children: [
                 Positioned.fill(
@@ -608,6 +621,30 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         },
                         width: r2.width,
                         height: r2.height,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: r4.left,
+                  top: r4.top,
+                  width: r4.width,
+                  height: r4.height,
+                  child: FadeTransition(
+                    opacity: curved,
+                    child: ScaleTransition(
+                      scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
+                      child: FlyoutTile(
+                        imagePath: 'assets/icons/menu_load.png',
+                        label: compactLabels ? 'Load' : 'Load game',
+                        disabled: false,
+                        color: Colors.orange,
+                        onTap: () {
+                          Navigator.of(ctx).pop();
+                          _openLoadGameAfterClose(context, controller);
+                        },
+                        width: r4.width,
+                        height: r4.height,
                       ),
                     ),
                   ),
@@ -674,9 +711,10 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                     constraints: const BoxConstraints(maxWidth: 720),
                     child: Material(
                       color: Colors.transparent,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 14,
+                        runSpacing: 14,
                         children: [
                           FlyoutTile(
                             imagePath: 'assets/icons/menu_profile.png',
@@ -693,7 +731,6 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                               );
                             },
                           ),
-                          const SizedBox(width: 14),
                           FlyoutTile(
                             imagePath: 'assets/icons/menu_language.png',
                             label: 'Language',
@@ -709,7 +746,6 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                               );
                             },
                           ),
-                          const SizedBox(width: 14),
                           FlyoutTile(
                             imagePath: 'assets/icons/menu_history.png',
                             label: 'History',
@@ -723,6 +759,18 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                 context: context,
                                 controller: controller,
                               );
+                            },
+                          ),
+                          FlyoutTile(
+                            imagePath: 'assets/icons/menu_load.png',
+                            label: 'Load game',
+                            disabled: false,
+                            width: 190,
+                            height: 170,
+                            color: Colors.orange,
+                            onTap: () {
+                              Navigator.of(ctx).pop();
+                              _openLoadGameAfterClose(context, controller);
                             },
                           ),
                         ],
