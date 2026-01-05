@@ -15,6 +15,7 @@ class GamePageScoreRow extends StatelessWidget {
   final int neutralCount;
   final int blueBase;
   final int redGamePoints;
+  final bool showLeaderShadow;
   final VoidCallback onOpenMenu;
   final VoidCallback onOpenStatistics;
   final VoidCallback onOpenAiSelector;
@@ -33,35 +34,83 @@ class GamePageScoreRow extends StatelessWidget {
     required this.neutralCount,
     required this.blueBase,
     required this.redGamePoints,
+    required this.showLeaderShadow,
     required this.onOpenMenu,
     required this.onOpenStatistics,
     required this.onOpenAiSelector,
   });
 
+  Widget _playerIcon({
+    required String asset,
+    required double size,
+    required bool isLeader,
+  }) {
+    if (!isLeader) {
+      return Image.asset(asset, width: size, height: size);
+    }
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFFFD166).withOpacity(0.9),
+            blurRadius: 10,
+            spreadRadius: 1,
+            offset: const Offset(0, 0),
+          ),
+        ],
+      ),
+      child: Image.asset(asset, width: size, height: size),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final int maxScore = [redBase, neutralCount, blueBase].reduce(
+      (value, element) => value > element ? value : element,
+    );
+    final bool highlightRed = showLeaderShadow &&
+        redBase == maxScore &&
+        redBase > neutralCount &&
+        redBase > blueBase;
+    final bool highlightNeutral = showLeaderShadow &&
+        neutralCount == maxScore &&
+        neutralCount > redBase &&
+        neutralCount > blueBase;
+    final bool highlightBlue = showLeaderShadow &&
+        blueBase == maxScore &&
+        blueBase > redBase &&
+        blueBase > neutralCount;
+
     final Widget playerCountsRow = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Text('$redBase', style: scoreTextStyle),
         const SizedBox(width: 6),
-        Image.asset('assets/icons/player_red.png',
-            width: scoreItemSize, height: scoreItemSize),
+        _playerIcon(
+          asset: 'assets/icons/player_red.png',
+          size: scoreItemSize,
+          isLeader: highlightRed,
+        ),
         const SizedBox(width: 18),
         Text('$neutralCount', style: scoreTextStyle),
         const SizedBox(width: 6),
-        Image.asset('assets/icons/player_grey.png',
-            width: scoreItemSize, height: scoreItemSize),
+        _playerIcon(
+          asset: 'assets/icons/player_grey.png',
+          size: scoreItemSize,
+          isLeader: highlightNeutral,
+        ),
         const SizedBox(width: 18),
         Text('$blueBase', style: scoreTextStyle),
         const SizedBox(width: 6),
         HoverScaleBox(
           size: scoreItemSize,
           onTap: onOpenAiSelector,
-          child: Image.asset(
-            'assets/icons/player_blue.png',
-            width: scoreItemSize,
-            height: scoreItemSize,
+          child: _playerIcon(
+            asset: 'assets/icons/player_blue.png',
+            size: scoreItemSize,
+            isLeader: highlightBlue,
           ),
         ),
       ],

@@ -267,6 +267,7 @@ class _GamePageState extends State<GamePage> {
                   neutralCount: neutralsCount,
                   blueBase: blueBase,
                   redGamePoints: controller.redGamePoints,
+                  showLeaderShadow: !controller.humanVsHuman,
                   onOpenMenu: () async {
                     await mmd.showAnimatedMainMenuDialog(
                         context: context, controller: controller);
