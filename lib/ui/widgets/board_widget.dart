@@ -592,7 +592,7 @@ class _ScoreFlyUpState extends State<_ScoreFlyUp>
   void initState() {
     super.initState();
     _ac = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 900))
+        vsync: this, duration: const Duration(milliseconds: 2700))
       ..forward();
     _t = CurvedAnimation(parent: _ac, curve: Curves.easeOutCubic);
   }
