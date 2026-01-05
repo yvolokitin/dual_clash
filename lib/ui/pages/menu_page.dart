@@ -149,7 +149,7 @@ Future<void> showAnimatedMainMenuDialog(
                                     onTap: () {
                                       Navigator.of(context).pop();
                                       ScaffoldMessenger.of(context)
-                                          .showSnackBar(const SnackBar(
+                                          .showSnackBar(SnackBar(
                                               content: Text(
                                                   l10n.gameChallengeComingSoon)));
                                     },
@@ -661,7 +661,7 @@ Future<bool?> showLoadGameDialog({
                                                                           ScaffoldMessenger
                                                                               .maybeOf(
                                                                                   context);
-                                                                      messenger?.showSnackBar(const SnackBar(
+                                                                      messenger?.showSnackBar(SnackBar(
                                                                           content:
                                                                               Text(l10n.failedToDeleteMessage),
                                                                           backgroundColor:

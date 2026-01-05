@@ -1,4 +1,4 @@
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:dual_clash/l10n/app_localizations.dart';
 
 class Countries {
   static const String defaultCountry = 'Wakanda';

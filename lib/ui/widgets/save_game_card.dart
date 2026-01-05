@@ -132,7 +132,7 @@ class _SaveGameCardState extends State<SaveGameCard> {
                       contentPadding:
                           EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                       border: InputBorder.none,
-                      hintText: nameHint,
+                      hintText: widget.nameHint,
                       hintStyle: const TextStyle(color: Colors.white54),
                     ),
                     onSubmitted: (_) => _handleSave(),

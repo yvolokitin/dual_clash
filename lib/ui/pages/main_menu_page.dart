@@ -301,6 +301,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
 
   Future<void> _openDuelFlyout(BuildContext context, GameController controller) async {
     final compactLabels = _isCompactWidth(context);
+    final l10n = context.l10n;
     // Measure the Duel tile and target tiles global rects
     Rect rect = Rect.zero;
     Rect gameRect = Rect.zero;
@@ -498,6 +499,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
 
   Future<void> _openPlayerHubFlyout(BuildContext context, GameController controller) async {
     final compactLabels = _isCompactWidth(context);
+    final l10n = context.l10n;
     Rect rect = Rect.zero;
     Rect gameRect = Rect.zero;
     Rect duelRect = Rect.zero;
@@ -700,6 +702,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
   }
 
   Future<void> _openPlayerHubOverlay(BuildContext context, GameController controller) async {
+    final l10n = context.l10n;
     await showGeneralDialog<void>(
       context: context,
       barrierDismissible: true,
@@ -803,6 +806,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
 
   Future<void> _openDuelModesOverlay(BuildContext context, GameController controller) async {
     final compactLabels = _isCompactWidth(context);
+    final l10n = context.l10n;
     await showGeneralDialog<void>(
       context: context,
       barrierDismissible: true,

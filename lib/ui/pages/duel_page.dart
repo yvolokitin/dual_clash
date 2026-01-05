@@ -88,9 +88,9 @@ class _DuelPageState extends State<DuelPage> {
                               Row(
                                 children: [
                                   const Spacer(),
-                                  const Text(
+                                  Text(
                                     context.l10n.leaveDuelTitle,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 22,
                                       fontWeight: FontWeight.w800,
@@ -115,9 +115,9 @@ class _DuelPageState extends State<DuelPage> {
                                 ],
                               ),
                               const SizedBox(height: 12),
-                              const Text(
+                              Text(
                                 context.l10n.leaveDuelMessage,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.white70,
                                   fontSize: 16,
                                   height: 1.2,

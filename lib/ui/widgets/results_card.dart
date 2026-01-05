@@ -7,7 +7,7 @@ import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/models/cell_state.dart';
 import 'package:dual_clash/logic/rules_engine.dart';
 import 'package:dual_clash/ui/widgets/main_menu/menu_tile.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:dual_clash/l10n/app_localizations.dart';
 
 // Independent ResultsCard widget extracted to be reusable across the app.
 class ResultsCard extends StatelessWidget {
