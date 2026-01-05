@@ -181,9 +181,11 @@ class _SettingsDialogState extends State<SettingsDialog> {
                             children: _languageOptions().map((opt) {
                               final code = opt.$1;
                               final title = opt.$2;
-                              return _choiceTile(
+                              final asset = opt.$3;
+                              return _languageTile(
                                 selected: _language == code,
                                 label: title,
+                                asset: asset,
                                 onTap: () async {
                                   setState(() => _language = code);
                                   await widget.controller.setLanguage(code);
@@ -298,19 +300,14 @@ class _SettingsDialogState extends State<SettingsDialog> {
   }
 
   List<(String, String)> _languageOptions() {
-    // English + 10 most used EU languages
     return const [
-      ('en', 'English'),
-      ('de', 'Deutsch'),
-      ('fr', 'Français'),
-      ('it', 'Italiano'),
-      ('es', 'Español'),
-      ('pl', 'Polski'),
-      ('ro', 'Română'),
-      ('nl', 'Nederlands'),
-      ('pt', 'Português'),
-      ('el', 'Ελληνικά'),
-      ('hu', 'Magyar'),
+      ('en', 'English', 'assets/icons/lang_en.png'),
+      ('de', 'German', 'assets/icons/lang_de.png'),
+      ('es', 'Spain', 'assets/icons/lang_es.png'),
+      ('fr', 'French', 'assets/icons/lang_fr.png'),
+      ('pl', 'Polski', 'assets/icons/lang_pl.png'),
+      ('ru', 'Russian', 'assets/icons/lang_ru.png'),
+      ('ua', 'Ukranian', 'assets/icons/lang_ua.png'),
     ];
   }
 
@@ -351,6 +348,55 @@ class _SettingsDialogState extends State<SettingsDialog> {
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _languageTile({
+    required bool selected,
+    required String label,
+    required String asset,
+    VoidCallback? onTap,
+  }) {
+    final bg =
+        selected ? Colors.white.withOpacity(0.12) : AppColors.dialogFieldBg;
+    final border = selected ? AppColors.brandGold : Colors.white12;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Container(
+          width: 110,
+          height: 86,
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: border, width: selected ? 2 : 1),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                asset,
+                width: 40,
+                height: 40,
+                fit: BoxFit.contain,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                  fontSize: 12,
                 ),
               ),
             ],
