@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:dual_clash/core/feature_flags.dart';
+import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/core/colors.dart';
 import 'package:dual_clash/core/constants.dart';
@@ -14,6 +13,8 @@ import 'package:dual_clash/ui/pages/profile_page.dart';
 import 'package:dual_clash/ui/pages/history_page.dart';
 import 'package:dual_clash/ui/pages/statistics_page.dart';
 import 'package:dual_clash/models/cell_state.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -157,10 +158,17 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
     await showAnimatedSaveGameDialog(
       context: rootContext,
       initialName: defaultName,
+      title: rootContext.l10n.saveGameTitle,
+      nameLabel: rootContext.l10n.saveGameNameLabel,
+      saveButtonLabel: rootContext.l10n.commonSave,
+      cancelButtonLabel: rootContext.l10n.commonCancel,
+      nameHint: rootContext.l10n.saveGameNameHint,
       onSave: (name) async {
         await controller.saveCurrentGame(name: name);
         final messenger = ScaffoldMessenger.maybeOf(rootContext);
-        messenger?.showSnackBar(const SnackBar(content: Text('Game saved')));
+        messenger?.showSnackBar(
+          SnackBar(content: Text(rootContext.l10n.gameSavedMessage)),
+        );
       },
     );
   }
@@ -301,7 +309,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                                           letterSpacing: 0.2,
                                         ),
                                       ),
-                                      child: const Text('No'),
+                                      child: Text(context.l10n.commonNo),
                                     ),
                                   ),
                                   const SizedBox(width: 12),
@@ -325,7 +333,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                                           letterSpacing: 0.2,
                                         ),
                                       ),
-                                      child: const Text('Yes'),
+                                      child: Text(context.l10n.commonYes),
                                     ),
                                   ),
                                 ],
@@ -349,6 +357,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final l10n = context.l10n;
     final bool isMobilePlatform = !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
@@ -403,9 +412,9 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                   Row(
                     children: [
                       const Spacer(),
-                      const Text(
-                        'Menu',
-                        style: TextStyle(
+                      Text(
+                        l10n.menuTitle,
+                        style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w800,
                           color: AppColors.dialogTitle,
@@ -439,7 +448,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                           _menuTile(
                             context,
                             icon: Icons.arrow_back,
-                            label: 'Return to main menu',
+                            label: l10n.returnToMainMenuLabel,
                             onTap: () async {
                               // Use captured navigator to avoid disposed context
                               final nav = Navigator.of(context);
@@ -450,9 +459,8 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                               if (config.confirmReturnToMenu) {
                                 final confirmed = await _confirmAction(
                                   context: context,
-                                  title: 'Return to main menu',
-                                  message:
-                                      'Do you want to return to the main menu?\n\nProgress will not be saved.',
+                                  title: l10n.returnToMainMenuTitle,
+                                  message: l10n.returnToMainMenuMessage,
                                 );
                                 if (!confirmed) return;
                               }
@@ -466,7 +474,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                           _menuTile(
                             context,
                             icon: Icons.refresh,
-                            label: 'Restart/Start the game',
+                            label: l10n.restartGameLabel,
                             onTap: () async {
                               Navigator.of(context).pop();
                               await Future.delayed(
@@ -474,9 +482,8 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                               if (config.confirmRestart) {
                                 final confirmed = await _confirmAction(
                                   context: context,
-                                  title: 'Restart game',
-                                  message:
-                                      'Restart the game from scratch?\n\nCurrent progress will be lost.',
+                                  title: l10n.restartGameTitle,
+                                  message: l10n.restartGameMessage,
                                 );
                                 if (!confirmed) return;
                               }
@@ -488,7 +495,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                             _menuTile(
                               context,
                               icon: Icons.bar_chart,
-                              label: 'Statistics',
+                              label: l10n.statisticsTitle,
                               onTap: () async {
                                 Navigator.of(context).pop();
                                 await Future.delayed(
@@ -504,7 +511,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                           _menuTile(
                             context,
                             icon: Icons.help_outline,
-                            label: 'Help',
+                            label: l10n.helpTitle,
                             onTap: () async {
                               Navigator.of(context).pop();
                               await Future.delayed(
@@ -518,7 +525,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                             _menuTile(
                               context,
                               icon: Icons.settings,
-                              label: 'Settings',
+                              label: l10n.settingsTitle,
                               onTap: () async {
                                 Navigator.of(context).pop();
                                 await Future.delayed(
@@ -557,7 +564,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                             _menuTile(
                               context,
                               icon: Icons.save_alt,
-                              label: 'Save game',
+                              label: l10n.saveGameTitle,
                               onTap: () async {
                                 Navigator.of(context).pop();
                                 await Future.delayed(
@@ -572,7 +579,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                               _menuTile(
                                 context,
                                 icon: Icons.auto_awesome,
-                                label: 'Simulate game',
+                                label: l10n.simulateGameLabel,
                                 onTap: () async {
                                   Navigator.of(context).pop();
                                   await Future.delayed(
@@ -584,7 +591,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                               _menuTile(
                                 context,
                                 icon: Icons.auto_awesome,
-                                label: 'Simulate game (human win)',
+                                label: l10n.simulateGameHumanWinLabel,
                                 onTap: () async {
                                   Navigator.of(context).pop();
                                   await Future.delayed(
@@ -597,7 +604,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                               _menuTile(
                                 context,
                                 icon: Icons.auto_awesome,
-                                label: 'Simulate game (AI win)',
+                                label: l10n.simulateGameAiWinLabel,
                                 onTap: () async {
                                   Navigator.of(context).pop();
                                   await Future.delayed(
@@ -610,7 +617,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                               _menuTile(
                                 context,
                                 icon: Icons.auto_awesome,
-                                label: 'Simulate game (Grey win)',
+                                label: l10n.simulateGameGreyWinLabel,
                                 onTap: () async {
                                   Navigator.of(context).pop();
                                   await Future.delayed(
@@ -626,7 +633,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                             _menuTile(
                               context,
                               icon: Icons.block,
-                              label: 'Remove Ads — 1€',
+                              label: l10n.removeAdsLabel,
                               onTap: () async {
                                 await _buyPremium();
                               },
@@ -639,7 +646,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                             _menuTile(
                               context,
                               icon: Icons.restore,
-                              label: 'Restore Purchases',
+                              label: l10n.restorePurchasesLabel,
                               onTap: () async {
                                 await _iap?.restorePurchases();
                               },
@@ -664,7 +671,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                                       fontWeight: FontWeight.w800,
                                       letterSpacing: 0.2),
                                 ),
-                                child: const Text('Close'),
+                                child: Text(l10n.commonClose),
                               ),
                             ),
                           ],
@@ -710,7 +717,7 @@ Future<void> showAnimatedMainMenuDialog({
   return showGeneralDialog(
     context: context,
     barrierDismissible: true,
-    barrierLabel: 'Main Menu',
+    barrierLabel: context.l10n.mainMenuBarrierLabel,
     barrierColor: Colors.black.withOpacity(0.55),
     transitionDuration: const Duration(milliseconds: 260),
     pageBuilder: (ctx, anim1, anim2) => const SizedBox.shrink(),

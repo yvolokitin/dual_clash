@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:dual_clash/core/colors.dart';
+import 'package:flutter/material.dart';
 
 /// A reusable, game-agnostic dialog card for saving a game/session.
 ///
@@ -15,16 +15,18 @@ class SaveGameCard extends StatefulWidget {
   final String nameLabel;
   final String saveButtonLabel;
   final String cancelButtonLabel;
+  final String nameHint;
 
   const SaveGameCard({
     super.key,
-    this.title = 'Save game',
+    required this.title,
     required this.initialName,
     required this.onSave,
     this.onCancel,
-    this.nameLabel = 'Name for this save',
-    this.saveButtonLabel = 'Save',
-    this.cancelButtonLabel = 'Cancel',
+    required this.nameLabel,
+    required this.saveButtonLabel,
+    required this.cancelButtonLabel,
+    required this.nameHint,
   });
 
   @override
@@ -126,12 +128,12 @@ class _SaveGameCardState extends State<SaveGameCard> {
                   child: TextField(
                     controller: _textCtrl,
                     style: const TextStyle(color: Colors.white),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       contentPadding:
                           EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                       border: InputBorder.none,
-                      hintText: 'Enter name...',
-                      hintStyle: TextStyle(color: Colors.white54),
+                      hintText: widget.nameHint,
+                      hintStyle: const TextStyle(color: Colors.white54),
                     ),
                     onSubmitted: (_) => _handleSave(),
                   ),

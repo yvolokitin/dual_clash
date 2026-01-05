@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui; // for potential future effects
+import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/core/colors.dart';
 import 'package:dual_clash/models/cell_state.dart';
@@ -25,7 +26,7 @@ class _DuelPageState extends State<DuelPage> {
     final result = await showGeneralDialog<bool>(
       context: context,
       barrierDismissible: true,
-      barrierLabel: 'Leave duel',
+      barrierLabel: context.l10n.leaveDuelBarrierLabel,
       barrierColor: Colors.black.withOpacity(0.55),
       transitionDuration: const Duration(milliseconds: 260),
       pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),
@@ -87,9 +88,9 @@ class _DuelPageState extends State<DuelPage> {
                               Row(
                                 children: [
                                   const Spacer(),
-                                  const Text(
-                                    'Leave duel',
-                                    style: TextStyle(
+                                  Text(
+                                    context.l10n.leaveDuelTitle,
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 22,
                                       fontWeight: FontWeight.w800,
@@ -114,9 +115,9 @@ class _DuelPageState extends State<DuelPage> {
                                 ],
                               ),
                               const SizedBox(height: 12),
-                              const Text(
-                                'Leave duel mode and return to the main menu?\n\nProgress will not be saved.',
-                                style: TextStyle(
+                              Text(
+                                context.l10n.leaveDuelMessage,
+                                style: const TextStyle(
                                   color: Colors.white70,
                                   fontSize: 16,
                                   height: 1.2,
@@ -142,7 +143,7 @@ class _DuelPageState extends State<DuelPage> {
                                           letterSpacing: 0.2,
                                         ),
                                       ),
-                                      child: const Text('Cancel'),
+                                      child: Text(context.l10n.commonCancel),
                                     ),
                                   ),
                                   const SizedBox(width: 12),
@@ -163,7 +164,7 @@ class _DuelPageState extends State<DuelPage> {
                                           letterSpacing: 0.2,
                                         ),
                                       ),
-                                      child: const Text('Leave'),
+                                      child: Text(context.l10n.leaveLabel),
                                     ),
                                   ),
                                 ],
@@ -314,7 +315,7 @@ class _DuelPageState extends State<DuelPage> {
                                         width: menuIconSize,
                                         height: menuIconSize,
                                       ),
-                                      tooltip: 'Menu',
+                                      tooltip: context.l10n.menuTitle,
                                       onPressed: () async {
                                         await mmd.showAnimatedMainMenuDialog(
                                             context: context,
@@ -350,7 +351,7 @@ class _DuelPageState extends State<DuelPage> {
                                       width: menuIconSize,
                                       height: menuIconSize,
                                     ),
-                                    tooltip: 'Menu',
+                                    tooltip: context.l10n.menuTitle,
                                     onPressed: () async {
                                       await mmd.showAnimatedMainMenuDialog(
                                           context: context,
@@ -393,7 +394,7 @@ class _DuelPageState extends State<DuelPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           _TurnBox(
-                            label: 'RED',
+                            label: context.l10n.colorRedLabel,
                             iconPath: 'assets/icons/box_red.png',
                             color: AppColors.red,
                             active: controller.current == CellState.red,
@@ -401,7 +402,7 @@ class _DuelPageState extends State<DuelPage> {
                           ),
                           const SizedBox(width: 10),
                           _TurnBox(
-                            label: 'BLUE',
+                            label: context.l10n.colorBlueLabel,
                             iconPath: 'assets/icons/box_blue.png',
                             color: AppColors.blue,
                             active: controller.current == CellState.blue,
@@ -410,7 +411,7 @@ class _DuelPageState extends State<DuelPage> {
                           if (controller.isMultiDuel) ...[
                             const SizedBox(width: 10),
                             _TurnBox(
-                              label: 'YELLOW',
+                              label: context.l10n.colorYellowLabel,
                               iconPath: 'assets/icons/box_yellow.png',
                               color: AppColors.yellow,
                               active: controller.current == CellState.yellow,
@@ -419,7 +420,7 @@ class _DuelPageState extends State<DuelPage> {
                             if (controller.duelPlayerCount >= 4) ...[
                               const SizedBox(width: 10),
                               _TurnBox(
-                                label: 'GREEN',
+                                label: context.l10n.colorGreenLabel,
                                 iconPath: 'assets/icons/box_green.png',
                                 color: AppColors.green,
                                 active: controller.current == CellState.green,

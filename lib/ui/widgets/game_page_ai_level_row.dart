@@ -1,4 +1,5 @@
 import 'package:dual_clash/core/constants.dart';
+import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:flutter/material.dart';
 
@@ -22,6 +23,7 @@ class GamePageAiLevelRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final baseStyle = labelStyle.copyWith(fontWeight: FontWeight.w700);
+    final l10n = context.l10n;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -36,7 +38,7 @@ class GamePageAiLevelRow extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Current AI Level',
+                    l10n.currentAiLevelLabel,
                     style: baseStyle.copyWith(
                       fontSize: boardCellSize * 0.288,
                       height: 1.0,
@@ -50,7 +52,10 @@ class GamePageAiLevelRow extends StatelessWidget {
                   ),
                   SizedBox(width: boardCellSize * 0.1),
                   Text(
-                    '${AiBelt.nameFor(controller.aiLevel)} (${controller.aiLevel})',
+                    l10n.aiLevelDisplay(
+                      aiBeltName(l10n, controller.aiLevel),
+                      controller.aiLevel,
+                    ),
                     style: baseStyle.copyWith(
                       fontSize: boardCellSize * 0.288,
                       height: 1.0,

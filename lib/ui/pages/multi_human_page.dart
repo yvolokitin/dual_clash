@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import '../../core/colors.dart';
 import '../../core/constants.dart';
 import '../../logic/multi_game_controller.dart';
+import '../../core/localization.dart';
 import '../widgets/multi_board_widget.dart';
 import '../../models/multi_cell_state.dart';
 
@@ -37,7 +38,9 @@ class _TripleThreatPageState extends State<TripleThreatPage> {
 
   @override
   Widget build(BuildContext context) {
-    return _MultiScaffold(controller: controller, title: 'Triple Threat');
+    return _MultiScaffold(
+        controller: controller,
+        title: context.l10n.menuTripleThreat);
   }
 }
 
@@ -58,7 +61,9 @@ class _QuadClashPageState extends State<QuadClashPage> {
 
   @override
   Widget build(BuildContext context) {
-    return _MultiScaffold(controller: controller, title: 'Quad Clash');
+    return _MultiScaffold(
+        controller: controller,
+        title: context.l10n.menuQuadClash);
   }
 }
 
@@ -76,7 +81,7 @@ class _MultiScaffoldState extends State<_MultiScaffold> {
     final result = await showGeneralDialog<bool>(
       context: context,
       barrierDismissible: true,
-      barrierLabel: 'Leave',
+      barrierLabel: context.l10n.leaveBarrierLabel,
       barrierColor: Colors.black.withOpacity(0.55),
       transitionDuration: const Duration(milliseconds: 260),
       pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),
@@ -139,7 +144,7 @@ class _MultiScaffoldState extends State<_MultiScaffold> {
                                 children: [
                                   const Spacer(),
                                   Text(
-                                    'Leave ${widget.title}',
+                                    context.l10n.leaveModeTitle(widget.title),
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 22,
@@ -166,7 +171,7 @@ class _MultiScaffoldState extends State<_MultiScaffold> {
                               ),
                               const SizedBox(height: 12),
                               const Text(
-                                'Return to the main menu?\n\nProgress will not be saved.',
+                                context.l10n.leaveMultiModeMessage,
                                 style: TextStyle(
                                   color: Colors.white70,
                                   fontSize: 16,
@@ -193,7 +198,7 @@ class _MultiScaffoldState extends State<_MultiScaffold> {
                                           letterSpacing: 0.2,
                                         ),
                                       ),
-                                      child: const Text('Cancel'),
+                                      child: Text(context.l10n.commonCancel),
                                     ),
                                   ),
                                   const SizedBox(width: 12),
@@ -214,7 +219,7 @@ class _MultiScaffoldState extends State<_MultiScaffold> {
                                           letterSpacing: 0.2,
                                         ),
                                       ),
-                                      child: const Text('Leave'),
+                                      child: Text(context.l10n.leaveLabel),
                                     ),
                                   ),
                                 ],
@@ -254,7 +259,7 @@ class _MultiScaffoldState extends State<_MultiScaffold> {
                       children: [
                         IconButton(
                           icon: Image.asset('assets/icons/menu_121.png', width: 28, height: 28),
-                          tooltip: 'Main Menu',
+                          tooltip: context.l10n.mainMenuTooltip,
                           onPressed: () async {
                             final ok = await _confirmLeave(context);
                             if (ok && context.mounted) Navigator.of(context).pop();
@@ -281,13 +286,22 @@ class _MultiScaffoldState extends State<_MultiScaffold> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            _turnChip(c, MultiCellState.red, 'R'),
+                            _turnChip(
+                                c, MultiCellState.red, context.l10n.redShortLabel),
                             const SizedBox(width: 8),
-                            _turnChip(c, MultiCellState.blue, 'B'),
+                            _turnChip(
+                                c, MultiCellState.blue, context.l10n.blueShortLabel),
                             const SizedBox(width: 8),
-                            _turnChip(c, MultiCellState.yellow, 'Y'),
+                            _turnChip(
+                                c,
+                                MultiCellState.yellow,
+                                context.l10n.yellowShortLabel),
                             if (c.playersCount == 4) const SizedBox(width: 8),
-                            if (c.playersCount == 4) _turnChip(c, MultiCellState.green, 'G'),
+                            if (c.playersCount == 4)
+                              _turnChip(
+                                  c,
+                                  MultiCellState.green,
+                                  context.l10n.greenShortLabel),
                           ],
                         ),
                       ),

@@ -1,0 +1,289 @@
+{
+  "@@locale": "en",
+  "appTitle": "Two Touch {size}",
+  "@appTitle": {
+    "placeholders": {
+      "size": {}
+    }
+  },
+  "commonClose": "Schließen",
+  "commonCancel": "Abbrechen",
+  "commonSave": "Speichern",
+  "commonConfirm": "Bestätigen",
+  "commonYes": "Ja",
+  "commonNo": "Nein",
+  "deleteLabel": "Löschen",
+  "playLabel": "Spielen",
+  "leaveLabel": "Verlassen",
+  "menuTitle": "Menü",
+  "mainMenuBarrierLabel": "Hauptmenü",
+  "mainMenuTooltip": "Hauptmenü",
+  "gameMenuTitle": "Spielmenü",
+  "returnToMainMenuLabel": "Zum Hauptmenü zurück",
+  "returnToMainMenuTitle": "Zum Hauptmenü zurück",
+  "returnToMainMenuMessage": "Möchtest du zum Hauptmenü zurückkehren?\n\nDer Fortschritt wird nicht gespeichert.",
+  "restartGameLabel": "Spiel neu starten/Starten",
+  "restartGameTitle": "Spiel neu starten",
+  "restartGameMessage": "Spiel von vorne neu starten?\n\nDer aktuelle Fortschritt geht verloren.",
+  "statisticsTitle": "Statistiken",
+  "helpTitle": "So spielt man",
+  "settingsTitle": "Einstellungen",
+  "profileTitle": "Profil",
+  "historyTitle": "Verlauf",
+  "saveGameTitle": "Spiel speichern",
+  "saveGameNameLabel": "Name für diese Speicherung",
+  "saveGameNameHint": "Name eingeben...",
+  "saveGameBarrierLabel": "Spiel speichern",
+  "gameSavedMessage": "Spiel gespeichert",
+  "simulateGameLabel": "Spiel simulieren",
+  "simulateGameHumanWinLabel": "Spiel simulieren (Mensch gewinnt)",
+  "simulateGameAiWinLabel": "Spiel simulieren (KI gewinnt)",
+  "simulateGameGreyWinLabel": "Spiel simulieren (Grau gewinnt)",
+  "removeAdsLabel": "Werbung entfernen — 1€",
+  "restorePurchasesLabel": "Käufe wiederherstellen",
+  "menuGameShort": "Spiel",
+  "menuGameChallenge": "Spiel-Herausforderung",
+  "menuDuelShort": "Duell",
+  "menuDuelMode": "Duellmodus",
+  "menuLoadShort": "Laden",
+  "menuLoadGame": "Spiel laden",
+  "menuHubShort": "Hub",
+  "menuPlayerHub": "Spieler-Hub",
+  "menuTripleShort": "Triple",
+  "menuTripleThreat": "Dreifache Bedrohung",
+  "menuQuadShort": "Quad",
+  "menuQuadClash": "Vierfacher Clash",
+  "playerHubBarrierLabel": "Spieler-Hub",
+  "modesBarrierLabel": "Modi",
+  "languageTitle": "Sprache",
+  "userProfileLabel": "Benutzerprofil",
+  "gameChallengeLabel": "Spiel-Herausforderung",
+  "gameChallengeComingSoon": "Der Herausforderungsmodus kommt bald",
+  "loadGameBarrierLabel": "Spiel laden",
+  "noSavedGamesMessage": "Keine gespeicherten Spiele",
+  "savedGameDefaultName": "Gespeichertes Spiel",
+  "savedGameSubtitle": "{when} • Zug: {turn}",
+  "@savedGameSubtitle": {
+    "placeholders": {
+      "when": {},
+      "turn": {}
+    }
+  },
+  "helpGoalTitle": "Ziel",
+  "helpGoalBody": "Fülle das {board}-Brett abwechselnd mit der KI. Du bist Rot, die KI ist Blau. Gewinnt, wer die höhere GESAMTpunktzahl hat.",
+  "@helpGoalBody": {
+    "placeholders": {
+      "board": {}
+    }
+  },
+  "helpTurnsTitle": "Züge & Platzierung",
+  "helpTurnsBody": "Tippe auf eine leere Zelle, um deine Farbe zu platzieren. Nach deinem Zug setzt die KI Blau. Wer beginnt, kann in den Einstellungen geändert werden.",
+  "helpScoringTitle": "Punkte",
+  "helpScoringBase": "Basis-Punkte: Anzahl der Zellen deiner Farbe am Spielende.",
+  "helpScoringBonus": "Bonus: +50 Punkte für jede volle Reihe oder Spalte deiner Farbe.",
+  "helpScoringTotal": "Gesamtpunkte: Basis + Bonus.",
+  "helpScoringEarning": "Punkte während des Spiels (Rot): +1 pro Platzierung, +2 extra für eine Ecke, +2 für jedes Blau zu Neutral, +3 für jedes Neutral zu Rot, +50 für jede neue volle rote Reihe/Spalte.",
+  "helpScoringCumulative": "Dein Trophäen-Zähler steigt nur. Punkte werden nach jedem Spiel anhand deiner roten Gesamtpunkte addiert. Aktionen des Gegners verringern deinen Gesamtwert nie.",
+  "helpWinningTitle": "Sieg",
+  "helpWinningBody": "Wenn das Brett keine leeren Zellen mehr hat, endet das Spiel. Gewinnt, wer die höhere Gesamtpunktzahl hat. Unentschieden sind möglich.",
+  "helpAiLevelTitle": "KI-Stufe",
+  "helpAiLevelBody": "Wähle die KI-Schwierigkeit in den Einstellungen (1–7). Höhere Stufen denken weiter voraus, brauchen aber länger.",
+  "helpHistoryProfileTitle": "Verlauf & Profil",
+  "helpHistoryProfileBody": "Deine abgeschlossenen Spiele werden im Verlauf mit allen Details gespeichert.",
+  "aiDifficultyTitle": "KI-Schwierigkeit",
+  "aiDifficultyTipBeginner": "Weiß — Anfänger: macht zufällige Züge.",
+  "aiDifficultyTipEasy": "Gelb — Leicht: bevorzugt sofortige Gewinne.",
+  "aiDifficultyTipNormal": "Orange — Normal: gierig mit grundlegendem Positioning.",
+  "aiDifficultyTipChallenging": "Grün — Herausfordernd: flache Suche mit etwas Voraussicht.",
+  "aiDifficultyTipHard": "Blau — Schwer: tiefere Suche mit Pruning.",
+  "aiDifficultyTipExpert": "Braun — Experte: fortgeschrittenes Pruning und Caching.",
+  "aiDifficultyTipMaster": "Schwarz — Meister: am stärksten und berechnend.",
+  "aiDifficultyTipSelect": "Wähle ein Gürtel-Level.",
+  "aiDifficultyDetailBeginner": "Weiß — Anfänger: zufällige leere Zellen. Unberechenbar, aber schwach.",
+  "aiDifficultyDetailEasy": "Gelb — Leicht: gierige Züge für maximale Sofortgewinne.",
+  "aiDifficultyDetailNormal": "Orange — Normal: gierig mit Zentrum-Tiebreak für stärkere Positionen.",
+  "aiDifficultyDetailChallenging": "Grün — Herausfordernd: flacher Minimax (Tiefe 2), ohne Pruning.",
+  "aiDifficultyDetailHard": "Blau — Schwer: tieferer Minimax mit Alpha-Beta-Pruning und Zugreihenfolge.",
+  "aiDifficultyDetailExpert": "Braun — Experte: tieferer Minimax mit Pruning + Transpositionstabelle.",
+  "aiDifficultyDetailMaster": "Schwarz — Meister: Monte-Carlo-Tree-Search (~1500 Simulationen im Zeitlimit).",
+  "aiDifficultyDetailSelect": "Wähle eine KI-Schwierigkeit, um Details zu sehen.",
+  "currentAiLevelLabel": "Aktuelle KI-Stufe",
+  "aiLevelDisplay": "{belt} ({level})",
+  "@aiLevelDisplay": {
+    "placeholders": {
+      "belt": {},
+      "level": {}
+    }
+  },
+  "resultsTitle": "Ergebnisse",
+  "timePlayedLabel": "Spielzeit",
+  "redTurnsLabel": "Rote Züge",
+  "blueTurnsLabel": "Blaue Züge",
+  "yellowTurnsLabel": "Gelbe Züge",
+  "greenTurnsLabel": "Grüne Züge",
+  "playerTurnsLabel": "Spieler-Züge",
+  "aiTurnsLabel": "KI-Züge",
+  "newBestScoreLabel": "Neuer Bestwert",
+  "pointsBelowBestScore": "{points} Punkte unter Bestwert",
+  "@pointsBelowBestScore": {
+    "placeholders": {
+      "points": {}
+    }
+  },
+  "youWinReachedScore": "Du hast gewonnen und {score} Punkte erreicht",
+  "@youWinReachedScore": {
+    "placeholders": {
+      "score": {}
+    }
+  },
+  "redTerritoryControlled": "Gebiet des roten Spielers kontrolliert.",
+  "blueTerritoryControlled": "Gebiet des blauen Spielers kontrolliert.",
+  "neutralTerritoryControlled": "Neutrales Gebiet kontrolliert.",
+  "territoryBalanced": "Gebiet ausgeglichen.",
+  "performanceLost": "Du hast verloren. Strategie erforderlich.",
+  "performanceBrilliantEndgame": "Brillantes Endspiel",
+  "performanceGreatControl": "Große Kontrolle",
+  "performanceRiskyEffective": "Riskant, aber effektiv",
+  "performanceSolidStrategy": "Solide Strategie",
+  "playAgainLabel": "Erneut spielen",
+  "continueNextAiLevelLabel": "Zum nächsten KI-Level",
+  "playLowerAiLevelLabel": "Niedrigeres KI-Level spielen",
+  "replaySameLevelLabel": "Gleiches Level wiederholen",
+  "aiThinkingLabel": "Die KI denkt...",
+  "simulatingGameLabel": "Spiel wird simuliert...",
+  "noTurnsYetMessage": "Noch keine Züge in diesem Spiel",
+  "turnLabel": "Zug {turn}",
+  "@turnLabel": {
+    "placeholders": {
+      "turn": {}
+    }
+  },
+  "undoLastActionTooltip": "Letzte Aktion rückgängig machen",
+  "historyTabGames": "Spiele",
+  "historyTabDailyActivity": "Tägliche Aktivität",
+  "noFinishedGamesYet": "Noch keine abgeschlossenen Spiele",
+  "gamesCountLabel": "Spiele: {count}",
+  "@gamesCountLabel": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "winsLabel": "Siege",
+  "lossesLabel": "Niederlagen",
+  "drawsLabel": "Unentschieden",
+  "totalTimeLabel": "Gesamtzeit",
+  "resultDraw": "Unentschieden",
+  "resultPlayerWins": "Spieler gewinnt",
+  "resultAiWins": "KI gewinnt",
+  "aiLabelWithName": "KI: {name}",
+  "@aiLabelWithName": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "winnerLabel": "Sieger: {result}",
+  "@winnerLabel": {
+    "placeholders": {
+      "result": {}
+    }
+  },
+  "yourScoreLabel": "Deine Punkte",
+  "timeLabel": "Zeit",
+  "redBaseLabel": "Rot-Basis",
+  "blueBaseLabel": "Blau-Basis",
+  "totalBlueLabel": "Blau gesamt",
+  "turnsRedLabel": "Züge R",
+  "turnsBlueLabel": "Züge B",
+  "ageLabel": "Alter",
+  "nicknameLabel": "Nickname",
+  "enterNicknameHint": "Nickname eingeben",
+  "countryLabel": "Land",
+  "beltsTitle": "Gürtel",
+  "achievementsTitle": "Erfolge",
+  "achievementFullRow": "Volle Reihe",
+  "achievementFullColumn": "Volle Spalte",
+  "achievementDiagonal": "Diagonale",
+  "achievement100GamePoints": "100 Spielpunkte",
+  "achievement1000GamePoints": "1000 Spielpunkte",
+  "nicknameRequiredError": "Nickname ist erforderlich",
+  "nicknameMaxLengthError": "Maximal 32 Zeichen",
+  "nicknameInvalidCharsError": "Verwende Buchstaben, Zahlen, Punkt, Bindestrich oder Unterstrich",
+  "nicknameUpdatedMessage": "Nickname aktualisiert",
+  "noBeltsEarnedYetMessage": "Noch keine Gürtel verdient.",
+  "whoStartsFirstLabel": "Wer beginnt",
+  "startingPlayerHuman": "Mensch (Rot)",
+  "startingPlayerAi": "KI (Blau)",
+  "leaveDuelBarrierLabel": "Duell verlassen",
+  "leaveDuelTitle": "Duell verlassen",
+  "leaveDuelMessage": "Duellmodus verlassen und zum Hauptmenü zurückkehren?\n\nDer Fortschritt wird nicht gespeichert.",
+  "leaveBarrierLabel": "Verlassen",
+  "leaveModeTitle": "{mode} verlassen",
+  "@leaveModeTitle": {
+    "placeholders": {
+      "mode": {}
+    }
+  },
+  "leaveMultiModeMessage": "Zum Hauptmenü zurückkehren?\n\nDer Fortschritt wird nicht gespeichert.",
+  "colorRedLabel": "ROT",
+  "colorBlueLabel": "BLAU",
+  "colorYellowLabel": "GELB",
+  "colorGreenLabel": "GRÜN",
+  "redShortLabel": "R",
+  "blueShortLabel": "B",
+  "yellowShortLabel": "G",
+  "greenShortLabel": "Gr",
+  "supportTheDevLabel": "Unterstütze den Entwickler",
+  "aiBeltWhite": "Weiß",
+  "aiBeltYellow": "Gelb",
+  "aiBeltOrange": "Orange",
+  "aiBeltGreen": "Grün",
+  "aiBeltBlue": "Blau",
+  "aiBeltBrown": "Braun",
+  "aiBeltBlack": "Schwarz",
+  "scorePlace": "+1 Platzierung",
+  "scoreCorner": "+2 Ecke",
+  "scoreBlueToGrey": "+2 x{count} blau→grau",
+  "@scoreBlueToGrey": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "scoreGreyToRed": "+3 x{count} grau→rot",
+  "@scoreGreyToRed": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "scorePlaceShort": "Platzieren",
+  "scoreZeroBlow": "0 Treffer",
+  "scoreZeroGreyDrop": "0 grauer Abwurf",
+  "durationSeconds": "{seconds}s",
+  "@durationSeconds": {
+    "placeholders": {
+      "seconds": {}
+    }
+  },
+  "durationMinutesSeconds": "{minutes}m {seconds}s",
+  "@durationMinutesSeconds": {
+    "placeholders": {
+      "minutes": {},
+      "seconds": {}
+    }
+  },
+  "durationHoursMinutes": "{hours}h {minutes}m",
+  "@durationHoursMinutes": {
+    "placeholders": {
+      "hours": {},
+      "minutes": {}
+    }
+  },
+  "@countryName": {
+    "placeholders": {
+      "country": {}
+    }
+  },
+  "deleteSaveTitle": "Speicherung löschen?",
+  "deleteSaveMessage": "Möchtest du dieses gespeicherte Spiel wirklich löschen?",
+  "failedToDeleteMessage": "Löschen fehlgeschlagen",
+  "countryName": "{country, select, Afghanistan{Afghanistan} Albania{Albanien} Algeria{Algerien} Andorra{Andorra} Angola{Angola} Antigua_and_Barbuda{Antigua und Barbuda} Argentina{Argentinien} Armenia{Armenien} Australia{Australien} Austria{Österreich} Azerbaijan{Aserbaidschan} Bahamas{Bahamas} Bahrain{Bahrain} Bangladesh{Bangladesch} Barbados{Barbados} Belarus{Belarus} Belgium{Belgien} Belize{Belize} Benin{Benin} Bhutan{Bhutan} Bolivia{Bolivien} Bosnia_and_Herzegovina{Bosnien und Herzegowina} Botswana{Botsuana} Brazil{Brasilien} Brunei{Brunei} Bulgaria{Bulgarien} Burkina_Faso{Burkina Faso} Burundi{Burundi} Cabo_Verde{Cabo Verde} Cambodia{Kambodscha} Cameroon{Kamerun} Canada{Kanada} Central_African_Republic{Zentralafrikanische Republik} Chad{Tschad} Chile{Chile} China{China} Colombia{Kolumbien} Comoros{Komoren} Congo_Congo_Brazzaville{Kongo (Brazzaville)} Costa_Rica{Costa Rica} Croatia{Kroatien} Cuba{Kuba} Cyprus{Zypern} Czechia{Tschechien} Democratic_Republic_of_the_Congo{Demokratische Republik Kongo} Denmark{Dänemark} Djibouti{Dschibuti} Dominica{Dominica} Dominican_Republic{Dominikanische Republik} Ecuador{Ecuador} Egypt{Ägypten} El_Salvador{El Salvador} Equatorial_Guinea{Äquatorialguinea} Eritrea{Eritrea} Estonia{Estland} Eswatini{Eswatini} Ethiopia{Äthiopien} Fiji{Fidschi} Finland{Finnland} France{Frankreich} Gabon{Gabun} Gambia{Gambia} Georgia{Georgien} Germany{Deutschland} Ghana{Ghana} Greece{Griechenland} Grenada{Grenada} Guatemala{Guatemala} Guinea{Guinea} Guinea_Bissau{Guinea-Bissau} Guyana{Guyana} Haiti{Haiti} Honduras{Honduras} Hungary{Ungarn} Iceland{Island} India{Indien} Indonesia{Indonesien} Iran{Iran} Iraq{Irak} Ireland{Irland} Israel{Israel} Italy{Italien} Jamaica{Jamaika} Japan{Japan} Jordan{Jordanien} Kazakhstan{Kasachstan} Kenya{Kenia} Kiribati{Kiribati} Kuwait{Kuwait} Kyrgyzstan{Kirgisistan} Laos{Laos} Latvia{Lettland} Lebanon{Libanon} Lesotho{Lesotho} Liberia{Liberia} Libya{Libyen} Liechtenstein{Liechtenstein} Lithuania{Litauen} Luxembourg{Luxemburg} Madagascar{Madagaskar} Malawi{Malawi} Malaysia{Malaysia} Maldives{Malediven} Mali{Mali} Malta{Malta} Marshall_Islands{Marshallinseln} Mauritania{Mauretanien} Mauritius{Mauritius} Mexico{Mexiko} Micronesia{Mikronesien} Moldova{Moldau} Monaco{Monaco} Mongolia{Mongolei} Montenegro{Montenegro} Morocco{Marokko} Mozambique{Mosambik} Myanmar{Myanmar} Namibia{Namibia} Nauru{Nauru} Nepal{Nepal} Netherlands{Niederlande} New_Zealand{Neuseeland} Nicaragua{Nicaragua} Niger{Niger} Nigeria{Nigeria} North_Korea{Nordkorea} North_Macedonia{Nordmazedonien} Norway{Norwegen} Oman{Oman} Pakistan{Pakistan} Palau{Palau} Panama{Panama} Papua_New_Guinea{Papua-Neuguinea} Paraguay{Paraguay} Peru{Peru} Philippines{Philippinen} Poland{Polen} Portugal{Portugal} Qatar{Katar} Romania{Rumänien} Russia{Russland} Rwanda{Ruanda} Saint_Kitts_and_Nevis{St. Kitts und Nevis} Saint_Lucia{St. Lucia} Saint_Vincent_and_the_Grenadines{St. Vincent und die Grenadinen} Samoa{Samoa} San_Marino{San Marino} Sao_Tome_and_Principe{São Tomé und Príncipe} Saudi_Arabia{Saudi-Arabien} Senegal{Senegal} Serbia{Serbien} Seychelles{Seychellen} Sierra_Leone{Sierra Leone} Singapore{Singapur} Slovakia{Slowakei} Slovenia{Slowenien} Solomon_Islands{Salomonen} Somalia{Somalia} South_Africa{Südafrika} South_Korea{Südkorea} South_Sudan{Südsudan} Spain{Spanien} Sri_Lanka{Sri Lanka} Sudan{Sudan} Suriname{Suriname} Sweden{Schweden} Switzerland{Schweiz} Syria{Syrien} Taiwan{Taiwan} Tajikistan{Tadschikistan} Tanzania{Tansania} Thailand{Thailand} Timor_Leste{Timor-Leste} Togo{Togo} Tonga{Tonga} Trinidad_and_Tobago{Trinidad und Tobago} Tunisia{Tunesien} Turkey{Türkei} Turkmenistan{Turkmenistan} Tuvalu{Tuvalu} Uganda{Uganda} Ukraine{Ukraine} United_Arab_Emirates{Vereinigte Arabische Emirate} United_Kingdom{Vereinigtes Königreich} United_States{Vereinigte Staaten} Uruguay{Uruguay} Uzbekistan{Usbekistan} Vanuatu{Vanuatu} Vatican_City{Vatikanstadt} Venezuela{Venezuela} Vietnam{Vietnam} Yemen{Jemen} Zambia{Sambia} Zimbabwe{Simbabwe} other{Wakanda}}"
+}

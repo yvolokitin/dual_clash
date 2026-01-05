@@ -1,3 +1,5 @@
+import 'package:dual_clash/l10n/app_localizations.dart';
+
 class Countries {
   static const String defaultCountry = 'Wakanda';
 
@@ -211,5 +213,18 @@ class Countries {
   static List<String> optionsForSelection(String currentSelection) {
     if (currentSelection == defaultCountry) return all;
     return all.where((c) => c != defaultCountry).toList(growable: false);
+  }
+
+  static String localizedName(AppLocalizations l10n, String country) {
+    return l10n.countryName(_countryKey(country));
+  }
+
+  static String _countryKey(String country) {
+    final key =
+        country.replaceAll(RegExp(r'[^A-Za-z0-9]+'), '_').replaceAll(
+              RegExp(r'^_+|_+$'),
+              '',
+            );
+    return key.isEmpty ? 'Wakanda' : key;
   }
 }

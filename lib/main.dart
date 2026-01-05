@@ -1,16 +1,15 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'dart:ui' as ui;
-import 'ui/pages/main_menu_page.dart';
-import 'logic/game_controller.dart';
-import 'core/constants.dart';
-
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:dual_clash/core/feature_flags.dart';
+import 'package:dual_clash/core/localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:dual_clash/l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+import 'core/constants.dart';
 import 'logic/game_controller.dart';
 import 'ui/pages/main_menu_page.dart';
 
@@ -68,15 +67,43 @@ class _TwoTouchAppState extends State<TwoTouchApp> {
   @override
   Widget build(BuildContext context) {
     final base = ThemeData();
-    return MaterialApp(
-      title: 'Two Touch ${K.n}x${K.n}',
-      debugShowCheckedModeBanner: false,
-      theme: base.copyWith(
-        textTheme: _boldAll(base.textTheme.apply(fontFamily: 'Fredoka')),
-        primaryTextTheme:
-            _boldAll(base.primaryTextTheme.apply(fontFamily: 'Fredoka')),
-      ),
-      home: MainMenuPage(controller: controller),
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, _) {
+        final localeCode = switch (controller.languageCode) {
+          'de' => 'de',
+          'fr' => 'fr',
+          'ru' => 'ru',
+          'es' => 'es',
+          _ => 'en',
+        };
+        return MaterialApp(
+          navigatorKey: appNavigatorKey,
+          onGenerateTitle: (context) =>
+              context.l10n.appTitle('${K.n}x${K.n}'),
+          debugShowCheckedModeBanner: false,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('en'),
+            Locale('ru'),
+            Locale('es'),
+            Locale('de'),
+            Locale('fr'),
+          ],
+          locale: Locale(localeCode),
+          theme: base.copyWith(
+            textTheme: _boldAll(base.textTheme.apply(fontFamily: 'Fredoka')),
+            primaryTextTheme:
+                _boldAll(base.primaryTextTheme.apply(fontFamily: 'Fredoka')),
+          ),
+          home: MainMenuPage(controller: controller),
+        );
+      },
     );
   }
 }

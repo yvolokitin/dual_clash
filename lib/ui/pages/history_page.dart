@@ -1,6 +1,8 @@
+import 'dart:ui' as ui;
+
+import 'package:dual_clash/core/localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'dart:ui' as ui;
 import '../../logic/game_controller.dart';
 import '../../models/game_result.dart';
 import '../../core/colors.dart';
@@ -35,6 +37,7 @@ class _HistoryDialogState extends State<HistoryDialog> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final l10n = context.l10n;
     final bool isMobilePlatform = !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
@@ -88,8 +91,8 @@ class _HistoryDialogState extends State<HistoryDialog> {
                     Row(
                       children: [
                         const Spacer(),
-                        const Text('History',
-                            style: TextStyle(
+                        Text(l10n.historyTitle,
+                            style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 22,
                                 fontWeight: FontWeight.w800)),
@@ -118,15 +121,15 @@ class _HistoryDialogState extends State<HistoryDialog> {
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                               color: Colors.white.withOpacity(0.12))),
-                      child: const TabBar(
+                      child: TabBar(
                         indicator: BoxDecoration(
                             color: Colors.white12,
                             borderRadius: BorderRadius.all(Radius.circular(10))),
                         labelColor: Colors.white,
                         unselectedLabelColor: Colors.white70,
                         tabs: [
-                          Tab(text: 'Games'),
-                          Tab(text: 'Daily activity'),
+                          Tab(text: l10n.historyTabGames),
+                          Tab(text: l10n.historyTabDailyActivity),
                         ],
                       ),
                     ),
@@ -156,7 +159,7 @@ class _HistoryDialogState extends State<HistoryDialog> {
                           textStyle: const TextStyle(
                               fontWeight: FontWeight.w800, letterSpacing: 0.2),
                         ),
-                        child: const Text('Close'),
+                        child: Text(l10n.commonClose),
                       ),
                     ),
                   ],
@@ -171,9 +174,9 @@ class _HistoryDialogState extends State<HistoryDialog> {
 
   Widget _buildGamesTab(List<GameResult> items) {
     if (items.isEmpty) {
-      return const Center(
-          child: Text('No finished games yet',
-              style: TextStyle(color: Colors.white70)));
+      return Center(
+          child: Text(context.l10n.noFinishedGamesYet,
+              style: const TextStyle(color: Colors.white70)));
     }
     return Scrollbar(
       thumbVisibility: true,
@@ -194,9 +197,9 @@ class _HistoryDialogState extends State<HistoryDialog> {
   Widget _buildDailyActivityTab(List<GameResult> items) {
     final activity = _aggregateDaily(items);
     if (activity.isEmpty) {
-      return const Center(
-          child: Text('No finished games yet',
-              style: TextStyle(color: Colors.white70)));
+      return Center(
+          child: Text(context.l10n.noFinishedGamesYet,
+              style: const TextStyle(color: Colors.white70)));
     }
     return Scrollbar(
       thumbVisibility: true,
@@ -261,19 +264,23 @@ class _HistoryDialogState extends State<HistoryDialog> {
 String _pad2(int v) => v.toString().padLeft(2, '0');
 
 String _formatDuration(int ms) {
-  if (ms <= 0) return '0s';
-  int seconds = (ms / 1000).floor();
-  int hours = seconds ~/ 3600;
-  seconds %= 3600;
-  int minutes = seconds ~/ 60;
-  seconds %= 60;
-  if (hours > 0) {
-    return '${hours}h ${minutes}m';
+  final l10n = appLocalizations();
+  if (l10n == null) {
+    if (ms <= 0) return '0s';
+    int seconds = (ms / 1000).floor();
+    int hours = seconds ~/ 3600;
+    seconds %= 3600;
+    int minutes = seconds ~/ 60;
+    seconds %= 60;
+    if (hours > 0) {
+      return '${hours}h ${minutes}m';
+    }
+    if (minutes > 0) {
+      return '${minutes}m ${seconds}s';
+    }
+    return '${seconds}s';
   }
-  if (minutes > 0) {
-    return '${minutes}m ${seconds}s';
-  }
-  return '${seconds}s';
+  return formatDurationShort(l10n, ms);
 }
 
 class _DailyActivity {
@@ -313,6 +320,7 @@ class _DailyActivityTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.06),
@@ -332,7 +340,7 @@ class _DailyActivityTile extends StatelessWidget {
                     style: const TextStyle(
                         color: Colors.white, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 6),
-                Text('Games: ${entry.games}',
+                Text(l10n.gamesCountLabel(entry.games),
                     style: const TextStyle(color: Colors.white70)),
               ],
             ),
@@ -343,11 +351,12 @@ class _DailyActivityTile extends StatelessWidget {
               spacing: 12,
               runSpacing: 6,
               children: [
-                _chip('Wins', entry.wins.toString(), color: AppColors.red),
-                _chip('Losses', entry.losses.toString(),
+                _chip(l10n.winsLabel, entry.wins.toString(),
+                    color: AppColors.red),
+                _chip(l10n.lossesLabel, entry.losses.toString(),
                     color: AppColors.blue),
-                _chip('Draws', entry.draws.toString()),
-                _chip('Total time', _formatDuration(entry.totalMs)),
+                _chip(l10n.drawsLabel, entry.draws.toString()),
+                _chip(l10n.totalTimeLabel, _formatDuration(entry.totalMs)),
               ],
             ),
           ),
@@ -391,9 +400,10 @@ class _HistoryTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final dt = DateTime.fromMillisecondsSinceEpoch(gr.timestampMs);
     final when = _formatDateTime(dt);
+    final l10n = context.l10n;
     final resultLabel = gr.winner == 'draw'
-        ? 'Draw'
-        : (gr.winner == 'red' ? 'Player Wins' : 'AI Wins');
+        ? l10n.resultDraw
+        : (gr.winner == 'red' ? l10n.resultPlayerWins : l10n.resultAiWins);
     // Subtle background tint by winner: red/blue/grey
     final bool redWon = gr.winner == 'red';
     final bool blueWon = gr.winner == 'blue';
@@ -426,9 +436,11 @@ class _HistoryTile extends StatelessWidget {
                     style: const TextStyle(
                         color: Colors.white, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 4),
-                Text('AI: ${AiBelt.nameFor(gr.aiLevel)}',
+                Text(
+                    l10n.aiLabelWithName(
+                        aiBeltName(l10n, gr.aiLevel)),
                     style: const TextStyle(color: Colors.white70)),
-                Text('Winner: $resultLabel',
+                Text(l10n.winnerLabel(resultLabel),
                     style: const TextStyle(color: Colors.white70)),
               ],
             ),
@@ -439,16 +451,17 @@ class _HistoryTile extends StatelessWidget {
               spacing: 12,
               runSpacing: 6,
               children: [
-                _chip('Your score', gr.redTotal.toString(),
+                _chip(l10n.yourScoreLabel, gr.redTotal.toString(),
                     color: AppColors.red),
-                _chip('Time', _formatDuration(gr.playMs)),
-                _chip('Red base', gr.redBase.toString(), color: AppColors.red),
-                _chip('Blue base', gr.blueBase.toString(),
+                _chip(l10n.timeLabel, _formatDuration(gr.playMs)),
+                _chip(l10n.redBaseLabel, gr.redBase.toString(),
+                    color: AppColors.red),
+                _chip(l10n.blueBaseLabel, gr.blueBase.toString(),
                     color: AppColors.blue),
-                _chip('Total B', gr.blueTotal.toString(),
+                _chip(l10n.totalBlueLabel, gr.blueTotal.toString(),
                     color: AppColors.blue),
-                _chip('Turns R', gr.turnsRed.toString()),
-                _chip('Turns B', gr.turnsBlue.toString()),
+                _chip(l10n.turnsRedLabel, gr.turnsRed.toString()),
+                _chip(l10n.turnsBlueLabel, gr.turnsBlue.toString()),
               ],
             ),
           ),
@@ -490,7 +503,7 @@ Future<void> showAnimatedHistoryDialog(
   return showGeneralDialog(
     context: context,
     barrierDismissible: true,
-    barrierLabel: 'History',
+    barrierLabel: context.l10n.historyTitle,
     barrierColor: Colors.black.withOpacity(0.55),
     transitionDuration: const Duration(milliseconds: 260),
     pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),

@@ -2,10 +2,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dual_clash/core/colors.dart';
 import 'package:dual_clash/core/constants.dart';
+import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/models/cell_state.dart';
 import 'package:dual_clash/logic/rules_engine.dart';
 import 'package:dual_clash/ui/widgets/main_menu/menu_tile.dart';
+import 'package:dual_clash/l10n/app_localizations.dart';
 
 // Independent ResultsCard widget extracted to be reusable across the app.
 class ResultsCard extends StatelessWidget {
@@ -14,6 +16,7 @@ class ResultsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final size = MediaQuery.of(context).size;
     final bool isMobilePlatform = !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
@@ -134,9 +137,9 @@ class ResultsCard extends StatelessWidget {
                   Row(
                     children: [
                       const Spacer(),
-                      const Text(
-                        'Results',
-                        style: TextStyle(
+                      Text(
+                        l10n.resultsTitle,
+                        style: const TextStyle(
                             color: Colors.white,
                             fontSize: 22,
                             fontWeight: FontWeight.w900),
@@ -226,9 +229,9 @@ class ResultsCard extends StatelessWidget {
                         children: [
                           // AnimatedTotalCounter(value: controller.totalUserScore),
                           _timeChip(
-                              label: 'Time played',
-                              value:
-                                  _formatDuration(controller.lastGamePlayMs)),
+                              label: l10n.timePlayedLabel,
+                              value: formatDurationShort(
+                                  l10n, controller.lastGamePlayMs)),
                         ],
                       ),
                     ),
@@ -242,20 +245,20 @@ class ResultsCard extends StatelessWidget {
                         children: [
                           _statChip(
                               icon: Icons.rotate_left,
-                              label: 'Red turns',
+                              label: l10n.redTurnsLabel,
                               value: controller.turnsRed.toString()),
                           _statChip(
                               icon: Icons.rotate_left,
-                              label: 'Blue turns',
+                              label: l10n.blueTurnsLabel,
                               value: controller.turnsBlue.toString()),
                           _statChip(
                               icon: Icons.rotate_left,
-                              label: 'Yellow turns',
+                              label: l10n.yellowTurnsLabel,
                               value: controller.turnsYellow.toString()),
                           if (controller.duelPlayerCount >= 4)
                             _statChip(
                                 icon: Icons.rotate_left,
-                                label: 'Green turns',
+                                label: l10n.greenTurnsLabel,
                                 value: controller.turnsGreen.toString()),
                         ],
                       )
@@ -265,11 +268,14 @@ class ResultsCard extends StatelessWidget {
                         children: [
                           _statChip(
                               icon: Icons.rotate_left,
-                              label: isDuel ? 'Red turns' : 'Player turns',
+                              label: isDuel
+                                  ? l10n.redTurnsLabel
+                                  : l10n.playerTurnsLabel,
                               value: controller.turnsRed.toString()),
                           _statChip(
                               icon: Icons.rotate_right,
-                              label: isDuel ? 'Blue turns' : 'AI turns',
+                              label:
+                                  isDuel ? l10n.blueTurnsLabel : l10n.aiTurnsLabel,
                               value: controller.turnsBlue.toString()),
                         ],
                       ),
@@ -465,12 +471,14 @@ class _ChallengeOutcomeSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final data = _challengeOutcomeData(winner);
+    final l10n = context.l10n;
+    final data = _challengeOutcomeData(l10n, winner);
     final int totalCells = boardSize * boardSize;
     final int margin = redTotal - blueTotal;
     final int clearWinMargin = (totalCells * 0.25).ceil();
     final int solidWinMargin = (totalCells * 0.12).ceil();
     final String rating = _performanceRating(
+      l10n,
       margin: margin,
       isNewBest: isNewBest,
       clearWinMargin: clearWinMargin,
@@ -480,8 +488,8 @@ class _ChallengeOutcomeSummary extends StatelessWidget {
     final bool humanWon = winner == CellState.red;
     final int pointsBelowBest = (bestScore - redTotal).clamp(0, bestScore);
     final String bestLine = isNewBest
-        ? 'New Best Score'
-        : '$pointsBelowBest points below best score';
+        ? l10n.newBestScoreLabel
+        : l10n.pointsBelowBestScore(pointsBelowBest);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -528,7 +536,7 @@ class _ChallengeOutcomeSummary extends StatelessWidget {
             const SizedBox(height: 6),
             if (humanWon) ...[
               Text(
-                'You win and reached $redTotal score points',
+                l10n.youWinReachedScore(redTotal),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: const Color(0xFFFFD700),
@@ -585,36 +593,38 @@ class _ChallengeOutcomeData {
   });
 }
 
-_ChallengeOutcomeData _challengeOutcomeData(CellState? winner) {
+_ChallengeOutcomeData _challengeOutcomeData(
+    AppLocalizations l10n, CellState? winner) {
   switch (winner) {
     case CellState.red:
-      return const _ChallengeOutcomeData(
+      return _ChallengeOutcomeData(
         asset: 'assets/icons/box_red.png',
-        summary: 'Red player territory controlled.',
+        summary: l10n.redTerritoryControlled,
         accentColor: AppColors.red,
       );
     case CellState.blue:
-      return const _ChallengeOutcomeData(
+      return _ChallengeOutcomeData(
         asset: 'assets/icons/box_blue.png',
-        summary: 'Blue player territory controlled.',
+        summary: l10n.blueTerritoryControlled,
         accentColor: AppColors.blue,
       );
     case CellState.neutral:
-      return const _ChallengeOutcomeData(
+      return _ChallengeOutcomeData(
         asset: 'assets/icons/box_grey.png',
-        summary: 'Neutral territory controlled.',
+        summary: l10n.neutralTerritoryControlled,
         accentColor: Colors.grey,
       );
     default:
-      return const _ChallengeOutcomeData(
+      return _ChallengeOutcomeData(
         asset: 'assets/icons/box_grey.png',
-        summary: 'Territory balanced.',
+        summary: l10n.territoryBalanced,
         accentColor: Colors.white54,
       );
   }
 }
 
-String _performanceRating({
+String _performanceRating(
+  AppLocalizations l10n, {
   required int margin,
   required bool isNewBest,
   required int clearWinMargin,
@@ -622,18 +632,18 @@ String _performanceRating({
   required bool aiWon,
 }) {
   if (aiWon) {
-    return 'You lost. Strategy required.';
+    return l10n.performanceLost;
   }
   if (isNewBest || margin >= clearWinMargin) {
-    return 'Brilliant Endgame';
+    return l10n.performanceBrilliantEndgame;
   }
   if (margin >= solidWinMargin) {
-    return 'Great Control';
+    return l10n.performanceGreatControl;
   }
   if (margin > 0) {
-    return 'Risky, but Effective';
+    return l10n.performanceRiskyEffective;
   }
-  return 'Solid Strategy';
+  return l10n.performanceSolidStrategy;
 }
 
 class _ResultsActions extends StatelessWidget {
@@ -680,6 +690,7 @@ class _ResultsActions extends StatelessWidget {
 
     // Duel mode: single Play again button
     if (controller.humanVsHuman) {
+      final l10n = context.l10n;
       return LayoutBuilder(
         builder: (context, constraints) {
           final double tileWidth =
@@ -690,7 +701,7 @@ class _ResultsActions extends StatelessWidget {
               child: AspectRatio(
                 aspectRatio: 1.1,
                 child: menuActionTile(
-                  label: 'Play again',
+                  label: l10n.playAgainLabel,
                   asset: secondaryTileAsset,
                   color: AppColors.green,
                   onTap: () {
@@ -707,9 +718,10 @@ class _ResultsActions extends StatelessWidget {
 
     List<Widget> buttons = [];
     if (winner == CellState.red && ai < 7) {
+      final l10n = context.l10n;
       buttons.add(
         menuActionTile(
-          label: 'Play again',
+          label: l10n.playAgainLabel,
           asset: secondaryTileAsset,
           color: AppColors.green,
           onTap: () {
@@ -720,7 +732,7 @@ class _ResultsActions extends StatelessWidget {
       );
       buttons.add(
         menuActionTile(
-          label: 'Continue to Next AI Level',
+          label: l10n.continueNextAiLevelLabel,
           asset: primaryTileAsset,
           color: AppColors.red,
           onTap: () async {
@@ -732,9 +744,10 @@ class _ResultsActions extends StatelessWidget {
         ),
       );
     } else {
+      final l10n = context.l10n;
       buttons.add(
         menuActionTile(
-          label: 'Play again',
+          label: l10n.playAgainLabel,
           asset: primaryTileAsset,
           color: AppColors.green,
           onTap: () {
@@ -746,7 +759,7 @@ class _ResultsActions extends StatelessWidget {
       if (winner != null && winner != CellState.red && ai > 1) {
         buttons.add(
           menuActionTile(
-            label: 'Play Lower AI Level',
+            label: l10n.playLowerAiLevelLabel,
             asset: secondaryTileAsset,
             color: AppColors.blue,
             onTap: () async {
@@ -760,7 +773,7 @@ class _ResultsActions extends StatelessWidget {
       } else if (winner == CellState.red && ai >= 7) {
         buttons.add(
           menuActionTile(
-            label: 'Replay Same Level',
+            label: l10n.replaySameLevelLabel,
             asset: secondaryTileAsset,
             color: AppColors.blue,
             onTap: () {
@@ -803,17 +816,21 @@ class _ResultsActions extends StatelessWidget {
 }
 
 String _formatDuration(int ms) {
-  if (ms <= 0) return '0s';
-  int seconds = (ms / 1000).floor();
-  int hours = seconds ~/ 3600;
-  seconds %= 3600;
-  int minutes = seconds ~/ 60;
-  seconds %= 60;
-  if (hours > 0) {
-    return '${hours}h ${minutes}m';
+  final l10n = appLocalizations();
+  if (l10n == null) {
+    if (ms <= 0) return '0s';
+    int seconds = (ms / 1000).floor();
+    int hours = seconds ~/ 3600;
+    seconds %= 3600;
+    int minutes = seconds ~/ 60;
+    seconds %= 60;
+    if (hours > 0) {
+      return '${hours}h ${minutes}m';
+    }
+    if (minutes > 0) {
+      return '${minutes}m ${seconds}s';
+    }
+    return '${seconds}s';
   }
-  if (minutes > 0) {
-    return '${minutes}m ${seconds}s';
-  }
-  return '${seconds}s';
+  return formatDurationShort(l10n, ms);
 }

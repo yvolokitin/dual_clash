@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:dual_clash/core/colors.dart';
 import 'package:dual_clash/core/constants.dart';
+import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:flutter/material.dart';
 
@@ -14,7 +15,7 @@ Future<void> showAiDifficultyDialog({
   await showGeneralDialog<void>(
     context: context,
     barrierDismissible: true,
-    barrierLabel: 'AI difficulty',
+    barrierLabel: context.l10n.aiDifficultyTitle,
     barrierColor: Colors.black.withOpacity(0.55),
     transitionDuration: const Duration(milliseconds: 260),
     pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),
@@ -77,7 +78,7 @@ Future<void> showAiDifficultyDialog({
                                 Row(
                                   children: [
                                     const Spacer(),
-                                    const Text('AI difficulty',
+                                    Text(context.l10n.aiDifficultyTitle,
                                         style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 22,
@@ -150,7 +151,7 @@ Future<void> showAiDifficultyDialog({
                                               fontWeight: FontWeight.w800,
                                               letterSpacing: 0.2),
                                         ),
-                                        child: const Text('Cancel'),
+                                        child: Text(context.l10n.commonCancel),
                                       ),
                                     ),
                                     const SizedBox(width: 12),
@@ -177,7 +178,7 @@ Future<void> showAiDifficultyDialog({
                                               fontWeight: FontWeight.w800,
                                               letterSpacing: 0.2),
                                         ),
-                                        child: const Text('Confirm'),
+                                        child: Text(context.l10n.commonConfirm),
                                       ),
                                     ),
                                   ],
@@ -204,7 +205,10 @@ Widget _aiLevelChoiceTile({
   required bool selected,
   required VoidCallback onTap,
 }) {
-  final String label = AiBelt.nameFor(level);
+  final l10n = appLocalizations();
+  final String label = l10n == null
+      ? AiBelt.nameFor(level)
+      : aiBeltName(l10n, level);
   final String asset = AiBelt.assetFor(level);
   final Color border = selected ? AppColors.brandGold : Colors.white12;
 
@@ -271,6 +275,31 @@ Widget _aiLevelChoiceTile({
 }
 
 String _aiLevelShortTip(int lvl) {
+  final l10n = appLocalizations();
+  if (l10n == null) {
+    return _aiLevelShortTipFallback(lvl);
+  }
+  switch (lvl) {
+    case 1:
+      return l10n.aiDifficultyTipBeginner;
+    case 2:
+      return l10n.aiDifficultyTipEasy;
+    case 3:
+      return l10n.aiDifficultyTipNormal;
+    case 4:
+      return l10n.aiDifficultyTipChallenging;
+    case 5:
+      return l10n.aiDifficultyTipHard;
+    case 6:
+      return l10n.aiDifficultyTipExpert;
+    case 7:
+      return l10n.aiDifficultyTipMaster;
+    default:
+      return l10n.aiDifficultyTipSelect;
+  }
+}
+
+String _aiLevelShortTipFallback(int lvl) {
   switch (lvl) {
     case 1:
       return 'White — Beginner: makes random moves.';

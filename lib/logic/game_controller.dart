@@ -9,6 +9,7 @@ import 'ai.dart';
 import '../core/colors.dart';
 import '../core/constants.dart';
 import '../models/game_result.dart';
+import '../core/localization.dart';
 import '../core/countries.dart';
 
 enum _AiAction {
@@ -1053,12 +1054,15 @@ class GameController extends ChangeNotifier {
     {
       // Build concise breakdown: +1 place, +2 corner, +2 xN infect blue→grey, +3 xN claim grey→red
       final List<String> parts = <String>[];
-      parts.add('+1 place');
+      final l10n = appLocalizations();
+      parts.add(l10n?.scorePlace ?? '+1 place');
       final bool isCorner = (r == 0 && c == 0) ||
           (r == 0 && c == K.n - 1) ||
           (r == K.n - 1 && c == 0) ||
           (r == K.n - 1 && c == K.n - 1);
-      if (isCorner) parts.add('+2 corner');
+      if (isCorner) {
+        parts.add(l10n?.scoreCorner ?? '+2 corner');
+      }
       int blueToNeutral = 0;
       int neutralToRed = 0;
       for (int i = 0; i < K.n; i++) {
@@ -1069,13 +1073,19 @@ class GameController extends ChangeNotifier {
           if (b == CellState.neutral && a == CellState.red) neutralToRed++;
         }
       }
-      if (blueToNeutral > 0) parts.add('+2 x$blueToNeutral blue→grey');
-      if (neutralToRed > 0) parts.add('+3 x$neutralToRed grey→red');
+      if (blueToNeutral > 0) {
+        parts.add(l10n?.scoreBlueToGrey(blueToNeutral) ??
+            '+2 x$blueToNeutral blue→grey');
+      }
+      if (neutralToRed > 0) {
+        parts.add(l10n?.scoreGreyToRed(neutralToRed) ??
+            '+3 x$neutralToRed grey→red');
+      }
       final desc = parts.join('; ');
       _turnStats.add(TurnStatEntry(
         turn: turnsRed,
         points: lastMovePoints,
-        desc: desc.isEmpty ? 'Place' : desc,
+        desc: desc.isEmpty ? (l10n?.scorePlaceShort ?? 'Place') : desc,
         ts: DateTime.now().millisecondsSinceEpoch,
       ));
     }
@@ -1107,12 +1117,15 @@ class GameController extends ChangeNotifier {
       _registerScorePopup(r, c, who);
       // Log statistics for this red turn with detailed reasons
       final List<String> parts = <String>[];
-      parts.add('+1 place');
+      final l10n = appLocalizations();
+      parts.add(l10n?.scorePlace ?? '+1 place');
       final bool isCorner = (r == 0 && c == 0) ||
           (r == 0 && c == K.n - 1) ||
           (r == K.n - 1 && c == 0) ||
           (r == K.n - 1 && c == K.n - 1);
-      if (isCorner) parts.add('+2 corner');
+      if (isCorner) {
+        parts.add(l10n?.scoreCorner ?? '+2 corner');
+      }
       int blueToNeutral = 0;
       int neutralToRed = 0;
       for (int i = 0; i < K.n; i++) {
@@ -1123,13 +1136,19 @@ class GameController extends ChangeNotifier {
           if (b == CellState.neutral && a == CellState.red) neutralToRed++;
         }
       }
-      if (blueToNeutral > 0) parts.add('+2 x$blueToNeutral blue→grey');
-      if (neutralToRed > 0) parts.add('+3 x$neutralToRed grey→red');
+      if (blueToNeutral > 0) {
+        parts.add(l10n?.scoreBlueToGrey(blueToNeutral) ??
+            '+2 x$blueToNeutral blue→grey');
+      }
+      if (neutralToRed > 0) {
+        parts.add(l10n?.scoreGreyToRed(neutralToRed) ??
+            '+3 x$neutralToRed grey→red');
+      }
       final desc = parts.join('; ');
       _turnStats.add(TurnStatEntry(
         turn: turnsRed,
         points: lastMovePoints,
-        desc: desc.isEmpty ? 'Place' : desc,
+        desc: desc.isEmpty ? (l10n?.scorePlaceShort ?? 'Place') : desc,
         ts: DateTime.now().millisecondsSinceEpoch,
       ));
     }
@@ -1253,7 +1272,7 @@ class GameController extends ChangeNotifier {
       _turnStats.add(TurnStatEntry(
         turn: turnsRed,
         points: lastMovePoints,
-        desc: '0 blow',
+        desc: appLocalizations()?.scoreZeroBlow ?? '0 blow',
         ts: DateTime.now().millisecondsSinceEpoch,
       ));
     }
@@ -1349,7 +1368,7 @@ class GameController extends ChangeNotifier {
       _turnStats.add(TurnStatEntry(
         turn: turnsRed,
         points: lastMovePoints,
-        desc: '0 grey drop',
+        desc: appLocalizations()?.scoreZeroGreyDrop ?? '0 grey drop',
         ts: DateTime.now().millisecondsSinceEpoch,
       ));
     }

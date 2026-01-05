@@ -1,6 +1,8 @@
+import 'dart:ui' as ui;
+
+import 'package:dual_clash/core/localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'dart:ui' as ui;
 import '../../logic/game_controller.dart';
 import '../../core/colors.dart';
 import '../../core/constants.dart';
@@ -31,6 +33,7 @@ class _StatisticsDialogState extends State<StatisticsDialog> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final l10n = context.l10n;
     final bool isMobilePlatform = !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
@@ -80,8 +83,8 @@ class _StatisticsDialogState extends State<StatisticsDialog> {
                   Row(
                     children: [
                       const Spacer(),
-                      const Text('Statistics',
-                          style: TextStyle(
+                      Text(l10n.statisticsTitle,
+                          style: const TextStyle(
                               color: Colors.white,
                               fontSize: 22,
                               fontWeight: FontWeight.w800)),
@@ -105,9 +108,9 @@ class _StatisticsDialogState extends State<StatisticsDialog> {
                   const SizedBox(height: 12),
                   Expanded(
                     child: items.isEmpty
-                        ? const Center(
-                            child: Text('No turns yet for this game',
-                                style: TextStyle(color: Colors.white70)))
+                        ? Center(
+                            child: Text(l10n.noTurnsYetMessage,
+                                style: const TextStyle(color: Colors.white70)))
                         : Scrollbar(
                             thumbVisibility: true,
                             trackVisibility: true,
@@ -162,7 +165,7 @@ class _StatisticsDialogState extends State<StatisticsDialog> {
                         textStyle: const TextStyle(
                             fontWeight: FontWeight.w800, letterSpacing: 0.2),
                       ),
-                      child: const Text('Close'),
+                      child: Text(l10n.commonClose),
                     ),
                   ),
                 ],
@@ -194,6 +197,7 @@ class _StatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final Color borderTint = Colors.white24;
     final Color bgTint = Colors.white.withOpacity(0.06);
     return Container(
@@ -218,7 +222,7 @@ class _StatTile extends StatelessWidget {
                 const Icon(Icons.flag_outlined,
                     size: 18, color: Colors.white70),
                 const SizedBox(width: 6),
-                Text('Turn $turn',
+                Text(l10n.turnLabel(turn),
                     style: const TextStyle(
                         color: Colors.white, fontWeight: FontWeight.w800)),
               ],
@@ -239,7 +243,7 @@ class _StatTile extends StatelessWidget {
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white24)),
               child: IconButton(
-                tooltip: 'Undo last action',
+                tooltip: l10n.undoLastActionTooltip,
                 padding: EdgeInsets.zero,
                 iconSize: 20,
                 onPressed: canUndo ? onUndo : null,
@@ -289,7 +293,7 @@ Future<void> showAnimatedStatisticsDialog(
   return showGeneralDialog(
     context: context,
     barrierDismissible: true,
-    barrierLabel: 'Statistics',
+    barrierLabel: context.l10n.statisticsTitle,
     barrierColor: Colors.black.withOpacity(0.55),
     transitionDuration: const Duration(milliseconds: 260),
     pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),

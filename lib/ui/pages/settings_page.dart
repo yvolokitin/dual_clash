@@ -1,6 +1,8 @@
+import 'dart:ui' as ui;
+
+import 'package:dual_clash/core/localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'dart:ui' as ui;
 import '../../logic/game_controller.dart';
 import '../../core/colors.dart';
 import '../../core/constants.dart';
@@ -20,7 +22,7 @@ Future<void> showAnimatedSettingsDialog(
   return showGeneralDialog(
     context: context,
     barrierDismissible: true,
-    barrierLabel: 'Settings',
+    barrierLabel: context.l10n.settingsTitle,
     barrierColor: Colors.black.withOpacity(0.55),
     transitionDuration: const Duration(milliseconds: 260),
     pageBuilder: (ctx, anim1, anim2) {
@@ -87,6 +89,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final l10n = context.l10n;
     final bool isMobilePlatform = !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
@@ -147,9 +150,9 @@ class _SettingsDialogState extends State<SettingsDialog> {
                   Row(
                     children: [
                       const Spacer(),
-                      const Text(
-                        'Settings',
-                        style: TextStyle(
+                      Text(
+                        l10n.settingsTitle,
+                        style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w800,
                           color: AppColors.dialogTitle,
@@ -181,7 +184,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Language selector
-                          _label('Language'),
+                          _label(l10n.languageTitle),
                           Wrap(
                             spacing: 8,
                             runSpacing: 8,
@@ -206,14 +209,14 @@ class _SettingsDialogState extends State<SettingsDialog> {
                           const SizedBox(height: 0),
 
                           // Who starts selector
-                          _label('Who starts first'),
+                          _label(l10n.whoStartsFirstLabel),
                           Wrap(
                             spacing: 8,
                             runSpacing: 8,
                             children: [
                               _startingPlayerTile(
                                 selected: _startingPlayer == CellState.red,
-                                label: 'Human (Red)',
+                                label: l10n.startingPlayerHuman,
                                 asset: 'assets/icons/human.png',
                                 accent: AppColors.red,
                                 onTap: () => setState(
@@ -221,7 +224,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                               ),
                               _startingPlayerTile(
                                 selected: _startingPlayer == CellState.blue,
-                                label: 'AI (Blue)',
+                                label: l10n.startingPlayerAi,
                                 asset: 'assets/icons/ai.png',
                                 accent: AppColors.blue,
                                 onTap: () => setState(
@@ -266,7 +269,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 0.2),
                           ),
-                          child: const Text('Save'),
+                          child: Text(l10n.commonSave),
                         ),
                       const Spacer(),
                       ElevatedButton(
@@ -284,7 +287,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                               fontWeight: FontWeight.w800,
                               letterSpacing: 0.2),
                         ),
-                        child: const Text('Close'),
+                        child: Text(l10n.commonClose),
                       ),
                     ],
                   ),
@@ -336,9 +339,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
       ('de', 'Deutsch', 'assets/icons/lang_de.png'),
       ('es', 'Español', 'assets/icons/lang_es.png'),
       ('fr', 'Français', 'assets/icons/lang_fr.png'),
-      ('pl', 'Polski', 'assets/icons/lang_pl.png'),
       ('ru', 'Русский', 'assets/icons/lang_ru.png'),
-      ('ua', 'Українська', 'assets/icons/lang_ua.png'),
     ];
   }
 
@@ -509,7 +510,8 @@ class _SettingsDialogState extends State<SettingsDialog> {
     required bool selected,
     VoidCallback? onTap,
   }) {
-    final String label = AiBelt.nameFor(level);
+    final l10n = context.l10n;
+    final String label = aiBeltName(l10n, level);
     final String asset = AiBelt.assetFor(level);
     final Color border = selected ? AppColors.brandGold : Colors.white12;
 
@@ -580,44 +582,46 @@ class _SettingsDialogState extends State<SettingsDialog> {
   }
 
   String _aiLevelShortTip(int lvl) {
+    final l10n = context.l10n;
     switch (lvl) {
       case 1:
-        return 'White — Beginner: makes random moves.';
+        return l10n.aiDifficultyTipBeginner;
       case 2:
-        return 'Yellow — Easy: prefers immediate gains.';
+        return l10n.aiDifficultyTipEasy;
       case 3:
-        return 'Orange — Normal: greedy with basic positioning.';
+        return l10n.aiDifficultyTipNormal;
       case 4:
-        return 'Green — Challenging: shallow search with some foresight.';
+        return l10n.aiDifficultyTipChallenging;
       case 5:
-        return 'Blue — Hard: deeper search with pruning.';
+        return l10n.aiDifficultyTipHard;
       case 6:
-        return 'Brown — Expert: advanced pruning and caching.';
+        return l10n.aiDifficultyTipExpert;
       case 7:
-        return 'Black — Master: strongest and most calculating.';
+        return l10n.aiDifficultyTipMaster;
       default:
-        return 'Select a belt level.';
+        return l10n.aiDifficultyTipSelect;
     }
   }
 
   String _aiLevelDescription(int lvl) {
+    final l10n = context.l10n;
     switch (lvl) {
       case 1:
-        return 'White — Beginner: random empty cells. Unpredictable but weak.';
+        return l10n.aiDifficultyDetailBeginner;
       case 2:
-        return 'Yellow — Easy: greedy takes that maximize immediate gain.';
+        return l10n.aiDifficultyDetailEasy;
       case 3:
-        return 'Orange — Normal: greedy with center tie-break to prefer stronger positions.';
+        return l10n.aiDifficultyDetailNormal;
       case 4:
-        return 'Green — Challenging: shallow minimax search (depth 2), no pruning.';
+        return l10n.aiDifficultyDetailChallenging;
       case 5:
-        return 'Blue — Hard: deeper minimax with alpha–beta pruning and move ordering.';
+        return l10n.aiDifficultyDetailHard;
       case 6:
-        return 'Brown — Expert: deeper minimax with pruning + transposition table.';
+        return l10n.aiDifficultyDetailExpert;
       case 7:
-        return 'Black — Master: Monte Carlo Tree Search (~1500 rollouts within time limit).';
+        return l10n.aiDifficultyDetailMaster;
       default:
-        return 'Select AI difficulty to see details.';
+        return l10n.aiDifficultyDetailSelect;
     }
   }
 }
