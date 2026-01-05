@@ -48,6 +48,13 @@ class BoardWidget extends StatelessWidget {
             size; // outer container remains square; padding will shrink grid area visually
 
         final cellSize = innerSize / K.n;
+        const cellSpacing = 2.0;
+        final gridCellSize =
+            (innerSize - cellSpacing * (K.n - 1)) / K.n;
+        final showScorePopup = !controller.humanVsHuman &&
+            controller.scorePopupPoints > 0 &&
+            controller.scorePopupCell != null;
+        final scorePopupCell = controller.scorePopupCell;
         return Center(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
@@ -106,8 +113,8 @@ class BoardWidget extends StatelessWidget {
                         gridDelegate:
                             SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: K.n,
-                          mainAxisSpacing: 2,
-                          crossAxisSpacing: 2,
+                          mainAxisSpacing: cellSpacing,
+                          crossAxisSpacing: cellSpacing,
                         ),
                         itemCount: K.n * K.n,
                         itemBuilder: (context, index) {
@@ -175,6 +182,23 @@ class BoardWidget extends StatelessWidget {
                           );
                         },
                       ),
+                      if (showScorePopup && scorePopupCell != null)
+                        Positioned(
+                          left: scorePopupCell.$2 *
+                                  (gridCellSize + cellSpacing) +
+                              gridCellSize / 2,
+                          top: scorePopupCell.$1 *
+                                  (gridCellSize + cellSpacing) +
+                              gridCellSize / 2,
+                          child: IgnorePointer(
+                            child: _ScoreFlyUp(
+                              id: controller.scorePopupId,
+                              points: controller.scorePopupPoints,
+                              rise: gridCellSize * 1.2,
+                              fontSize: gridCellSize * 0.55,
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -537,6 +561,93 @@ class _ExplosionAnimState extends State<_ExplosionAnim>
                 ),
               ),
             ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ScoreFlyUp extends StatefulWidget {
+  final int id;
+  final int points;
+  final double rise;
+  final double fontSize;
+  const _ScoreFlyUp(
+      {required this.id,
+      required this.points,
+      required this.rise,
+      required this.fontSize});
+
+  @override
+  State<_ScoreFlyUp> createState() => _ScoreFlyUpState();
+}
+
+class _ScoreFlyUpState extends State<_ScoreFlyUp>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ac;
+  late Animation<double> _t;
+
+  @override
+  void initState() {
+    super.initState();
+    _ac = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 900))
+      ..forward();
+    _t = CurvedAnimation(parent: _ac, curve: Curves.easeOutCubic);
+  }
+
+  @override
+  void didUpdateWidget(covariant _ScoreFlyUp oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.id != widget.id) {
+      _ac.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _ac.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _t,
+      builder: (context, _) {
+        final t = _t.value;
+        final opacity = (1.0 - t).clamp(0.0, 1.0);
+        final dy = -widget.rise * t;
+        final scale = 0.9 + 0.2 * t;
+        return Opacity(
+          opacity: opacity,
+          child: Transform.translate(
+            offset: Offset(0, dy),
+            child: Transform.scale(
+              scale: scale,
+              child: FractionalTranslation(
+                translation: const Offset(-0.5, -0.5),
+                child: Text(
+                  '+${widget.points}',
+                  style: TextStyle(
+                    fontSize: widget.fontSize,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.brandGold,
+                    shadows: const [
+                      Shadow(
+                          color: Colors.black54,
+                          blurRadius: 6,
+                          offset: Offset(0, 2)),
+                      Shadow(
+                          color: Colors.black87,
+                          blurRadius: 12,
+                          offset: Offset(0, 4)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ),
         );
       },

@@ -105,6 +105,9 @@ class GameController extends ChangeNotifier {
   // Per-move live points
   int lastMovePoints = 0;
   CellState? lastMoveBy;
+  int scorePopupId = 0;
+  int scorePopupPoints = 0;
+  (int, int)? scorePopupCell;
   // Selection and explosion state
   (int, int)? selectedCell;
   Set<(int, int)> blowPreview = <(int, int)>{};
@@ -391,6 +394,7 @@ class GameController extends ChangeNotifier {
     lastGameWasNewBest = m['lastGameWasNewBest'] as bool? ?? false;
 
     // Clear transient/animation states
+    _clearScorePopup();
     selectedCell = null;
     blowPreview.clear();
     explodingCells.clear();
@@ -608,6 +612,7 @@ class GameController extends ChangeNotifier {
     redGamePoints = snap.redGamePoints;
 
     // Clear transient/animation states
+    _clearScorePopup();
     selectedCell = null;
     blowPreview.clear();
     explodingCells.clear();
@@ -791,6 +796,7 @@ class GameController extends ChangeNotifier {
     _undoStack.clear();
     lastMovePoints = 0;
     lastMoveBy = null;
+    _clearScorePopup();
     board = RulesEngine.emptyBoard();
     current = startingPlayer;
     gameOver = false;
@@ -829,6 +835,20 @@ class GameController extends ChangeNotifier {
     if (!humanVsHuman && current == CellState.blue) {
       _scheduleAi();
     }
+  }
+
+  void _registerScorePopup(int r, int c, CellState who) {
+    if (humanVsHuman) return;
+    if (who != CellState.red) return;
+    if (lastMovePoints <= 0) return;
+    scorePopupPoints = lastMovePoints;
+    scorePopupCell = (r, c);
+    scorePopupId++;
+  }
+
+  void _clearScorePopup() {
+    scorePopupPoints = 0;
+    scorePopupCell = null;
   }
 
   /// Simulate a game instantly with a random winner (red or blue) and a plausible random duration.
@@ -1027,6 +1047,7 @@ class GameController extends ChangeNotifier {
     lastMovePoints = _computeMovePoints(before, next, r, c, CellState.red);
     lastMoveBy = CellState.red;
     redGamePoints += lastMovePoints;
+    _registerScorePopup(r, c, CellState.red);
     turnsRed++;
     // Log statistics for this red turn with detailed reasons
     {
@@ -1083,6 +1104,7 @@ class GameController extends ChangeNotifier {
     _incrementTurnFor(who);
     if (who == CellState.red) {
       redGamePoints += lastMovePoints;
+      _registerScorePopup(r, c, who);
       // Log statistics for this red turn with detailed reasons
       final List<String> parts = <String>[];
       parts.add('+1 place');
