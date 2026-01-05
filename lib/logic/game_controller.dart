@@ -1570,10 +1570,7 @@ class GameController extends ChangeNotifier {
 
     switch (aiLevel) {
       case 1:
-        if (actionScores.isNotEmpty) {
-          final keys = actionScores.keys.toList();
-          action = keys[_rng.nextInt(keys.length)];
-        }
+        action = placeChoice != null ? _AiAction.place : null;
         break;
       case 2:
         if (bestNonPlaceAction != null &&
