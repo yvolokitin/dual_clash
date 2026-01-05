@@ -70,6 +70,8 @@ class _SettingsDialogState extends State<SettingsDialog> {
   late int _boardSize;
   late int _aiLevel;
   late CellState _startingPlayer;
+  late String _initialLanguage;
+  late CellState _initialStartingPlayer;
 
   @override
   void initState() {
@@ -78,6 +80,8 @@ class _SettingsDialogState extends State<SettingsDialog> {
     _boardSize = widget.controller.boardSize;
     _aiLevel = widget.controller.aiLevel;
     _startingPlayer = widget.controller.startingPlayer;
+    _initialLanguage = _language;
+    _initialStartingPlayer = _startingPlayer;
   }
 
   @override
@@ -100,6 +104,9 @@ class _SettingsDialogState extends State<SettingsDialog> {
         BorderRadius.circular(isPhoneFullscreen ? 0 : 22);
     final EdgeInsets contentPadding =
         const EdgeInsets.fromLTRB(18, 20, 18, 18);
+    final bool hasPendingChanges =
+        _language != _initialLanguage ||
+        _startingPlayer != _initialStartingPlayer;
     // The dialog window — centered, not fullscreen. showDialog will dim the background.
     return Dialog(
       insetPadding: dialogInsetPadding,
@@ -230,30 +237,43 @@ class _SettingsDialogState extends State<SettingsDialog> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        style: TextButton.styleFrom(
-                          foregroundColor: Colors.white70,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 18, vertical: 12),
-                          textStyle: const TextStyle(
-                              fontWeight: FontWeight.w700, letterSpacing: 0.2),
+                      if (hasPendingChanges)
+                        ElevatedButton(
+                          onPressed: () async {
+                            if (_language != _initialLanguage) {
+                              await widget.controller.setLanguage(_language);
+                              _initialLanguage = _language;
+                            }
+                            if (_startingPlayer != _initialStartingPlayer) {
+                              await widget.controller
+                                  .setStartingPlayer(_startingPlayer);
+                              _initialStartingPlayer = _startingPlayer;
+                            }
+                            if (context.mounted) {
+                              Navigator.of(context).pop();
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.red,
+                            foregroundColor: Colors.white,
+                            shadowColor: Colors.black54,
+                            elevation: 4,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24)),
+                            textStyle: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 0.2),
+                          ),
+                          child: const Text('Save'),
                         ),
-                        child: const Text('Close'),
-                      ),
-                      const SizedBox(width: 8),
+                      const Spacer(),
                       ElevatedButton(
-                        onPressed: () async {
-                          await widget.controller.setLanguage(_language);
-                          await widget.controller
-                              .setStartingPlayer(_startingPlayer);
-                          if (context.mounted) {
-                            Navigator.of(context).pop();
-                          }
-                        },
+                        onPressed: () => Navigator.of(context).pop(),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.red,
-                          foregroundColor: Colors.white,
+                          backgroundColor: AppColors.brandGold,
+                          foregroundColor: const Color(0xFF2B221D),
                           shadowColor: Colors.black54,
                           elevation: 4,
                           padding: const EdgeInsets.symmetric(
@@ -261,9 +281,10 @@ class _SettingsDialogState extends State<SettingsDialog> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(24)),
                           textStyle: const TextStyle(
-                              fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.2),
                         ),
-                        child: const Text('Save'),
+                        child: const Text('Close'),
                       ),
                     ],
                   ),
