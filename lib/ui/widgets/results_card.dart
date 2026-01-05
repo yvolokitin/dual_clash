@@ -644,8 +644,8 @@ class _ResultsActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final int ai = controller.aiLevel;
-    const String primaryTileAsset = 'assets/icons/play-removebg.png';
-    const String secondaryTileAsset = 'assets/icons/restart-removebg.png';
+    const String primaryTileAsset = 'assets/icons/play.png';
+    const String secondaryTileAsset = 'assets/icons/replay.png';
 
     Widget menuActionTile({
       required String label,
