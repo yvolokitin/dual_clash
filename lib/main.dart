@@ -71,6 +71,7 @@ class _TwoTouchAppState extends State<TwoTouchApp> {
       animation: controller,
       builder: (context, _) {
         final localeCode = switch (controller.languageCode) {
+          'de' => 'de',
           'ru' => 'ru',
           'es' => 'es',
           _ => 'en',
@@ -90,6 +91,7 @@ class _TwoTouchAppState extends State<TwoTouchApp> {
             Locale('en'),
             Locale('ru'),
             Locale('es'),
+            Locale('de'),
           ],
           locale: Locale(localeCode),
           theme: base.copyWith(
