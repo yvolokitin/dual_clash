@@ -608,10 +608,10 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                     child: ScaleTransition(
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: FlyoutTile(
-                        imagePath: 'assets/icons/menu_language.png',
+                        imagePath: 'assets/icons/menu_options.png',
                         label: 'Language',
                         disabled: false,
-                        color: AppColors.blue,
+                        color: _violet,
                         onTap: () {
                           Navigator.of(ctx).pop();
                           showAnimatedSettingsDialog(
@@ -732,12 +732,12 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                             },
                           ),
                           FlyoutTile(
-                            imagePath: 'assets/icons/menu_language.png',
+                            imagePath: 'assets/icons/menu_options.png',
                             label: 'Language',
                             disabled: false,
                             width: 190,
                             height: 170,
-                            color: AppColors.blue,
+                            color: _violet,
                             onTap: () {
                               Navigator.of(ctx).pop();
                               showAnimatedSettingsDialog(
