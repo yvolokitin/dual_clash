@@ -83,6 +83,14 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
     }
   }
 
+  void _openLoadGameAfterClose(BuildContext context, GameController controller) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (context.mounted) {
+        _handleLoadGame(context, controller);
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -633,7 +641,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         color: Colors.orange,
                         onTap: () {
                           Navigator.of(ctx).pop();
-                          _handleLoadGame(context, controller);
+                          _openLoadGameAfterClose(context, controller);
                         },
                         width: r4.width,
                         height: r4.height,
@@ -762,7 +770,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                             color: Colors.orange,
                             onTap: () {
                               Navigator.of(ctx).pop();
-                              _handleLoadGame(context, controller);
+                              _openLoadGameAfterClose(context, controller);
                             },
                           ),
                         ],
