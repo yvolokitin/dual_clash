@@ -299,7 +299,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
     );
   }
 
-  List<(String, String)> _languageOptions() {
+  List<(String, String, String)> _languageOptions() {
     return const [
       ('en', 'English', 'assets/icons/lang_en.png'),
       ('de', 'German', 'assets/icons/lang_de.png'),
