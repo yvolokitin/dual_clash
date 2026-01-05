@@ -92,6 +92,12 @@ class MultiGameController extends ChangeNotifier {
 
   void onCellTap(int r, int c) {
     if (gameOver || isExploding || isFalling || isQuaking) return;
+    if (selectedCell != null && selectedCell != (r, c)) {
+      selectedCell = null;
+      blowPreview.clear();
+      notifyListeners();
+      return;
+    }
     final s = board[r][c];
 
     // Grey tap: select to preview all grey boxes; tap again to drop them
