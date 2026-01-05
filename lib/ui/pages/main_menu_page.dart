@@ -69,6 +69,20 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
     }
   }
 
+  Future<void> _handleLoadGame(BuildContext context, GameController controller) async {
+    final ok = await showLoadGameDialog(
+      context: context,
+      controller: controller,
+    );
+    if (ok == true && context.mounted) {
+      await _pushWithSlide(
+        context,
+        GamePage(controller: controller),
+        const Offset(-1.0, 0.0),
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -236,17 +250,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                       onTap: () async {
                                         await _runMenuAction(() async {
                                           // Press effect comes from InkWell; keep dialog for loading
-                                          final ok = await showLoadGameDialog(
-                                            context: context,
-                                            controller: controller,
-                                          );
-                                          if (ok == true && context.mounted) {
-                                            await _pushWithSlide(
-                                              context,
-                                              GamePage(controller: controller),
-                                              const Offset(-1.0, 0.0),
-                                            );
-                                          }
+                                          await _handleLoadGame(context, controller);
                                         });
                                       },
                                     ),
@@ -629,19 +633,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         color: Colors.orange,
                         onTap: () {
                           Navigator.of(ctx).pop();
-                          _runMenuAction(() async {
-                            final ok = await showLoadGameDialog(
-                              context: context,
-                              controller: controller,
-                            );
-                            if (ok == true && context.mounted) {
-                              await _pushWithSlide(
-                                context,
-                                GamePage(controller: controller),
-                                const Offset(-1.0, 0.0),
-                              );
-                            }
-                          });
+                          _handleLoadGame(context, controller);
                         },
                         width: r4.width,
                         height: r4.height,
@@ -770,19 +762,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                             color: Colors.orange,
                             onTap: () {
                               Navigator.of(ctx).pop();
-                              _runMenuAction(() async {
-                                final ok = await showLoadGameDialog(
-                                  context: context,
-                                  controller: controller,
-                                );
-                                if (ok == true && context.mounted) {
-                                  await _pushWithSlide(
-                                    context,
-                                    GamePage(controller: controller),
-                                    const Offset(-1.0, 0.0),
-                                  );
-                                }
-                              });
+                              _handleLoadGame(context, controller);
                             },
                           ),
                         ],
