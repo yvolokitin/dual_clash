@@ -1,0 +1,289 @@
+{
+  "@@locale": "en",
+  "appTitle": "Two Touch {size}",
+  "@appTitle": {
+    "placeholders": {
+      "size": {}
+    }
+  },
+  "commonClose": "Fermer",
+  "commonCancel": "Annuler",
+  "commonSave": "Enregistrer",
+  "commonConfirm": "Confirmer",
+  "commonYes": "Oui",
+  "commonNo": "Non",
+  "deleteLabel": "Supprimer",
+  "playLabel": "Jouer",
+  "leaveLabel": "Quitter",
+  "menuTitle": "Menu",
+  "mainMenuBarrierLabel": "Menu principal",
+  "mainMenuTooltip": "Menu principal",
+  "gameMenuTitle": "Menu du jeu",
+  "returnToMainMenuLabel": "Retour au menu principal",
+  "returnToMainMenuTitle": "Retour au menu principal",
+  "returnToMainMenuMessage": "Voulez-vous revenir au menu principal ?\n\nLa progression ne sera pas enregistrée.",
+  "restartGameLabel": "Redémarrer/Démarrer la partie",
+  "restartGameTitle": "Redémarrer la partie",
+  "restartGameMessage": "Recommencer la partie depuis le début ?\n\nLa progression actuelle sera perdue.",
+  "statisticsTitle": "Statistiques",
+  "helpTitle": "Comment jouer",
+  "settingsTitle": "Paramètres",
+  "profileTitle": "Profil",
+  "historyTitle": "Historique",
+  "saveGameTitle": "Sauvegarder la partie",
+  "saveGameNameLabel": "Nom pour cette sauvegarde",
+  "saveGameNameHint": "Entrez un nom...",
+  "saveGameBarrierLabel": "Sauvegarder la partie",
+  "gameSavedMessage": "Partie sauvegardée",
+  "simulateGameLabel": "Simuler la partie",
+  "simulateGameHumanWinLabel": "Simuler la partie (victoire humaine)",
+  "simulateGameAiWinLabel": "Simuler la partie (victoire IA)",
+  "simulateGameGreyWinLabel": "Simuler la partie (victoire gris)",
+  "removeAdsLabel": "Supprimer les pubs — 1€",
+  "restorePurchasesLabel": "Restaurer les achats",
+  "menuGameShort": "Jeu",
+  "menuGameChallenge": "Défi du jeu",
+  "menuDuelShort": "Duel",
+  "menuDuelMode": "Mode duel",
+  "menuLoadShort": "Charger",
+  "menuLoadGame": "Charger une partie",
+  "menuHubShort": "Hub",
+  "menuPlayerHub": "Hub joueur",
+  "menuTripleShort": "Triple",
+  "menuTripleThreat": "Triple menace",
+  "menuQuadShort": "Quad",
+  "menuQuadClash": "Affrontement quadruple",
+  "playerHubBarrierLabel": "Hub joueur",
+  "modesBarrierLabel": "Modes",
+  "languageTitle": "Langue",
+  "userProfileLabel": "Profil utilisateur",
+  "gameChallengeLabel": "Défi du jeu",
+  "gameChallengeComingSoon": "Le mode défi arrive bientôt",
+  "loadGameBarrierLabel": "Charger la partie",
+  "noSavedGamesMessage": "Aucune partie sauvegardée",
+  "savedGameDefaultName": "Partie sauvegardée",
+  "savedGameSubtitle": "{when} • Tour : {turn}",
+  "@savedGameSubtitle": {
+    "placeholders": {
+      "when": {},
+      "turn": {}
+    }
+  },
+  "helpGoalTitle": "Objectif",
+  "helpGoalBody": "Remplissez le plateau {board} en alternant avec l’IA. Vous êtes Rouge, l’IA est Bleue. Le joueur avec le score TOTAL le plus élevé gagne.",
+  "@helpGoalBody": {
+    "placeholders": {
+      "board": {}
+    }
+  },
+  "helpTurnsTitle": "Tours et placement",
+  "helpTurnsBody": "Touchez une case vide pour placer votre couleur. Après votre coup, l’IA place du bleu. Le joueur qui commence peut être changé dans les Paramètres.",
+  "helpScoringTitle": "Score",
+  "helpScoringBase": "Score de base : nombre de cases de votre couleur sur le plateau à la fin.",
+  "helpScoringBonus": "Bonus : +50 points pour chaque ligne ou colonne complète de votre couleur.",
+  "helpScoringTotal": "Score total : base + bonus.",
+  "helpScoringEarning": "Points gagnés pendant la partie (Rouge) : +1 par placement, +2 en plus si placé dans un coin, +2 pour chaque Bleu devenu Neutre, +3 pour chaque Neutre devenu Rouge, +50 pour chaque nouvelle ligne/colonne rouge complète.",
+  "helpScoringCumulative": "Votre compteur de trophées ne fait qu’augmenter. Les points sont ajoutés après chaque partie terminée selon votre total Rouge. Les actions de l’adversaire ne réduisent jamais votre total cumulé.",
+  "helpWinningTitle": "Victoire",
+  "helpWinningBody": "Quand il n’y a plus de cases vides, la partie se termine. Le joueur avec le score total le plus élevé gagne. Les égalités sont possibles.",
+  "helpAiLevelTitle": "Niveau de l’IA",
+  "helpAiLevelBody": "Choisissez la difficulté de l’IA dans Paramètres (1–7). Les niveaux plus élevés anticipent davantage mais prennent plus de temps.",
+  "helpHistoryProfileTitle": "Historique et profil",
+  "helpHistoryProfileBody": "Vos parties terminées sont enregistrées dans l’historique avec tous les détails.",
+  "aiDifficultyTitle": "Difficulté de l’IA",
+  "aiDifficultyTipBeginner": "Blanc — Débutant : fait des coups aléatoires.",
+  "aiDifficultyTipEasy": "Jaune — Facile : privilégie les gains immédiats.",
+  "aiDifficultyTipNormal": "Orange — Normal : gourmand avec un positionnement basique.",
+  "aiDifficultyTipChallenging": "Vert — Difficile : recherche superficielle avec un peu de prévoyance.",
+  "aiDifficultyTipHard": "Bleu — Très difficile : recherche plus profonde avec élagage.",
+  "aiDifficultyTipExpert": "Marron — Expert : élagage avancé et cache.",
+  "aiDifficultyTipMaster": "Noir — Maître : le plus fort et le plus calculateur.",
+  "aiDifficultyTipSelect": "Sélectionnez un niveau de ceinture.",
+  "aiDifficultyDetailBeginner": "Blanc — Débutant : cases vides aléatoires. Imprévisible mais faible.",
+  "aiDifficultyDetailEasy": "Jaune — Facile : coups gourmands qui maximisent le gain immédiat.",
+  "aiDifficultyDetailNormal": "Orange — Normal : gourmand avec départage au centre pour privilégier de meilleures positions.",
+  "aiDifficultyDetailChallenging": "Vert — Difficile : minimax superficiel (profondeur 2), sans élagage.",
+  "aiDifficultyDetailHard": "Bleu — Très difficile : minimax plus profond avec élagage alpha-bêta et ordre des coups.",
+  "aiDifficultyDetailExpert": "Marron — Expert : minimax plus profond avec élagage + table de transposition.",
+  "aiDifficultyDetailMaster": "Noir — Maître : Monte Carlo Tree Search (~1500 simulations dans la limite de temps).",
+  "aiDifficultyDetailSelect": "Sélectionnez la difficulté de l’IA pour voir les détails.",
+  "currentAiLevelLabel": "Niveau actuel de l’IA",
+  "aiLevelDisplay": "{belt} ({level})",
+  "@aiLevelDisplay": {
+    "placeholders": {
+      "belt": {},
+      "level": {}
+    }
+  },
+  "resultsTitle": "Résultats",
+  "timePlayedLabel": "Temps de jeu",
+  "redTurnsLabel": "Tours rouges",
+  "blueTurnsLabel": "Tours bleus",
+  "yellowTurnsLabel": "Tours jaunes",
+  "greenTurnsLabel": "Tours verts",
+  "playerTurnsLabel": "Tours du joueur",
+  "aiTurnsLabel": "Tours de l’IA",
+  "newBestScoreLabel": "Nouveau meilleur score",
+  "pointsBelowBestScore": "{points} points sous le meilleur score",
+  "@pointsBelowBestScore": {
+    "placeholders": {
+      "points": {}
+    }
+  },
+  "youWinReachedScore": "Vous avez gagné et atteint {score} points",
+  "@youWinReachedScore": {
+    "placeholders": {
+      "score": {}
+    }
+  },
+  "redTerritoryControlled": "Territoire du joueur rouge contrôlé.",
+  "blueTerritoryControlled": "Territoire du joueur bleu contrôlé.",
+  "neutralTerritoryControlled": "Territoire neutre contrôlé.",
+  "territoryBalanced": "Territoire équilibré.",
+  "performanceLost": "Vous avez perdu. Stratégie requise.",
+  "performanceBrilliantEndgame": "Fin de partie brillante",
+  "performanceGreatControl": "Excellent contrôle",
+  "performanceRiskyEffective": "Risqué, mais efficace",
+  "performanceSolidStrategy": "Stratégie solide",
+  "playAgainLabel": "Rejouer",
+  "continueNextAiLevelLabel": "Continuer au niveau d’IA suivant",
+  "playLowerAiLevelLabel": "Jouer un niveau d’IA inférieur",
+  "replaySameLevelLabel": "Rejouer le même niveau",
+  "aiThinkingLabel": "L’IA réfléchit...",
+  "simulatingGameLabel": "Simulation en cours...",
+  "noTurnsYetMessage": "Aucun tour pour cette partie",
+  "turnLabel": "Tour {turn}",
+  "@turnLabel": {
+    "placeholders": {
+      "turn": {}
+    }
+  },
+  "undoLastActionTooltip": "Annuler la dernière action",
+  "historyTabGames": "Parties",
+  "historyTabDailyActivity": "Activité quotidienne",
+  "noFinishedGamesYet": "Aucune partie terminée",
+  "gamesCountLabel": "Parties : {count}",
+  "@gamesCountLabel": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "winsLabel": "Victoires",
+  "lossesLabel": "Défaites",
+  "drawsLabel": "Matchs nuls",
+  "totalTimeLabel": "Temps total",
+  "resultDraw": "Match nul",
+  "resultPlayerWins": "Le joueur gagne",
+  "resultAiWins": "L’IA gagne",
+  "aiLabelWithName": "IA : {name}",
+  "@aiLabelWithName": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "winnerLabel": "Gagnant : {result}",
+  "@winnerLabel": {
+    "placeholders": {
+      "result": {}
+    }
+  },
+  "yourScoreLabel": "Votre score",
+  "timeLabel": "Temps",
+  "redBaseLabel": "Base rouge",
+  "blueBaseLabel": "Base bleue",
+  "totalBlueLabel": "Total bleu",
+  "turnsRedLabel": "Tours R",
+  "turnsBlueLabel": "Tours B",
+  "ageLabel": "Âge",
+  "nicknameLabel": "Pseudo",
+  "enterNicknameHint": "Entrez un pseudo",
+  "countryLabel": "Pays",
+  "beltsTitle": "Ceintures",
+  "achievementsTitle": "Succès",
+  "achievementFullRow": "Ligne complète",
+  "achievementFullColumn": "Colonne complète",
+  "achievementDiagonal": "Diagonale",
+  "achievement100GamePoints": "100 points de jeu",
+  "achievement1000GamePoints": "1000 points de jeu",
+  "nicknameRequiredError": "Le pseudo est requis",
+  "nicknameMaxLengthError": "Maximum 32 caractères",
+  "nicknameInvalidCharsError": "Utilisez lettres, chiffres, point, tiret ou underscore",
+  "nicknameUpdatedMessage": "Pseudo mis à jour",
+  "noBeltsEarnedYetMessage": "Aucune ceinture gagnée pour le moment.",
+  "whoStartsFirstLabel": "Qui commence",
+  "startingPlayerHuman": "Humain (Rouge)",
+  "startingPlayerAi": "IA (Bleu)",
+  "leaveDuelBarrierLabel": "Quitter le duel",
+  "leaveDuelTitle": "Quitter le duel",
+  "leaveDuelMessage": "Quitter le mode duel et revenir au menu principal ?\n\nLa progression ne sera pas enregistrée.",
+  "leaveBarrierLabel": "Quitter",
+  "leaveModeTitle": "Quitter {mode}",
+  "@leaveModeTitle": {
+    "placeholders": {
+      "mode": {}
+    }
+  },
+  "leaveMultiModeMessage": "Revenir au menu principal ?\n\nLa progression ne sera pas enregistrée.",
+  "colorRedLabel": "ROUGE",
+  "colorBlueLabel": "BLEU",
+  "colorYellowLabel": "JAUNE",
+  "colorGreenLabel": "VERT",
+  "redShortLabel": "R",
+  "blueShortLabel": "B",
+  "yellowShortLabel": "J",
+  "greenShortLabel": "V",
+  "supportTheDevLabel": "Soutenir le développeur",
+  "aiBeltWhite": "Blanc",
+  "aiBeltYellow": "Jaune",
+  "aiBeltOrange": "Orange",
+  "aiBeltGreen": "Vert",
+  "aiBeltBlue": "Bleu",
+  "aiBeltBrown": "Marron",
+  "aiBeltBlack": "Noir",
+  "scorePlace": "+1 placement",
+  "scoreCorner": "+2 coin",
+  "scoreBlueToGrey": "+2 x{count} bleu→gris",
+  "@scoreBlueToGrey": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "scoreGreyToRed": "+3 x{count} gris→rouge",
+  "@scoreGreyToRed": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "scorePlaceShort": "Placer",
+  "scoreZeroBlow": "0 coup",
+  "scoreZeroGreyDrop": "0 chute grise",
+  "durationSeconds": "{seconds}s",
+  "@durationSeconds": {
+    "placeholders": {
+      "seconds": {}
+    }
+  },
+  "durationMinutesSeconds": "{minutes}m {seconds}s",
+  "@durationMinutesSeconds": {
+    "placeholders": {
+      "minutes": {},
+      "seconds": {}
+    }
+  },
+  "durationHoursMinutes": "{hours}h {minutes}m",
+  "@durationHoursMinutes": {
+    "placeholders": {
+      "hours": {},
+      "minutes": {}
+    }
+  },
+  "@countryName": {
+    "placeholders": {
+      "country": {}
+    }
+  },
+  "deleteSaveTitle": "Supprimer la sauvegarde ?",
+  "deleteSaveMessage": "Voulez-vous vraiment supprimer cette partie sauvegardée ?",
+  "failedToDeleteMessage": "Échec de la suppression",
+  "countryName": "{country, select, Afghanistan{Afghanistan} Albania{Albanie} Algeria{Algérie} Andorra{Andorre} Angola{Angola} Antigua_and_Barbuda{Antigua-et-Barbuda} Argentina{Argentine} Armenia{Arménie} Australia{Australie} Austria{Autriche} Azerbaijan{Azerbaïdjan} Bahamas{Bahamas} Bahrain{Bahreïn} Bangladesh{Bangladesh} Barbados{Barbade} Belarus{Biélorussie} Belgium{Belgique} Belize{Belize} Benin{Bénin} Bhutan{Bhoutan} Bolivia{Bolivie} Bosnia_and_Herzegovina{Bosnie-Herzégovine} Botswana{Botswana} Brazil{Brésil} Brunei{Brunei} Bulgaria{Bulgarie} Burkina_Faso{Burkina Faso} Burundi{Burundi} Cabo_Verde{Cabo Verde} Cambodia{Cambodge} Cameroon{Cameroun} Canada{Canada} Central_African_Republic{République centrafricaine} Chad{Tchad} Chile{Chili} China{Chine} Colombia{Colombie} Comoros{Comores} Congo_Congo_Brazzaville{Congo (Brazzaville)} Costa_Rica{Costa Rica} Croatia{Croatie} Cuba{Cuba} Cyprus{Chypre} Czechia{Tchéquie} Democratic_Republic_of_the_Congo{République démocratique du Congo} Denmark{Danemark} Djibouti{Djibouti} Dominica{Dominique} Dominican_Republic{République dominicaine} Ecuador{Équateur} Egypt{Égypte} El_Salvador{Salvador} Equatorial_Guinea{Guinée équatoriale} Eritrea{Érythrée} Estonia{Estonie} Eswatini{Eswatini} Ethiopia{Éthiopie} Fiji{Fidji} Finland{Finlande} France{France} Gabon{Gabon} Gambia{Gambie} Georgia{Géorgie} Germany{Allemagne} Ghana{Ghana} Greece{Grèce} Grenada{Grenade} Guatemala{Guatemala} Guinea{Guinée} Guinea_Bissau{Guinée-Bissau} Guyana{Guyana} Haiti{Haïti} Honduras{Honduras} Hungary{Hongrie} Iceland{Islande} India{Inde} Indonesia{Indonésie} Iran{Iran} Iraq{Irak} Ireland{Irlande} Israel{Israël} Italy{Italie} Jamaica{Jamaïque} Japan{Japon} Jordan{Jordanie} Kazakhstan{Kazakhstan} Kenya{Kenya} Kiribati{Kiribati} Kuwait{Koweït} Kyrgyzstan{Kirghizistan} Laos{Laos} Latvia{Lettonie} Lebanon{Liban} Lesotho{Lesotho} Liberia{Liberia} Libya{Libye} Liechtenstein{Liechtenstein} Lithuania{Lituanie} Luxembourg{Luxembourg} Madagascar{Madagascar} Malawi{Malawi} Malaysia{Malaisie} Maldives{Maldives} Mali{Mali} Malta{Malte} Marshall_Islands{Îles Marshall} Mauritania{Mauritanie} Mauritius{Maurice} Mexico{Mexique} Micronesia{Micronésie} Moldova{Moldavie} Monaco{Monaco} Mongolia{Mongolie} Montenegro{Monténégro} Morocco{Maroc} Mozambique{Mozambique} Myanmar{Myanmar} Namibia{Namibie} Nauru{Nauru} Nepal{Népal} Netherlands{Pays-Bas} New_Zealand{Nouvelle-Zélande} Nicaragua{Nicaragua} Niger{Niger} Nigeria{Nigeria} North_Korea{Corée du Nord} North_Macedonia{Macédoine du Nord} Norway{Norvège} Oman{Oman} Pakistan{Pakistan} Palau{Palaos} Panama{Panama} Papua_New_Guinea{Papouasie-Nouvelle-Guinée} Paraguay{Paraguay} Peru{Pérou} Philippines{Philippines} Poland{Pologne} Portugal{Portugal} Qatar{Qatar} Romania{Roumanie} Russia{Russie} Rwanda{Rwanda} Saint_Kitts_and_Nevis{Saint-Kitts-et-Nevis} Saint_Lucia{Sainte-Lucie} Saint_Vincent_and_the_Grenadines{Saint-Vincent-et-les-Grenadines} Samoa{Samoa} San_Marino{Saint-Marin} Sao_Tome_and_Principe{Sao Tomé-et-Principe} Saudi_Arabia{Arabie saoudite} Senegal{Sénégal} Serbia{Serbie} Seychelles{Seychelles} Sierra_Leone{Sierra Leone} Singapore{Singapour} Slovakia{Slovaquie} Slovenia{Slovénie} Solomon_Islands{Îles Salomon} Somalia{Somalie} South_Africa{Afrique du Sud} South_Korea{Corée du Sud} South_Sudan{Soudan du Sud} Spain{Espagne} Sri_Lanka{Sri Lanka} Sudan{Soudan} Suriname{Suriname} Sweden{Suède} Switzerland{Suisse} Syria{Syrie} Taiwan{Taïwan} Tajikistan{Tadjikistan} Tanzania{Tanzanie} Thailand{Thaïlande} Timor_Leste{Timor oriental} Togo{Togo} Tonga{Tonga} Trinidad_and_Tobago{Trinité-et-Tobago} Tunisia{Tunisie} Turkey{Turquie} Turkmenistan{Turkménistan} Tuvalu{Tuvalu} Uganda{Ouganda} Ukraine{Ukraine} United_Arab_Emirates{Émirats arabes unis} United_Kingdom{Royaume-Uni} United_States{États-Unis} Uruguay{Uruguay} Uzbekistan{Ouzbékistan} Vanuatu{Vanuatu} Vatican_City{Cité du Vatican} Venezuela{Venezuela} Vietnam{Viêt Nam} Yemen{Yémen} Zambia{Zambie} Zimbabwe{Zimbabwe} other{Wakanda}}"
+}
