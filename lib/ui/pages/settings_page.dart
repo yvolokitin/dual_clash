@@ -205,10 +205,11 @@ class _SettingsDialogState extends State<SettingsDialog> {
                             spacing: 8,
                             runSpacing: 8,
                             children: [
-                              _choiceTile(
+                              _startingPlayerTile(
                                 selected: _startingPlayer == CellState.red,
-                                label: 'Red (Player)',
-                                colorDot: AppColors.red,
+                                label: 'Human (Red)',
+                                asset: 'assets/icons/human.png',
+                                accent: AppColors.red,
                                 onTap: () async {
                                   setState(
                                       () => _startingPlayer = CellState.red);
@@ -216,10 +217,11 @@ class _SettingsDialogState extends State<SettingsDialog> {
                                       .setStartingPlayer(CellState.red);
                                 },
                               ),
-                              _choiceTile(
+                              _startingPlayerTile(
                                 selected: _startingPlayer == CellState.blue,
-                                label: 'Blue (AI)',
-                                colorDot: AppColors.blue,
+                                label: 'AI (Blue)',
+                                asset: 'assets/icons/ai.png',
+                                accent: AppColors.blue,
                                 onTap: () async {
                                   setState(
                                       () => _startingPlayer = CellState.blue);
@@ -350,6 +352,72 @@ class _SettingsDialogState extends State<SettingsDialog> {
                   color: Colors.white,
                   fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                 ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _startingPlayerTile({
+    required bool selected,
+    required String label,
+    required String asset,
+    required Color accent,
+    VoidCallback? onTap,
+  }) {
+    final bg =
+        selected ? Colors.white.withOpacity(0.12) : AppColors.dialogFieldBg;
+    final border = selected ? AppColors.brandGold : Colors.white12;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Container(
+          width: 120,
+          height: 86,
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: border, width: selected ? 2 : 1),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                asset,
+                width: 32,
+                height: 32,
+                fit: BoxFit.contain,
+              ),
+              const SizedBox(height: 6),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                        color: accent, shape: BoxShape.circle),
+                  ),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      label,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight:
+                            selected ? FontWeight.w700 : FontWeight.w500,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
