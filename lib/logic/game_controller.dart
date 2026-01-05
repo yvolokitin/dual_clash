@@ -1121,6 +1121,12 @@ class GameController extends ChangeNotifier {
   void onCellTap(int r, int c) {
     if (gameOver || isAiThinking || isExploding || isFalling || isQuaking)
       return;
+    if (selectedCell != null && selectedCell != (r, c)) {
+      selectedCell = null;
+      blowPreview.clear();
+      notifyListeners();
+      return;
+    }
     final s = board[r][c];
 
     // In normal mode only Red (human) acts; in Duel mode current side acts
