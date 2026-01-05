@@ -692,7 +692,7 @@ class _ResultsActions extends StatelessWidget {
                 child: menuActionTile(
                   label: 'Play again',
                   asset: secondaryTileAsset,
-                  color: AppColors.blue,
+                  color: AppColors.green,
                   onTap: () {
                     Navigator.of(context).pop();
                     controller.newGame();
@@ -711,7 +711,7 @@ class _ResultsActions extends StatelessWidget {
         menuActionTile(
           label: 'Play again',
           asset: secondaryTileAsset,
-          color: AppColors.blue,
+          color: AppColors.green,
           onTap: () {
             Navigator.of(context).pop();
             controller.newGame();
@@ -736,7 +736,7 @@ class _ResultsActions extends StatelessWidget {
         menuActionTile(
           label: 'Play again',
           asset: primaryTileAsset,
-          color: AppColors.red,
+          color: AppColors.green,
           onTap: () {
             Navigator.of(context).pop();
             controller.newGame();
