@@ -662,7 +662,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         imagePath: 'assets/icons/menu_history.png',
                         label: 'History',
                         disabled: false,
-                        color: Colors.orange,
+                        color: AppColors.blue,
                         onTap: () {
                           Navigator.of(ctx).pop();
                           showAnimatedHistoryDialog(
@@ -752,7 +752,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                             disabled: false,
                             width: 190,
                             height: 170,
-                            color: Colors.orange,
+                            color: AppColors.blue,
                             onTap: () {
                               Navigator.of(ctx).pop();
                               showAnimatedHistoryDialog(
