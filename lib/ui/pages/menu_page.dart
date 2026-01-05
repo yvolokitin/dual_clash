@@ -592,7 +592,7 @@ Future<bool?> showLoadGameDialog({
                                                                     'Delete',
                                                                 icon:
                                                                     Image.asset(
-                                                                        'assets/icons/delete-removebg.png',
+                                                                        'assets/icons/delete.png',
                                                                         width:
                                                                             31,
                                                                         height:
