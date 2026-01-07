@@ -178,6 +178,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
     required String title,
     required String message,
   }) async {
+    final l10n = context.l10n;
     final result = await showGeneralDialog<bool>(
       context: context,
       barrierDismissible: true,
@@ -309,7 +310,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                                           letterSpacing: 0.2,
                                         ),
                                       ),
-                                      child: Text(context.l10n.commonNo),
+                                      child: Text(l10n.commonNo),
                                     ),
                                   ),
                                   const SizedBox(width: 12),
@@ -333,7 +334,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                                           letterSpacing: 0.2,
                                         ),
                                       ),
-                                      child: Text(context.l10n.commonYes),
+                                      child: Text(l10n.commonYes),
                                     ),
                                   ),
                                 ],
