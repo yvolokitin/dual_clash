@@ -23,7 +23,10 @@ class SimpleAI {
         return _minimaxRoot(board,
             depth: 4, useAB: true, orderMoves: true, useTT: true);
       case 7:
-        return _mcts(board, rollouts: 1500, timeLimitMs: 600);
+        final mctsRollouts = K.n <= 7 ? 2000 : 1500;
+        final mctsTimeLimitMs = K.n <= 7 ? 700 : 600;
+        return _mcts(board,
+            rollouts: mctsRollouts, timeLimitMs: mctsTimeLimitMs);
       default:
         return _l2Greedy(board);
     }
