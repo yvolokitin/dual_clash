@@ -158,6 +158,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get menuQuadClash => 'Affrontement quadruple';
 
   @override
+  String get menuAlliance2v2 => 'Alliance 2vs2';
+
+  @override
   String get playerHubBarrierLabel => 'Hub joueur';
 
   @override

@@ -157,6 +157,9 @@ class AppLocalizationsUk extends AppLocalizations {
   String get menuQuadClash => 'Квадро-сутичка';
 
   @override
+  String get menuAlliance2v2 => 'Alliance 2vs2';
+
+  @override
   String get playerHubBarrierLabel => 'Хаб гравця';
 
   @override
