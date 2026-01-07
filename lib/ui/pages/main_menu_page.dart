@@ -405,12 +405,49 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
             final r2 = _lerpRect(from, targetDuelRect, curved.value);
             final r3 = _lerpRect(from, targetLoadRect, curved.value);
             final r4 = _lerpRect(from, targetPlayerHubRect, curved.value);
+            final minLeft = math.min(
+              math.min(r1.left, r2.left),
+              math.min(r3.left, r4.left),
+            );
+            final maxRight = math.max(
+              math.max(r1.right, r2.right),
+              math.max(r3.right, r4.right),
+            );
+            final minTop = math.min(math.min(r1.top, r2.top), math.min(r3.top, r4.top));
+            final cancelSize = r2.width * 0.25;
+            final cancelSpacing = _isDesktopWidth(context) ? 30.0 : 40.0;
+            final cancelLeft = (minLeft + maxRight) / 2 - cancelSize / 2;
+            final cancelTop = math.max(0.0, minTop - cancelSpacing - cancelSize);
+            final showCancel = curved.value >= 0.98;
             return Stack(
               children: [
                 // Tapping anywhere dismisses
                 Positioned.fill(
                   child: GestureDetector(onTap: () => _dismissPlayerHub(context)),
                 ),
+                if (showCancel)
+                  Positioned(
+                    left: cancelLeft,
+                    top: cancelTop,
+                    width: cancelSize,
+                    height: cancelSize,
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: Material(
+                        color: Colors.transparent,
+                        shape: const CircleBorder(),
+                        clipBehavior: Clip.antiAlias,
+                        child: InkWell(
+                          onTap: () => _dismissPlayerHub(context),
+                          child: SvgPicture.asset(
+                            'assets/icons/close.svg',
+                            width: cancelSize,
+                            height: cancelSize,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
 
                 // Triple Threat → lands over Game challenge
                 Positioned(
