@@ -594,27 +594,30 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
             final maxRight = math.max(math.max(r1.right, r2.right), math.max(r3.right, r4.right));
             final minTop = math.min(math.min(r1.top, r2.top), math.min(r3.top, r4.top));
             final cancelSize = r1.width * 0.25;
+            final cancelSpacing = _isCompactWidth(context) ? 40.0 : 30.0;
             final cancelLeft = (minLeft + maxRight) / 2 - cancelSize / 2;
-            final cancelTop = math.max(0.0, minTop - 40 - cancelSize);
+            final cancelTop = math.max(0.0, minTop - cancelSpacing - cancelSize);
+            final showCancel = curved.value >= 0.999;
             return Stack(
               children: [
                 Positioned.fill(
                   child: GestureDetector(onTap: () => _dismissPlayerHub(context)),
                 ),
-                Positioned(
-                  left: cancelLeft,
-                  top: cancelTop,
-                  width: cancelSize,
-                  height: cancelSize,
-                  child: GestureDetector(
-                    onTap: () => _dismissPlayerHub(context),
-                    child: Image.asset(
-                      'assets/icons/cancel.png',
-                      width: cancelSize,
-                      height: cancelSize,
+                if (showCancel)
+                  Positioned(
+                    left: cancelLeft,
+                    top: cancelTop,
+                    width: cancelSize,
+                    height: cancelSize,
+                    child: GestureDetector(
+                      onTap: () => _dismissPlayerHub(context),
+                      child: Image.asset(
+                        'assets/icons/cancel.png',
+                        width: cancelSize,
+                        height: cancelSize,
+                      ),
                     ),
                   ),
-                ),
                 Positioned(
                   left: r1.left,
                   top: r1.top,
@@ -748,32 +751,40 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
         const tileWidth = 190.0;
         const tileHeight = 170.0;
         final cancelSize = tileWidth * 0.25;
+        final cancelSpacing = _isCompactWidth(context) ? 40.0 : 30.0;
+        final showCancel = curved.value >= 0.999;
         return Center(
-          child: FadeTransition(
-            opacity: curved,
-            child: ScaleTransition(
-              scale: Tween<double>(begin: 0.96, end: 1.0).animate(curved),
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 24.0, left: 16, right: 16),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 720),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          GestureDetector(
-                            onTap: () => _dismissPlayerHub(context),
-                            child: Image.asset(
-                              'assets/icons/cancel.png',
-                              width: cancelSize,
-                              height: cancelSize,
-                            ),
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 24.0, left: 16, right: 16),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 720),
+                child: Material(
+                  color: Colors.transparent,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Visibility(
+                        visible: showCancel,
+                        maintainAnimation: true,
+                        maintainSize: true,
+                        maintainState: true,
+                        child: GestureDetector(
+                          onTap: () => _dismissPlayerHub(context),
+                          child: Image.asset(
+                            'assets/icons/cancel.png',
+                            width: cancelSize,
+                            height: cancelSize,
                           ),
-                          const SizedBox(height: 40),
-                          Wrap(
+                        ),
+                      ),
+                      SizedBox(height: cancelSpacing),
+                      FadeTransition(
+                        opacity: curved,
+                        child: ScaleTransition(
+                          scale: Tween<double>(begin: 0.96, end: 1.0).animate(curved),
+                          child: Wrap(
                             alignment: WrapAlignment.center,
                             spacing: 14,
                             runSpacing: 14,
@@ -837,9 +848,9 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                               ),
                             ],
                           ),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ),
