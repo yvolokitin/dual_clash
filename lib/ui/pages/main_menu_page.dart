@@ -4,6 +4,7 @@ import 'package:dual_clash/core/localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart' show RenderBox;
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../logic/game_controller.dart';
 import '../../core/colors.dart';
 import '../widgets/main_menu/flyout_tile.dart';
@@ -623,8 +624,8 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         clipBehavior: Clip.antiAlias,
                         child: InkWell(
                           onTap: () => _dismissPlayerHub(context),
-                          child: Image.asset(
-                            'assets/icons/cancel.png',
+                          child: SvgPicture.asset(
+                            'assets/icons/close.svg',
                             width: cancelSize,
                             height: cancelSize,
                           ),
@@ -792,8 +793,8 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                             clipBehavior: Clip.antiAlias,
                             child: InkWell(
                               onTap: () => _dismissPlayerHub(context),
-                              child: Image.asset(
-                                'assets/icons/cancel.png',
+                              child: SvgPicture.asset(
+                                'assets/icons/close.svg',
                                 width: cancelSize,
                                 height: cancelSize,
                               ),
@@ -929,8 +930,8 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                             clipBehavior: Clip.antiAlias,
                             child: InkWell(
                               onTap: () => _dismissDialog(context),
-                              child: Image.asset(
-                                'assets/icons/cancel.png',
+                              child: SvgPicture.asset(
+                                'assets/icons/close.svg',
                                 width: cancelSize,
                                 height: cancelSize,
                               ),
