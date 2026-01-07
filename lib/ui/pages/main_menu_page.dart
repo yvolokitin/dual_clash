@@ -609,12 +609,20 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                     top: cancelTop,
                     width: cancelSize,
                     height: cancelSize,
-                    child: GestureDetector(
-                      onTap: () => _dismissPlayerHub(context),
-                      child: Image.asset(
-                        'assets/icons/cancel.png',
-                        width: cancelSize,
-                        height: cancelSize,
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: Material(
+                        color: Colors.transparent,
+                        shape: const CircleBorder(),
+                        clipBehavior: Clip.antiAlias,
+                        child: InkWell(
+                          onTap: () => _dismissPlayerHub(context),
+                          child: Image.asset(
+                            'assets/icons/cancel.png',
+                            width: cancelSize,
+                            height: cancelSize,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -770,12 +778,20 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         maintainAnimation: true,
                         maintainSize: true,
                         maintainState: true,
-                        child: GestureDetector(
-                          onTap: () => _dismissPlayerHub(context),
-                          child: Image.asset(
-                            'assets/icons/cancel.png',
-                            width: cancelSize,
-                            height: cancelSize,
+                        child: MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: Material(
+                            color: Colors.transparent,
+                            shape: const CircleBorder(),
+                            clipBehavior: Clip.antiAlias,
+                            child: InkWell(
+                              onTap: () => _dismissPlayerHub(context),
+                              child: Image.asset(
+                                'assets/icons/cancel.png',
+                                width: cancelSize,
+                                height: cancelSize,
+                              ),
+                            ),
                           ),
                         ),
                       ),
