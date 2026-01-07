@@ -1,0 +1,290 @@
+{
+  "@@locale": "nl",
+  "appTitle": "Two Touch {size}",
+  "@appTitle": {
+    "placeholders": {
+      "size": {}
+    }
+  },
+  "commonClose": "Sluiten",
+  "commonCancel": "Annuleren",
+  "commonSave": "Opslaan",
+  "commonConfirm": "Bevestigen",
+  "commonYes": "Ja",
+  "commonNo": "Nee",
+  "deleteLabel": "Verwijderen",
+  "playLabel": "Spelen",
+  "leaveLabel": "Verlaten",
+  "menuTitle": "Menu",
+  "mainMenuBarrierLabel": "Hoofdmenu",
+  "mainMenuTooltip": "Hoofdmenu",
+  "gameMenuTitle": "Spelmenu",
+  "returnToMainMenuLabel": "Terug naar hoofdmenu",
+  "returnToMainMenuTitle": "Terug naar hoofdmenu",
+  "returnToMainMenuMessage": "Wil je terugkeren naar het hoofdmenu?\n\nVoortgang wordt niet opgeslagen.",
+  "restartGameLabel": "Spel herstarten/starten",
+  "restartGameTitle": "Spel herstarten",
+  "restartGameMessage": "Het spel helemaal opnieuw starten?\n\nHuidige voortgang gaat verloren.",
+  "statisticsTitle": "Statistieken",
+  "helpTitle": "Hoe te spelen",
+  "settingsTitle": "Instellingen",
+  "profileTitle": "Profiel",
+  "historyTitle": "Geschiedenis",
+  "saveGameTitle": "Spel opslaan",
+  "saveGameNameLabel": "Naam voor deze opslag",
+  "saveGameNameHint": "Naam invoeren...",
+  "saveGameBarrierLabel": "Spel opslaan",
+  "gameSavedMessage": "Spel opgeslagen",
+  "simulateGameLabel": "Spel simuleren",
+  "simulateGameHumanWinLabel": "Spel simuleren (mens wint)",
+  "simulateGameAiWinLabel": "Spel simuleren (AI wint)",
+  "simulateGameGreyWinLabel": "Spel simuleren (grijs wint)",
+  "removeAdsLabel": "Advertenties verwijderen — 1€",
+  "restorePurchasesLabel": "Aankopen herstellen",
+  "menuGameShort": "Spel",
+  "menuGameChallenge": "Speluitdaging",
+  "menuDuelShort": "Duel",
+  "menuDuelMode": "Duelmodus",
+  "menuLoadShort": "Laden",
+  "menuLoadGame": "Spel laden",
+  "menuHubShort": "Hub",
+  "menuPlayerHub": "Spelershub",
+  "menuTripleShort": "Triple",
+  "menuTripleThreat": "Drievoudige dreiging",
+  "menuQuadShort": "Quad",
+  "menuQuadClash": "Quad Clash",
+  "menuAlliance2v2": "Alliantie 2-tegen-2",
+  "playerHubBarrierLabel": "Spelershub",
+  "modesBarrierLabel": "Modi",
+  "languageTitle": "Taal",
+  "userProfileLabel": "Gebruikersprofiel",
+  "gameChallengeLabel": "Speluitdaging",
+  "gameChallengeComingSoon": "Speluitdaging komt binnenkort",
+  "loadGameBarrierLabel": "Spel laden",
+  "noSavedGamesMessage": "Geen opgeslagen spellen",
+  "savedGameDefaultName": "Opgeslagen spel",
+  "savedGameSubtitle": "{when} • Beurt: {turn}",
+  "@savedGameSubtitle": {
+    "placeholders": {
+      "when": {},
+      "turn": {}
+    }
+  },
+  "helpGoalTitle": "Doel",
+  "helpGoalBody": "Vul het {board}-bord door om de beurt met de AI te spelen. Jij bent Rood, de AI is Blauw. De speler met de hoogste TOTALE score wint.",
+  "@helpGoalBody": {
+    "placeholders": {
+      "board": {}
+    }
+  },
+  "helpTurnsTitle": "Beurten & Plaatsing",
+  "helpTurnsBody": "Tik op een lege cel om je kleur te plaatsen. Na jouw zet plaatst de AI blauw. De startspeler kan in Instellingen worden gewijzigd.",
+  "helpScoringTitle": "Scoren",
+  "helpScoringBase": "Basisscore: aantal cellen van jouw kleur op het bord wanneer het spel eindigt.",
+  "helpScoringBonus": "Bonus: +50 punten voor elke volle rij of kolom die met jouw kleur is gevuld.",
+  "helpScoringTotal": "Totaalscore: Basisscore + Bonus.",
+  "helpScoringEarning": "Punten verdienen tijdens het spel (Rood): +1 voor elke plaatsing, +2 extra als je in een hoek plaatst, +2 voor elke Blauwe die naar Neutraal wordt, +3 voor elke Neutrale die naar Rood wordt, +50 voor elke nieuwe volle Rode rij/kolom.",
+  "helpScoringCumulative": "Je cumulatieve trofeëteller neemt alleen toe. Punten worden na elk beëindigd spel toegevoegd op basis van je Rode totaal. Acties van de tegenstander verlagen je cumulatieve totaal nooit.",
+  "helpWinningTitle": "Winnen",
+  "helpWinningBody": "Wanneer het bord geen lege cellen meer heeft, eindigt het spel. De speler met de hoogste totaalscore wint. Gelijkspel is mogelijk.",
+  "helpAiLevelTitle": "AI-niveau",
+  "helpAiLevelBody": "Kies de AI-moeilijkheid in Instellingen (1–7). Hogere niveaus denken verder vooruit maar duren langer.",
+  "helpHistoryProfileTitle": "Geschiedenis & Profiel",
+  "helpHistoryProfileBody": "Je voltooide spellen worden in Geschiedenis opgeslagen met alle details.",
+  "aiDifficultyTitle": "AI-moeilijkheid",
+  "aiDifficultyTipBeginner": "Wit — Beginner: maakt willekeurige zetten.",
+  "aiDifficultyTipEasy": "Geel — Makkelijk: geeft de voorkeur aan directe winst.",
+  "aiDifficultyTipNormal": "Oranje — Normaal: gretig met basispositionering.",
+  "aiDifficultyTipChallenging": "Groen — Uitdagend: ondiepe zoekdiepte met wat vooruitblik.",
+  "aiDifficultyTipHard": "Blauw — Moeilijk: diepere zoekactie met snoeien.",
+  "aiDifficultyTipExpert": "Bruin — Expert: geavanceerd snoeien en caching.",
+  "aiDifficultyTipMaster": "Zwart — Meester: sterkst en meest berekenend.",
+  "aiDifficultyTipSelect": "Selecteer een bandniveau.",
+  "aiDifficultyDetailBeginner": "Wit — Beginner: willekeurige lege cellen. Onvoorspelbaar maar zwak.",
+  "aiDifficultyDetailEasy": "Geel — Makkelijk: gretig kiest zetten die directe winst maximaliseren.",
+  "aiDifficultyDetailNormal": "Oranje — Normaal: gretig met tie-break voor het centrum om sterkere posities te prefereren.",
+  "aiDifficultyDetailChallenging": "Groen — Uitdagend: ondiepe minimax-zoekopdracht (diepte 2), geen snoeien.",
+  "aiDifficultyDetailHard": "Blauw — Moeilijk: diepere minimax met alpha–beta-snoeien en zetvolgorde.",
+  "aiDifficultyDetailExpert": "Bruin — Expert: diepere minimax met snoeien + transpositietabel.",
+  "aiDifficultyDetailMaster": "Zwart — Meester: Monte Carlo Tree Search (~1500 rollouts binnen tijdslimiet).",
+  "aiDifficultyDetailSelect": "Selecteer AI-moeilijkheid om details te zien.",
+  "currentAiLevelLabel": "Huidig AI-niveau",
+  "aiLevelDisplay": "{belt} ({level})",
+  "@aiLevelDisplay": {
+    "placeholders": {
+      "belt": {},
+      "level": {}
+    }
+  },
+  "resultsTitle": "Resultaten",
+  "timePlayedLabel": "Speeltijd",
+  "redTurnsLabel": "Rode beurten",
+  "blueTurnsLabel": "Blauwe beurten",
+  "yellowTurnsLabel": "Gele beurten",
+  "greenTurnsLabel": "Groene beurten",
+  "playerTurnsLabel": "Spelerbeurten",
+  "aiTurnsLabel": "AI-beurten",
+  "newBestScoreLabel": "Nieuwe beste score",
+  "pointsBelowBestScore": "{points} punten onder beste score",
+  "@pointsBelowBestScore": {
+    "placeholders": {
+      "points": {}
+    }
+  },
+  "youWinReachedScore": "Je wint en behaalde {score} punten",
+  "@youWinReachedScore": {
+    "placeholders": {
+      "score": {}
+    }
+  },
+  "redTerritoryControlled": "Rood gebied gecontroleerd.",
+  "blueTerritoryControlled": "Blauw gebied gecontroleerd.",
+  "neutralTerritoryControlled": "Neutraal gebied gecontroleerd.",
+  "territoryBalanced": "Gebied in balans.",
+  "performanceLost": "Je hebt verloren. Strategie vereist.",
+  "performanceBrilliantEndgame": "Briljante eindfase",
+  "performanceGreatControl": "Geweldige controle",
+  "performanceRiskyEffective": "Riskant, maar effectief",
+  "performanceSolidStrategy": "Solide strategie",
+  "playAgainLabel": "Opnieuw spelen",
+  "continueNextAiLevelLabel": "Ga door naar volgend AI-niveau",
+  "playLowerAiLevelLabel": "Speel een lager AI-niveau",
+  "replaySameLevelLabel": "Speel hetzelfde niveau opnieuw",
+  "aiThinkingLabel": "AI denkt...",
+  "simulatingGameLabel": "Spel simuleren...",
+  "noTurnsYetMessage": "Nog geen beurten voor dit spel",
+  "turnLabel": "Beurt {turn}",
+  "@turnLabel": {
+    "placeholders": {
+      "turn": {}
+    }
+  },
+  "undoLastActionTooltip": "Laatste actie ongedaan maken",
+  "historyTabGames": "Spellen",
+  "historyTabDailyActivity": "Dagelijkse activiteit",
+  "noFinishedGamesYet": "Nog geen voltooide spellen",
+  "gamesCountLabel": "Spellen: {count}",
+  "@gamesCountLabel": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "winsLabel": "Overwinningen",
+  "lossesLabel": "Nederlagen",
+  "drawsLabel": "Gelijkspelen",
+  "totalTimeLabel": "Totale tijd",
+  "resultDraw": "Gelijkspel",
+  "resultPlayerWins": "Speler wint",
+  "resultAiWins": "AI wint",
+  "aiLabelWithName": "AI: {name}",
+  "@aiLabelWithName": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "winnerLabel": "Winnaar: {result}",
+  "@winnerLabel": {
+    "placeholders": {
+      "result": {}
+    }
+  },
+  "yourScoreLabel": "Jouw score",
+  "timeLabel": "Tijd",
+  "redBaseLabel": "Rode basis",
+  "blueBaseLabel": "Blauwe basis",
+  "totalBlueLabel": "Totaal B",
+  "turnsRedLabel": "Beurten R",
+  "turnsBlueLabel": "Beurten B",
+  "ageLabel": "Leeftijd",
+  "nicknameLabel": "Bijnaam",
+  "enterNicknameHint": "Bijnaam invoeren",
+  "countryLabel": "Land",
+  "beltsTitle": "Banden",
+  "achievementsTitle": "Prestaties",
+  "achievementFullRow": "Volle rij",
+  "achievementFullColumn": "Volle kolom",
+  "achievementDiagonal": "Diagonaal",
+  "achievement100GamePoints": "100 spelpunten",
+  "achievement1000GamePoints": "1000 spelpunten",
+  "nicknameRequiredError": "Bijnaam is verplicht",
+  "nicknameMaxLengthError": "Maximaal 32 tekens toegestaan",
+  "nicknameInvalidCharsError": "Gebruik letters, cijfers, punt, streepje of underscore",
+  "nicknameUpdatedMessage": "Bijnaam bijgewerkt",
+  "noBeltsEarnedYetMessage": "Nog geen banden verdiend.",
+  "whoStartsFirstLabel": "Wie begint",
+  "startingPlayerHuman": "Mens (Rood)",
+  "startingPlayerAi": "AI (Blauw)",
+  "leaveDuelBarrierLabel": "Duel verlaten",
+  "leaveDuelTitle": "Duel verlaten",
+  "leaveDuelMessage": "Duelmodus verlaten en terugkeren naar het hoofdmenu?\n\nVoortgang wordt niet opgeslagen.",
+  "leaveBarrierLabel": "Verlaten",
+  "leaveModeTitle": "Verlaat {mode}",
+  "@leaveModeTitle": {
+    "placeholders": {
+      "mode": {}
+    }
+  },
+  "leaveMultiModeMessage": "Terug naar het hoofdmenu?\n\nVoortgang wordt niet opgeslagen.",
+  "colorRedLabel": "ROOD",
+  "colorBlueLabel": "BLAUW",
+  "colorYellowLabel": "GEEL",
+  "colorGreenLabel": "GROEN",
+  "redShortLabel": "R",
+  "blueShortLabel": "B",
+  "yellowShortLabel": "Ge",
+  "greenShortLabel": "Gr",
+  "supportTheDevLabel": "Steun de ontwikkelaar",
+  "aiBeltWhite": "Wit",
+  "aiBeltYellow": "Geel",
+  "aiBeltOrange": "Oranje",
+  "aiBeltGreen": "Groen",
+  "aiBeltBlue": "Blauw",
+  "aiBeltBrown": "Bruin",
+  "aiBeltBlack": "Zwart",
+  "scorePlace": "+1 plaatsing",
+  "scoreCorner": "+2 hoek",
+  "scoreBlueToGrey": "+2 x{count} blauw→grijs",
+  "@scoreBlueToGrey": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "scoreGreyToRed": "+3 x{count} grijs→rood",
+  "@scoreGreyToRed": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "scorePlaceShort": "Plaats",
+  "scoreZeroBlow": "0 klap",
+  "scoreZeroGreyDrop": "0 grijze val",
+  "durationSeconds": "{seconds}s",
+  "@durationSeconds": {
+    "placeholders": {
+      "seconds": {}
+    }
+  },
+  "durationMinutesSeconds": "{minutes}m {seconds}s",
+  "@durationMinutesSeconds": {
+    "placeholders": {
+      "minutes": {},
+      "seconds": {}
+    }
+  },
+  "durationHoursMinutes": "{hours}u {minutes}m",
+  "@durationHoursMinutes": {
+    "placeholders": {
+      "hours": {},
+      "minutes": {}
+    }
+  },
+  "countryName": "{country, select, Afghanistan{Afghanistan} Albania{Albanië} Algeria{Algerije} Andorra{Andorra} Angola{Angola} Antigua_and_Barbuda{Antigua en Barbuda} Argentina{Argentinië} Armenia{Armenië} Australia{Australië} Austria{Oostenrijk} Azerbaijan{Azerbeidzjan} Bahamas{Bahama's} Bahrain{Bahrein} Bangladesh{Bangladesh} Barbados{Barbados} Belarus{Belarus} Belgium{België} Belize{Belize} Benin{Benin} Bhutan{Bhutan} Bolivia{Bolivia} Bosnia_and_Herzegovina{Bosnië en Herzegovina} Botswana{Botswana} Brazil{Brazilië} Brunei{Brunei} Bulgaria{Bulgarije} Burkina_Faso{Burkina Faso} Burundi{Burundi} Cabo_Verde{Cabo Verde} Cambodia{Cambodja} Cameroon{Kameroen} Canada{Canada} Central_African_Republic{Centraal-Afrikaanse Republiek} Chad{Tsjaad} Chile{Chili} China{China} Colombia{Colombia} Comoros{Comoren} Congo_Congo_Brazzaville{Congo (Brazzaville)} Costa_Rica{Costa Rica} Croatia{Kroatië} Cuba{Cuba} Cyprus{Cyprus} Czechia{Tsjechië} Democratic_Republic_of_the_Congo{Democratische Republiek Congo} Denmark{Denemarken} Djibouti{Djibouti} Dominica{Dominica} Dominican_Republic{Dominicaanse Republiek} Ecuador{Ecuador} Egypt{Egypte} El_Salvador{El Salvador} Equatorial_Guinea{Equatoriaal-Guinea} Eritrea{Eritrea} Estonia{Estland} Eswatini{Eswatini} Ethiopia{Ethiopië} Fiji{Fiji} Finland{Finland} France{Frankrijk} Gabon{Gabon} Gambia{Gambia} Georgia{Georgië} Germany{Duitsland} Ghana{Ghana} Greece{Griekenland} Grenada{Grenada} Guatemala{Guatemala} Guinea{Guinee} Guinea_Bissau{Guinee-Bissau} Guyana{Guyana} Haiti{Haïti} Honduras{Honduras} Hungary{Hongarije} Iceland{IJsland} India{India} Indonesia{Indonesië} Iran{Iran} Iraq{Irak} Ireland{Ierland} Israel{Israël} Italy{Italië} Jamaica{Jamaica} Japan{Japan} Jordan{Jordanië} Kazakhstan{Kazachstan} Kenya{Kenia} Kiribati{Kiribati} Kuwait{Koeweit} Kyrgyzstan{Kirgizië} Laos{Laos} Latvia{Letland} Lebanon{Libanon} Lesotho{Lesotho} Liberia{Liberia} Libya{Libië} Liechtenstein{Liechtenstein} Lithuania{Litouwen} Luxembourg{Luxemburg} Madagascar{Madagaskar} Malawi{Malawi} Malaysia{Maleisië} Maldives{Maldiven} Mali{Mali} Malta{Malta} Marshall_Islands{Marshalleilanden} Mauritania{Mauritanië} Mauritius{Mauritius} Mexico{Mexico} Micronesia{Micronesië} Moldova{Moldavië} Monaco{Monaco} Mongolia{Mongolië} Montenegro{Montenegro} Morocco{Marokko} Mozambique{Mozambique} Myanmar{Myanmar} Namibia{Namibië} Nauru{Nauru} Nepal{Nepal} Netherlands{Nederland} New_Zealand{Nieuw-Zeeland} Nicaragua{Nicaragua} Niger{Niger} Nigeria{Nigeria} North_Korea{Noord-Korea} North_Macedonia{Noord-Macedonië} Norway{Noorwegen} Oman{Oman} Pakistan{Pakistan} Palau{Palau} Panama{Panama} Papua_New_Guinea{Papoea-Nieuw-Guinea} Paraguay{Paraguay} Peru{Peru} Philippines{Filipijnen} Poland{Polen} Portugal{Portugal} Qatar{Qatar} Romania{Roemenië} Russia{Rusland} Rwanda{Rwanda} Saint_Kitts_and_Nevis{Saint Kitts en Nevis} Saint_Lucia{Saint Lucia} Saint_Vincent_and_the_Grenadines{Saint Vincent en de Grenadines} Samoa{Samoa} San_Marino{San Marino} Sao_Tome_and_Principe{Sao Tomé en Principe} Saudi_Arabia{Saoedi-Arabië} Senegal{Senegal} Serbia{Servië} Seychelles{Seychellen} Sierra_Leone{Sierra Leone} Singapore{Singapore} Slovakia{Slowakije} Slovenia{Slovenië} Solomon_Islands{Salomonseilanden} Somalia{Somalië} South_Africa{Zuid-Afrika} South_Korea{Zuid-Korea} South_Sudan{Zuid-Soedan} Spain{Spanje} Sri_Lanka{Sri Lanka} Sudan{Soedan} Suriname{Suriname} Sweden{Zweden} Switzerland{Zwitserland} Syria{Syrië} Taiwan{Taiwan} Tajikistan{Tadzjikistan} Tanzania{Tanzania} Thailand{Thailand} Timor_Leste{Timor-Leste} Togo{Togo} Tonga{Tonga} Trinidad_and_Tobago{Trinidad en Tobago} Tunisia{Tunesië} Turkey{Turkije} Turkmenistan{Turkmenistan} Tuvalu{Tuvalu} Uganda{Oeganda} Ukraine{Oekraïne} United_Arab_Emirates{Verenigde Arabische Emiraten} United_Kingdom{Verenigd Koninkrijk} United_States{Verenigde Staten} Uruguay{Uruguay} Uzbekistan{Oezbekistan} Vanuatu{Vanuatu} Vatican_City{Vaticaanstad} Venezuela{Venezuela} Vietnam{Vietnam} Yemen{Jemen} Zambia{Zambia} Zimbabwe{Zimbabwe} other{Wakanda}}",
+  "@countryName": {
+    "placeholders": {
+      "country": {}
+    }
+  },
+  "deleteSaveTitle": "Opslag verwijderen?",
+  "deleteSaveMessage": "Weet je zeker dat je dit opgeslagen spel wilt verwijderen?",
+  "failedToDeleteMessage": "Verwijderen mislukt"
+}

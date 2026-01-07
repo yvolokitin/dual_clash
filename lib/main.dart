@@ -76,6 +76,7 @@ class _TwoTouchAppState extends State<TwoTouchApp> {
           'pl' => 'pl',
           'ru' => 'ru',
           'es' => 'es',
+          'nl' => 'nl',
           _ => 'en',
         };
         return MaterialApp(
@@ -95,6 +96,7 @@ class _TwoTouchAppState extends State<TwoTouchApp> {
             Locale('es'),
             Locale('de'),
             Locale('fr'),
+            Locale('nl'),
             Locale('pl'),
           ],
           locale: Locale(localeCode),
