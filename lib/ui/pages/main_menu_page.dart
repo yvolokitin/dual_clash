@@ -944,71 +944,91 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         opacity: curved,
                         child: ScaleTransition(
                           scale: Tween<double>(begin: 0.96, end: 1.0).animate(curved),
-                          child: Row(
+                          child: Column(
                             mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              FlyoutTile(
-                                imagePath: 'assets/icons/menu_121.png',
-                                label: compactLabels
-                                    ? l10n.menuDuelShort
-                                    : l10n.menuDuelMode,
-                                disabled: false,
-                                width: tileWidth,
-                                height: tileHeight,
-                                color: AppColors.blue,
-                                onTap: () {
-                                  _dismissDialog(context);
-                                  _pushWithSlide(
-                                    context,
-                                    DuelPage(controller: controller),
-                                    const Offset(1.0, 0.0),
-                                  );
-                                },
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  FlyoutTile(
+                                    imagePath: 'assets/icons/menu_323.png',
+                                    label: compactLabels
+                                        ? l10n.menuTripleShort
+                                        : l10n.menuTripleThreat,
+                                    disabled: false,
+                                    width: tileWidth,
+                                    height: tileHeight,
+                                    color: AppColors.red,
+                                    onTap: () {
+                                      _dismissDialog(context);
+                                      _pushWithSlide(
+                                        context,
+                                        DuelPage(
+                                          controller: controller,
+                                          playerCount: 3,
+                                        ),
+                                        const Offset(1.0, 0.0),
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(width: 14),
+                                  FlyoutTile(
+                                    imagePath: 'assets/icons/menu_121.png',
+                                    label: compactLabels
+                                        ? l10n.menuDuelShort
+                                        : l10n.menuDuelMode,
+                                    disabled: false,
+                                    width: tileWidth,
+                                    height: tileHeight,
+                                    color: AppColors.blue,
+                                    onTap: () {
+                                      _dismissDialog(context);
+                                      _pushWithSlide(
+                                        context,
+                                        DuelPage(controller: controller),
+                                        const Offset(1.0, 0.0),
+                                      );
+                                    },
+                                  ),
+                                ],
                               ),
-                              const SizedBox(width: 14),
-                              FlyoutTile(
-                                imagePath: 'assets/icons/menu_323.png',
-                                label: compactLabels
-                                    ? l10n.menuTripleShort
-                                    : l10n.menuTripleThreat,
-                                disabled: false,
-                                width: tileWidth,
-                                height: tileHeight,
-                                color: AppColors.red,
-                                onTap: () {
-                                  _dismissDialog(context);
-                                  _pushWithSlide(
-                                    context,
-                                    DuelPage(
-                                      controller: controller,
-                                      playerCount: 3,
-                                    ),
-                                    const Offset(1.0, 0.0),
-                                  );
-                                },
-                              ),
-                              const SizedBox(width: 14),
-                              FlyoutTile(
-                                imagePath: 'assets/icons/menu_424.png',
-                                label: compactLabels
-                                    ? l10n.menuQuadShort
-                                    : l10n.menuQuadClash,
-                                disabled: false,
-                                width: tileWidth,
-                                height: tileHeight,
-                                color: AppColors.green,
-                                onTap: () {
-                                  _dismissDialog(context);
-                                  _pushWithSlide(
-                                    context,
-                                    DuelPage(
-                                      controller: controller,
-                                      playerCount: 4,
-                                    ),
-                                    const Offset(1.0, 0.0),
-                                  );
-                                },
+                              const SizedBox(height: 14),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  FlyoutTile(
+                                    imagePath: 'assets/icons/menu_424.png',
+                                    label: compactLabels
+                                        ? l10n.menuQuadShort
+                                        : l10n.menuQuadClash,
+                                    disabled: false,
+                                    width: tileWidth,
+                                    height: tileHeight,
+                                    color: AppColors.green,
+                                    onTap: () {
+                                      _dismissDialog(context);
+                                      _pushWithSlide(
+                                        context,
+                                        DuelPage(
+                                          controller: controller,
+                                          playerCount: 4,
+                                        ),
+                                        const Offset(1.0, 0.0),
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(width: 14),
+                                  FlyoutTile(
+                                    imagePath: 'assets/icons/menu_222.png',
+                                    label: l10n.menuAlliance2v2,
+                                    disabled: true,
+                                    width: tileWidth,
+                                    height: tileHeight,
+                                    color: Colors.grey,
+                                  ),
+                                ],
                               ),
                             ],
                           ),

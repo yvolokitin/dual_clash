@@ -396,6 +396,12 @@ abstract class AppLocalizations {
   /// **'Quad Clash'**
   String get menuQuadClash;
 
+  /// No description provided for @menuAlliance2v2.
+  ///
+  /// In en, this message translates to:
+  /// **'Alliance 2vs2'**
+  String get menuAlliance2v2;
+
   /// No description provided for @playerHubBarrierLabel.
   ///
   /// In en, this message translates to:
