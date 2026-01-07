@@ -40,6 +40,8 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
 
   bool _isCompactWidth(BuildContext context) => MediaQuery.of(context).size.width < 430;
 
+  bool _isDesktopWidth(BuildContext context) => MediaQuery.of(context).size.width >= 900;
+
   void _dismissDialog(BuildContext context) {
     final navigator = Navigator.of(context, rootNavigator: true);
     if (navigator.canPop()) {
@@ -598,7 +600,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
             final maxRight = math.max(math.max(r1.right, r2.right), math.max(r3.right, r4.right));
             final minTop = math.min(math.min(r1.top, r2.top), math.min(r3.top, r4.top));
             final cancelSize = r1.width * 0.25;
-            final cancelSpacing = _isCompactWidth(context) ? 40.0 : 30.0;
+            final cancelSpacing = _isDesktopWidth(context) ? 30.0 : 40.0;
             final cancelLeft = (minLeft + maxRight) / 2 - cancelSize / 2;
             final cancelTop = math.max(0.0, minTop - cancelSpacing - cancelSize);
             final showCancel = curved.value >= 0.98;
@@ -763,7 +765,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
         const tileWidth = 190.0;
         const tileHeight = 170.0;
         final cancelSize = tileWidth * 0.25;
-        final cancelSpacing = _isCompactWidth(context) ? 40.0 : 30.0;
+        final cancelSpacing = _isDesktopWidth(context) ? 30.0 : 40.0;
         final showCancel = curved.value >= 0.98;
         return Center(
           child: Align(
@@ -900,7 +902,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
         const tileWidth = 190.0;
         const tileHeight = 170.0;
         final cancelSize = tileWidth * 0.25;
-        final cancelSpacing = _isCompactWidth(context) ? 40.0 : 30.0;
+        final cancelSpacing = _isDesktopWidth(context) ? 30.0 : 40.0;
         final showCancel = curved.value >= 0.98;
         return Center(
           child: Align(
