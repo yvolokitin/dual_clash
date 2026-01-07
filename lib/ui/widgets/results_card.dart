@@ -654,6 +654,11 @@ class _ResultsActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final int ai = controller.aiLevel;
+    final bool isDesktopPlatform = !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.windows ||
+            defaultTargetPlatform == TargetPlatform.macOS ||
+            defaultTargetPlatform == TargetPlatform.linux);
+    final double actionTileScale = isDesktopPlatform ? 1 / 3 : 1;
     const String primaryTileAsset = 'assets/icons/play.png';
     const String secondaryTileAsset = 'assets/icons/replay.png';
 
@@ -673,7 +678,14 @@ class _ResultsActions extends StatelessWidget {
       return Column(
         mainAxisSize: MainAxisSize.max,
         children: [
-          Expanded(child: tile),
+          Expanded(
+            child: Center(
+              child: Transform.scale(
+                scale: actionTileScale,
+                child: tile,
+              ),
+            ),
+          ),
           const SizedBox(height: 6),
           Text(
             label,
