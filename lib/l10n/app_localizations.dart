@@ -1305,11 +1305,11 @@ class _AppLocalizationsDelegate
 
   @override
   Future<AppLocalizations> load(Locale locale) {
-      return SynchronousFuture<AppLocalizations>(lookupAppLocalizations(locale));
+    return SynchronousFuture<AppLocalizations>(lookupAppLocalizations(locale));
   }
 
   @override
-      bool isSupported(Locale locale) => <String>[
+  bool isSupported(Locale locale) => <String>[
         'de',
         'en',
         'es',

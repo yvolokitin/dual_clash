@@ -354,7 +354,7 @@ class _GamePageState extends State<GamePage> {
                     ],
                   ),
                 ),
-                if (isMobile) const SizedBox(height: 20),
+                if (isMobile) const SizedBox(height: 30),
               ],
             ),
           ),

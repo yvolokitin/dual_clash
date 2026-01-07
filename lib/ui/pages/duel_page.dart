@@ -332,7 +332,7 @@ class _DuelPageState extends State<DuelPage> {
                                     const SizedBox(width: 1),
                                   ],
                                 ),
-                                const SizedBox(height: 20),
+                                const SizedBox(height: 30),
                                 Center(child: playerCountsRow),
                               ],
                             );
@@ -438,7 +438,7 @@ class _DuelPageState extends State<DuelPage> {
                     ),
                   ),
                 ),
-                if (isMobile) const SizedBox(height: 20),
+                if (isMobile) const SizedBox(height: 30),
                 // No simulate/statistics/undo row in duel mode
               ],
             ),

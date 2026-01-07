@@ -4,13 +4,13 @@ import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
 
-/// The translations for Dutch (`nl`).
+/// The translations for Dutch Flemish (`nl`).
 class AppLocalizationsNl extends AppLocalizations {
   AppLocalizationsNl([String locale = 'nl']) : super(locale);
 
   @override
   String appTitle(Object size) {
-    return 'Two Touch ${size}';
+    return 'Two Touch $size';
   }
 
   @override
@@ -59,7 +59,8 @@ class AppLocalizationsNl extends AppLocalizations {
   String get returnToMainMenuTitle => 'Terug naar hoofdmenu';
 
   @override
-  String get returnToMainMenuMessage => 'Wil je terugkeren naar het hoofdmenu?\n\nVoortgang wordt niet opgeslagen.';
+  String get returnToMainMenuMessage =>
+      'Wil je terugkeren naar het hoofdmenu?\n\nVoortgang wordt niet opgeslagen.';
 
   @override
   String get restartGameLabel => 'Spel herstarten/starten';
@@ -68,7 +69,8 @@ class AppLocalizationsNl extends AppLocalizations {
   String get restartGameTitle => 'Spel herstarten';
 
   @override
-  String get restartGameMessage => 'Het spel helemaal opnieuw starten?\n\nHuidige voortgang gaat verloren.';
+  String get restartGameMessage =>
+      'Het spel helemaal opnieuw starten?\n\nHuidige voortgang gaat verloren.';
 
   @override
   String get statisticsTitle => 'Statistieken';
@@ -186,7 +188,7 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String savedGameSubtitle(Object when, Object turn) {
-    return '${when} • Beurt: ${turn}';
+    return '$when • Beurt: $turn';
   }
 
   @override
@@ -194,108 +196,131 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String helpGoalBody(Object board) {
-    return 'Vul het ${board}-bord door om de beurt met de AI te spelen. Jij bent Rood, de AI is Blauw. De speler met de hoogste TOTALE score wint.';
+    return 'Vul het $board-bord door om de beurt met de AI te spelen. Jij bent Rood, de AI is Blauw. De speler met de hoogste TOTALE score wint.';
   }
 
   @override
   String get helpTurnsTitle => 'Beurten & Plaatsing';
 
   @override
-  String get helpTurnsBody => 'Tik op een lege cel om je kleur te plaatsen. Na jouw zet plaatst de AI blauw. De startspeler kan in Instellingen worden gewijzigd.';
+  String get helpTurnsBody =>
+      'Tik op een lege cel om je kleur te plaatsen. Na jouw zet plaatst de AI blauw. De startspeler kan in Instellingen worden gewijzigd.';
 
   @override
   String get helpScoringTitle => 'Scoren';
 
   @override
-  String get helpScoringBase => 'Basisscore: aantal cellen van jouw kleur op het bord wanneer het spel eindigt.';
+  String get helpScoringBase =>
+      'Basisscore: aantal cellen van jouw kleur op het bord wanneer het spel eindigt.';
 
   @override
-  String get helpScoringBonus => 'Bonus: +50 punten voor elke volle rij of kolom die met jouw kleur is gevuld.';
+  String get helpScoringBonus =>
+      'Bonus: +50 punten voor elke volle rij of kolom die met jouw kleur is gevuld.';
 
   @override
   String get helpScoringTotal => 'Totaalscore: Basisscore + Bonus.';
 
   @override
-  String get helpScoringEarning => 'Punten verdienen tijdens het spel (Rood): +1 voor elke plaatsing, +2 extra als je in een hoek plaatst, +2 voor elke Blauwe die naar Neutraal wordt, +3 voor elke Neutrale die naar Rood wordt, +50 voor elke nieuwe volle Rode rij/kolom.';
+  String get helpScoringEarning =>
+      'Punten verdienen tijdens het spel (Rood): +1 voor elke plaatsing, +2 extra als je in een hoek plaatst, +2 voor elke Blauwe die naar Neutraal wordt, +3 voor elke Neutrale die naar Rood wordt, +50 voor elke nieuwe volle Rode rij/kolom.';
 
   @override
-  String get helpScoringCumulative => 'Je cumulatieve trofeëteller neemt alleen toe. Punten worden na elk beëindigd spel toegevoegd op basis van je Rode totaal. Acties van de tegenstander verlagen je cumulatieve totaal nooit.';
+  String get helpScoringCumulative =>
+      'Je cumulatieve trofeëteller neemt alleen toe. Punten worden na elk beëindigd spel toegevoegd op basis van je Rode totaal. Acties van de tegenstander verlagen je cumulatieve totaal nooit.';
 
   @override
   String get helpWinningTitle => 'Winnen';
 
   @override
-  String get helpWinningBody => 'Wanneer het bord geen lege cellen meer heeft, eindigt het spel. De speler met de hoogste totaalscore wint. Gelijkspel is mogelijk.';
+  String get helpWinningBody =>
+      'Wanneer het bord geen lege cellen meer heeft, eindigt het spel. De speler met de hoogste totaalscore wint. Gelijkspel is mogelijk.';
 
   @override
   String get helpAiLevelTitle => 'AI-niveau';
 
   @override
-  String get helpAiLevelBody => 'Kies de AI-moeilijkheid in Instellingen (1–7). Hogere niveaus denken verder vooruit maar duren langer.';
+  String get helpAiLevelBody =>
+      'Kies de AI-moeilijkheid in Instellingen (1–7). Hogere niveaus denken verder vooruit maar duren langer.';
 
   @override
   String get helpHistoryProfileTitle => 'Geschiedenis & Profiel';
 
   @override
-  String get helpHistoryProfileBody => 'Je voltooide spellen worden in Geschiedenis opgeslagen met alle details.';
+  String get helpHistoryProfileBody =>
+      'Je voltooide spellen worden in Geschiedenis opgeslagen met alle details.';
 
   @override
   String get aiDifficultyTitle => 'AI-moeilijkheid';
 
   @override
-  String get aiDifficultyTipBeginner => 'Wit — Beginner: maakt willekeurige zetten.';
+  String get aiDifficultyTipBeginner =>
+      'Wit — Beginner: maakt willekeurige zetten.';
 
   @override
-  String get aiDifficultyTipEasy => 'Geel — Makkelijk: geeft de voorkeur aan directe winst.';
+  String get aiDifficultyTipEasy =>
+      'Geel — Makkelijk: geeft de voorkeur aan directe winst.';
 
   @override
-  String get aiDifficultyTipNormal => 'Oranje — Normaal: gretig met basispositionering.';
+  String get aiDifficultyTipNormal =>
+      'Oranje — Normaal: gretig met basispositionering.';
 
   @override
-  String get aiDifficultyTipChallenging => 'Groen — Uitdagend: ondiepe zoekdiepte met wat vooruitblik.';
+  String get aiDifficultyTipChallenging =>
+      'Groen — Uitdagend: ondiepe zoekdiepte met wat vooruitblik.';
 
   @override
-  String get aiDifficultyTipHard => 'Blauw — Moeilijk: diepere zoekactie met snoeien.';
+  String get aiDifficultyTipHard =>
+      'Blauw — Moeilijk: diepere zoekactie met snoeien.';
 
   @override
-  String get aiDifficultyTipExpert => 'Bruin — Expert: geavanceerd snoeien en caching.';
+  String get aiDifficultyTipExpert =>
+      'Bruin — Expert: geavanceerd snoeien en caching.';
 
   @override
-  String get aiDifficultyTipMaster => 'Zwart — Meester: sterkst en meest berekenend.';
+  String get aiDifficultyTipMaster =>
+      'Zwart — Meester: sterkst en meest berekenend.';
 
   @override
   String get aiDifficultyTipSelect => 'Selecteer een bandniveau.';
 
   @override
-  String get aiDifficultyDetailBeginner => 'Wit — Beginner: willekeurige lege cellen. Onvoorspelbaar maar zwak.';
+  String get aiDifficultyDetailBeginner =>
+      'Wit — Beginner: willekeurige lege cellen. Onvoorspelbaar maar zwak.';
 
   @override
-  String get aiDifficultyDetailEasy => 'Geel — Makkelijk: gretig kiest zetten die directe winst maximaliseren.';
+  String get aiDifficultyDetailEasy =>
+      'Geel — Makkelijk: gretig kiest zetten die directe winst maximaliseren.';
 
   @override
-  String get aiDifficultyDetailNormal => 'Oranje — Normaal: gretig met tie-break voor het centrum om sterkere posities te prefereren.';
+  String get aiDifficultyDetailNormal =>
+      'Oranje — Normaal: gretig met tie-break voor het centrum om sterkere posities te prefereren.';
 
   @override
-  String get aiDifficultyDetailChallenging => 'Groen — Uitdagend: ondiepe minimax-zoekopdracht (diepte 2), geen snoeien.';
+  String get aiDifficultyDetailChallenging =>
+      'Groen — Uitdagend: ondiepe minimax-zoekopdracht (diepte 2), geen snoeien.';
 
   @override
-  String get aiDifficultyDetailHard => 'Blauw — Moeilijk: diepere minimax met alpha–beta-snoeien en zetvolgorde.';
+  String get aiDifficultyDetailHard =>
+      'Blauw — Moeilijk: diepere minimax met alpha–beta-snoeien en zetvolgorde.';
 
   @override
-  String get aiDifficultyDetailExpert => 'Bruin — Expert: diepere minimax met snoeien + transpositietabel.';
+  String get aiDifficultyDetailExpert =>
+      'Bruin — Expert: diepere minimax met snoeien + transpositietabel.';
 
   @override
-  String get aiDifficultyDetailMaster => 'Zwart — Meester: Monte Carlo Tree Search (~1500 rollouts binnen tijdslimiet).';
+  String get aiDifficultyDetailMaster =>
+      'Zwart — Meester: Monte Carlo Tree Search (~1500 rollouts binnen tijdslimiet).';
 
   @override
-  String get aiDifficultyDetailSelect => 'Selecteer AI-moeilijkheid om details te zien.';
+  String get aiDifficultyDetailSelect =>
+      'Selecteer AI-moeilijkheid om details te zien.';
 
   @override
   String get currentAiLevelLabel => 'Huidig AI-niveau';
 
   @override
   String aiLevelDisplay(Object belt, Object level) {
-    return '${belt} (${level})';
+    return '$belt ($level)';
   }
 
   @override
@@ -327,12 +352,12 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String pointsBelowBestScore(Object points) {
-    return '${points} punten onder beste score';
+    return '$points punten onder beste score';
   }
 
   @override
   String youWinReachedScore(Object score) {
-    return 'Je wint en behaalde ${score} punten';
+    return 'Je wint en behaalde $score punten';
   }
 
   @override
@@ -385,7 +410,7 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String turnLabel(Object turn) {
-    return 'Beurt ${turn}';
+    return 'Beurt $turn';
   }
 
   @override
@@ -402,7 +427,7 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String gamesCountLabel(Object count) {
-    return 'Spellen: ${count}';
+    return 'Spellen: $count';
   }
 
   @override
@@ -428,12 +453,12 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String aiLabelWithName(Object name) {
-    return 'AI: ${name}';
+    return 'AI: $name';
   }
 
   @override
   String winnerLabel(Object result) {
-    return 'Winnaar: ${result}';
+    return 'Winnaar: $result';
   }
 
   @override
@@ -497,7 +522,8 @@ class AppLocalizationsNl extends AppLocalizations {
   String get nicknameMaxLengthError => 'Maximaal 32 tekens toegestaan';
 
   @override
-  String get nicknameInvalidCharsError => 'Gebruik letters, cijfers, punt, streepje of underscore';
+  String get nicknameInvalidCharsError =>
+      'Gebruik letters, cijfers, punt, streepje of underscore';
 
   @override
   String get nicknameUpdatedMessage => 'Bijnaam bijgewerkt';
@@ -521,18 +547,20 @@ class AppLocalizationsNl extends AppLocalizations {
   String get leaveDuelTitle => 'Duel verlaten';
 
   @override
-  String get leaveDuelMessage => 'Duelmodus verlaten en terugkeren naar het hoofdmenu?\n\nVoortgang wordt niet opgeslagen.';
+  String get leaveDuelMessage =>
+      'Duelmodus verlaten en terugkeren naar het hoofdmenu?\n\nVoortgang wordt niet opgeslagen.';
 
   @override
   String get leaveBarrierLabel => 'Verlaten';
 
   @override
   String leaveModeTitle(Object mode) {
-    return 'Verlaat ${mode}';
+    return 'Verlaat $mode';
   }
 
   @override
-  String get leaveMultiModeMessage => 'Terug naar het hoofdmenu?\n\nVoortgang wordt niet opgeslagen.';
+  String get leaveMultiModeMessage =>
+      'Terug naar het hoofdmenu?\n\nVoortgang wordt niet opgeslagen.';
 
   @override
   String get colorRedLabel => 'ROOD';
@@ -590,12 +618,12 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String scoreBlueToGrey(Object count) {
-    return '+2 x${count} blauw→grijs';
+    return '+2 x$count blauw→grijs';
   }
 
   @override
   String scoreGreyToRed(Object count) {
-    return '+3 x${count} grijs→rood';
+    return '+3 x$count grijs→rood';
   }
 
   @override
@@ -824,14 +852,15 @@ class AppLocalizationsNl extends AppLocalizations {
         'other': 'Wakanda',
       },
     );
-    return _temp0;
+    return '$_temp0';
   }
 
   @override
   String get deleteSaveTitle => 'Opslag verwijderen?';
 
   @override
-  String get deleteSaveMessage => 'Weet je zeker dat je dit opgeslagen spel wilt verwijderen?';
+  String get deleteSaveMessage =>
+      'Weet je zeker dat je dit opgeslagen spel wilt verwijderen?';
 
   @override
   String get failedToDeleteMessage => 'Verwijderen mislukt';
