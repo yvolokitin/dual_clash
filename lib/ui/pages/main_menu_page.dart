@@ -601,7 +601,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
             final cancelSpacing = _isCompactWidth(context) ? 40.0 : 30.0;
             final cancelLeft = (minLeft + maxRight) / 2 - cancelSize / 2;
             final cancelTop = math.max(0.0, minTop - cancelSpacing - cancelSize);
-            final showCancel = curved.value >= 0.999;
+            final showCancel = curved.value >= 0.98;
             return Stack(
               children: [
                 Positioned.fill(
@@ -764,7 +764,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
         const tileHeight = 170.0;
         final cancelSize = tileWidth * 0.25;
         final cancelSpacing = _isCompactWidth(context) ? 40.0 : 30.0;
-        final showCancel = curved.value >= 0.999;
+        final showCancel = curved.value >= 0.98;
         return Center(
           child: Align(
             alignment: Alignment.topCenter,
@@ -901,7 +901,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
         const tileHeight = 170.0;
         final cancelSize = tileWidth * 0.25;
         final cancelSpacing = _isCompactWidth(context) ? 40.0 : 30.0;
-        final showCancel = curved.value >= 0.999;
+        final showCancel = curved.value >= 0.98;
         return Center(
           child: Align(
             alignment: Alignment.topCenter,
