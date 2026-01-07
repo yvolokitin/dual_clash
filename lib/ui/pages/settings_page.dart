@@ -397,44 +397,71 @@ class _SettingsDialogState extends State<SettingsDialog> {
     required String asset,
     VoidCallback? onTap,
   }) {
-    final bg =
-        selected ? Colors.white.withOpacity(0.12) : AppColors.dialogFieldBg;
-    final border = selected ? AppColors.brandGold : Colors.white12;
+    const double tileWidth = 110;
+    const double tileHeight = 72;
+    const double borderWidth = 3;
+    const BorderRadius tileRadius = BorderRadius.all(Radius.circular(12));
+    const LinearGradient selectedBorderGradient = LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [
+        Color(0xFFFFE29A),
+        Color(0xFFB7771B),
+      ],
+    );
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: tileRadius,
         onTap: onTap,
-        child: Container(
-          width: 110,
-          height: 86,
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: border, width: selected ? 2 : 1),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                asset,
-                width: 40,
-                height: 40,
-                fit: BoxFit.contain,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              decoration: selected
+                  ? const BoxDecoration(
+                      gradient: selectedBorderGradient,
+                      borderRadius: tileRadius,
+                    )
+                  : null,
+              padding: EdgeInsets.all(selected ? borderWidth : 0),
+              child: Container(
+                width: tileWidth,
+                height: tileHeight,
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: tileRadius,
+                  border: selected
+                      ? null
+                      : Border.all(color: Colors.white12, width: 1),
+                ),
+                child: ClipRRect(
+                  borderRadius: tileRadius,
+                  child: SizedBox.expand(
+                    child: Image.asset(
+                      asset,
+                      fit: BoxFit.fitHeight,
+                    ),
+                  ),
+                ),
               ),
-              const SizedBox(height: 6),
-              Text(
+            ),
+            const SizedBox(height: 6),
+            SizedBox(
+              width: tileWidth,
+              child: Text(
                 label,
                 textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                   fontSize: 12,
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
