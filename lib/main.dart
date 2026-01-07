@@ -123,5 +123,5 @@ void _configureBoardSizeForDevice() {
       ? 0
       : (view.physicalSize / view.devicePixelRatio).shortestSide;
   final bool isPhone = isMobilePlatform && shortestSide < tabletBreakpoint;
-  K.n = isPhone ? 8 : 9;
+  K.n = isPhone ? 7 : 9;
 }
