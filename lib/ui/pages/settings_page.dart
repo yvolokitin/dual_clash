@@ -339,6 +339,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
       ('de', 'Deutsch', 'assets/icons/lang_de.png'),
       ('es', 'Español', 'assets/icons/lang_es.png'),
       ('fr', 'Français', 'assets/icons/lang_fr.png'),
+      ('pl', 'Polski', 'assets/icons/lang_pl.png'),
       ('ru', 'Русский', 'assets/icons/lang_ru.png'),
       ('uk', 'Українська', 'assets/icons/lang_ua.png'),
     ];

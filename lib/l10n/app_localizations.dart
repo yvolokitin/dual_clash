@@ -9,6 +9,7 @@ import 'app_localizations_de.dart';
 import 'app_localizations_en.dart';
 import 'app_localizations_es.dart';
 import 'app_localizations_fr.dart';
+import 'app_localizations_pl.dart';
 import 'app_localizations_ru.dart';
 import 'app_localizations_uk.dart';
 
@@ -104,6 +105,8 @@ abstract class AppLocalizations {
     Locale('fr'),
     Locale('ru'),
     Locale('uk')
+    Locale('pl'),
+    Locale('ru')
   ];
 
   /// No description provided for @appTitle.
@@ -1300,7 +1303,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['de', 'en', 'es', 'fr', 'ru', 'uk']
+      <String>['de', 'en', 'es', 'fr', 'pl', 'ru', 'uk']
           .contains(locale.languageCode);
 
   @override
@@ -1318,6 +1321,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
       return AppLocalizationsEs();
     case 'fr':
       return AppLocalizationsFr();
+    case 'pl':
+      return AppLocalizationsPl();
     case 'ru':
       return AppLocalizationsRu();
     case 'uk':
