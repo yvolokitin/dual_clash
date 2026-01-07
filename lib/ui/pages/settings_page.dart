@@ -110,6 +110,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
     final bool hasPendingChanges =
         _language != _initialLanguage ||
         _startingPlayer != _initialStartingPlayer;
+    final double languageTileScale = isPhoneFullscreen ? 0.87 : 1.0;
     // The dialog window — centered, not fullscreen. showDialog will dim the background.
     return Dialog(
       insetPadding: dialogInsetPadding,
@@ -196,6 +197,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                                 selected: _language == code,
                                 label: title,
                                 asset: asset,
+                                scale: languageTileScale,
                                 onTap: () => setState(() => _language = code),
                               );
                             }).toList(),
@@ -396,11 +398,12 @@ class _SettingsDialogState extends State<SettingsDialog> {
     required bool selected,
     required String label,
     required String asset,
+    double scale = 1.0,
     VoidCallback? onTap,
   }) {
-    const double tileWidth = 110;
-    const double tileHeight = 72;
-    const double borderWidth = 3;
+    final double tileWidth = 110 * scale;
+    final double tileHeight = 72 * scale;
+    final double borderWidth = 3 * scale;
     const BorderRadius tileRadius = BorderRadius.all(Radius.circular(12));
     const LinearGradient selectedBorderGradient = LinearGradient(
       begin: Alignment.topCenter,
@@ -430,8 +433,8 @@ class _SettingsDialogState extends State<SettingsDialog> {
                         color: Colors.transparent,
                         width: borderWidth,
                       ),
-                    ),
-              padding: const EdgeInsets.all(borderWidth),
+                  ),
+              padding: EdgeInsets.all(borderWidth),
               child: Container(
                 width: tileWidth,
                 height: tileHeight,
@@ -450,7 +453,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                 ),
               ),
             ),
-            const SizedBox(height: 6),
+            SizedBox(height: 6 * scale),
             SizedBox(
               width: tileWidth,
               child: Text(
@@ -461,7 +464,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                  fontSize: 12,
+                  fontSize: 12 * scale,
                 ),
               ),
             ),
