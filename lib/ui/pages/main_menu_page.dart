@@ -40,11 +40,15 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
 
   bool _isCompactWidth(BuildContext context) => MediaQuery.of(context).size.width < 430;
 
-  void _dismissPlayerHub(BuildContext context) {
+  void _dismissDialog(BuildContext context) {
     final navigator = Navigator.of(context, rootNavigator: true);
     if (navigator.canPop()) {
       navigator.pop();
     }
+  }
+
+  void _dismissPlayerHub(BuildContext context) {
+    _dismissDialog(context);
   }
 
   // Waves background animation
@@ -893,88 +897,121 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
           curve: Curves.easeOutCubic,
           reverseCurve: Curves.easeInCubic,
         );
+        const tileWidth = 190.0;
+        const tileHeight = 170.0;
+        final cancelSize = tileWidth * 0.25;
+        final cancelSpacing = _isCompactWidth(context) ? 40.0 : 30.0;
+        final showCancel = curved.value >= 0.999;
         return Center(
-          child: FadeTransition(
-            opacity: curved,
-            child: ScaleTransition(
-              scale: Tween<double>(begin: 0.96, end: 1.0).animate(curved),
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 24.0, left: 16, right: 16),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 720),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          FlyoutTile(
-                            imagePath: 'assets/icons/menu_121.png',
-                            label: compactLabels
-                                ? l10n.menuDuelShort
-                                : l10n.menuDuelMode,
-                            disabled: false,
-                            width: 190,
-                            height: 170,
-                            color: AppColors.blue,
-                            onTap: () {
-                              Navigator.of(ctx).pop();
-                              _pushWithSlide(
-                                context,
-                                DuelPage(controller: controller),
-                                const Offset(1.0, 0.0),
-                              );
-                            },
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 24.0, left: 16, right: 16),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 720),
+                child: Material(
+                  color: Colors.transparent,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Visibility(
+                        visible: showCancel,
+                        maintainAnimation: true,
+                        maintainSize: true,
+                        maintainState: true,
+                        child: MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: Material(
+                            color: Colors.transparent,
+                            shape: const CircleBorder(),
+                            clipBehavior: Clip.antiAlias,
+                            child: InkWell(
+                              onTap: () => _dismissDialog(context),
+                              child: Image.asset(
+                                'assets/icons/cancel.png',
+                                width: cancelSize,
+                                height: cancelSize,
+                              ),
+                            ),
                           ),
-                          const SizedBox(width: 14),
-                          FlyoutTile(
-                            imagePath: 'assets/icons/menu_323.png',
-                            label: compactLabels
-                                ? l10n.menuTripleShort
-                                : l10n.menuTripleThreat,
-                            disabled: false,
-                            width: 190,
-                            height: 170,
-                            color: AppColors.red,
-                            onTap: () {
-                              Navigator.of(ctx).pop();
-                              _pushWithSlide(
-                                context,
-                                DuelPage(
-                                  controller: controller,
-                                  playerCount: 3,
-                                ),
-                                const Offset(1.0, 0.0),
-                              );
-                            },
-                          ),
-                          const SizedBox(width: 14),
-                          FlyoutTile(
-                            imagePath: 'assets/icons/menu_424.png',
-                            label: compactLabels
-                                ? l10n.menuQuadShort
-                                : l10n.menuQuadClash,
-                            disabled: false,
-                            width: 190,
-                            height: 170,
-                            color: AppColors.green,
-                            onTap: () {
-                              Navigator.of(ctx).pop();
-                              _pushWithSlide(
-                                context,
-                                DuelPage(
-                                  controller: controller,
-                                  playerCount: 4,
-                                ),
-                                const Offset(1.0, 0.0),
-                              );
-                            },
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
+                      SizedBox(height: cancelSpacing),
+                      FadeTransition(
+                        opacity: curved,
+                        child: ScaleTransition(
+                          scale: Tween<double>(begin: 0.96, end: 1.0).animate(curved),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              FlyoutTile(
+                                imagePath: 'assets/icons/menu_121.png',
+                                label: compactLabels
+                                    ? l10n.menuDuelShort
+                                    : l10n.menuDuelMode,
+                                disabled: false,
+                                width: tileWidth,
+                                height: tileHeight,
+                                color: AppColors.blue,
+                                onTap: () {
+                                  _dismissDialog(context);
+                                  _pushWithSlide(
+                                    context,
+                                    DuelPage(controller: controller),
+                                    const Offset(1.0, 0.0),
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 14),
+                              FlyoutTile(
+                                imagePath: 'assets/icons/menu_323.png',
+                                label: compactLabels
+                                    ? l10n.menuTripleShort
+                                    : l10n.menuTripleThreat,
+                                disabled: false,
+                                width: tileWidth,
+                                height: tileHeight,
+                                color: AppColors.red,
+                                onTap: () {
+                                  _dismissDialog(context);
+                                  _pushWithSlide(
+                                    context,
+                                    DuelPage(
+                                      controller: controller,
+                                      playerCount: 3,
+                                    ),
+                                    const Offset(1.0, 0.0),
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 14),
+                              FlyoutTile(
+                                imagePath: 'assets/icons/menu_424.png',
+                                label: compactLabels
+                                    ? l10n.menuQuadShort
+                                    : l10n.menuQuadClash,
+                                disabled: false,
+                                width: tileWidth,
+                                height: tileHeight,
+                                color: AppColors.green,
+                                onTap: () {
+                                  _dismissDialog(context);
+                                  _pushWithSlide(
+                                    context,
+                                    DuelPage(
+                                      controller: controller,
+                                      playerCount: 4,
+                                    ),
+                                    const Offset(1.0, 0.0),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
