@@ -332,7 +332,7 @@ class _DuelPageState extends State<DuelPage> {
                                     const SizedBox(width: 1),
                                   ],
                                 ),
-                                const SizedBox(height: 10),
+                                const SizedBox(height: 20),
                                 Center(child: playerCountsRow),
                               ],
                             );
