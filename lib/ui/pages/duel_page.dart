@@ -438,6 +438,7 @@ class _DuelPageState extends State<DuelPage> {
                     ),
                   ),
                 ),
+                if (isMobile) const SizedBox(height: 20),
                 // No simulate/statistics/undo row in duel mode
               ],
             ),
