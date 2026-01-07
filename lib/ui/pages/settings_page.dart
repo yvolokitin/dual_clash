@@ -424,17 +424,20 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       gradient: selectedBorderGradient,
                       borderRadius: tileRadius,
                     )
-                  : null,
-              padding: EdgeInsets.all(selected ? borderWidth : 0),
+                  : BoxDecoration(
+                      borderRadius: tileRadius,
+                      border: Border.all(
+                        color: Colors.transparent,
+                        width: borderWidth,
+                      ),
+                    ),
+              padding: const EdgeInsets.all(borderWidth),
               child: Container(
                 width: tileWidth,
                 height: tileHeight,
                 decoration: BoxDecoration(
                   color: Colors.transparent,
                   borderRadius: tileRadius,
-                  border: selected
-                      ? null
-                      : Border.all(color: Colors.white12, width: 1),
                 ),
                 child: ClipRRect(
                   borderRadius: tileRadius,
