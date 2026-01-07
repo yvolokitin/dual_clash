@@ -103,10 +103,9 @@ abstract class AppLocalizations {
     Locale('en'),
     Locale('es'),
     Locale('fr'),
+    Locale('pl'),
     Locale('ru'),
     Locale('uk')
-    Locale('pl'),
-    Locale('ru')
   ];
 
   /// No description provided for @appTitle.
@@ -1302,9 +1301,15 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['de', 'en', 'es', 'fr', 'pl', 'ru', 'uk']
-          .contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>[
+        'de',
+        'en',
+        'es',
+        'fr',
+        'pl',
+        'ru',
+        'uk'
+      ].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;

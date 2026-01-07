@@ -358,7 +358,8 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get redTerritoryControlled => 'Terytorium gracza czerwonego kontrolowane.';
+  String get redTerritoryControlled =>
+      'Terytorium gracza czerwonego kontrolowane.';
 
   @override
   String get blueTerritoryControlled =>
@@ -389,8 +390,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get playAgainLabel => 'Zagraj ponownie';
 
   @override
-  String get continueNextAiLevelLabel =>
-      'Kontynuuj na następnym poziomie SI';
+  String get continueNextAiLevelLabel => 'Kontynuuj na następnym poziomie SI';
 
   @override
   String get playLowerAiLevelLabel => 'Graj na niższym poziomie SI';
@@ -651,7 +651,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String countryName(String country) {
-    return intl.Intl.selectLogic(
+    String _temp0 = intl.Intl.selectLogic(
       country,
       {
         'Afghanistan': 'Afganistan',
@@ -850,16 +850,15 @@ class AppLocalizationsPl extends AppLocalizations {
         'Zimbabwe': 'Zimbabwe',
         'other': 'Wakanda',
       },
-      desc: 'countryName',
     );
+    return '$_temp0';
   }
 
   @override
   String get deleteSaveTitle => 'Usunąć zapis?';
 
   @override
-  String get deleteSaveMessage =>
-      'Czy na pewno chcesz usunąć tę zapisaną grę?';
+  String get deleteSaveMessage => 'Czy na pewno chcesz usunąć tę zapisaną grę?';
 
   @override
   String get failedToDeleteMessage => 'Nie udało się usunąć';

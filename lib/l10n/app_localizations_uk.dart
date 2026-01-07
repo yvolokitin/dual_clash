@@ -266,14 +266,16 @@ class AppLocalizationsUk extends AppLocalizations {
       'Зелений — Складний: поверхневий пошук із передбаченням.';
 
   @override
-  String get aiDifficultyTipHard => 'Синій — Важкий: глибший пошук із відсіканням.';
+  String get aiDifficultyTipHard =>
+      'Синій — Важкий: глибший пошук із відсіканням.';
 
   @override
   String get aiDifficultyTipExpert =>
       'Коричневий — Експерт: просунуте відсікання та кешування.';
 
   @override
-  String get aiDifficultyTipMaster => 'Чорний — Майстер: найсильніший і найрозважливіший.';
+  String get aiDifficultyTipMaster =>
+      'Чорний — Майстер: найсильніший і найрозважливіший.';
 
   @override
   String get aiDifficultyTipSelect => 'Оберіть рівень поясу.';
@@ -632,22 +634,22 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String durationSeconds(Object seconds) {
-    return '${seconds}с';
+    return '$secondsс';
   }
 
   @override
   String durationMinutesSeconds(Object minutes, Object seconds) {
-    return '${minutes}хв ${seconds}с';
+    return '$minutesхв $secondsс';
   }
 
   @override
   String durationHoursMinutes(Object hours, Object minutes) {
-    return '${hours}год ${minutes}хв';
+    return '$hoursгод $minutesхв';
   }
 
   @override
-  String countryName(Object country) {
-    return intl.Intl.selectLogic(
+  String countryName(String country) {
+    String _temp0 = intl.Intl.selectLogic(
       country,
       {
         'Afghanistan': 'Афганістан',
@@ -847,6 +849,7 @@ class AppLocalizationsUk extends AppLocalizations {
         'other': 'Ваканда',
       },
     );
+    return '$_temp0';
   }
 
   @override
