@@ -371,6 +371,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
     // Capture for builder
     final Rect duelRect = rect;
     final Rect targetGameRect = gameRect;
+    final Rect targetDuelRect = duelRect;
     final Rect targetLoadRect = loadRect;
     final Rect targetPlayerHubRect = playerHubRect;
 
@@ -401,8 +402,9 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
           animation: curved,
           builder: (context, _) {
             final r1 = _lerpRect(from, targetGameRect, curved.value);
-            final r2 = _lerpRect(from, targetLoadRect, curved.value);
-            final r3 = _lerpRect(from, targetPlayerHubRect, curved.value);
+            final r2 = _lerpRect(from, targetDuelRect, curved.value);
+            final r3 = _lerpRect(from, targetLoadRect, curved.value);
+            final r4 = _lerpRect(from, targetPlayerHubRect, curved.value);
             return Stack(
               children: [
                 // Tapping anywhere dismisses
@@ -410,44 +412,12 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                   child: GestureDetector(onTap: () => _dismissPlayerHub(context)),
                 ),
 
-                // Duel (active) → lands over Game challenge
+                // Triple Threat → lands over Game challenge
                 Positioned(
                   left: r1.left,
                   top: r1.top,
                   width: r1.width,
                   height: r1.height,
-                  child: FadeTransition(
-                    opacity: curved,
-                    child: ScaleTransition(
-                      scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
-                      child: FlyoutTile(
-                        imagePath: 'assets/icons/menu_121.png',
-                        label: compactLabels
-                            ? l10n.menuDuelShort
-                            : l10n.menuDuelMode,
-                        disabled: false,
-                        color: AppColors.blue,
-                        onTap: () {
-                          Navigator.of(ctx).pop();
-                          _pushWithSlide(
-                            context,
-                            DuelPage(controller: controller),
-                            const Offset(1.0, 0.0),
-                          );
-                        },
-                        width: r1.width,
-                        height: r1.height,
-                      ),
-                    ),
-                  ),
-                ),
-
-                // Triple → lands over Load game
-                Positioned(
-                  left: r2.left,
-                  top: r2.top,
-                  width: r2.width,
-                  height: r2.height,
                   child: FadeTransition(
                     opacity: curved,
                     child: ScaleTransition(
@@ -467,6 +437,38 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                             const Offset(1.0, 0.0),
                           );
                         },
+                        width: r1.width,
+                        height: r1.height,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Duel Mode → lands over Duel tile
+                Positioned(
+                  left: r2.left,
+                  top: r2.top,
+                  width: r2.width,
+                  height: r2.height,
+                  child: FadeTransition(
+                    opacity: curved,
+                    child: ScaleTransition(
+                      scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
+                      child: FlyoutTile(
+                        imagePath: 'assets/icons/menu_121.png',
+                        label: compactLabels
+                            ? l10n.menuDuelShort
+                            : l10n.menuDuelMode,
+                        disabled: false,
+                        color: AppColors.blue,
+                        onTap: () {
+                          Navigator.of(ctx).pop();
+                          _pushWithSlide(
+                            context,
+                            DuelPage(controller: controller),
+                            const Offset(1.0, 0.0),
+                          );
+                        },
                         width: r2.width,
                         height: r2.height,
                       ),
@@ -474,7 +476,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                   ),
                 ),
 
-                // Quad → lands over Player Hub
+                // Quad Clash → lands over Load game
                 Positioned(
                   left: r3.left,
                   top: r3.top,
@@ -501,6 +503,28 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         },
                         width: r3.width,
                         height: r3.height,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Alliance 2vs2 → lands over Player Hub
+                Positioned(
+                  left: r4.left,
+                  top: r4.top,
+                  width: r4.width,
+                  height: r4.height,
+                  child: FadeTransition(
+                    opacity: curved,
+                    child: ScaleTransition(
+                      scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
+                      child: FlyoutTile(
+                        imagePath: 'assets/icons/menu_222.png',
+                        label: l10n.menuAlliance2v2,
+                        disabled: true,
+                        color: Colors.grey,
+                        width: r4.width,
+                        height: r4.height,
                       ),
                     ),
                   ),
