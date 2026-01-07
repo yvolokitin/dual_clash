@@ -201,7 +201,9 @@ class _DuelPageState extends State<DuelPage> {
   void dispose() {
     // Restore default mode when leaving Duel page
     widget.controller.humanVsHuman = false;
-    widget.controller.setDuelPlayerCount(2);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.controller.setDuelPlayerCount(2);
+    });
     super.dispose();
   }
 
