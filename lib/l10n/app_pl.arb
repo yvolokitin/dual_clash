@@ -1,0 +1,289 @@
+{
+  "@@locale": "pl",
+  "appTitle": "Two Touch {size}",
+  "@appTitle": {
+    "placeholders": {
+      "size": {}
+    }
+  },
+  "commonClose": "Zamknij",
+  "commonCancel": "Anuluj",
+  "commonSave": "Zapisz",
+  "commonConfirm": "Potwierdź",
+  "commonYes": "Tak",
+  "commonNo": "Nie",
+  "deleteLabel": "Usuń",
+  "playLabel": "Graj",
+  "leaveLabel": "Wyjdź",
+  "menuTitle": "Menu",
+  "mainMenuBarrierLabel": "Menu główne",
+  "mainMenuTooltip": "Menu główne",
+  "gameMenuTitle": "Menu gry",
+  "returnToMainMenuLabel": "Powrót do menu głównego",
+  "returnToMainMenuTitle": "Powrót do menu głównego",
+  "returnToMainMenuMessage": "Czy chcesz wrócić do menu głównego?\n\nPostęp nie zostanie zapisany.",
+  "restartGameLabel": "Zrestartuj/rozpocznij grę",
+  "restartGameTitle": "Zrestartuj grę",
+  "restartGameMessage": "Zrestartować grę od początku?\n\nBieżący postęp zostanie utracony.",
+  "statisticsTitle": "Statystyki",
+  "helpTitle": "Jak grać",
+  "settingsTitle": "Ustawienia",
+  "profileTitle": "Profil",
+  "historyTitle": "Historia",
+  "saveGameTitle": "Zapisz grę",
+  "saveGameNameLabel": "Nazwa zapisu",
+  "saveGameNameHint": "Wpisz nazwę...",
+  "saveGameBarrierLabel": "Zapis gry",
+  "gameSavedMessage": "Gra zapisana",
+  "simulateGameLabel": "Symuluj grę",
+  "simulateGameHumanWinLabel": "Symuluj grę (wygrana gracza)",
+  "simulateGameAiWinLabel": "Symuluj grę (wygrana SI)",
+  "simulateGameGreyWinLabel": "Symuluj grę (wygrana szarych)",
+  "removeAdsLabel": "Usuń reklamy — 1€",
+  "restorePurchasesLabel": "Przywróć zakupy",
+  "menuGameShort": "Gra",
+  "menuGameChallenge": "Wyzwanie gry",
+  "menuDuelShort": "Pojedynek",
+  "menuDuelMode": "Tryb pojedynku",
+  "menuLoadShort": "Wczytaj",
+  "menuLoadGame": "Wczytaj grę",
+  "menuHubShort": "Hub",
+  "menuPlayerHub": "Hub gracza",
+  "menuTripleShort": "Potrójny",
+  "menuTripleThreat": "Potrójne starcie",
+  "menuQuadShort": "Czwórka",
+  "menuQuadClash": "Czwórny pojedynek",
+  "playerHubBarrierLabel": "Hub gracza",
+  "modesBarrierLabel": "Tryby",
+  "languageTitle": "Język",
+  "userProfileLabel": "Profil użytkownika",
+  "gameChallengeLabel": "Wyzwanie gry",
+  "gameChallengeComingSoon": "Wyzwanie gry już wkrótce",
+  "loadGameBarrierLabel": "Wczytaj grę",
+  "noSavedGamesMessage": "Brak zapisanych gier",
+  "savedGameDefaultName": "Zapisana gra",
+  "savedGameSubtitle": "{when} • Tura: {turn}",
+  "@savedGameSubtitle": {
+    "placeholders": {
+      "when": {},
+      "turn": {}
+    }
+  },
+  "helpGoalTitle": "Cel",
+  "helpGoalBody": "Wypełnij planszę {board}, wykonując ruchy na zmianę z SI. Ty jesteś czerwony, SI jest niebieska. Gracz z wyższym ŁĄCZNYM wynikiem wygrywa.",
+  "@helpGoalBody": {
+    "placeholders": {
+      "board": {}
+    }
+  },
+  "helpTurnsTitle": "Tury i umieszczanie",
+  "helpTurnsBody": "Dotknij dowolnej pustej komórki, aby umieścić swój kolor. Po twoim ruchu SI umieszcza niebieski. Gracza rozpoczynającego można zmienić w Ustawieniach.",
+  "helpScoringTitle": "Punktacja",
+  "helpScoringBase": "Wynik podstawowy: liczba pól twojego koloru na planszy po zakończeniu gry.",
+  "helpScoringBonus": "Premia: +50 punktów za każdy pełny wiersz lub kolumnę wypełnioną twoim kolorem.",
+  "helpScoringTotal": "Wynik łączny: wynik podstawowy + premia.",
+  "helpScoringEarning": "Zdobywanie punktów podczas gry (Czerwony): +1 za każde umieszczenie, +2 dodatkowe za narożnik, +2 za każde Niebieskie zmienione na Neutralne, +3 za każde Neutralne zmienione na Czerwone, +50 za każdy nowy pełny czerwony wiersz/kolumnę.",
+  "helpScoringCumulative": "Twój łączny licznik trofeów tylko rośnie. Punkty są dodawane po każdej zakończonej grze na podstawie twojego łącznego wyniku Czerwonego. Działania przeciwnika nigdy nie zmniejszają twojego łącznego wyniku.",
+  "helpWinningTitle": "Zwycięstwo",
+  "helpWinningBody": "Gdy na planszy nie ma pustych pól, gra się kończy. Gracz z wyższym łącznym wynikiem wygrywa. Remisy są możliwe.",
+  "helpAiLevelTitle": "Poziom SI",
+  "helpAiLevelBody": "Wybierz trudność SI w Ustawieniach (1–7). Wyższe poziomy myślą dalej, ale zajmują więcej czasu.",
+  "helpHistoryProfileTitle": "Historia i profil",
+  "helpHistoryProfileBody": "Twoje zakończone gry są zapisywane w Historii ze wszystkimi szczegółami.",
+  "aiDifficultyTitle": "Trudność SI",
+  "aiDifficultyTipBeginner": "Biały — Początkujący: wykonuje losowe ruchy.",
+  "aiDifficultyTipEasy": "Żółty — Łatwy: preferuje natychmiastowe zyski.",
+  "aiDifficultyTipNormal": "Pomarańczowy — Normalny: zachłanny z podstawowym pozycjonowaniem.",
+  "aiDifficultyTipChallenging": "Zielony — Wymagający: płytkie przeszukiwanie z pewnym wyprzedzeniem.",
+  "aiDifficultyTipHard": "Niebieski — Trudny: głębsze przeszukiwanie z przycinaniem.",
+  "aiDifficultyTipExpert": "Brązowy — Ekspert: zaawansowane przycinanie i cache.",
+  "aiDifficultyTipMaster": "Czarny — Mistrz: najsilniejszy i najbardziej kalkulujący.",
+  "aiDifficultyTipSelect": "Wybierz poziom pasa.",
+  "aiDifficultyDetailBeginner": "Biały — Początkujący: losowe puste pola. Nieprzewidywalny, ale słaby.",
+  "aiDifficultyDetailEasy": "Żółty — Łatwy: zachłannie wybiera maksymalny natychmiastowy zysk.",
+  "aiDifficultyDetailNormal": "Pomarańczowy — Normalny: zachłanny z rozstrzyganiem w centrum, by preferować silniejsze pozycje.",
+  "aiDifficultyDetailChallenging": "Zielony — Wymagający: płytkie przeszukiwanie minimax (głębokość 2), bez przycinania.",
+  "aiDifficultyDetailHard": "Niebieski — Trudny: głębszy minimax z przycinaniem alfa–beta i porządkowaniem ruchów.",
+  "aiDifficultyDetailExpert": "Brązowy — Ekspert: głębszy minimax z przycinaniem + tabela transpozycji.",
+  "aiDifficultyDetailMaster": "Czarny — Mistrz: Monte Carlo Tree Search (~1500 symulacji w limicie czasu).",
+  "aiDifficultyDetailSelect": "Wybierz trudność SI, aby zobaczyć szczegóły.",
+  "currentAiLevelLabel": "Aktualny poziom SI",
+  "aiLevelDisplay": "{belt} ({level})",
+  "@aiLevelDisplay": {
+    "placeholders": {
+      "belt": {},
+      "level": {}
+    }
+  },
+  "resultsTitle": "Wyniki",
+  "timePlayedLabel": "Czas gry",
+  "redTurnsLabel": "Tury czerwone",
+  "blueTurnsLabel": "Tury niebieskie",
+  "yellowTurnsLabel": "Tury żółte",
+  "greenTurnsLabel": "Tury zielone",
+  "playerTurnsLabel": "Tury gracza",
+  "aiTurnsLabel": "Tury SI",
+  "newBestScoreLabel": "Nowy najlepszy wynik",
+  "pointsBelowBestScore": "{points} punktów poniżej najlepszego wyniku",
+  "@pointsBelowBestScore": {
+    "placeholders": {
+      "points": {}
+    }
+  },
+  "youWinReachedScore": "Wygrywasz i osiągnąłeś {score} punktów",
+  "@youWinReachedScore": {
+    "placeholders": {
+      "score": {}
+    }
+  },
+  "redTerritoryControlled": "Terytorium gracza czerwonego kontrolowane.",
+  "blueTerritoryControlled": "Terytorium gracza niebieskiego kontrolowane.",
+  "neutralTerritoryControlled": "Terytorium neutralne kontrolowane.",
+  "territoryBalanced": "Terytorium zrównoważone.",
+  "performanceLost": "Przegrałeś. Potrzebna strategia.",
+  "performanceBrilliantEndgame": "Genialny finał",
+  "performanceGreatControl": "Świetna kontrola",
+  "performanceRiskyEffective": "Ryzykowne, ale skuteczne",
+  "performanceSolidStrategy": "Solidna strategia",
+  "playAgainLabel": "Zagraj ponownie",
+  "continueNextAiLevelLabel": "Kontynuuj na następnym poziomie SI",
+  "playLowerAiLevelLabel": "Graj na niższym poziomie SI",
+  "replaySameLevelLabel": "Powtórz ten sam poziom",
+  "aiThinkingLabel": "SI myśli...",
+  "simulatingGameLabel": "Symulacja gry...",
+  "noTurnsYetMessage": "Brak tur w tej grze",
+  "turnLabel": "Tura {turn}",
+  "@turnLabel": {
+    "placeholders": {
+      "turn": {}
+    }
+  },
+  "undoLastActionTooltip": "Cofnij ostatnią akcję",
+  "historyTabGames": "Gry",
+  "historyTabDailyActivity": "Aktywność dzienna",
+  "noFinishedGamesYet": "Brak zakończonych gier",
+  "gamesCountLabel": "Gry: {count}",
+  "@gamesCountLabel": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "winsLabel": "Wygrane",
+  "lossesLabel": "Przegrane",
+  "drawsLabel": "Remisy",
+  "totalTimeLabel": "Łączny czas",
+  "resultDraw": "Remis",
+  "resultPlayerWins": "Wygrana gracza",
+  "resultAiWins": "Wygrana SI",
+  "aiLabelWithName": "SI: {name}",
+  "@aiLabelWithName": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "winnerLabel": "Zwycięzca: {result}",
+  "@winnerLabel": {
+    "placeholders": {
+      "result": {}
+    }
+  },
+  "yourScoreLabel": "Twój wynik",
+  "timeLabel": "Czas",
+  "redBaseLabel": "Czerwony bazowy",
+  "blueBaseLabel": "Niebieski bazowy",
+  "totalBlueLabel": "Suma N",
+  "turnsRedLabel": "Tury C",
+  "turnsBlueLabel": "Tury N",
+  "ageLabel": "Wiek",
+  "nicknameLabel": "Pseudonim",
+  "enterNicknameHint": "Wpisz pseudonim",
+  "countryLabel": "Kraj",
+  "beltsTitle": "Pasy",
+  "achievementsTitle": "Osiągnięcia",
+  "achievementFullRow": "Pełny wiersz",
+  "achievementFullColumn": "Pełna kolumna",
+  "achievementDiagonal": "Przekątna",
+  "achievement100GamePoints": "100 punktów gry",
+  "achievement1000GamePoints": "1000 punktów gry",
+  "nicknameRequiredError": "Pseudonim jest wymagany",
+  "nicknameMaxLengthError": "Maksymalnie 32 znaki",
+  "nicknameInvalidCharsError": "Użyj liter, cyfr, kropki, myślnika lub podkreślenia",
+  "nicknameUpdatedMessage": "Pseudonim zaktualizowany",
+  "noBeltsEarnedYetMessage": "Brak zdobytych pasów.",
+  "whoStartsFirstLabel": "Kto zaczyna",
+  "startingPlayerHuman": "Człowiek (Czerwony)",
+  "startingPlayerAi": "SI (Niebieski)",
+  "leaveDuelBarrierLabel": "Opuść pojedynek",
+  "leaveDuelTitle": "Opuść pojedynek",
+  "leaveDuelMessage": "Opuścić tryb pojedynku i wrócić do menu głównego?\n\nPostęp nie zostanie zapisany.",
+  "leaveBarrierLabel": "Wyjdź",
+  "leaveModeTitle": "Opuść {mode}",
+  "@leaveModeTitle": {
+    "placeholders": {
+      "mode": {}
+    }
+  },
+  "leaveMultiModeMessage": "Wrócić do menu głównego?\n\nPostęp nie zostanie zapisany.",
+  "colorRedLabel": "CZERWONY",
+  "colorBlueLabel": "NIEBIESKI",
+  "colorYellowLabel": "ŻÓŁTY",
+  "colorGreenLabel": "ZIELONY",
+  "redShortLabel": "C",
+  "blueShortLabel": "N",
+  "yellowShortLabel": "Ż",
+  "greenShortLabel": "Z",
+  "supportTheDevLabel": "Wesprzyj twórcę",
+  "aiBeltWhite": "Biały",
+  "aiBeltYellow": "Żółty",
+  "aiBeltOrange": "Pomarańczowy",
+  "aiBeltGreen": "Zielony",
+  "aiBeltBlue": "Niebieski",
+  "aiBeltBrown": "Brązowy",
+  "aiBeltBlack": "Czarny",
+  "scorePlace": "+1 pole",
+  "scoreCorner": "+2 narożnik",
+  "scoreBlueToGrey": "+2 x{count} niebieski→szary",
+  "@scoreBlueToGrey": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "scoreGreyToRed": "+3 x{count} szary→czerwony",
+  "@scoreGreyToRed": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "scorePlaceShort": "Umieść",
+  "scoreZeroBlow": "0 cios",
+  "scoreZeroGreyDrop": "0 szary spadek",
+  "durationSeconds": "{seconds}s",
+  "@durationSeconds": {
+    "placeholders": {
+      "seconds": {}
+    }
+  },
+  "durationMinutesSeconds": "{minutes}m {seconds}s",
+  "@durationMinutesSeconds": {
+    "placeholders": {
+      "minutes": {},
+      "seconds": {}
+    }
+  },
+  "durationHoursMinutes": "{hours}h {minutes}m",
+  "@durationHoursMinutes": {
+    "placeholders": {
+      "hours": {},
+      "minutes": {}
+    }
+  },
+  "countryName": "{country, select, Afghanistan{Afganistan} Albania{Albania} Algeria{Algieria} Andorra{Andora} Angola{Angola} Antigua_and_Barbuda{Antigua i Barbuda} Argentina{Argentyna} Armenia{Armenia} Australia{Australia} Austria{Austria} Azerbaijan{Azerbejdżan} Bahamas{Bahamy} Bahrain{Bahrajn} Bangladesh{Bangladesz} Barbados{Barbados} Belarus{Białoruś} Belgium{Belgia} Belize{Belize} Benin{Benin} Bhutan{Bhutan} Bolivia{Boliwia} Bosnia_and_Herzegovina{Bośnia i Hercegowina} Botswana{Botswana} Brazil{Brazylia} Brunei{Brunei} Bulgaria{Bułgaria} Burkina_Faso{Burkina Faso} Burundi{Burundi} Cabo_Verde{Cabo Verde} Cambodia{Kambodża} Cameroon{Kamerun} Canada{Kanada} Central_African_Republic{Republika Środkowoafrykańska} Chad{Czad} Chile{Chile} China{Chiny} Colombia{Kolumbia} Comoros{Komory} Congo_Congo_Brazzaville{Kongo (Brazzaville)} Costa_Rica{Kostaryka} Croatia{Chorwacja} Cuba{Kuba} Cyprus{Cypr} Czechia{Czechy} Democratic_Republic_of_the_Congo{Demokratyczna Republika Konga} Denmark{Dania} Djibouti{Dżibuti} Dominica{Dominika} Dominican_Republic{Dominikana} Ecuador{Ekwador} Egypt{Egipt} El_Salvador{Salwador} Equatorial_Guinea{Gwinea Równikowa} Eritrea{Erytrea} Estonia{Estonia} Eswatini{Eswatini} Ethiopia{Etiopia} Fiji{Fidżi} Finland{Finlandia} France{Francja} Gabon{Gabon} Gambia{Gambia} Georgia{Gruzja} Germany{Niemcy} Ghana{Ghana} Greece{Grecja} Grenada{Grenada} Guatemala{Gwatemala} Guinea{Gwinea} Guinea_Bissau{Gwinea Bissau} Guyana{Gujana} Haiti{Haiti} Honduras{Honduras} Hungary{Węgry} Iceland{Islandia} India{Indie} Indonesia{Indonezja} Iran{Iran} Iraq{Irak} Ireland{Irlandia} Israel{Izrael} Italy{Włochy} Jamaica{Jamajka} Japan{Japonia} Jordan{Jordania} Kazakhstan{Kazachstan} Kenya{Kenia} Kiribati{Kiribati} Kuwait{Kuwejt} Kyrgyzstan{Kirgistan} Laos{Laos} Latvia{Łotwa} Lebanon{Liban} Lesotho{Lesotho} Liberia{Liberia} Libya{Libia} Liechtenstein{Liechtenstein} Lithuania{Litwa} Luxembourg{Luksemburg} Madagascar{Madagaskar} Malawi{Malawi} Malaysia{Malezja} Maldives{Malediwy} Mali{Mali} Malta{Malta} Marshall_Islands{Wyspy Marshalla} Mauritania{Mauretania} Mauritius{Mauritius} Mexico{Meksyk} Micronesia{Mikronezja} Moldova{Mołdawia} Monaco{Monako} Mongolia{Mongolia} Montenegro{Czarnogóra} Morocco{Maroko} Mozambique{Mozambik} Myanmar{Mjanma} Namibia{Namibia} Nauru{Nauru} Nepal{Nepal} Netherlands{Niderlandy} New_Zealand{Nowa Zelandia} Nicaragua{Nikaragua} Niger{Niger} Nigeria{Nigeria} North_Korea{Korea Północna} North_Macedonia{Macedonia Północna} Norway{Norwegia} Oman{Oman} Pakistan{Pakistan} Palau{Palau} Panama{Panama} Papua_New_Guinea{Papua-Nowa Gwinea} Paraguay{Paragwaj} Peru{Peru} Philippines{Filipiny} Poland{Polska} Portugal{Portugalia} Qatar{Katar} Romania{Rumunia} Russia{Rosja} Rwanda{Rwanda} Saint_Kitts_and_Nevis{Saint Kitts i Nevis} Saint_Lucia{Saint Lucia} Saint_Vincent_and_the_Grenadines{Saint Vincent i Grenadyny} Samoa{Samoa} San_Marino{San Marino} Sao_Tome_and_Principe{Wyspy Świętego Tomasza i Książęca} Saudi_Arabia{Arabia Saudyjska} Senegal{Senegal} Serbia{Serbia} Seychelles{Seszele} Sierra_Leone{Sierra Leone} Singapore{Singapur} Slovakia{Słowacja} Slovenia{Słowenia} Solomon_Islands{Wyspy Salomona} Somalia{Somalia} South_Africa{Republika Południowej Afryki} South_Korea{Korea Południowa} South_Sudan{Sudan Południowy} Spain{Hiszpania} Sri_Lanka{Sri Lanka} Sudan{Sudan} Suriname{Surinam} Sweden{Szwecja} Switzerland{Szwajcaria} Syria{Syria} Taiwan{Tajwan} Tajikistan{Tadżykistan} Tanzania{Tanzania} Thailand{Tajlandia} Timor_Leste{Timor Wschodni} Togo{Togo} Tonga{Tonga} Trinidad_and_Tobago{Trynidad i Tobago} Tunisia{Tunezja} Turkey{Turcja} Turkmenistan{Turkmenistan} Tuvalu{Tuvalu} Uganda{Uganda} Ukraine{Ukraina} United_Arab_Emirates{Zjednoczone Emiraty Arabskie} United_Kingdom{Zjednoczone Królestwo} United_States{Stany Zjednoczone} Uruguay{Urugwaj} Uzbekistan{Uzbekistan} Vanuatu{Vanuatu} Vatican_City{Watykan} Venezuela{Wenezuela} Vietnam{Wietnam} Yemen{Jemen} Zambia{Zambia} Zimbabwe{Zimbabwe} other{Wakanda}}",
+  "@countryName": {
+    "placeholders": {
+      "country": {}
+    }
+  },
+  "deleteSaveTitle": "Usunąć zapis?",
+  "deleteSaveMessage": "Czy na pewno chcesz usunąć tę zapisaną grę?",
+  "failedToDeleteMessage": "Nie udało się usunąć"
+}
