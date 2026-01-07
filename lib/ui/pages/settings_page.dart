@@ -184,7 +184,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Language selector
-                          _label(l10n.languageTitle),
+                          _label(l10n.settingsTitle),
                           Wrap(
                             spacing: 8,
                             runSpacing: 8,
