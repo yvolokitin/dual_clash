@@ -624,7 +624,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: FlyoutTile(
                         imagePath: 'assets/icons/menu_options.png',
-                        label: l10n.languageTitle,
+                        label: l10n.settingsTitle,
                         disabled: false,
                         color: _violet,
                         onTap: () {
@@ -751,7 +751,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                           ),
                           FlyoutTile(
                             imagePath: 'assets/icons/menu_options.png',
-                            label: l10n.languageTitle,
+                            label: l10n.settingsTitle,
                             disabled: false,
                             width: 190,
                             height: 170,
