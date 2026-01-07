@@ -9,6 +9,7 @@ import 'app_localizations_de.dart';
 import 'app_localizations_en.dart';
 import 'app_localizations_es.dart';
 import 'app_localizations_fr.dart';
+import 'app_localizations_nl.dart';
 import 'app_localizations_pl.dart';
 import 'app_localizations_ru.dart';
 import 'app_localizations_uk.dart';
@@ -103,6 +104,7 @@ abstract class AppLocalizations {
     Locale('en'),
     Locale('es'),
     Locale('fr'),
+    Locale('nl'),
     Locale('pl'),
     Locale('ru'),
     Locale('uk')
@@ -1303,15 +1305,16 @@ class _AppLocalizationsDelegate
 
   @override
   Future<AppLocalizations> load(Locale locale) {
-    return SynchronousFuture<AppLocalizations>(lookupAppLocalizations(locale));
+      return SynchronousFuture<AppLocalizations>(lookupAppLocalizations(locale));
   }
 
   @override
-  bool isSupported(Locale locale) => <String>[
+      bool isSupported(Locale locale) => <String>[
         'de',
         'en',
         'es',
         'fr',
+        'nl',
         'pl',
         'ru',
         'uk'
@@ -1332,6 +1335,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
       return AppLocalizationsEs();
     case 'fr':
       return AppLocalizationsFr();
+    case 'nl':
+      return AppLocalizationsNl();
     case 'pl':
       return AppLocalizationsPl();
     case 'ru':
