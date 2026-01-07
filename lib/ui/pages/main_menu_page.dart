@@ -716,6 +716,9 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
           curve: Curves.easeOutCubic,
           reverseCurve: Curves.easeInCubic,
         );
+        const tileWidth = 190.0;
+        const tileHeight = 170.0;
+        final cancelSize = tileWidth * 0.25;
         return Center(
           child: FadeTransition(
             opacity: curved,
@@ -729,67 +732,81 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                     constraints: const BoxConstraints(maxWidth: 720),
                     child: Material(
                       color: Colors.transparent,
-                      child: Wrap(
-                        alignment: WrapAlignment.center,
-                        spacing: 14,
-                        runSpacing: 14,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          FlyoutTile(
-                            imagePath: 'assets/icons/menu_profile.png',
-                            label: l10n.profileTitle,
-                            disabled: false,
-                            width: 190,
-                            height: 170,
-                            color: AppColors.red,
-                            onTap: () {
-                              Navigator.of(ctx).pop();
-                              showAnimatedProfileDialog(
-                                context: context,
-                                controller: controller,
-                              );
-                            },
+                          GestureDetector(
+                            onTap: () => Navigator.of(ctx).pop(),
+                            child: Image.asset(
+                              'assets/icons/cancel.png',
+                              width: cancelSize,
+                              height: cancelSize,
+                            ),
                           ),
-                          FlyoutTile(
-                            imagePath: 'assets/icons/menu_options.png',
-                            label: l10n.languageTitle,
-                            disabled: false,
-                            width: 190,
-                            height: 170,
-                            color: _violet,
-                            onTap: () {
-                              Navigator.of(ctx).pop();
-                              showAnimatedSettingsDialog(
-                                context: context,
-                                controller: controller,
-                              );
-                            },
-                          ),
-                          FlyoutTile(
-                            imagePath: 'assets/icons/menu_history.png',
-                            label: l10n.historyTitle,
-                            disabled: false,
-                            width: 190,
-                            height: 170,
-                            color: AppColors.blue,
-                            onTap: () {
-                              Navigator.of(ctx).pop();
-                              showAnimatedHistoryDialog(
-                                context: context,
-                                controller: controller,
-                              );
-                            },
-                          ),
-                          FlyoutTile(
-                            imagePath: 'assets/icons/menu_load.png',
-                            label: l10n.menuLoadGame,
-                            disabled: false,
-                            width: 190,
-                            height: 170,
-                            color: Colors.orange,
-                            onTap: () {
-                              Navigator.of(ctx).pop();
-                              _openLoadGameAfterClose(context, controller);
-                            },
+                          const SizedBox(height: 40),
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: 14,
+                            runSpacing: 14,
+                            children: [
+                              FlyoutTile(
+                                imagePath: 'assets/icons/menu_profile.png',
+                                label: l10n.profileTitle,
+                                disabled: false,
+                                width: tileWidth,
+                                height: tileHeight,
+                                color: AppColors.red,
+                                onTap: () {
+                                  Navigator.of(ctx).pop();
+                                  showAnimatedProfileDialog(
+                                    context: context,
+                                    controller: controller,
+                                  );
+                                },
+                              ),
+                              FlyoutTile(
+                                imagePath: 'assets/icons/menu_options.png',
+                                label: l10n.languageTitle,
+                                disabled: false,
+                                width: tileWidth,
+                                height: tileHeight,
+                                color: _violet,
+                                onTap: () {
+                                  Navigator.of(ctx).pop();
+                                  showAnimatedSettingsDialog(
+                                    context: context,
+                                    controller: controller,
+                                  );
+                                },
+                              ),
+                              FlyoutTile(
+                                imagePath: 'assets/icons/menu_history.png',
+                                label: l10n.historyTitle,
+                                disabled: false,
+                                width: tileWidth,
+                                height: tileHeight,
+                                color: AppColors.blue,
+                                onTap: () {
+                                  Navigator.of(ctx).pop();
+                                  showAnimatedHistoryDialog(
+                                    context: context,
+                                    controller: controller,
+                                  );
+                                },
+                              ),
+                              FlyoutTile(
+                                imagePath: 'assets/icons/menu_load.png',
+                                label: l10n.menuLoadGame,
+                                disabled: false,
+                                width: tileWidth,
+                                height: tileHeight,
+                                color: Colors.orange,
+                                onTap: () {
+                                  Navigator.of(ctx).pop();
+                                  _openLoadGameAfterClose(context, controller);
+                                },
+                              ),
+                            ],
                           ),
                         ],
                       ),
