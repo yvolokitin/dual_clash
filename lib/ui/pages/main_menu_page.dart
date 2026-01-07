@@ -38,6 +38,13 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
 
   bool _isCompactWidth(BuildContext context) => MediaQuery.of(context).size.width < 430;
 
+  void _dismissPlayerHub(BuildContext context) {
+    final navigator = Navigator.of(context, rootNavigator: true);
+    if (navigator.canPop()) {
+      navigator.pop();
+    }
+  }
+
   // Waves background animation
   AnimationController? _wavesCtrl;
   bool _wavesActive = false;
@@ -391,7 +398,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
               children: [
                 // Tapping anywhere dismisses
                 Positioned.fill(
-                  child: GestureDetector(onTap: () => Navigator.of(ctx).pop()),
+                  child: GestureDetector(onTap: () => _dismissPlayerHub(context)),
                 ),
 
                 // Duel (active) → lands over Game challenge
@@ -584,7 +591,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
             return Stack(
               children: [
                 Positioned.fill(
-                  child: GestureDetector(onTap: () => Navigator.of(ctx).pop()),
+                  child: GestureDetector(onTap: () => _dismissPlayerHub(context)),
                 ),
                 Positioned(
                   left: r1.left,
@@ -601,7 +608,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         disabled: false,
                         color: AppColors.red,
                         onTap: () {
-                          Navigator.of(ctx).pop();
+                          _dismissPlayerHub(context);
                           showAnimatedProfileDialog(
                             context: context,
                             controller: controller,
@@ -628,7 +635,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         disabled: false,
                         color: _violet,
                         onTap: () {
-                          Navigator.of(ctx).pop();
+                          _dismissPlayerHub(context);
                           showAnimatedSettingsDialog(
                             context: context,
                             controller: controller,
@@ -657,7 +664,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         disabled: false,
                         color: Colors.orange,
                         onTap: () {
-                          Navigator.of(ctx).pop();
+                          _dismissPlayerHub(context);
                           _openLoadGameAfterClose(context, controller);
                         },
                         width: r4.width,
@@ -681,7 +688,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         disabled: false,
                         color: AppColors.blue,
                         onTap: () {
-                          Navigator.of(ctx).pop();
+                          _dismissPlayerHub(context);
                           showAnimatedHistoryDialog(
                             context: context,
                             controller: controller,
@@ -736,7 +743,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           GestureDetector(
-                            onTap: () => Navigator.of(ctx).pop(),
+                            onTap: () => _dismissPlayerHub(context),
                             child: Image.asset(
                               'assets/icons/cancel.png',
                               width: cancelSize,
@@ -757,7 +764,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                 height: tileHeight,
                                 color: AppColors.red,
                                 onTap: () {
-                                  Navigator.of(ctx).pop();
+                                  _dismissPlayerHub(context);
                                   showAnimatedProfileDialog(
                                     context: context,
                                     controller: controller,
@@ -772,7 +779,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                 height: tileHeight,
                                 color: _violet,
                                 onTap: () {
-                                  Navigator.of(ctx).pop();
+                                  _dismissPlayerHub(context);
                                   showAnimatedSettingsDialog(
                                     context: context,
                                     controller: controller,
@@ -787,7 +794,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                 height: tileHeight,
                                 color: AppColors.blue,
                                 onTap: () {
-                                  Navigator.of(ctx).pop();
+                                  _dismissPlayerHub(context);
                                   showAnimatedHistoryDialog(
                                     context: context,
                                     controller: controller,
@@ -802,7 +809,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                 height: tileHeight,
                                 color: Colors.orange,
                                 onTap: () {
-                                  Navigator.of(ctx).pop();
+                                  _dismissPlayerHub(context);
                                   _openLoadGameAfterClose(context, controller);
                                 },
                               ),
