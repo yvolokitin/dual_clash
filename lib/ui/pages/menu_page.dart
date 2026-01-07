@@ -288,12 +288,12 @@ class _StatsAnimatedBox extends StatelessWidget {
               runAlignment: WrapAlignment.center,
               children: [
                 chip(
-                  icon: Image.asset('assets/icons/points-removebg.png',
+                  icon: Image.asset('assets/icons/star.png',
                       width: iconSize, height: iconSize),
                   text: '$totalScore',
                 ),
                 chip(
-                  icon: Image.asset('assets/icons/duration-removebg.png',
+                  icon: Image.asset('assets/icons/timer.png',
                       width: iconSize, height: iconSize),
                   text: _formatDuration(totalPlayTimeMs),
                 ),

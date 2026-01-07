@@ -426,7 +426,7 @@ class ResultsCard extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Image.asset('assets/icons/duration-removebg.png',
+          Image.asset('assets/icons/timer.png',
               width: 18, height: 18),
           const SizedBox(width: 4),
           Text(label,
