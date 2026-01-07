@@ -335,13 +335,13 @@ class _SettingsDialogState extends State<SettingsDialog> {
 
   List<(String, String, String)> _languageOptions() {
     return const [
-      ('en', 'English', 'assets/icons/lang_en.png'),
-      ('de', 'Deutsch', 'assets/icons/lang_de.png'),
-      ('es', 'Español', 'assets/icons/lang_es.png'),
-      ('fr', 'Français', 'assets/icons/lang_fr.png'),
-      ('pl', 'Polski', 'assets/icons/lang_pl.png'),
-      ('ru', 'Русский', 'assets/icons/lang_ru.png'),
-      ('uk', 'Українська', 'assets/icons/lang_ua.png'),
+      ('en', 'English', 'assets/icons/lang_en.jpg'),
+      ('de', 'Deutsch', 'assets/icons/lang_de.jpg'),
+      ('es', 'Español', 'assets/icons/lang_es.jpg'),
+      ('fr', 'Français', 'assets/icons/lang_fr.jpg'),
+      ('pl', 'Polski', 'assets/icons/lang_pl.jpg'),
+      ('ru', 'Русский', 'assets/icons/lang_ru.jpg'),
+      ('uk', 'Українська', 'assets/icons/lang_ua.jpg'),
     ];
   }
 
