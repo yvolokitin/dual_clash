@@ -217,7 +217,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                               _startingPlayerTile(
                                 selected: _startingPlayer == CellState.red,
                                 label: l10n.startingPlayerHuman,
-                                asset: 'assets/icons/human.png',
+                                asset: 'assets/icons/human.jpg',
                                 accent: AppColors.red,
                                 onTap: () => setState(
                                     () => _startingPlayer = CellState.red),
@@ -225,7 +225,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                               _startingPlayerTile(
                                 selected: _startingPlayer == CellState.blue,
                                 label: l10n.startingPlayerAi,
-                                asset: 'assets/icons/ai.png',
+                                asset: 'assets/icons/ai.jpg',
                                 accent: AppColors.blue,
                                 onTap: () => setState(
                                     () => _startingPlayer = CellState.blue),
