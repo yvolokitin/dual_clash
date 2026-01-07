@@ -189,9 +189,12 @@ class _DuelPageState extends State<DuelPage> {
     super.initState();
     // Enable human vs human and start a fresh game
     widget.controller.humanVsHuman = true;
-    widget.controller.setDuelPlayerCount(widget.playerCount);
-    // Ensure AI doesn't schedule at start
-    widget.controller.newGame();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      widget.controller.setDuelPlayerCount(widget.playerCount);
+      // Ensure AI doesn't schedule at start
+      widget.controller.newGame();
+    });
   }
 
   @override
