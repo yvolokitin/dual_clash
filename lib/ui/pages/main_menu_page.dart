@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:dual_clash/core/localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -588,10 +590,30 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
             final r2 = _lerpRect(hubRect, targetDuelRect, curved.value);
             final r3 = _lerpRect(hubRect, targetLoadRect, curved.value);
             final r4 = _lerpRect(hubRect, hubRect, curved.value);
+            final minLeft = math.min(math.min(r1.left, r2.left), math.min(r3.left, r4.left));
+            final maxRight = math.max(math.max(r1.right, r2.right), math.max(r3.right, r4.right));
+            final minTop = math.min(math.min(r1.top, r2.top), math.min(r3.top, r4.top));
+            final cancelSize = r1.width * 0.25;
+            final cancelLeft = (minLeft + maxRight) / 2 - cancelSize / 2;
+            final cancelTop = math.max(0.0, minTop - 40 - cancelSize);
             return Stack(
               children: [
                 Positioned.fill(
                   child: GestureDetector(onTap: () => _dismissPlayerHub(context)),
+                ),
+                Positioned(
+                  left: cancelLeft,
+                  top: cancelTop,
+                  width: cancelSize,
+                  height: cancelSize,
+                  child: GestureDetector(
+                    onTap: () => _dismissPlayerHub(context),
+                    child: Image.asset(
+                      'assets/icons/cancel.png',
+                      width: cancelSize,
+                      height: cancelSize,
+                    ),
+                  ),
                 ),
                 Positioned(
                   left: r1.left,
