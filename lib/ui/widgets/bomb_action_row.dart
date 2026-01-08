@@ -13,7 +13,7 @@ class BombActionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final enabled = controller.bombActionEnabled;
+    final enabled = controller.canPlaceBomb;
     final armed = controller.canActivateAnyBomb;
     final active = controller.bombMode;
     final accent = armed ? const Color(0xFFFFC34A) : Colors.white70;
