@@ -405,8 +405,19 @@ class GameController extends ChangeNotifier {
     return _turnIndexFor(current) - lastTurn < cooldown;
   }
 
-  bool get isBombCooldownVisual =>
-      isBombCooldownActive || _turnsFor(current) == 0;
+  CellState get bombVisualOwner => humanVsHuman ? current : CellState.red;
+
+  bool get isBombCooldownVisual {
+    final player = bombVisualOwner;
+    final lastTurn = _lastBombTurns[player];
+    if (lastTurn != null) {
+      final cooldown = _bombCooldownFor(player);
+      if (_turnIndexFor(player) - lastTurn < cooldown) {
+        return true;
+      }
+    }
+    return _turnsFor(player) == 0;
+  }
 
   String? get bombDragHint {
     if (!bombDragActive) return null;

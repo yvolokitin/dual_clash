@@ -39,7 +39,10 @@ class BombActionRow extends StatelessWidget {
               accent: accent,
               isCooldown: isCooldown,
               canDrag: canDrag,
-              onPressed: enabled ? controller.toggleBombMode : null,
+              onPressed: () {
+                if (!enabled) return;
+                controller.toggleBombMode();
+              },
               onDragStarted: controller.startBombDrag,
               onDragEnd: controller.endBombDrag,
             ),
