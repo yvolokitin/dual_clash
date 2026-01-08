@@ -19,7 +19,7 @@ class BombActionRow extends StatelessWidget {
     final accent = armed ? const Color(0xFFFFC34A) : Colors.white70;
     final hint = controller.bombActionHint;
     final canDrag = controller.canPlaceBomb;
-    final isSelected = active || controller.bombDragActive;
+    final isSelected = enabled && (active || controller.bombDragActive);
     final borderColor = isSelected ? const Color(0xFFFFC34A) : Colors.transparent;
     return SizedBox(
       width: boardWidth,
