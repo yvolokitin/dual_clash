@@ -1070,6 +1070,12 @@ abstract class AppLocalizations {
   /// **'Who starts first'**
   String get whoStartsFirstLabel;
 
+  /// No description provided for @whoStartsFirstTip.
+  ///
+  /// In en, this message translates to:
+  /// **'If no turns have been made, changes apply immediately; otherwise they take effect in the next game.'**
+  String get whoStartsFirstTip;
+
   /// No description provided for @startingPlayerHuman.
   ///
   /// In en, this message translates to:

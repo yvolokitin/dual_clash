@@ -286,5 +286,6 @@
     "placeholders": {
       "country": {}
     }
-  }
+  },
+  "whoStartsFirstTip": "If no turns have been made, changes apply immediately; otherwise they take effect in the next game."
 }

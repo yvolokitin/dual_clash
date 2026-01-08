@@ -286,5 +286,6 @@
   },
   "deleteSaveTitle": "Видалити збереження?",
   "deleteSaveMessage": "Ви впевнені, що хочете видалити це збереження гри?",
-  "failedToDeleteMessage": "Не вдалося видалити"
+  "failedToDeleteMessage": "Не вдалося видалити",
+  "whoStartsFirstTip": "If no turns have been made, changes apply immediately; otherwise they take effect in the next game."
 }
