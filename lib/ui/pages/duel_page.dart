@@ -390,7 +390,7 @@ class _DuelPageState extends State<DuelPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: isMobile ? 10 : 20),
                 BombActionRow(
                   controller: controller,
                   boardWidth: metrics.boardWidth,
