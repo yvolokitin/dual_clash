@@ -136,6 +136,7 @@ class _BombButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final baseColor = enabled ? const Color(0xFF2A2F45) : const Color(0xFF1B1F2E);
     final borderColor = enabled ? accent : Colors.white24;
+    const iconSize = 40.0;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: baseColor,
@@ -157,17 +158,18 @@ class _BombButton extends StatelessWidget {
       child: IconButton(
         onPressed: onPressed,
         tooltip: 'Bomb',
+        iconSize: iconSize,
         icon: Image.asset(
           'assets/icons/bomb.png',
-          width: 22,
-          height: 22,
+          width: iconSize,
+          height: iconSize,
           fit: BoxFit.contain,
           color: enabled ? null : Colors.grey,
           colorBlendMode: BlendMode.srcIn,
         ),
         style: IconButton.styleFrom(
           backgroundColor: active ? accent.withOpacity(0.25) : Colors.transparent,
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(4),
         ),
       ),
     );
