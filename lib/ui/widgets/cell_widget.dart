@@ -114,6 +114,8 @@ class _CellWidgetState extends State<CellWidget> {
           return 'assets/icons/box_green.png';
         case CellState.neutral:
           return 'assets/icons/box_grey.png';
+        case CellState.bomb:
+        case CellState.wall:
         case CellState.empty:
           return '';
       }
@@ -159,6 +161,20 @@ class _CellWidgetState extends State<CellWidget> {
             asset: _assetFor(state),
             flashing: _flashing,
             key: const ValueKey('filled'));
+      case CellState.bomb:
+        return _BombTile(
+          radius: widget.borderRadius ?? BorderRadius.circular(8),
+          flashing: _flashing,
+          key: const ValueKey('bomb'),
+        );
+      case CellState.wall:
+        return _InsetTile(
+          color: AppColors.cellDark,
+          radius: widget.borderRadius ?? BorderRadius.circular(8),
+          asset: _assetFor(state),
+          flashing: _flashing,
+          key: const ValueKey('wall'),
+        );
     }
   }
 }
@@ -230,6 +246,43 @@ class _EmptyCell extends StatelessWidget {
                 ],
               ),
             ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _BombTile extends StatelessWidget {
+  final BorderRadius radius;
+  final bool flashing;
+  const _BombTile({super.key, required this.radius, required this.flashing});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        _InsetTile(
+          color: const Color(0xFF2A2F45),
+          radius: radius,
+          asset: '',
+          flashing: flashing,
+        ),
+        Center(
+          child: Icon(
+            Icons.brightness_1,
+            size: 20,
+            color: Colors.black.withOpacity(0.85),
+          ),
+        ),
+        Positioned(
+          top: 6,
+          right: 8,
+          child: Icon(
+            Icons.auto_awesome,
+            size: 10,
+            color: const Color(0xFFFFC34A).withOpacity(0.9),
           ),
         ),
       ],

@@ -11,6 +11,7 @@ import 'package:dual_clash/ui/dialogs/ai_difficulty_dialog.dart';
 import 'package:dual_clash/ui/dialogs/main_menu_dialog.dart' as mmd;
 import 'package:dual_clash/ui/dialogs/results_dialog.dart';
 import 'package:dual_clash/ui/widgets/board_widget.dart';
+import 'package:dual_clash/ui/widgets/bomb_action_row.dart';
 import 'package:dual_clash/ui/widgets/game_page_ai_level_row.dart';
 import 'package:dual_clash/ui/widgets/game_page_score_row.dart';
 import 'package:dual_clash/ui/widgets/support_links_bar.dart';
@@ -322,6 +323,11 @@ class _GamePageState extends State<GamePage> {
                             ],
                           ),
                         ),
+                      ),
+                      const SizedBox(height: 20),
+                      BombActionRow(
+                        controller: controller,
+                        boardWidth: metrics.boardWidth,
                       ),
                       if (isMobile && !controller.humanVsHuman)
                         GamePageAiLevelRow(

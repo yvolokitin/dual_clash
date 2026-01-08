@@ -38,6 +38,9 @@ class RulesEngine {
     for (final (nr, nc) in neighbors4(r, c)) {
       final s = next[nr][nc];
 
+      if (s == CellState.bomb || s == CellState.wall) {
+        continue;
+      }
       if (s != attacker && s != CellState.empty && s != CellState.neutral) {
         next[nr][nc] = CellState.neutral;
       } else if (s == CellState.neutral) {
@@ -103,17 +106,51 @@ class RulesEngine {
       for (int r = K.n - 1; r >= 0; r--) {
         final s = board[r][c];
         if (s == CellState.empty) continue;
+        if (s == CellState.bomb || s == CellState.wall) {
+          next[r][c] = s;
+          writeR = r - 1;
+          continue;
+        }
         // Only red/blue/neutral, but neutrals may be present when just falling after blow
         // We keep whatever non-empty state; falling does not change colors.
-        next[writeR][c] = s;
-        final dropDist = writeR - r;
-        if (dropDist > 0) {
-          drops[(writeR, c)] = dropDist;
+        if (writeR >= 0) {
+          next[writeR][c] = s;
+          final dropDist = writeR - r;
+          if (dropDist > 0) {
+            drops[(writeR, c)] = dropDist;
+          }
+          writeR--;
         }
-        writeR--;
       }
     }
     return (next, drops);
+  }
+
+  /// Cells affected by a bomb explosion in a cross pattern.
+  static Set<(int, int)> bombBlastAffected(
+      List<List<CellState>> board, int r, int c) {
+    final set = <(int, int)>{};
+    if (!inBounds(r, c)) return set;
+    set.add((r, c));
+    const dirs = <(int, int)>[
+      (-1, 0),
+      (1, 0),
+      (0, -1),
+      (0, 1),
+    ];
+    for (final dir in dirs) {
+      int nr = r + dir.$1;
+      int nc = c + dir.$2;
+      while (inBounds(nr, nc)) {
+        set.add((nr, nc));
+        if (board[nr][nc] == CellState.wall) {
+          break;
+        }
+        nr += dir.$1;
+        nc += dir.$2;
+      }
+    }
+    return set;
   }
 
   static int countOf(List<List<CellState>> board, CellState s) {
