@@ -24,7 +24,7 @@ class ResultsCard extends StatelessWidget {
     final bool isTabletDevice = isTablet(context);
     final bool isPhoneFullscreen = isMobilePlatform && !isTabletDevice;
     final EdgeInsets contentPadding =
-        const EdgeInsets.fromLTRB(16, 20, 16, 16);
+        const EdgeInsets.fromLTRB(16, 20, 16, 20);
     final bg = AppColors.bg;
     final redBase = controller.scoreRedBase();
     final blueBase = controller.scoreBlueBase();
@@ -145,22 +145,20 @@ class ResultsCard extends StatelessWidget {
                             fontWeight: FontWeight.w900),
                       ),
                       const Spacer(),
-                      if (!isMobilePlatform)
-                        Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.08),
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white24)),
-                          child: IconButton(
-                            padding: EdgeInsets.zero,
-                            iconSize: 20,
-                            icon:
-                                const Icon(Icons.close, color: Colors.white70),
-                            onPressed: () => Navigator.of(context).pop(),
-                          ),
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.08),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white24)),
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          iconSize: 20,
+                          icon: const Icon(Icons.close, color: Colors.white70),
+                          onPressed: () => Navigator.of(context).pop(),
                         ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -284,7 +282,26 @@ class ResultsCard extends StatelessWidget {
                 const SizedBox(height: 12),
                 // Action buttons based on result and AI level
                 _ResultsActions(controller: controller, winner: winner),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.brandGold,
+                      foregroundColor: const Color(0xFF2B221D),
+                      shadowColor: Colors.black54,
+                      elevation: 4,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24)),
+                      textStyle: const TextStyle(
+                          fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                    ),
+                    child: Text(l10n.commonClose),
+                  ),
+                ),
               ],
             ),
           ),
@@ -674,6 +691,7 @@ class _ResultsActions extends StatelessWidget {
         color: color,
         onTap: onTap,
         showLabel: false,
+        transparentBackground: true,
       );
       return Column(
         mainAxisSize: MainAxisSize.max,

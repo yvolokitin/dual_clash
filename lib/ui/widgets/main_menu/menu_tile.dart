@@ -6,6 +6,7 @@ class MenuTile extends StatefulWidget {
   final VoidCallback onTap;
   final Color color;
   final bool showLabel;
+  final bool transparentBackground;
   const MenuTile({
     super.key,
     required this.imagePath,
@@ -13,6 +14,7 @@ class MenuTile extends StatefulWidget {
     required this.onTap,
     required this.color,
     this.showLabel = true,
+    this.transparentBackground = false,
   });
 
   @override
@@ -51,6 +53,7 @@ class _MenuTileState extends State<MenuTile> {
         _lighten(base),
       ],
     );
+    final bool transparentBackground = widget.transparentBackground;
 
     // Entire tile scales a bit on press to mimic a button press
     return AnimatedScale(
@@ -66,23 +69,31 @@ class _MenuTileState extends State<MenuTile> {
           borderRadius: outerRadius,
           child: Container(
             decoration: BoxDecoration(
-              gradient: gradient,
+              gradient: transparentBackground ? null : gradient,
               borderRadius: outerRadius,
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 10,
-                  offset: Offset(0, 4),
-                ),
-              ],
+              boxShadow: transparentBackground
+                  ? null
+                  : const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 10,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
             ),
-            padding: const EdgeInsets.all(3), // 3px gradient border
+            padding: transparentBackground
+                ? EdgeInsets.zero
+                : const EdgeInsets.all(3), // 3px gradient border
             child: Container(
               decoration: BoxDecoration(
-                color: widget.color.withOpacity(0.9),
+                color: transparentBackground
+                    ? Colors.transparent
+                    : widget.color.withOpacity(0.9),
                 borderRadius: innerRadius,
               ),
-              padding: const EdgeInsets.all(10),
+              padding: transparentBackground
+                  ? EdgeInsets.zero
+                  : const EdgeInsets.all(10),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
