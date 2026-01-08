@@ -398,6 +398,13 @@ class GameController extends ChangeNotifier {
 
   bool get bombActionEnabled => canPlaceBomb || canActivateAnyBomb;
 
+  bool get isBombCooldownActive {
+    final lastTurn = _lastBombTurns[current];
+    if (lastTurn == null) return false;
+    final cooldown = _bombCooldownFor(current);
+    return _turnIndexFor(current) - lastTurn < cooldown;
+  }
+
   String? get bombDragHint {
     if (!bombDragActive) return null;
     if (bombDragTargets.isEmpty) {

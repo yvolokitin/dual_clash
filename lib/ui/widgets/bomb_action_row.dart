@@ -21,6 +21,7 @@ class BombActionRow extends StatelessWidget {
     final canDrag = controller.canPlaceBomb;
     final isSelected = enabled && (active || controller.bombDragActive);
     final borderColor = isSelected ? const Color(0xFFFFC34A) : Colors.transparent;
+    final isCooldown = controller.isBombCooldownActive;
     return SizedBox(
       width: boardWidth,
       child: Row(
@@ -36,6 +37,7 @@ class BombActionRow extends StatelessWidget {
               armed: armed,
               active: active,
               accent: accent,
+              isCooldown: isCooldown,
               canDrag: canDrag,
               onPressed: enabled ? controller.toggleBombMode : null,
               onDragStarted: controller.startBombDrag,
@@ -65,6 +67,7 @@ class _BombDraggable extends StatelessWidget {
   final bool armed;
   final bool active;
   final Color accent;
+  final bool isCooldown;
   final bool canDrag;
   final VoidCallback? onPressed;
   final VoidCallback onDragStarted;
@@ -75,6 +78,7 @@ class _BombDraggable extends StatelessWidget {
     required this.armed,
     required this.active,
     required this.accent,
+    required this.isCooldown,
     required this.canDrag,
     this.onPressed,
     required this.onDragStarted,
@@ -88,6 +92,7 @@ class _BombDraggable extends StatelessWidget {
       armed: armed,
       active: active,
       accent: accent,
+      isCooldown: isCooldown,
       onPressed: onPressed,
     );
     if (!canDrag) {
@@ -105,6 +110,7 @@ class _BombDraggable extends StatelessWidget {
           armed: armed,
           active: active,
           accent: accent,
+          isCooldown: isCooldown,
           onPressed: null,
         ),
       ),
@@ -122,6 +128,7 @@ class _BombButton extends StatelessWidget {
   final bool armed;
   final bool active;
   final Color accent;
+  final bool isCooldown;
   final VoidCallback? onPressed;
 
   const _BombButton({
@@ -129,6 +136,7 @@ class _BombButton extends StatelessWidget {
     required this.armed,
     required this.active,
     required this.accent,
+    required this.isCooldown,
     this.onPressed,
   });
 
@@ -164,7 +172,7 @@ class _BombButton extends StatelessWidget {
           width: iconSize,
           height: iconSize,
           fit: BoxFit.contain,
-          color: enabled ? null : Colors.grey,
+          color: !enabled || isCooldown ? Colors.grey : null,
           colorBlendMode: BlendMode.srcIn,
         ),
         style: IconButton.styleFrom(
