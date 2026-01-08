@@ -405,6 +405,9 @@ class GameController extends ChangeNotifier {
     return _turnIndexFor(current) - lastTurn < cooldown;
   }
 
+  bool get isBombCooldownVisual =>
+      isBombCooldownActive || _turnsFor(current) == 0;
+
   String? get bombDragHint {
     if (!bombDragActive) return null;
     if (bombDragTargets.isEmpty) {

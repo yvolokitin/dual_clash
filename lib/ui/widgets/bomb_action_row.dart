@@ -21,7 +21,7 @@ class BombActionRow extends StatelessWidget {
     final canDrag = controller.canPlaceBomb;
     final isSelected = enabled && (active || controller.bombDragActive);
     final borderColor = isSelected ? const Color(0xFFFFC34A) : Colors.transparent;
-    final isCooldown = controller.isBombCooldownActive;
+    final isCooldown = controller.isBombCooldownVisual;
     return SizedBox(
       width: boardWidth,
       child: Row(
@@ -142,19 +142,14 @@ class _BombButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final baseColor = isCooldown
-        ? Colors.transparent
-        : (enabled ? const Color(0xFF2A2F45) : const Color(0xFF1B1F2E));
-    final borderColor =
-        isCooldown ? Colors.transparent : (enabled ? accent : Colors.white24);
+    const baseColor = Colors.transparent;
+    const borderColor = Colors.transparent;
     const iconSize = 40.0;
     final icon = Image.asset(
       'assets/icons/bomb.png',
       width: iconSize,
       height: iconSize,
       fit: BoxFit.contain,
-      color: !enabled && !isCooldown ? Colors.grey : null,
-      colorBlendMode: BlendMode.srcIn,
     );
     final iconWidget = isCooldown
         ? ColorFiltered(
@@ -173,17 +168,8 @@ class _BombButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: borderColor,
-          width: isCooldown ? 0 : (armed ? 2 : 1),
+          width: 0,
         ),
-        boxShadow: armed && !isCooldown
-            ? [
-                BoxShadow(
-                  color: accent.withOpacity(0.5),
-                  blurRadius: 10,
-                  spreadRadius: 1,
-                ),
-              ]
-            : null,
       ),
       child: IconButton(
         onPressed: onPressed,
@@ -191,9 +177,7 @@ class _BombButton extends StatelessWidget {
         iconSize: iconSize,
         icon: iconWidget,
         style: IconButton.styleFrom(
-          backgroundColor: isCooldown
-              ? Colors.transparent
-              : (active ? accent.withOpacity(0.25) : Colors.transparent),
+          backgroundColor: Colors.transparent,
           padding: const EdgeInsets.all(4),
         ),
       ),
