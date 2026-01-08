@@ -153,6 +153,7 @@ class GameController extends ChangeNotifier {
   bool _autoBombInProgress = false;
   bool bombDragActive = false;
   Set<(int, int)> bombDragTargets = <(int, int)>{};
+  Set<(int, int)> bombModeTargets = <(int, int)>{};
   // Who starts the game (persisted in settings); default is RED (human)
   CellState startingPlayer = CellState.red;
   CellState current = CellState.red; // current turn marker
@@ -436,6 +437,10 @@ class GameController extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool isBombPlacementTarget(int r, int c) =>
+      (bombMode && bombModeTargets.contains((r, c))) ||
+      isBombDropTarget(r, c);
+
   bool isBombDropTarget(int r, int c) =>
       bombDragActive && bombDragTargets.contains((r, c));
 
@@ -465,6 +470,9 @@ class GameController extends ChangeNotifier {
     if (bombMode) {
       selectedCell = null;
       blowPreview.clear();
+      bombModeTargets = _validBombDropTargets();
+    } else {
+      bombModeTargets = <(int, int)>{};
     }
     notifyListeners();
   }
@@ -472,6 +480,7 @@ class GameController extends ChangeNotifier {
   void _handleTurnStart(CellState who) {
     if (bombMode) {
       bombMode = false;
+      bombModeTargets = <(int, int)>{};
     }
   }
 
@@ -1615,6 +1624,7 @@ class GameController extends ChangeNotifier {
         ? _nextPlayer(who)
         : (who == CellState.red ? CellState.blue : CellState.red);
     bombMode = false;
+    bombModeTargets = <(int, int)>{};
     _checkEnd();
     _handleTurnStart(current);
     notifyListeners();

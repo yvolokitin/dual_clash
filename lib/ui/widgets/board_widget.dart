@@ -152,7 +152,7 @@ class BoardWidget extends StatelessWidget {
                                       st == CellState.bomb ||
                                       st == CellState.neutral))
                                 const _SelectedGoldBorder(),
-                              if (controller.isBombDropTarget(r, c))
+                              if (controller.isBombPlacementTarget(r, c))
                                 const _SelectedGoldBorder(),
                               if (controller.selectedCell == (r, c) &&
                                   (st == CellState.red ||
@@ -185,10 +185,26 @@ class BoardWidget extends StatelessWidget {
                             onAcceptWithDetails: (_) {
                               controller.handleBombDrop(r, c);
                             },
-                            builder: (context, _, __) => AspectRatio(
-                              aspectRatio: 1,
-                              child: cellStack,
-                            ),
+                            builder: (context, candidates, __) {
+                              final isHovering = candidates.isNotEmpty &&
+                                  controller.isBombDropTarget(r, c);
+                              return AspectRatio(
+                                aspectRatio: 1,
+                                child: Stack(
+                                  fit: StackFit.expand,
+                                  children: [
+                                    cellStack,
+                                    if (isHovering)
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.16),
+                                          borderRadius: cellRadius,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              );
+                            },
                           );
                         },
                       ),
