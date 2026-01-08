@@ -158,7 +158,7 @@ class _BombButton extends StatelessWidget {
         onPressed: onPressed,
         tooltip: 'Bomb',
         icon: Image.asset(
-          'assets/icons/star.png',
+          'assets/icons/bomb.png',
           width: 22,
           height: 22,
           fit: BoxFit.contain,
