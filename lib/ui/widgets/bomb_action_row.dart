@@ -19,38 +19,41 @@ class BombActionRow extends StatelessWidget {
     final accent = armed ? const Color(0xFFFFC34A) : Colors.white70;
     final hint = controller.bombActionHint;
     final canDrag = controller.canPlaceBomb;
+    final isSelected = active || controller.bombDragActive;
+    final borderColor = isSelected ? const Color(0xFFFFC34A) : Colors.transparent;
     return SizedBox(
       width: boardWidth,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _BombDraggable(
-                enabled: enabled,
-                armed: armed,
-                active: active,
-                accent: accent,
-                canDrag: canDrag,
-                onPressed: enabled ? controller.toggleBombMode : null,
-                onDragStarted: controller.startBombDrag,
-                onDragEnd: controller.endBombDrag,
-              ),
-            ],
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: borderColor, width: 2),
+            ),
+            child: _BombDraggable(
+              enabled: enabled,
+              armed: armed,
+              active: active,
+              accent: accent,
+              canDrag: canDrag,
+              onPressed: enabled ? controller.toggleBombMode : null,
+              onDragStarted: controller.startBombDrag,
+              onDragEnd: controller.endBombDrag,
+            ),
           ),
-          if (hint != null) ...[
-            const SizedBox(height: 6),
-            Text(
-              hint,
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              hint ?? 'Drag or tap the bomb to use it.',
               style: const TextStyle(
                 color: Colors.white54,
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
-              textAlign: TextAlign.center,
+              textAlign: TextAlign.left,
             ),
-          ],
+          ),
         ],
       ),
     );
