@@ -17,18 +17,36 @@ class BombActionRow extends StatelessWidget {
     final armed = controller.canActivateAnyBomb;
     final active = controller.bombMode;
     final accent = armed ? const Color(0xFFFFC34A) : Colors.white70;
+    final hint = controller.bombActionHint;
     return SizedBox(
       width: boardWidth,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          _BombButton(
-            enabled: enabled,
-            armed: armed,
-            active: active,
-            accent: accent,
-            onPressed: enabled ? controller.toggleBombMode : null,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _BombButton(
+                enabled: enabled,
+                armed: armed,
+                active: active,
+                accent: accent,
+                onPressed: enabled ? controller.toggleBombMode : null,
+              ),
+            ],
           ),
+          if (hint != null) ...[
+            const SizedBox(height: 6),
+            Text(
+              hint,
+              style: const TextStyle(
+                color: Colors.white54,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ],
       ),
     );
@@ -80,8 +98,8 @@ class _BombButton extends StatelessWidget {
           width: 22,
           height: 22,
           fit: BoxFit.contain,
-          color: enabled ? null : Colors.black26,
-          colorBlendMode: enabled ? BlendMode.srcIn : BlendMode.srcIn,
+          color: enabled ? null : Colors.grey,
+          colorBlendMode: BlendMode.srcIn,
         ),
         style: IconButton.styleFrom(
           backgroundColor: active ? accent.withOpacity(0.25) : Colors.transparent,

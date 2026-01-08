@@ -388,6 +388,29 @@ class GameController extends ChangeNotifier {
 
   bool get bombActionEnabled => canPlaceBomb || canActivateAnyBomb;
 
+  String? get bombActionHint {
+    if (bombActionEnabled) return null;
+    if (gameOver) return 'Game over';
+    if (!humanVsHuman && current != CellState.red) {
+      return 'Wait for your turn to use a bomb.';
+    }
+    if (_bombs.length >= _maxBombsOnField()) {
+      return 'Detonate a bomb to place another.';
+    }
+    if (!RulesEngine.hasEmpty(board)) {
+      return 'Detonate a bomb to clear space.';
+    }
+    final lastTurn = _lastBombTurns[current];
+    if (lastTurn != null) {
+      final cooldown = _bombCooldownFor(current);
+      final remaining = cooldown - (_turnIndexFor(current) - lastTurn);
+      if (remaining > 0) {
+        return 'Wait $remaining turn${remaining == 1 ? '' : 's'} for cooldown.';
+      }
+    }
+    return 'Place a bomb on an empty cell.';
+  }
+
   void toggleBombMode() {
     if (!bombActionEnabled) return;
     bombMode = !bombMode;
