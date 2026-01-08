@@ -266,7 +266,7 @@ class _BombTile extends StatelessWidget {
         _InsetTile(
           color: const Color(0xFF2A2F45),
           radius: radius,
-          asset: 'assets/icons/star.png',
+          asset: 'assets/icons/bomb.png',
           flashing: flashing,
         ),
       ],
