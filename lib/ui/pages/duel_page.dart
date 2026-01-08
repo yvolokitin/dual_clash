@@ -8,6 +8,7 @@ import 'package:dual_clash/core/colors.dart';
 import 'package:dual_clash/models/cell_state.dart';
 import 'package:dual_clash/logic/rules_engine.dart';
 import 'package:dual_clash/ui/widgets/board_widget.dart';
+import 'package:dual_clash/ui/widgets/bomb_action_row.dart';
 import 'package:dual_clash/ui/widgets/game_layout_metrics.dart';
 import 'package:dual_clash/ui/dialogs/main_menu_dialog.dart' as mmd;
 import 'package:dual_clash/ui/dialogs/results_dialog.dart' as results;
@@ -388,6 +389,11 @@ class _DuelPageState extends State<DuelPage> {
                       ],
                     ),
                   ),
+                ),
+                const SizedBox(height: 20),
+                BombActionRow(
+                  controller: controller,
+                  boardWidth: metrics.boardWidth,
                 ),
                 // Turn row below the board
                 Padding(

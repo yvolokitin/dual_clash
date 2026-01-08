@@ -1,4 +1,4 @@
-enum CellState { empty, red, blue, yellow, green, neutral }
+enum CellState { empty, red, blue, yellow, green, neutral, bomb, wall }
 
 extension CellStateX on CellState {
   bool get isEmpty => this == CellState.empty;
@@ -7,4 +7,6 @@ extension CellStateX on CellState {
   bool get isYellow => this == CellState.yellow;
   bool get isGreen => this == CellState.green;
   bool get isNeutral => this == CellState.neutral;
+  bool get isBomb => this == CellState.bomb;
+  bool get isWall => this == CellState.wall;
 }

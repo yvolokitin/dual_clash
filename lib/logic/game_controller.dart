@@ -20,6 +20,8 @@ enum _AiAction {
 
 class _GameSnapshot {
   final List<List<CellState>> board;
+  final List<_BombToken> bombs;
+  final Map<CellState, int> lastBombTurns;
   final CellState current;
   final int turnsRed;
   final int turnsBlue;
@@ -32,6 +34,8 @@ class _GameSnapshot {
   final int redGamePoints;
   _GameSnapshot({
     required this.board,
+    required this.bombs,
+    required this.lastBombTurns,
     required this.current,
     required this.turnsRed,
     required this.turnsBlue,
@@ -42,6 +46,20 @@ class _GameSnapshot {
     required this.lastMovePoints,
     required this.lastMoveBy,
     required this.redGamePoints,
+  });
+}
+
+class _BombToken {
+  final int row;
+  final int col;
+  final CellState owner;
+  final int placedTurn;
+
+  const _BombToken({
+    required this.row,
+    required this.col,
+    required this.owner,
+    required this.placedTurn,
   });
 }
 
@@ -129,6 +147,14 @@ class GameController extends ChangeNotifier {
   Set<String> badges = <String>{};
   int redLinesCompletedTotal = 0;
   List<List<CellState>> board = RulesEngine.emptyBoard();
+  final List<_BombToken> _bombs = <_BombToken>[];
+  final Map<CellState, int> _lastBombTurns = <CellState, int>{};
+  bool bombMode = false;
+  bool bombDragActive = false;
+  Set<(int, int)> bombDragTargets = <(int, int)>{};
+  Set<(int, int)> bombModeTargets = <(int, int)>{};
+  bool bombAutoCountdownActive = false;
+  int bombAutoCountdownValue = 0;
   // Who starts the game (persisted in settings); default is RED (human)
   CellState startingPlayer = CellState.red;
   CellState current = CellState.red; // current turn marker
@@ -207,6 +233,18 @@ class GameController extends ChangeNotifier {
   List<List<CellState>> _copyBoard(List<List<CellState>> src) =>
       List<List<CellState>>.generate(K.n, (i) => List<CellState>.from(src[i]));
 
+  List<_BombToken> _copyBombs(List<_BombToken> src) => src
+      .map((bomb) => _BombToken(
+            row: bomb.row,
+            col: bomb.col,
+            owner: bomb.owner,
+            placedTurn: bomb.placedTurn,
+          ))
+      .toList();
+
+  Map<CellState, int> _copyBombTurns(Map<CellState, int> src) =>
+      Map<CellState, int>.from(src);
+
   List<CellState> get activePlayers {
     if (!humanVsHuman) {
       return const [CellState.red, CellState.blue];
@@ -247,9 +285,209 @@ class GameController extends ChangeNotifier {
       case CellState.green:
         turnsGreen++;
         break;
+      case CellState.bomb:
+      case CellState.wall:
       case CellState.neutral:
       case CellState.empty:
         break;
+    }
+  }
+
+  int _turnIndexFor(CellState who) {
+    switch (who) {
+      case CellState.red:
+        return turnsRed + 1;
+      case CellState.blue:
+        return turnsBlue + 1;
+      case CellState.yellow:
+        return turnsYellow + 1;
+      case CellState.green:
+        return turnsGreen + 1;
+      case CellState.neutral:
+      case CellState.empty:
+      case CellState.bomb:
+      case CellState.wall:
+        return 0;
+    }
+  }
+
+  int _turnsFor(CellState who) {
+    switch (who) {
+      case CellState.red:
+        return turnsRed;
+      case CellState.blue:
+        return turnsBlue;
+      case CellState.yellow:
+        return turnsYellow;
+      case CellState.green:
+        return turnsGreen;
+      case CellState.neutral:
+      case CellState.empty:
+      case CellState.bomb:
+      case CellState.wall:
+        return 0;
+    }
+  }
+
+  int _bombCooldownFor(CellState owner) {
+    final (base, min, threshold, _) = _bombConfigForBoard();
+    final score = scoreFor(owner);
+    final reduction = (score / threshold).floor();
+    final cooldown = base - reduction;
+    return cooldown < min ? min : cooldown;
+  }
+
+  (int base, int min, int threshold, int maxBombs) _bombConfigForBoard() {
+    switch (K.n) {
+      case 7:
+        return (10, 10, 140, 1);
+      case 8:
+        return (10, 10, 180, 2);
+      case 9:
+      default:
+        return (10, 10, 220, 2);
+    }
+  }
+
+  int _maxBombsOnField() => _bombConfigForBoard().$4;
+
+  _BombToken? _bombAt(int r, int c) {
+    for (final bomb in _bombs) {
+      if (bomb.row == r && bomb.col == c) return bomb;
+    }
+    return null;
+  }
+
+  CellState? bombOwnerAt(int r, int c) => _bombAt(r, c)?.owner;
+
+  bool _hasEnemyAdjacent(int r, int c, CellState owner) {
+    for (final (nr, nc) in RulesEngine.neighbors4(r, c)) {
+      final s = board[nr][nc];
+      if (_isActivePlayer(s) && s != owner) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  bool _canActivateBombToken(_BombToken bomb) {
+    if (bomb.owner != current) return false;
+    return _hasEnemyAdjacent(bomb.row, bomb.col, bomb.owner);
+  }
+
+  bool get canActivateAnyBomb =>
+      _bombs.any((bomb) => _canActivateBombToken(bomb));
+
+  bool get canPlaceBomb {
+    if (gameOver || isAiThinking || isExploding || isFalling || isQuaking) {
+      return false;
+    }
+    if (!humanVsHuman && current != CellState.red) return false;
+    if (!_isActivePlayer(current)) return false;
+    if (_turnsFor(current) == 0) return false;
+    if (_bombs.length >= _maxBombsOnField()) return false;
+    if (!RulesEngine.hasEmpty(board)) return false;
+    final lastTurn = _lastBombTurns[current];
+    if (lastTurn == null) return true;
+    final cooldown = _bombCooldownFor(current);
+    return _turnIndexFor(current) - lastTurn >= cooldown;
+  }
+
+  bool get bombActionEnabled => canPlaceBomb || canActivateAnyBomb;
+
+  String? get bombDragHint {
+    if (!bombDragActive) return null;
+    if (bombDragTargets.isEmpty) {
+      return 'No valid cells. Drop bombs next to an enemy.';
+    }
+    return 'Drag the bomb onto a highlighted cell next to an enemy.';
+  }
+
+  String? get bombActionHint {
+    if (bombDragActive) return bombDragHint;
+    final lastTurn = _lastBombTurns[current];
+    if (lastTurn != null) {
+      final cooldown = _bombCooldownFor(current);
+      final remaining = cooldown - (_turnIndexFor(current) - lastTurn);
+      if (remaining > 0) {
+        return 'Wait $remaining turn${remaining == 1 ? '' : 's'} for cooldown.';
+      }
+    }
+    if (bombActionEnabled) return null;
+    if (gameOver) return 'Game over';
+    if (!humanVsHuman && current != CellState.red) {
+      return 'Wait for your turn to use a bomb.';
+    }
+    if (_turnsFor(current) == 0) {
+      return 'Place at least one box before using a bomb.';
+    }
+    if (_bombs.length >= _maxBombsOnField()) {
+      return 'Detonate a bomb to place another.';
+    }
+    if (!RulesEngine.hasEmpty(board)) {
+      return 'Detonate a bomb to clear space.';
+    }
+    return 'Place a bomb on an empty cell.';
+  }
+
+  void startBombDrag() {
+    if (!canPlaceBomb) return;
+    bombDragActive = true;
+    bombDragTargets = _validBombDropTargets();
+    notifyListeners();
+  }
+
+  void endBombDrag() {
+    if (!bombDragActive) return;
+    bombDragActive = false;
+    bombDragTargets = <(int, int)>{};
+    notifyListeners();
+  }
+
+  bool isBombPlacementTarget(int r, int c) =>
+      (bombMode && bombModeTargets.contains((r, c))) ||
+      isBombDropTarget(r, c);
+
+  bool isBombDropTarget(int r, int c) =>
+      bombDragActive && bombDragTargets.contains((r, c));
+
+  Set<(int, int)> _validBombDropTargets() {
+    final targets = <(int, int)>{};
+    if (!canPlaceBomb) return targets;
+    for (int r = 0; r < K.n; r++) {
+      for (int c = 0; c < K.n; c++) {
+        if (board[r][c] != CellState.empty) continue;
+        if (_hasEnemyAdjacent(r, c, current)) {
+          targets.add((r, c));
+        }
+      }
+    }
+    return targets;
+  }
+
+  void handleBombDrop(int r, int c) {
+    if (!isBombDropTarget(r, c)) return;
+    _performBombPlacement(r, c, current);
+    endBombDrag();
+  }
+
+  void toggleBombMode() {
+    if (!bombActionEnabled) return;
+    bombMode = !bombMode;
+    if (bombMode) {
+      selectedCell = null;
+      blowPreview.clear();
+      bombModeTargets = _validBombDropTargets();
+    } else {
+      bombModeTargets = <(int, int)>{};
+    }
+    notifyListeners();
+  }
+
+  void _handleTurnStart(CellState who) {
+    if (bombMode) {
+      bombMode = false;
+      bombModeTargets = <(int, int)>{};
     }
   }
 
@@ -266,6 +504,10 @@ class GameController extends ChangeNotifier {
         return 'g';
       case CellState.neutral:
         return 'n';
+      case CellState.bomb:
+        return 'o';
+      case CellState.wall:
+        return 'w';
       case CellState.empty:
       default:
         return 'e';
@@ -284,9 +526,43 @@ class GameController extends ChangeNotifier {
         return CellState.green;
       case 'n':
         return CellState.neutral;
+      case 'o':
+        return CellState.bomb;
+      case 'w':
+        return CellState.wall;
       case 'e':
       default:
         return CellState.empty;
+    }
+  }
+
+  String _ownerKey(CellState s) {
+    switch (s) {
+      case CellState.red:
+        return 'red';
+      case CellState.blue:
+        return 'blue';
+      case CellState.yellow:
+        return 'yellow';
+      case CellState.green:
+        return 'green';
+      default:
+        return 'other';
+    }
+  }
+
+  CellState _ownerFromKey(String s) {
+    switch (s) {
+      case 'red':
+        return CellState.red;
+      case 'blue':
+        return CellState.blue;
+      case 'yellow':
+        return CellState.yellow;
+      case 'green':
+        return CellState.green;
+      default:
+        return CellState.neutral;
     }
   }
 
@@ -334,6 +610,17 @@ class GameController extends ChangeNotifier {
       'lastBestChallengeScoreBefore': lastBestChallengeScoreBefore,
       'lastGameWasNewBest': lastGameWasNewBest,
       'playAccumMs': _currentAccumMs(),
+      'bombs': _bombs
+          .map((bomb) => {
+                'r': bomb.row,
+                'c': bomb.col,
+                'o': _ownerKey(bomb.owner),
+                't': bomb.placedTurn,
+              })
+          .toList(),
+      'lastBombTurns': _lastBombTurns.map(
+        (key, value) => MapEntry(_ownerKey(key), value),
+      ),
     };
   }
 
@@ -345,11 +632,43 @@ class GameController extends ChangeNotifier {
       final row = b[r] as List<dynamic>;
       return List<CellState>.generate(K.n, (c) => _strToCell(row[c] as String));
     });
+    _bombs
+      ..clear()
+      ..addAll(
+        ((m['bombs'] as List<dynamic>?) ?? const <dynamic>[])
+            .map((entry) => entry as Map<String, dynamic>)
+            .map(
+              (entry) => _BombToken(
+                row: entry['r'] as int,
+                col: entry['c'] as int,
+                owner: _ownerFromKey(entry['o'] as String),
+                placedTurn: entry['t'] as int,
+              ),
+            ),
+      );
+    for (final bomb in _bombs) {
+      if (RulesEngine.inBounds(bomb.row, bomb.col)) {
+        board[bomb.row][bomb.col] = CellState.bomb;
+      }
+    }
+    _lastBombTurns
+      ..clear()
+      ..addAll(
+        ((m['lastBombTurns'] as Map<String, dynamic>?) ??
+                const <String, dynamic>{})
+            .map((key, value) => MapEntry(_ownerFromKey(key), value as int)),
+      );
     // Restore playtime accumulator from saved state; resume counting if game not over
     _playAccumMs = (m['playAccumMs'] as int?) ?? 0;
     _playStartMs = (m['gameOver'] as bool? ?? false)
         ? null
         : DateTime.now().millisecondsSinceEpoch;
+    bombMode = false;
+    bombModeTargets = <(int, int)>{};
+    bombDragActive = false;
+    bombDragTargets = <(int, int)>{};
+    bombAutoCountdownActive = false;
+    bombAutoCountdownValue = 0;
     final cur = m['current'] as String;
     current = cur == 'red'
         ? CellState.red
@@ -409,6 +728,7 @@ class GameController extends ChangeNotifier {
     isSimulating = false;
     // Ensure AI thinking overlay is not left active after loading a saved game
     isAiThinking = false;
+    _handleTurnStart(current);
 
     notifyListeners();
     // If it's Blue's turn after loading (and game is not over), schedule AI automatically
@@ -558,6 +878,8 @@ class GameController extends ChangeNotifier {
     // Capture state at the beginning of Red's turn
     final snap = _GameSnapshot(
       board: _copyBoard(board),
+      bombs: _copyBombs(_bombs),
+      lastBombTurns: _copyBombTurns(_lastBombTurns),
       current: current,
       turnsRed: turnsRed,
       turnsBlue: turnsBlue,
@@ -601,6 +923,12 @@ class GameController extends ChangeNotifier {
     }
 
     board = _copyBoard(snap.board);
+    _bombs
+      ..clear()
+      ..addAll(_copyBombs(snap.bombs));
+    _lastBombTurns
+      ..clear()
+      ..addAll(_copyBombTurns(snap.lastBombTurns));
     current = snap.current;
     turnsRed = snap.turnsRed;
     turnsBlue = snap.turnsBlue;
@@ -621,6 +949,12 @@ class GameController extends ChangeNotifier {
     fallingDistances.clear();
     isFalling = false;
     isQuaking = false;
+    bombMode = false;
+    bombModeTargets = <(int, int)>{};
+    bombDragActive = false;
+    bombDragTargets = <(int, int)>{};
+    bombAutoCountdownActive = false;
+    bombAutoCountdownValue = 0;
     gameOver = false;
     _endProcessed = false;
     resultsShown = false;
@@ -799,6 +1133,14 @@ class GameController extends ChangeNotifier {
     lastMoveBy = null;
     _clearScorePopup();
     board = RulesEngine.emptyBoard();
+    _bombs.clear();
+    _lastBombTurns.clear();
+    bombMode = false;
+    bombModeTargets = <(int, int)>{};
+    bombDragActive = false;
+    bombDragTargets = <(int, int)>{};
+    bombAutoCountdownActive = false;
+    bombAutoCountdownValue = 0;
     current = startingPlayer;
     gameOver = false;
     turnsRed = 0;
@@ -1094,6 +1436,7 @@ class GameController extends ChangeNotifier {
     } else {
       current = CellState.blue;
     }
+    _handleTurnStart(current);
     _checkEnd();
     notifyListeners();
     if (!humanVsHuman && !gameOver) _scheduleAi();
@@ -1153,6 +1496,7 @@ class GameController extends ChangeNotifier {
       ));
     }
     current = _nextPlayer(who);
+    _handleTurnStart(current);
     _checkEnd();
     notifyListeners();
     return true;
@@ -1162,6 +1506,7 @@ class GameController extends ChangeNotifier {
   void onCellTap(int r, int c) {
     if (gameOver || isAiThinking || isExploding || isFalling || isQuaking)
       return;
+    if (bombAutoCountdownActive) return;
     if (selectedCell != null && selectedCell != (r, c)) {
       selectedCell = null;
       blowPreview.clear();
@@ -1172,6 +1517,28 @@ class GameController extends ChangeNotifier {
 
     // In normal mode only Red (human) acts; in Duel mode current side acts
     if (!humanVsHuman && current != CellState.red) return;
+
+    if (s == CellState.bomb) {
+      final bomb = _bombAt(r, c);
+      if (bomb == null) return;
+      if (selectedCell == (r, c)) {
+        _performBombActivation(bomb);
+        return;
+      }
+      if (_canActivateBombToken(bomb)) {
+        selectedCell = (r, c);
+        blowPreview = RulesEngine.bombBlastAffected(board, r, c);
+        notifyListeners();
+      }
+      return;
+    }
+
+    if (bombMode) {
+      if (s == CellState.empty && canPlaceBomb) {
+        _performBombPlacement(r, c, current);
+      }
+      return;
+    }
 
     // Grey tap: select to preview all grey boxes; tap same again to drop them
     if (s == CellState.neutral) {
@@ -1249,6 +1616,91 @@ class GameController extends ChangeNotifier {
     }
   }
 
+  void _performBombPlacement(int r, int c, CellState who) {
+    if (!canPlaceBomb) return;
+    if (board[r][c] != CellState.empty) return;
+    selectedCell = null;
+    blowPreview.clear();
+    board[r][c] = CellState.bomb;
+    final placedTurn = _turnIndexFor(who);
+    _bombs.add(
+      _BombToken(
+        row: r,
+        col: c,
+        owner: who,
+        placedTurn: placedTurn,
+      ),
+    );
+    _lastBombTurns[who] = placedTurn;
+    lastMovePoints = 0;
+    lastMoveBy = who;
+    _incrementTurnFor(who);
+    if (who == CellState.red) {
+      _turnStats.add(TurnStatEntry(
+        turn: turnsRed,
+        points: 0,
+        desc: appLocalizations()?.scoreZeroBlow ?? '0 bomb',
+        ts: DateTime.now().millisecondsSinceEpoch,
+      ));
+    }
+    current = humanVsHuman
+        ? _nextPlayer(who)
+        : (who == CellState.red ? CellState.blue : CellState.red);
+    bombMode = false;
+    bombModeTargets = <(int, int)>{};
+    bombAutoCountdownActive = false;
+    bombAutoCountdownValue = 0;
+    _checkEnd();
+    _handleTurnStart(current);
+    notifyListeners();
+    if (!humanVsHuman && !gameOver && current == CellState.blue) {
+      _scheduleAi();
+    }
+  }
+
+  Future<void> _performBombActivation(_BombToken bomb,
+      {bool autoTriggered = false}) async {
+    if (gameOver || isExploding || isFalling) return;
+    if (!autoTriggered && !_canActivateBombToken(bomb)) return;
+    isExploding = true;
+    explodingCells =
+        RulesEngine.bombBlastAffected(board, bomb.row, bomb.col);
+    notifyListeners();
+    await Future.delayed(const Duration(milliseconds: 420));
+
+    final affected = Set<(int, int)>.from(explodingCells);
+    final before = board;
+    final after = RulesEngine.blow(before, affected);
+    _bombs.removeWhere((b) => affected.contains((b.row, b.col)));
+    isExploding = false;
+    explodingCells.clear();
+    selectedCell = null;
+    blowPreview.clear();
+    bombMode = false;
+
+    board = after;
+    lastMovePoints = 0;
+    lastMoveBy = bomb.owner;
+    _incrementTurnFor(bomb.owner);
+    if (bomb.owner == CellState.red) {
+      _turnStats.add(TurnStatEntry(
+        turn: turnsRed,
+        points: 0,
+        desc: appLocalizations()?.scoreZeroBlow ?? '0 bomb',
+        ts: DateTime.now().millisecondsSinceEpoch,
+      ));
+    }
+    current = humanVsHuman
+        ? _nextPlayer(bomb.owner)
+        : (bomb.owner == CellState.red ? CellState.blue : CellState.red);
+    _checkEnd();
+    _handleTurnStart(current);
+    notifyListeners();
+    if (!humanVsHuman && !gameOver && current == CellState.blue) {
+      _scheduleAi();
+    }
+  }
+
   Future<void> _performBlow(int r, int c, CellState who) async {
     if (gameOver || isExploding || isFalling) return;
     final affected = RulesEngine.blowAffected(board, r, c);
@@ -1262,6 +1714,7 @@ class GameController extends ChangeNotifier {
     final before = board;
     final after =
         RulesEngine.blow(board, affected); // compute post-removal board
+    _bombs.removeWhere((bomb) => affected.contains((bomb.row, bomb.col)));
 
     // Per spec, blowing up does not award points to the user; set lastMovePoints = 0 for both sides
     lastMovePoints = 0;
@@ -1279,6 +1732,7 @@ class GameController extends ChangeNotifier {
     current = humanVsHuman
         ? _nextPlayer(who)
         : (who == CellState.red ? CellState.blue : CellState.red);
+    _handleTurnStart(current);
 
     // Clear explosion overlay and selection, then remove immediately (no fall animation for blow)
     isExploding = false;
@@ -1375,6 +1829,7 @@ class GameController extends ChangeNotifier {
     current = humanVsHuman
         ? _nextPlayer(who)
         : (who == CellState.red ? CellState.blue : CellState.red);
+    _handleTurnStart(current);
 
     _checkEnd();
     notifyListeners();
@@ -1736,6 +2191,7 @@ class GameController extends ChangeNotifier {
       lastMoveBy = CellState.blue;
       turnsBlue++;
       current = CellState.red;
+      _handleTurnStart(current);
       _checkEnd();
       if (!gameOver && current == CellState.red) {
         _saveUndoPoint();
@@ -1747,9 +2203,62 @@ class GameController extends ChangeNotifier {
 
   void _checkEnd({bool force = false}) {
     if (force || !RulesEngine.hasEmpty(board)) {
+      if (!force && _bombs.isNotEmpty) {
+        _startBombAutoCountdown();
+        return;
+      }
       gameOver = true;
       _processEndOnce();
     }
+  }
+
+  void _startBombAutoCountdown() {
+    if (bombAutoCountdownActive) return;
+    if (_bombs.isEmpty) return;
+    bombAutoCountdownActive = true;
+    bombAutoCountdownValue = 3;
+    notifyListeners();
+    Future.microtask(() async {
+      for (int i = 3; i >= 1; i--) {
+        if (!bombAutoCountdownActive) return;
+        bombAutoCountdownValue = i;
+        notifyListeners();
+        await Future.delayed(const Duration(seconds: 1));
+      }
+      await _detonateAllBombs();
+    });
+  }
+
+  Future<void> _detonateAllBombs() async {
+    if (_bombs.isEmpty) {
+      bombAutoCountdownActive = false;
+      bombAutoCountdownValue = 0;
+      return;
+    }
+    final affected = <(int, int)>{};
+    for (final bomb in _bombs) {
+      affected.addAll(
+          RulesEngine.bombBlastAffected(board, bomb.row, bomb.col));
+    }
+    if (affected.isEmpty) {
+      bombAutoCountdownActive = false;
+      bombAutoCountdownValue = 0;
+      return;
+    }
+    isExploding = true;
+    explodingCells = affected;
+    notifyListeners();
+    await Future.delayed(const Duration(milliseconds: 420));
+    board = RulesEngine.blow(board, affected);
+    _bombs.clear();
+    isExploding = false;
+    explodingCells.clear();
+    selectedCell = null;
+    blowPreview.clear();
+    bombAutoCountdownActive = false;
+    bombAutoCountdownValue = 0;
+    _checkEnd();
+    notifyListeners();
   }
 
   void _processEndOnce() async {
@@ -2075,6 +2584,7 @@ class GameController extends ChangeNotifier {
     lastMoveBy = CellState.blue;
     turnsBlue++;
     current = CellState.red;
+    _handleTurnStart(current);
 
     _checkEnd();
     notifyListeners();

@@ -123,6 +123,18 @@ class BoardWidget extends StatelessWidget {
                           final st = controller.board[r][c];
                           final isGold = controller.gameOver &&
                               controller.goldCells.contains((r, c));
+                          final bombOwner = st == CellState.bomb
+                              ? controller.bombOwnerAt(r, c)
+                              : null;
+                          final bombBorderColor = bombOwner == CellState.red
+                              ? AppColors.red
+                              : (bombOwner == CellState.blue
+                                  ? AppColors.blue
+                                  : (bombOwner == CellState.yellow
+                                      ? AppColors.yellow
+                                      : (bombOwner == CellState.green
+                                          ? AppColors.green
+                                          : AppColors.neutral)));
 
                           // For 9x9 board, cells should have slight rounding (2px).
                           final BorderRadius cellRadius =
@@ -149,8 +161,43 @@ class BoardWidget extends StatelessWidget {
                                       st == CellState.blue ||
                                       st == CellState.yellow ||
                                       st == CellState.green ||
+                                      st == CellState.bomb ||
                                       st == CellState.neutral))
                                 const _SelectedGoldBorder(),
+                              if (controller.isBombPlacementTarget(r, c))
+                                const _SelectedGoldBorder(),
+                              if (controller.bombAutoCountdownActive &&
+                                  st == CellState.bomb)
+                                Positioned.fill(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: cellRadius,
+                                      border: Border.all(
+                                        color: bombBorderColor,
+                                        width: 2,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              if (controller.bombAutoCountdownActive &&
+                                  st == CellState.bomb &&
+                                  controller.bombAutoCountdownValue > 0)
+                                Center(
+                                  child: Text(
+                                    '${controller.bombAutoCountdownValue}',
+                                    style: TextStyle(
+                                      color: bombBorderColor,
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: gridCellSize * 0.55,
+                                      shadows: const [
+                                        Shadow(
+                                          color: Colors.black54,
+                                          blurRadius: 4,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                               if (controller.selectedCell == (r, c) &&
                                   (st == CellState.red ||
                                       st == CellState.blue ||
@@ -176,9 +223,32 @@ class BoardWidget extends StatelessWidget {
                             );
                           }
 
-                          return AspectRatio(
-                            aspectRatio: 1,
-                            child: cellStack,
+                          return DragTarget<bool>(
+                            onWillAcceptWithDetails: (_) =>
+                                controller.isBombDropTarget(r, c),
+                            onAcceptWithDetails: (_) {
+                              controller.handleBombDrop(r, c);
+                            },
+                            builder: (context, candidates, __) {
+                              final isHovering = candidates.isNotEmpty &&
+                                  controller.isBombDropTarget(r, c);
+                              return AspectRatio(
+                                aspectRatio: 1,
+                                child: Stack(
+                                  fit: StackFit.expand,
+                                  children: [
+                                    cellStack,
+                                    if (isHovering)
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.16),
+                                          borderRadius: cellRadius,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              );
+                            },
                           );
                         },
                       ),
@@ -268,6 +338,8 @@ class BoardWidget extends StatelessWidget {
                                 return AppColors.yellow;
                               case CellState.green:
                                 return AppColors.green;
+                              case CellState.bomb:
+                              case CellState.wall:
                               case CellState.neutral:
                               case CellState.empty:
                                 return null;
