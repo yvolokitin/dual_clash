@@ -339,12 +339,12 @@ class GameController extends ChangeNotifier {
   (int base, int min, int threshold, int maxBombs) _bombConfigForBoard() {
     switch (K.n) {
       case 7:
-        return (5, 2, 140, 1);
+        return (10, 10, 140, 1);
       case 8:
-        return (5, 2, 180, 2);
+        return (10, 10, 180, 2);
       case 9:
       default:
-        return (6, 2, 220, 2);
+        return (10, 10, 220, 2);
     }
   }
 
