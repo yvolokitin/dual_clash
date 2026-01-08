@@ -384,6 +384,7 @@ class GameController extends ChangeNotifier {
     }
     if (!humanVsHuman && current != CellState.red) return false;
     if (!_isActivePlayer(current)) return false;
+    if (_turnsFor(current) == 0) return false;
     if (_bombs.length >= _maxBombsOnField()) return false;
     if (!RulesEngine.hasEmpty(board)) return false;
     final lastTurn = _lastBombTurns[current];
@@ -408,6 +409,9 @@ class GameController extends ChangeNotifier {
     if (gameOver) return 'Game over';
     if (!humanVsHuman && current != CellState.red) {
       return 'Wait for your turn to use a bomb.';
+    }
+    if (_turnsFor(current) == 0) {
+      return 'Place at least one box before using a bomb.';
     }
     if (_bombs.length >= _maxBombsOnField()) {
       return 'Detonate a bomb to place another.';
