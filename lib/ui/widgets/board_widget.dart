@@ -268,6 +268,8 @@ class BoardWidget extends StatelessWidget {
                                 return AppColors.yellow;
                               case CellState.green:
                                 return AppColors.green;
+                              case CellState.bomb:
+                              case CellState.wall:
                               case CellState.neutral:
                               case CellState.empty:
                                 return null;
