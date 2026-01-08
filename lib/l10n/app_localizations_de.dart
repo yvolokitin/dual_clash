@@ -347,6 +347,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get aiTurnsLabel => 'KI-Züge';
 
   @override
+  String playerTurnStatus(Object player) {
+    return '$player player turn';
+  }
+
+  @override
   String get newBestScoreLabel => 'Neuer Bestwert';
 
   @override

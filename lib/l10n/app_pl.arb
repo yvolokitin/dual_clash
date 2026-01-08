@@ -124,6 +124,12 @@
   "greenTurnsLabel": "Tury zielone",
   "playerTurnsLabel": "Tury gracza",
   "aiTurnsLabel": "Tury SI",
+  "playerTurnStatus": "{player} player turn",
+  "@playerTurnStatus": {
+    "placeholders": {
+      "player": {}
+    }
+  },
   "newBestScoreLabel": "Nowy najlepszy wynik",
   "pointsBelowBestScore": "{points} punktów poniżej najlepszego wyniku",
   "@pointsBelowBestScore": {

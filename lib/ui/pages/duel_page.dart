@@ -226,6 +226,16 @@ class _DuelPageState extends State<DuelPage> {
         final menuIconSize = metrics.menuIconSize;
         final textStyle = metrics.scoreTextStyle;
         final isMobile = metrics.isMobile;
+        final currentPlayerLabel = switch (controller.current) {
+          CellState.red => context.l10n.colorRedLabel,
+          CellState.blue => context.l10n.colorBlueLabel,
+          CellState.yellow => context.l10n.colorYellowLabel,
+          CellState.green => context.l10n.colorGreenLabel,
+          _ => '',
+        };
+        final currentTurnText = currentPlayerLabel.isEmpty
+            ? ''
+            : context.l10n.playerTurnStatus(currentPlayerLabel);
 
         results.maybeShowResultsDialog(
           context: context,
@@ -444,6 +454,17 @@ class _DuelPageState extends State<DuelPage> {
                     ),
                   ),
                 ),
+                if (currentTurnText.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 6.0),
+                    child: Text(
+                      currentTurnText,
+                      textAlign: TextAlign.center,
+                      style: textStyle.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
                 if (isMobile) const SizedBox(height: 30),
                 // No simulate/statistics/undo row in duel mode
               ],

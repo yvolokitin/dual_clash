@@ -124,6 +124,12 @@
   "greenTurnsLabel": "Ходы зелёных",
   "playerTurnsLabel": "Ходы игрока",
   "aiTurnsLabel": "Ходы ИИ",
+  "playerTurnStatus": "{player} player turn",
+  "@playerTurnStatus": {
+    "placeholders": {
+      "player": {}
+    }
+  },
   "newBestScoreLabel": "Новый лучший результат",
   "pointsBelowBestScore": "На {points} очков меньше лучшего результата",
   "@pointsBelowBestScore": {

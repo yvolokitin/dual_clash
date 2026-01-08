@@ -124,6 +124,12 @@
   "greenTurnsLabel": "Green turns",
   "playerTurnsLabel": "Player turns",
   "aiTurnsLabel": "AI turns",
+  "playerTurnStatus": "{player} player turn",
+  "@playerTurnStatus": {
+    "placeholders": {
+      "player": {}
+    }
+  },
   "newBestScoreLabel": "New Best Score",
   "pointsBelowBestScore": "{points} points below best score",
   "@pointsBelowBestScore": {

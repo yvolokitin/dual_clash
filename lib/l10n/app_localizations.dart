@@ -722,6 +722,12 @@ abstract class AppLocalizations {
   /// **'AI turns'**
   String get aiTurnsLabel;
 
+  /// No description provided for @playerTurnStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'{player} player turn'**
+  String playerTurnStatus(Object player);
+
   /// No description provided for @newBestScoreLabel.
   ///
   /// In en, this message translates to:

@@ -124,6 +124,12 @@
   "greenTurnsLabel": "Grüne Züge",
   "playerTurnsLabel": "Spieler-Züge",
   "aiTurnsLabel": "KI-Züge",
+  "playerTurnStatus": "{player} player turn",
+  "@playerTurnStatus": {
+    "placeholders": {
+      "player": {}
+    }
+  },
   "newBestScoreLabel": "Neuer Bestwert",
   "pointsBelowBestScore": "{points} Punkte unter Bestwert",
   "@pointsBelowBestScore": {

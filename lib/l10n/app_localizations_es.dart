@@ -349,6 +349,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get aiTurnsLabel => 'Turnos de la IA';
 
   @override
+  String playerTurnStatus(Object player) {
+    return '$player player turn';
+  }
+
+  @override
   String get newBestScoreLabel => 'Nuevo mejor resultado';
 
   @override

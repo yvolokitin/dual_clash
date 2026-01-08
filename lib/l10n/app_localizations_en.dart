@@ -344,6 +344,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiTurnsLabel => 'AI turns';
 
   @override
+  String playerTurnStatus(Object player) {
+    return '$player player turn';
+  }
+
+  @override
   String get newBestScoreLabel => 'New Best Score';
 
   @override
