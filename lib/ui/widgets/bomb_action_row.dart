@@ -21,6 +21,7 @@ class BombActionRow extends StatelessWidget {
     final canDrag = controller.canPlaceBomb;
     final isSelected = enabled && (active || controller.bombDragActive);
     final borderColor = isSelected ? const Color(0xFFFFC34A) : Colors.transparent;
+    final isCooldown = controller.isBombCooldownVisual;
     return SizedBox(
       width: boardWidth,
       child: Row(
@@ -36,8 +37,12 @@ class BombActionRow extends StatelessWidget {
               armed: armed,
               active: active,
               accent: accent,
+              isCooldown: isCooldown,
               canDrag: canDrag,
-              onPressed: enabled ? controller.toggleBombMode : null,
+              onPressed: () {
+                if (!enabled) return;
+                controller.toggleBombMode();
+              },
               onDragStarted: controller.startBombDrag,
               onDragEnd: controller.endBombDrag,
             ),
@@ -65,6 +70,7 @@ class _BombDraggable extends StatelessWidget {
   final bool armed;
   final bool active;
   final Color accent;
+  final bool isCooldown;
   final bool canDrag;
   final VoidCallback? onPressed;
   final VoidCallback onDragStarted;
@@ -75,6 +81,7 @@ class _BombDraggable extends StatelessWidget {
     required this.armed,
     required this.active,
     required this.accent,
+    required this.isCooldown,
     required this.canDrag,
     this.onPressed,
     required this.onDragStarted,
@@ -88,6 +95,7 @@ class _BombDraggable extends StatelessWidget {
       armed: armed,
       active: active,
       accent: accent,
+      isCooldown: isCooldown,
       onPressed: onPressed,
     );
     if (!canDrag) {
@@ -105,6 +113,7 @@ class _BombDraggable extends StatelessWidget {
           armed: armed,
           active: active,
           accent: accent,
+          isCooldown: isCooldown,
           onPressed: null,
         ),
       ),
@@ -122,6 +131,7 @@ class _BombButton extends StatelessWidget {
   final bool armed;
   final bool active;
   final Color accent;
+  final bool isCooldown;
   final VoidCallback? onPressed;
 
   const _BombButton({
@@ -129,46 +139,48 @@ class _BombButton extends StatelessWidget {
     required this.armed,
     required this.active,
     required this.accent,
+    required this.isCooldown,
     this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
-    final baseColor = enabled ? const Color(0xFF2A2F45) : const Color(0xFF1B1F2E);
-    final borderColor = enabled ? accent : Colors.white24;
+    const baseColor = Colors.transparent;
+    const borderColor = Colors.transparent;
     const iconSize = 40.0;
+    final icon = Image.asset(
+      'assets/icons/bomb.png',
+      width: iconSize,
+      height: iconSize,
+      fit: BoxFit.contain,
+    );
+    final iconWidget = isCooldown
+        ? ColorFiltered(
+            colorFilter: const ColorFilter.matrix(<double>[
+              0.2126, 0.7152, 0.0722, 0, 0,
+              0.2126, 0.7152, 0.0722, 0, 0,
+              0.2126, 0.7152, 0.0722, 0, 0,
+              0, 0, 0, 1, 0,
+            ]),
+            child: Opacity(opacity: 0.65, child: icon),
+          )
+        : icon;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: baseColor,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: borderColor,
-          width: armed ? 2 : 1,
+          width: 0,
         ),
-        boxShadow: armed
-            ? [
-                BoxShadow(
-                  color: accent.withOpacity(0.5),
-                  blurRadius: 10,
-                  spreadRadius: 1,
-                ),
-              ]
-            : null,
       ),
       child: IconButton(
         onPressed: onPressed,
         tooltip: 'Bomb',
         iconSize: iconSize,
-        icon: Image.asset(
-          'assets/icons/bomb.png',
-          width: iconSize,
-          height: iconSize,
-          fit: BoxFit.contain,
-          color: enabled ? null : Colors.grey,
-          colorBlendMode: BlendMode.srcIn,
-        ),
+        icon: iconWidget,
         style: IconButton.styleFrom(
-          backgroundColor: active ? accent.withOpacity(0.25) : Colors.transparent,
+          backgroundColor: Colors.transparent,
           padding: const EdgeInsets.all(4),
         ),
       ),
