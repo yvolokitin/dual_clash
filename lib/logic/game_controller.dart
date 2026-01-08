@@ -150,6 +150,7 @@ class GameController extends ChangeNotifier {
   final List<_BombToken> _bombs = <_BombToken>[];
   final Map<CellState, int> _lastBombTurns = <CellState, int>{};
   bool bombMode = false;
+  bool _autoBombInProgress = false;
   // Who starts the game (persisted in settings); default is RED (human)
   CellState startingPlayer = CellState.red;
   CellState current = CellState.red; // current turn marker
@@ -365,8 +366,6 @@ class GameController extends ChangeNotifier {
 
   bool _canActivateBombToken(_BombToken bomb) {
     if (bomb.owner != current) return false;
-    final turnDelta = _turnIndexFor(bomb.owner) - bomb.placedTurn;
-    if (turnDelta < 1 || turnDelta > 3) return false;
     return _hasEnemyAdjacent(bomb.row, bomb.col, bomb.owner);
   }
 
@@ -399,25 +398,7 @@ class GameController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _expireBombsFor(CellState owner) {
-    if (_bombs.isEmpty) return;
-    final currentTurn = _turnIndexFor(owner);
-    final expired = _bombs
-        .where((bomb) =>
-            bomb.owner == owner && currentTurn - bomb.placedTurn > 3)
-        .toList();
-    if (expired.isEmpty) return;
-    for (final bomb in expired) {
-      if (RulesEngine.inBounds(bomb.row, bomb.col) &&
-          board[bomb.row][bomb.col] == CellState.bomb) {
-        board[bomb.row][bomb.col] = CellState.empty;
-      }
-      _bombs.remove(bomb);
-    }
-  }
-
   void _handleTurnStart(CellState who) {
-    _expireBombsFor(who);
     if (bombMode) {
       bombMode = false;
     }
@@ -1561,9 +1542,10 @@ class GameController extends ChangeNotifier {
     }
   }
 
-  Future<void> _performBombActivation(_BombToken bomb) async {
+  Future<void> _performBombActivation(_BombToken bomb,
+      {bool autoTriggered = false}) async {
     if (gameOver || isExploding || isFalling) return;
-    if (!_canActivateBombToken(bomb)) return;
+    if (!autoTriggered && !_canActivateBombToken(bomb)) return;
     isExploding = true;
     explodingCells =
         RulesEngine.bombBlastAffected(board, bomb.row, bomb.col);
@@ -2105,9 +2087,28 @@ class GameController extends ChangeNotifier {
 
   void _checkEnd({bool force = false}) {
     if (force || !RulesEngine.hasEmpty(board)) {
+      if (!force && _bombs.isNotEmpty) {
+        _autoActivateBombIfNeeded();
+        return;
+      }
       gameOver = true;
       _processEndOnce();
     }
+  }
+
+  void _autoActivateBombIfNeeded() {
+    if (_autoBombInProgress) return;
+    if (RulesEngine.hasEmpty(board) || _bombs.isEmpty) return;
+    _autoBombInProgress = true;
+    Future.microtask(() async {
+      if (RulesEngine.hasEmpty(board) || _bombs.isEmpty) {
+        _autoBombInProgress = false;
+        return;
+      }
+      final bomb = _bombs.first;
+      await _performBombActivation(bomb, autoTriggered: true);
+      _autoBombInProgress = false;
+    });
   }
 
   void _processEndOnce() async {

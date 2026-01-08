@@ -270,19 +270,11 @@ class _BombTile extends StatelessWidget {
           flashing: flashing,
         ),
         Center(
-          child: Icon(
-            Icons.brightness_1,
-            size: 20,
-            color: Colors.black.withOpacity(0.85),
-          ),
-        ),
-        Positioned(
-          top: 6,
-          right: 8,
-          child: Icon(
-            Icons.auto_awesome,
-            size: 10,
-            color: const Color(0xFFFFC34A).withOpacity(0.9),
+          child: Image.asset(
+            'assets/icons/star.png',
+            width: 22,
+            height: 22,
+            fit: BoxFit.contain,
           ),
         ),
       ],

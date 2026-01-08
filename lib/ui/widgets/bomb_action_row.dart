@@ -75,10 +75,13 @@ class _BombButton extends StatelessWidget {
       child: IconButton(
         onPressed: onPressed,
         tooltip: 'Bomb',
-        icon: Icon(
-          Icons.brightness_1,
-          size: 22,
-          color: enabled ? Colors.black87 : Colors.black26,
+        icon: Image.asset(
+          'assets/icons/star.png',
+          width: 22,
+          height: 22,
+          fit: BoxFit.contain,
+          color: enabled ? null : Colors.black26,
+          colorBlendMode: enabled ? BlendMode.srcIn : BlendMode.srcIn,
         ),
         style: IconButton.styleFrom(
           backgroundColor: active ? accent.withOpacity(0.25) : Colors.transparent,
