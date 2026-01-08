@@ -8,17 +8,27 @@ import '../../core/colors.dart';
 import '../../core/constants.dart';
 import '../../models/cell_state.dart';
 
+enum SettingsDialogMode { standard, duel, alliance }
+
 class SettingsDialog extends StatefulWidget {
   final GameController controller;
-  const SettingsDialog({super.key, required this.controller});
+  final SettingsDialogMode mode;
+  const SettingsDialog({
+    super.key,
+    required this.controller,
+    this.mode = SettingsDialogMode.standard,
+  });
 
   @override
   State<SettingsDialog> createState() => _SettingsDialogState();
 }
 
 /// Helper to show the SettingsDialog with Block Blast-like animated transition
-Future<void> showAnimatedSettingsDialog(
-    {required BuildContext context, required GameController controller}) {
+Future<void> showAnimatedSettingsDialog({
+  required BuildContext context,
+  required GameController controller,
+  SettingsDialogMode mode = SettingsDialogMode.standard,
+}) {
   return showGeneralDialog(
     context: context,
     barrierDismissible: true,
@@ -56,7 +66,7 @@ Future<void> showAnimatedSettingsDialog(
               opacity: curved,
               child: ScaleTransition(
                 scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
-                child: SettingsDialog(controller: controller),
+                child: SettingsDialog(controller: controller, mode: mode),
               ),
             ),
           ),
@@ -81,7 +91,27 @@ class _SettingsDialogState extends State<SettingsDialog> {
     _language = widget.controller.languageCode;
     _boardSize = widget.controller.boardSize;
     _aiLevel = widget.controller.aiLevel;
-    _startingPlayer = widget.controller.startingPlayer;
+    _startingPlayer = widget.mode == SettingsDialogMode.standard
+        ? widget.controller.startingPlayer
+        : widget.controller.duelStartingPlayer;
+    if (widget.mode == SettingsDialogMode.duel) {
+      final int playerCount =
+          widget.controller.duelPlayerCount.clamp(2, 4);
+      final allowed = <CellState>[
+        CellState.red,
+        CellState.blue,
+        if (playerCount >= 3) CellState.yellow,
+        if (playerCount >= 4) CellState.green,
+      ];
+      if (!allowed.contains(_startingPlayer)) {
+        _startingPlayer = allowed.first;
+      }
+    } else if (widget.mode == SettingsDialogMode.alliance) {
+      if (_startingPlayer != CellState.red &&
+          _startingPlayer != CellState.blue) {
+        _startingPlayer = CellState.red;
+      }
+    }
     _initialLanguage = _language;
     _initialStartingPlayer = _startingPlayer;
   }
@@ -215,24 +245,17 @@ class _SettingsDialogState extends State<SettingsDialog> {
                           Wrap(
                             spacing: 8,
                             runSpacing: 8,
-                            children: [
-                              _startingPlayerTile(
-                                selected: _startingPlayer == CellState.red,
-                                label: l10n.startingPlayerHuman,
-                                asset: 'assets/icons/human.jpg',
-                                accent: AppColors.red,
-                                onTap: () => setState(
-                                    () => _startingPlayer = CellState.red),
-                              ),
-                              _startingPlayerTile(
-                                selected: _startingPlayer == CellState.blue,
-                                label: l10n.startingPlayerAi,
-                                asset: 'assets/icons/ai.jpg',
-                                accent: AppColors.blue,
-                                onTap: () => setState(
-                                    () => _startingPlayer = CellState.blue),
-                              ),
-                            ],
+                            children: _startingPlayerOptions(context)
+                                .map((option) => _startingPlayerTile(
+                                      selected:
+                                          _startingPlayer == option.state,
+                                      label: option.label,
+                                      assets: option.assets,
+                                      accents: option.accents,
+                                      onTap: () => setState(
+                                          () => _startingPlayer = option.state),
+                                    ))
+                                .toList(),
                           ),
                         ],
                       ),
@@ -250,8 +273,13 @@ class _SettingsDialogState extends State<SettingsDialog> {
                               _initialLanguage = _language;
                             }
                             if (_startingPlayer != _initialStartingPlayer) {
-                              await widget.controller
-                                  .setStartingPlayer(_startingPlayer);
+                              if (widget.mode == SettingsDialogMode.standard) {
+                                await widget.controller
+                                    .setStartingPlayer(_startingPlayer);
+                              } else {
+                                await widget.controller
+                                    .setDuelStartingPlayer(_startingPlayer);
+                              }
                               _initialStartingPlayer = _startingPlayer;
                             }
                             if (context.mounted) {
@@ -300,6 +328,85 @@ class _SettingsDialogState extends State<SettingsDialog> {
         ),
       ),
     );
+  }
+
+  List<_StartingPlayerOption> _startingPlayerOptions(BuildContext context) {
+    final l10n = context.l10n;
+    if (widget.mode == SettingsDialogMode.duel) {
+      final int playerCount =
+          widget.controller.duelPlayerCount.clamp(2, 4);
+      final options = <_StartingPlayerOption>[
+        _StartingPlayerOption(
+          state: CellState.red,
+          label: l10n.colorRedLabel,
+          assets: const ['assets/icons/player_red.png'],
+          accents: const [AppColors.red],
+        ),
+        _StartingPlayerOption(
+          state: CellState.blue,
+          label: l10n.colorBlueLabel,
+          assets: const ['assets/icons/player_blue.png'],
+          accents: const [AppColors.blue],
+        ),
+      ];
+      if (playerCount >= 3) {
+        options.add(
+          _StartingPlayerOption(
+            state: CellState.yellow,
+            label: l10n.colorYellowLabel,
+            assets: const ['assets/icons/player_yellow.png'],
+            accents: const [AppColors.yellow],
+          ),
+        );
+      }
+      if (playerCount >= 4) {
+        options.add(
+          _StartingPlayerOption(
+            state: CellState.green,
+            label: l10n.colorGreenLabel,
+            assets: const ['assets/icons/player_green.png'],
+            accents: const [AppColors.green],
+          ),
+        );
+      }
+      return options;
+    }
+    if (widget.mode == SettingsDialogMode.alliance) {
+      return [
+        _StartingPlayerOption(
+          state: CellState.red,
+          label: '${l10n.colorRedLabel} + ${l10n.colorYellowLabel}',
+          assets: const [
+            'assets/icons/player_red.png',
+            'assets/icons/player_yellow.png',
+          ],
+          accents: const [AppColors.red, AppColors.yellow],
+        ),
+        _StartingPlayerOption(
+          state: CellState.blue,
+          label: '${l10n.colorBlueLabel} + ${l10n.colorGreenLabel}',
+          assets: const [
+            'assets/icons/player_blue.png',
+            'assets/icons/player_green.png',
+          ],
+          accents: const [AppColors.blue, AppColors.green],
+        ),
+      ];
+    }
+    return [
+      _StartingPlayerOption(
+        state: CellState.red,
+        label: l10n.startingPlayerHuman,
+        assets: const ['assets/icons/human.jpg'],
+        accents: const [AppColors.red],
+      ),
+      _StartingPlayerOption(
+        state: CellState.blue,
+        label: l10n.startingPlayerAi,
+        assets: const ['assets/icons/ai.jpg'],
+        accents: const [AppColors.blue],
+      ),
+    ];
   }
 
   Widget _label(String text) => Padding(
@@ -477,8 +584,8 @@ class _SettingsDialogState extends State<SettingsDialog> {
   Widget _startingPlayerTile({
     required bool selected,
     required String label,
-    required String asset,
-    required Color accent,
+    required List<String> assets,
+    required List<Color> accents,
     VoidCallback? onTap,
   }) {
     const double tileWidth = 120;
@@ -522,9 +629,22 @@ class _SettingsDialogState extends State<SettingsDialog> {
                 child: ClipRRect(
                   borderRadius: tileRadius,
                   child: SizedBox.expand(
-                    child: Image.asset(
-                      asset,
-                      fit: BoxFit.fitHeight,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: assets
+                          .map(
+                            (asset) => Expanded(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 6),
+                                child: Image.asset(
+                                  asset,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                          )
+                          .toList(),
                     ),
                   ),
                 ),
@@ -537,13 +657,19 @@ class _SettingsDialogState extends State<SettingsDialog> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration:
-                        BoxDecoration(color: accent, shape: BoxShape.circle),
-                  ),
-                  const SizedBox(width: 6),
+                  ...accents
+                      .map(
+                        (accent) => Padding(
+                          padding: const EdgeInsets.only(right: 6),
+                          child: Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                                color: accent, shape: BoxShape.circle),
+                          ),
+                        ),
+                      )
+                      .toList(),
                   Flexible(
                     child: Text(
                       label,
@@ -687,4 +813,18 @@ class _SettingsDialogState extends State<SettingsDialog> {
         return l10n.aiDifficultyDetailSelect;
     }
   }
+}
+
+class _StartingPlayerOption {
+  final CellState state;
+  final String label;
+  final List<String> assets;
+  final List<Color> accents;
+
+  const _StartingPlayerOption({
+    required this.state,
+    required this.label,
+    required this.assets,
+    required this.accents,
+  });
 }

@@ -131,6 +131,8 @@ class GameController extends ChangeNotifier {
   List<List<CellState>> board = RulesEngine.emptyBoard();
   // Who starts the game (persisted in settings); default is RED (human)
   CellState startingPlayer = CellState.red;
+  // Who starts in duel modes
+  CellState duelStartingPlayer = CellState.red;
   CellState current = CellState.red; // current turn marker
   bool gameOver = false;
   final _ai = SimpleAI();
@@ -149,6 +151,7 @@ class GameController extends ChangeNotifier {
   static const _kLastGameWasNewBest = 'lastGameWasNewBest';
   static const _kTotalUserScore = 'totalUserScore';
   static const _kStartingPlayer = 'startingPlayer'; // 'red' or 'blue'
+  static const _kDuelStartingPlayer = 'duelStartingPlayer';
   static const _kHistory = 'historyJson';
   static const _kSavedGames = 'savedGamesJson';
   // Profile/achievements keys
@@ -218,6 +221,46 @@ class GameController extends ChangeNotifier {
         return const [CellState.red, CellState.blue, CellState.yellow, CellState.green];
       default:
         return const [CellState.red, CellState.blue];
+    }
+  }
+
+  CellState get effectiveStartingPlayer {
+    if (humanVsHuman) {
+      final players = activePlayers;
+      return players.contains(duelStartingPlayer)
+          ? duelStartingPlayer
+          : players.first;
+    }
+    return startingPlayer;
+  }
+
+  CellState _cellStateFromKey(String? key,
+      {CellState fallback = CellState.red}) {
+    switch (key) {
+      case 'blue':
+        return CellState.blue;
+      case 'yellow':
+        return CellState.yellow;
+      case 'green':
+        return CellState.green;
+      case 'red':
+        return CellState.red;
+      default:
+        return fallback;
+    }
+  }
+
+  String _cellStateToKey(CellState state) {
+    switch (state) {
+      case CellState.blue:
+        return 'blue';
+      case CellState.yellow:
+        return 'yellow';
+      case CellState.green:
+        return 'green';
+      case CellState.red:
+      default:
+        return 'red';
     }
   }
 
@@ -655,6 +698,8 @@ class GameController extends ChangeNotifier {
     } else {
       startingPlayer = CellState.red; // default
     }
+    final duelSp = prefs.getString(_kDuelStartingPlayer);
+    duelStartingPlayer = _cellStateFromKey(duelSp, fallback: duelStartingPlayer);
     // Profile
     nickname = prefs.getString(_kNickname) ?? nickname;
     country = Countries.normalize(prefs.getString(_kCountry) ?? country);
@@ -702,7 +747,7 @@ class GameController extends ChangeNotifier {
     // Apply theme immediately
     AppColors.bg = Color(themeColorHex);
     // Apply starting player to current game session (fresh board at startup)
-    current = startingPlayer;
+    current = effectiveStartingPlayer;
 
     // Start playtime for initial fresh session if not started yet (app startup case)
     final bool _freshBoard = RulesEngine.countOf(board, CellState.red) == 0 &&
@@ -780,6 +825,13 @@ class GameController extends ChangeNotifier {
         _kStartingPlayer, who == CellState.blue ? 'blue' : 'red');
   }
 
+  Future<void> setDuelStartingPlayer(CellState who) async {
+    duelStartingPlayer = who;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kDuelStartingPlayer, _cellStateToKey(who));
+  }
+
   Future<void> setCountry(String value) async {
     country = Countries.normalize(value);
     notifyListeners();
@@ -799,7 +851,7 @@ class GameController extends ChangeNotifier {
     lastMoveBy = null;
     _clearScorePopup();
     board = RulesEngine.emptyBoard();
-    current = startingPlayer;
+    current = effectiveStartingPlayer;
     gameOver = false;
     turnsRed = 0;
     turnsBlue = 0;
