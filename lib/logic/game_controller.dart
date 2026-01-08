@@ -1415,14 +1415,24 @@ class GameController extends ChangeNotifier {
     // In normal mode only Red (human) acts; in Duel mode current side acts
     if (!humanVsHuman && current != CellState.red) return;
 
+    if (s == CellState.bomb) {
+      final bomb = _bombAt(r, c);
+      if (bomb == null) return;
+      if (selectedCell == (r, c)) {
+        _performBombActivation(bomb);
+        return;
+      }
+      if (_canActivateBombToken(bomb)) {
+        selectedCell = (r, c);
+        blowPreview = RulesEngine.bombBlastAffected(board, r, c);
+        notifyListeners();
+      }
+      return;
+    }
+
     if (bombMode) {
       if (s == CellState.empty && canPlaceBomb) {
         _performBombPlacement(r, c, current);
-      } else if (s == CellState.bomb) {
-        final bomb = _bombAt(r, c);
-        if (bomb != null && _canActivateBombToken(bomb)) {
-          _performBombActivation(bomb);
-        }
       }
       return;
     }

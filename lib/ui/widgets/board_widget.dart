@@ -149,6 +149,7 @@ class BoardWidget extends StatelessWidget {
                                       st == CellState.blue ||
                                       st == CellState.yellow ||
                                       st == CellState.green ||
+                                      st == CellState.bomb ||
                                       st == CellState.neutral))
                                 const _SelectedGoldBorder(),
                               if (controller.selectedCell == (r, c) &&
