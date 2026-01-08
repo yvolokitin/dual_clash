@@ -29,6 +29,7 @@ class MenuDialogConfig {
   final bool showRestorePurchases;
   final bool confirmReturnToMenu;
   final bool confirmRestart;
+  final SettingsDialogMode settingsMode;
 
   const MenuDialogConfig({
     this.showStatistics = true,
@@ -39,17 +40,19 @@ class MenuDialogConfig {
     this.showRestorePurchases = true,
     this.confirmReturnToMenu = true,
     this.confirmRestart = true,
+    this.settingsMode = SettingsDialogMode.standard,
   });
 
   const MenuDialogConfig.duel()
       : showStatistics = false,
-        showSettings = false,
+        showSettings = true,
         showSaveGame = false,
         showSimulateGame = true,
         showRemoveAds = true,
         showRestorePurchases = true,
         confirmReturnToMenu = true,
-        confirmRestart = true;
+        confirmRestart = true,
+        settingsMode = SettingsDialogMode.duel;
 }
 
 class MainMenuDialog extends StatefulWidget {
@@ -532,7 +535,9 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                                 await Future.delayed(
                                     const Duration(milliseconds: 30));
                                 await showAnimatedSettingsDialog(
-                                    context: context, controller: controller);
+                                    context: context,
+                                    controller: controller,
+                                    mode: config.settingsMode);
                               },
                             ),
                           ],
