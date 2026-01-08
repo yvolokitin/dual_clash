@@ -152,6 +152,8 @@ class BoardWidget extends StatelessWidget {
                                       st == CellState.bomb ||
                                       st == CellState.neutral))
                                 const _SelectedGoldBorder(),
+                              if (controller.isBombDropTarget(r, c))
+                                const _SelectedGoldBorder(),
                               if (controller.selectedCell == (r, c) &&
                                   (st == CellState.red ||
                                       st == CellState.blue ||
@@ -177,9 +179,16 @@ class BoardWidget extends StatelessWidget {
                             );
                           }
 
-                          return AspectRatio(
-                            aspectRatio: 1,
-                            child: cellStack,
+                          return DragTarget<bool>(
+                            onWillAcceptWithDetails: (_) =>
+                                controller.isBombDropTarget(r, c),
+                            onAcceptWithDetails: (_) {
+                              controller.handleBombDrop(r, c);
+                            },
+                            builder: (context, _, __) => AspectRatio(
+                              aspectRatio: 1,
+                              child: cellStack,
+                            ),
                           );
                         },
                       ),

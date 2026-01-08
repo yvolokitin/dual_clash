@@ -18,6 +18,7 @@ class BombActionRow extends StatelessWidget {
     final active = controller.bombMode;
     final accent = armed ? const Color(0xFFFFC34A) : Colors.white70;
     final hint = controller.bombActionHint;
+    final canDrag = controller.canPlaceBomb;
     return SizedBox(
       width: boardWidth,
       child: Column(
@@ -26,12 +27,15 @@ class BombActionRow extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _BombButton(
+              _BombDraggable(
                 enabled: enabled,
                 armed: armed,
                 active: active,
                 accent: accent,
+                canDrag: canDrag,
                 onPressed: enabled ? controller.toggleBombMode : null,
+                onDragStarted: controller.startBombDrag,
+                onDragEnd: controller.endBombDrag,
               ),
             ],
           ),
@@ -49,6 +53,63 @@ class BombActionRow extends StatelessWidget {
           ],
         ],
       ),
+    );
+  }
+}
+
+class _BombDraggable extends StatelessWidget {
+  final bool enabled;
+  final bool armed;
+  final bool active;
+  final Color accent;
+  final bool canDrag;
+  final VoidCallback? onPressed;
+  final VoidCallback onDragStarted;
+  final VoidCallback onDragEnd;
+
+  const _BombDraggable({
+    required this.enabled,
+    required this.armed,
+    required this.active,
+    required this.accent,
+    required this.canDrag,
+    this.onPressed,
+    required this.onDragStarted,
+    required this.onDragEnd,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final button = _BombButton(
+      enabled: enabled,
+      armed: armed,
+      active: active,
+      accent: accent,
+      onPressed: onPressed,
+    );
+    if (!canDrag) {
+      return button;
+    }
+    return Draggable<bool>(
+      data: true,
+      onDragStarted: onDragStarted,
+      onDragEnd: (_) => onDragEnd(),
+      onDraggableCanceled: (_, __) => onDragEnd(),
+      feedback: Material(
+        color: Colors.transparent,
+        child: _BombButton(
+          enabled: true,
+          armed: armed,
+          active: active,
+          accent: accent,
+          onPressed: null,
+        ),
+      ),
+      childWhenDragging: Opacity(
+        opacity: 0.6,
+        child: button,
+      ),
+      child: button,
     );
   }
 }

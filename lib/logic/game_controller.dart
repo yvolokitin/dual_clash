@@ -151,6 +151,8 @@ class GameController extends ChangeNotifier {
   final Map<CellState, int> _lastBombTurns = <CellState, int>{};
   bool bombMode = false;
   bool _autoBombInProgress = false;
+  bool bombDragActive = false;
+  Set<(int, int)> bombDragTargets = <(int, int)>{};
   // Who starts the game (persisted in settings); default is RED (human)
   CellState startingPlayer = CellState.red;
   CellState current = CellState.red; // current turn marker
@@ -388,7 +390,16 @@ class GameController extends ChangeNotifier {
 
   bool get bombActionEnabled => canPlaceBomb || canActivateAnyBomb;
 
+  String? get bombDragHint {
+    if (!bombDragActive) return null;
+    if (bombDragTargets.isEmpty) {
+      return 'No valid cells. Drop bombs next to an enemy.';
+    }
+    return 'Drag the bomb onto a highlighted cell next to an enemy.';
+  }
+
   String? get bombActionHint {
+    if (bombDragActive) return bombDragHint;
     if (bombActionEnabled) return null;
     if (gameOver) return 'Game over';
     if (!humanVsHuman && current != CellState.red) {
@@ -409,6 +420,43 @@ class GameController extends ChangeNotifier {
       }
     }
     return 'Place a bomb on an empty cell.';
+  }
+
+  void startBombDrag() {
+    if (!canPlaceBomb) return;
+    bombDragActive = true;
+    bombDragTargets = _validBombDropTargets();
+    notifyListeners();
+  }
+
+  void endBombDrag() {
+    if (!bombDragActive) return;
+    bombDragActive = false;
+    bombDragTargets = <(int, int)>{};
+    notifyListeners();
+  }
+
+  bool isBombDropTarget(int r, int c) =>
+      bombDragActive && bombDragTargets.contains((r, c));
+
+  Set<(int, int)> _validBombDropTargets() {
+    final targets = <(int, int)>{};
+    if (!canPlaceBomb) return targets;
+    for (int r = 0; r < K.n; r++) {
+      for (int c = 0; c < K.n; c++) {
+        if (board[r][c] != CellState.empty) continue;
+        if (_hasEnemyAdjacent(r, c, current)) {
+          targets.add((r, c));
+        }
+      }
+    }
+    return targets;
+  }
+
+  void handleBombDrop(int r, int c) {
+    if (!isBombDropTarget(r, c)) return;
+    _performBombPlacement(r, c, current);
+    endBombDrag();
   }
 
   void toggleBombMode() {
