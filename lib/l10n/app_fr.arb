@@ -124,6 +124,12 @@
   "greenTurnsLabel": "Tours verts",
   "playerTurnsLabel": "Tours du joueur",
   "aiTurnsLabel": "Tours de l’IA",
+  "playerTurnStatus": "{player} player turn",
+  "@playerTurnStatus": {
+    "placeholders": {
+      "player": {}
+    }
+  },
   "newBestScoreLabel": "Nouveau meilleur score",
   "pointsBelowBestScore": "{points} points sous le meilleur score",
   "@pointsBelowBestScore": {

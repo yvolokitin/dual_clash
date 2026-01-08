@@ -124,6 +124,12 @@
   "greenTurnsLabel": "Зелені ходи",
   "playerTurnsLabel": "Ходи гравця",
   "aiTurnsLabel": "Ходи ШІ",
+  "playerTurnStatus": "{player} player turn",
+  "@playerTurnStatus": {
+    "placeholders": {
+      "player": {}
+    }
+  },
   "newBestScoreLabel": "Новий найкращий рахунок",
   "pointsBelowBestScore": "{points} очок до найкращого",
   "@pointsBelowBestScore": {

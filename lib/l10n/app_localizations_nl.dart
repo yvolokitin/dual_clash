@@ -348,6 +348,11 @@ class AppLocalizationsNl extends AppLocalizations {
   String get aiTurnsLabel => 'AI-beurten';
 
   @override
+  String playerTurnStatus(Object player) {
+    return '$player player turn';
+  }
+
+  @override
   String get newBestScoreLabel => 'Nieuwe beste score';
 
   @override

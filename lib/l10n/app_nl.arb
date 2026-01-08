@@ -124,6 +124,12 @@
   "greenTurnsLabel": "Groene beurten",
   "playerTurnsLabel": "Spelerbeurten",
   "aiTurnsLabel": "AI-beurten",
+  "playerTurnStatus": "{player} player turn",
+  "@playerTurnStatus": {
+    "placeholders": {
+      "player": {}
+    }
+  },
   "newBestScoreLabel": "Nieuwe beste score",
   "pointsBelowBestScore": "{points} punten onder beste score",
   "@pointsBelowBestScore": {

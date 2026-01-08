@@ -348,6 +348,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get aiTurnsLabel => 'Tury SI';
 
   @override
+  String playerTurnStatus(Object player) {
+    return '$player player turn';
+  }
+
+  @override
   String get newBestScoreLabel => 'Nowy najlepszy wynik';
 
   @override
