@@ -43,7 +43,7 @@ class MenuDialogConfig {
 
   const MenuDialogConfig.duel()
       : showStatistics = false,
-        showSettings = false,
+        showSettings = true,
         showSaveGame = false,
         showSimulateGame = true,
         showRemoveAds = true,

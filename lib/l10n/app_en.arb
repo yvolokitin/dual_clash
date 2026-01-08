@@ -212,6 +212,7 @@
   "nicknameUpdatedMessage": "Nickname updated",
   "noBeltsEarnedYetMessage": "No belts earned yet.",
   "whoStartsFirstLabel": "Who starts first",
+  "whoStartsFirstTip": "If no turns have been made, changes apply immediately; otherwise they take effect in the next game.",
   "startingPlayerHuman": "Human (Red)",
   "startingPlayerAi": "AI (Blue)",
   "leaveDuelBarrierLabel": "Leave duel",

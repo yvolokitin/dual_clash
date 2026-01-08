@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 
 import 'package:dual_clash/core/localization.dart';
+import 'package:dual_clash/l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../logic/game_controller.dart';
@@ -84,6 +85,26 @@ class _SettingsDialogState extends State<SettingsDialog> {
     _startingPlayer = widget.controller.startingPlayer;
     _initialLanguage = _language;
     _initialStartingPlayer = _startingPlayer;
+    _coerceStartingPlayer();
+  }
+
+  void _coerceStartingPlayer() {
+    final allowed = _allowedStartingPlayers();
+    if (!allowed.contains(_startingPlayer)) {
+      _startingPlayer = allowed.first;
+      _initialStartingPlayer = _startingPlayer;
+    }
+  }
+
+  List<CellState> _allowedStartingPlayers() {
+    if (!widget.controller.humanVsHuman) {
+      return const [CellState.red, CellState.blue];
+    }
+    if (widget.controller.allianceMode &&
+        widget.controller.duelPlayerCount >= 4) {
+      return const [CellState.red, CellState.blue];
+    }
+    return widget.controller.activePlayers;
   }
 
   @override
@@ -95,6 +116,9 @@ class _SettingsDialogState extends State<SettingsDialog> {
             defaultTargetPlatform == TargetPlatform.iOS);
     final bool isTabletDevice = isTablet(context);
     final bool isPhoneFullscreen = isMobilePlatform && !isTabletDevice;
+    final bool isDuelMode = widget.controller.humanVsHuman;
+    final bool isAllianceMode =
+        widget.controller.allianceMode && widget.controller.duelPlayerCount >= 4;
     // Dialog background: exactly the same as main background
     final bg = AppColors.bg;
     final Color dialogTop = bg;
@@ -212,27 +236,44 @@ class _SettingsDialogState extends State<SettingsDialog> {
 
                           // Who starts selector
                           _label(l10n.whoStartsFirstLabel),
+                          _tipText(l10n.whoStartsFirstTip),
                           Wrap(
                             spacing: 8,
                             runSpacing: 8,
-                            children: [
-                              _startingPlayerTile(
-                                selected: _startingPlayer == CellState.red,
-                                label: l10n.startingPlayerHuman,
-                                asset: 'assets/icons/human.jpg',
-                                accent: AppColors.red,
-                                onTap: () => setState(
-                                    () => _startingPlayer = CellState.red),
-                              ),
-                              _startingPlayerTile(
-                                selected: _startingPlayer == CellState.blue,
-                                label: l10n.startingPlayerAi,
-                                asset: 'assets/icons/ai.jpg',
-                                accent: AppColors.blue,
-                                onTap: () => setState(
-                                    () => _startingPlayer = CellState.blue),
-                              ),
-                            ],
+                            children: isDuelMode
+                                ? _duelStartingPlayerOptions(
+                                        l10n, isAllianceMode)
+                                    .map(
+                                      (option) => _startingPlayerColorTile(
+                                        selected:
+                                            _startingPlayer == option.player,
+                                        label: option.label,
+                                        colors: option.colors,
+                                        onTap: () => setState(() =>
+                                            _startingPlayer = option.player),
+                                      ),
+                                    )
+                                    .toList()
+                                : [
+                                    _startingPlayerTile(
+                                      selected:
+                                          _startingPlayer == CellState.red,
+                                      label: l10n.startingPlayerHuman,
+                                      asset: 'assets/icons/human.jpg',
+                                      accent: AppColors.red,
+                                      onTap: () => setState(
+                                          () => _startingPlayer = CellState.red),
+                                    ),
+                                    _startingPlayerTile(
+                                      selected:
+                                          _startingPlayer == CellState.blue,
+                                      label: l10n.startingPlayerAi,
+                                      asset: 'assets/icons/ai.jpg',
+                                      accent: AppColors.blue,
+                                      onTap: () => setState(
+                                          () => _startingPlayer = CellState.blue),
+                                    ),
+                                  ],
                           ),
                         ],
                       ),
@@ -309,6 +350,18 @@ class _SettingsDialogState extends State<SettingsDialog> {
                 color: AppColors.dialogSubtitle,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.2)),
+      );
+
+  Widget _tipText(String text) => Padding(
+        padding: const EdgeInsets.only(bottom: 8.0),
+        child: Text(
+          text,
+          style: const TextStyle(
+            color: Colors.white70,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       );
 
   InputDecoration _fieldDecoration() => const InputDecoration(
@@ -392,6 +445,107 @@ class _SettingsDialogState extends State<SettingsDialog> {
         ),
       ),
     );
+  }
+
+  Widget _startingPlayerColorTile({
+    required bool selected,
+    required String label,
+    required List<Color> colors,
+    VoidCallback? onTap,
+  }) {
+    final bg =
+        selected ? Colors.white.withOpacity(0.12) : AppColors.dialogFieldBg;
+    final border = selected ? AppColors.brandGold : Colors.white12;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: border, width: selected ? 2 : 1),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _colorDots(colors),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _colorDots(List<Color> colors) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var i = 0; i < colors.length; i++) ...[
+          Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(color: colors[i], shape: BoxShape.circle),
+          ),
+          if (i != colors.length - 1) const SizedBox(width: 4),
+        ],
+      ],
+    );
+  }
+
+  List<({CellState player, String label, List<Color> colors})>
+      _duelStartingPlayerOptions(AppLocalizations l10n, bool isAllianceMode) {
+    if (isAllianceMode) {
+      return [
+        (
+          player: CellState.red,
+          label: '${l10n.colorRedLabel} + ${l10n.colorYellowLabel}',
+          colors: [AppColors.red, AppColors.yellow],
+        ),
+        (
+          player: CellState.blue,
+          label: '${l10n.colorBlueLabel} + ${l10n.colorGreenLabel}',
+          colors: [AppColors.blue, AppColors.green],
+        ),
+      ];
+    }
+    return widget.controller.activePlayers
+        .map(
+          (player) => (
+            player: player,
+            label: _colorLabel(l10n, player),
+            colors: [_colorFor(player)],
+          ),
+        )
+        .toList();
+  }
+
+  String _colorLabel(AppLocalizations l10n, CellState player) {
+    return switch (player) {
+      CellState.blue => l10n.colorBlueLabel,
+      CellState.yellow => l10n.colorYellowLabel,
+      CellState.green => l10n.colorGreenLabel,
+      _ => l10n.colorRedLabel,
+    };
+  }
+
+  Color _colorFor(CellState player) {
+    return switch (player) {
+      CellState.blue => AppColors.blue,
+      CellState.yellow => AppColors.yellow,
+      CellState.green => AppColors.green,
+      _ => AppColors.red,
+    };
   }
 
   Widget _languageTile({

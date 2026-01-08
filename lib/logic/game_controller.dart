@@ -79,6 +79,7 @@ class GameController extends ChangeNotifier {
   // Duel mode: when true, both players are human and AI is disabled
   bool humanVsHuman = false;
   int duelPlayerCount = 2;
+  bool allianceMode = false;
   // --- Analytics & activity ---
   int totalPlayTimeMs = 0;
 
@@ -174,7 +175,7 @@ class GameController extends ChangeNotifier {
   static const _kLastBestChallengeScoreBefore = 'lastBestChallengeScoreBefore';
   static const _kLastGameWasNewBest = 'lastGameWasNewBest';
   static const _kTotalUserScore = 'totalUserScore';
-  static const _kStartingPlayer = 'startingPlayer'; // 'red' or 'blue'
+  static const _kStartingPlayer = 'startingPlayer'; // 'red', 'blue', 'yellow', 'green'
   static const _kHistory = 'historyJson';
   static const _kSavedGames = 'savedGamesJson';
   // Profile/achievements keys
@@ -261,6 +262,8 @@ class GameController extends ChangeNotifier {
 
   bool get isMultiDuel => humanVsHuman && duelPlayerCount > 2;
   bool get usePlayerTokens => isMultiDuel;
+  bool get hasAnyTurns =>
+      turnsRed > 0 || turnsBlue > 0 || turnsYellow > 0 || turnsGreen > 0;
 
   CellState _nextPlayer(CellState currentPlayer) {
     final players = activePlayers;
@@ -600,7 +603,11 @@ class GameController extends ChangeNotifier {
                   : (lastMoveBy == CellState.yellow
                       ? 'yellow'
                       : 'green'))),
-      'startingPlayer': startingPlayer == CellState.blue ? 'blue' : 'red',
+      'startingPlayer': startingPlayer == CellState.blue
+          ? 'blue'
+          : (startingPlayer == CellState.yellow
+              ? 'yellow'
+              : (startingPlayer == CellState.green ? 'green' : 'red')),
       'aiLevel': aiLevel,
       'gameOver': gameOver,
       'redGamePoints': redGamePoints,
@@ -699,9 +706,12 @@ class GameController extends ChangeNotifier {
                   ? CellState.yellow
                   : CellState.green));
     }
-    startingPlayer = (m['startingPlayer'] as String) == 'blue'
+    final startingKey = m['startingPlayer'] as String? ?? 'red';
+    startingPlayer = startingKey == 'blue'
         ? CellState.blue
-        : CellState.red;
+        : (startingKey == 'yellow'
+            ? CellState.yellow
+            : (startingKey == 'green' ? CellState.green : CellState.red));
     aiLevel = m['aiLevel'] as int;
     gameOver = m['gameOver'] as bool? ?? false;
     // Optional fields for points accounting
@@ -984,10 +994,19 @@ class GameController extends ChangeNotifier {
     lastGameWasNewBest = prefs.getBool(_kLastGameWasNewBest) ?? false;
     // Starting player
     final sp = prefs.getString(_kStartingPlayer);
-    if (sp == 'blue') {
-      startingPlayer = CellState.blue;
-    } else {
-      startingPlayer = CellState.red; // default
+    switch (sp) {
+      case 'blue':
+        startingPlayer = CellState.blue;
+        break;
+      case 'yellow':
+        startingPlayer = CellState.yellow;
+        break;
+      case 'green':
+        startingPlayer = CellState.green;
+        break;
+      default:
+        startingPlayer = CellState.red; // default
+        break;
     }
     // Profile
     nickname = prefs.getString(_kNickname) ?? nickname;
@@ -1108,10 +1127,21 @@ class GameController extends ChangeNotifier {
 
   Future<void> setStartingPlayer(CellState who) async {
     startingPlayer = who;
+    if (!hasAnyTurns && _isActivePlayer(who)) {
+      current = who;
+      if (!humanVsHuman && current == CellState.blue && !isAiThinking) {
+        _scheduleAi();
+      }
+    }
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-        _kStartingPlayer, who == CellState.blue ? 'blue' : 'red');
+    final stored = switch (who) {
+      CellState.blue => 'blue',
+      CellState.yellow => 'yellow',
+      CellState.green => 'green',
+      _ => 'red',
+    };
+    await prefs.setString(_kStartingPlayer, stored);
   }
 
   Future<void> setCountry(String value) async {

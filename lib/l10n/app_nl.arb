@@ -286,5 +286,6 @@
   },
   "deleteSaveTitle": "Opslag verwijderen?",
   "deleteSaveMessage": "Weet je zeker dat je dit opgeslagen spel wilt verwijderen?",
-  "failedToDeleteMessage": "Verwijderen mislukt"
+  "failedToDeleteMessage": "Verwijderen mislukt",
+  "whoStartsFirstTip": "If no turns have been made, changes apply immediately; otherwise they take effect in the next game."
 }

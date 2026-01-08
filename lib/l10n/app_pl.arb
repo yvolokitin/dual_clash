@@ -286,5 +286,6 @@
   },
   "deleteSaveTitle": "Usunąć zapis?",
   "deleteSaveMessage": "Czy na pewno chcesz usunąć tę zapisaną grę?",
-  "failedToDeleteMessage": "Nie udało się usunąć"
+  "failedToDeleteMessage": "Nie udało się usunąć",
+  "whoStartsFirstTip": "If no turns have been made, changes apply immediately; otherwise they take effect in the next game."
 }

@@ -534,6 +534,8 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get whoStartsFirstLabel => 'Wer beginnt';
+  @override
+  String get whoStartsFirstTip => 'If no turns have been made, changes apply immediately; otherwise they take effect in the next game.';
 
   @override
   String get startingPlayerHuman => 'Mensch (Rot)';
