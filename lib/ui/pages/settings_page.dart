@@ -242,6 +242,17 @@ class _SettingsDialogState extends State<SettingsDialog> {
 
                           // Who starts selector
                           _label(l10n.whoStartsFirstLabel),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: Text(
+                              'Tip: Applies to the current game if no turns were made; otherwise it starts next game.',
+                              style: const TextStyle(
+                                color: AppColors.dialogSubtitle,
+                                fontSize: 12,
+                                height: 1.2,
+                              ),
+                            ),
+                          ),
                           Wrap(
                             spacing: 8,
                             runSpacing: 8,

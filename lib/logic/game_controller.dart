@@ -264,6 +264,19 @@ class GameController extends ChangeNotifier {
     }
   }
 
+  bool get _isFreshSession {
+    if (gameOver) return false;
+    final int turnsTaken =
+        turnsRed + turnsBlue + turnsYellow + turnsGreen;
+    if (turnsTaken > 0) return false;
+    final bool boardEmpty =
+        RulesEngine.countOf(board, CellState.red) == 0 &&
+            RulesEngine.countOf(board, CellState.blue) == 0 &&
+            RulesEngine.countOf(board, CellState.yellow) == 0 &&
+            RulesEngine.countOf(board, CellState.green) == 0;
+    return boardEmpty;
+  }
+
   bool get isMultiDuel => humanVsHuman && duelPlayerCount > 2;
   bool get usePlayerTokens => isMultiDuel;
 
@@ -823,6 +836,13 @@ class GameController extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
         _kStartingPlayer, who == CellState.blue ? 'blue' : 'red');
+    if (!humanVsHuman && _isFreshSession) {
+      current = effectiveStartingPlayer;
+      notifyListeners();
+      if (current == CellState.blue) {
+        _scheduleAi();
+      }
+    }
   }
 
   Future<void> setDuelStartingPlayer(CellState who) async {
@@ -830,6 +850,10 @@ class GameController extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_kDuelStartingPlayer, _cellStateToKey(who));
+    if (humanVsHuman && _isFreshSession) {
+      current = effectiveStartingPlayer;
+      notifyListeners();
+    }
   }
 
   Future<void> setCountry(String value) async {
