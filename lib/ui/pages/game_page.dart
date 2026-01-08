@@ -324,7 +324,7 @@ class _GamePageState extends State<GamePage> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      SizedBox(height: isMobile ? 10 : 20),
                       BombActionRow(
                         controller: controller,
                         boardWidth: metrics.boardWidth,
