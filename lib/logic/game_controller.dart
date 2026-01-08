@@ -150,10 +150,11 @@ class GameController extends ChangeNotifier {
   final List<_BombToken> _bombs = <_BombToken>[];
   final Map<CellState, int> _lastBombTurns = <CellState, int>{};
   bool bombMode = false;
-  bool _autoBombInProgress = false;
   bool bombDragActive = false;
   Set<(int, int)> bombDragTargets = <(int, int)>{};
   Set<(int, int)> bombModeTargets = <(int, int)>{};
+  bool bombAutoCountdownActive = false;
+  int bombAutoCountdownValue = 0;
   // Who starts the game (persisted in settings); default is RED (human)
   CellState startingPlayer = CellState.red;
   CellState current = CellState.red; // current turn marker
@@ -356,6 +357,8 @@ class GameController extends ChangeNotifier {
     }
     return null;
   }
+
+  CellState? bombOwnerAt(int r, int c) => _bombAt(r, c)?.owner;
 
   bool _hasEnemyAdjacent(int r, int c, CellState owner) {
     for (final (nr, nc) in RulesEngine.neighbors4(r, c)) {
@@ -657,6 +660,11 @@ class GameController extends ChangeNotifier {
         ? null
         : DateTime.now().millisecondsSinceEpoch;
     bombMode = false;
+    bombModeTargets = <(int, int)>{};
+    bombDragActive = false;
+    bombDragTargets = <(int, int)>{};
+    bombAutoCountdownActive = false;
+    bombAutoCountdownValue = 0;
     final cur = m['current'] as String;
     current = cur == 'red'
         ? CellState.red
@@ -938,6 +946,11 @@ class GameController extends ChangeNotifier {
     isFalling = false;
     isQuaking = false;
     bombMode = false;
+    bombModeTargets = <(int, int)>{};
+    bombDragActive = false;
+    bombDragTargets = <(int, int)>{};
+    bombAutoCountdownActive = false;
+    bombAutoCountdownValue = 0;
     gameOver = false;
     _endProcessed = false;
     resultsShown = false;
@@ -1119,6 +1132,11 @@ class GameController extends ChangeNotifier {
     _bombs.clear();
     _lastBombTurns.clear();
     bombMode = false;
+    bombModeTargets = <(int, int)>{};
+    bombDragActive = false;
+    bombDragTargets = <(int, int)>{};
+    bombAutoCountdownActive = false;
+    bombAutoCountdownValue = 0;
     current = startingPlayer;
     gameOver = false;
     turnsRed = 0;
@@ -1484,6 +1502,7 @@ class GameController extends ChangeNotifier {
   void onCellTap(int r, int c) {
     if (gameOver || isAiThinking || isExploding || isFalling || isQuaking)
       return;
+    if (bombAutoCountdownActive) return;
     if (selectedCell != null && selectedCell != (r, c)) {
       selectedCell = null;
       blowPreview.clear();
@@ -1625,6 +1644,8 @@ class GameController extends ChangeNotifier {
         : (who == CellState.red ? CellState.blue : CellState.red);
     bombMode = false;
     bombModeTargets = <(int, int)>{};
+    bombAutoCountdownActive = false;
+    bombAutoCountdownValue = 0;
     _checkEnd();
     _handleTurnStart(current);
     notifyListeners();
@@ -2179,7 +2200,7 @@ class GameController extends ChangeNotifier {
   void _checkEnd({bool force = false}) {
     if (force || !RulesEngine.hasEmpty(board)) {
       if (!force && _bombs.isNotEmpty) {
-        _autoActivateBombIfNeeded();
+        _startBombAutoCountdown();
         return;
       }
       gameOver = true;
@@ -2187,19 +2208,53 @@ class GameController extends ChangeNotifier {
     }
   }
 
-  void _autoActivateBombIfNeeded() {
-    if (_autoBombInProgress) return;
-    if (RulesEngine.hasEmpty(board) || _bombs.isEmpty) return;
-    _autoBombInProgress = true;
+  void _startBombAutoCountdown() {
+    if (bombAutoCountdownActive) return;
+    if (_bombs.isEmpty) return;
+    bombAutoCountdownActive = true;
+    bombAutoCountdownValue = 3;
+    notifyListeners();
     Future.microtask(() async {
-      if (RulesEngine.hasEmpty(board) || _bombs.isEmpty) {
-        _autoBombInProgress = false;
-        return;
+      for (int i = 3; i >= 1; i--) {
+        if (!bombAutoCountdownActive) return;
+        bombAutoCountdownValue = i;
+        notifyListeners();
+        await Future.delayed(const Duration(seconds: 1));
       }
-      final bomb = _bombs.first;
-      await _performBombActivation(bomb, autoTriggered: true);
-      _autoBombInProgress = false;
+      await _detonateAllBombs();
     });
+  }
+
+  Future<void> _detonateAllBombs() async {
+    if (_bombs.isEmpty) {
+      bombAutoCountdownActive = false;
+      bombAutoCountdownValue = 0;
+      return;
+    }
+    final affected = <(int, int)>{};
+    for (final bomb in _bombs) {
+      affected.addAll(
+          RulesEngine.bombBlastAffected(board, bomb.row, bomb.col));
+    }
+    if (affected.isEmpty) {
+      bombAutoCountdownActive = false;
+      bombAutoCountdownValue = 0;
+      return;
+    }
+    isExploding = true;
+    explodingCells = affected;
+    notifyListeners();
+    await Future.delayed(const Duration(milliseconds: 420));
+    board = RulesEngine.blow(board, affected);
+    _bombs.clear();
+    isExploding = false;
+    explodingCells.clear();
+    selectedCell = null;
+    blowPreview.clear();
+    bombAutoCountdownActive = false;
+    bombAutoCountdownValue = 0;
+    _checkEnd();
+    notifyListeners();
   }
 
   void _processEndOnce() async {
