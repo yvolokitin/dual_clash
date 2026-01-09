@@ -151,6 +151,7 @@ class _CampaignRouteGrid extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
+        final height = constraints.maxHeight;
         const desktopBreakpoint = 900.0;
         final isDesktopLayout = width >= desktopBreakpoint;
         final rowPattern = isDesktopLayout
@@ -168,31 +169,33 @@ class _CampaignRouteGrid extends StatelessWidget {
               (value, element) => value > element ? value : element,
             );
         final availableWidth = width - columnSpacing * (maxColumns - 1);
-        final nodeSize = availableWidth / maxColumns;
+        final availableHeight = height - rowSpacing * (rows.length - 1);
+        final sizeByWidth = availableWidth / maxColumns;
+        final sizeByHeight = availableHeight / rows.length;
+        final nodeSize = sizeByWidth < sizeByHeight ? sizeByWidth : sizeByHeight;
 
-        return SingleChildScrollView(
-          child: Column(
-            children: [
-              for (var rowIndex = 0; rowIndex < rows.length; rowIndex++) ...[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    for (var i = 0; i < rows[rowIndex].length; i++) ...[
-                      _CampaignNode(
-                        level: rows[rowIndex][i],
-                        size: nodeSize,
-                        status: _statusForLevel(rows[rowIndex][i]),
-                      ),
-                      if (i < rows[rowIndex].length - 1)
-                        const SizedBox(width: columnSpacing),
-                    ],
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            for (var rowIndex = 0; rowIndex < rows.length; rowIndex++) ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  for (var i = 0; i < rows[rowIndex].length; i++) ...[
+                    _CampaignNode(
+                      level: rows[rowIndex][i],
+                      size: nodeSize,
+                      status: _statusForLevel(rows[rowIndex][i]),
+                    ),
+                    if (i < rows[rowIndex].length - 1)
+                      const SizedBox(width: columnSpacing),
                   ],
-                ),
-                if (rowIndex < rows.length - 1)
-                  const SizedBox(height: rowSpacing),
-              ],
+                ],
+              ),
+              if (rowIndex < rows.length - 1)
+                const SizedBox(height: rowSpacing),
             ],
-          ),
+          ],
         );
       },
     );
