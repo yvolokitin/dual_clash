@@ -653,34 +653,32 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                               },
                             ),
                           ],
-                          if (isPhoneFullscreen) ...[
-                            const SizedBox(height: 12),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: ElevatedButton(
-                                onPressed: () => Navigator.of(context).pop(),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.brandGold,
-                                  foregroundColor: const Color(0xFF2B221D),
-                                  shadowColor: Colors.black54,
-                                  elevation: 4,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 12),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(24)),
-                                  textStyle: const TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      letterSpacing: 0.2),
-                                ),
-                                child: Text(l10n.commonClose),
-                              ),
-                            ),
-                          ],
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 12),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.brandGold,
+                        foregroundColor: const Color(0xFF2B221D),
+                        shadowColor: Colors.black54,
+                        elevation: 4,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24)),
+                        textStyle: const TextStyle(
+                            fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                      ),
+                      child: Text(l10n.commonClose),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
