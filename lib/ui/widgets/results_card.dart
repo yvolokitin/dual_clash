@@ -310,7 +310,7 @@ class ResultsCard extends StatelessWidget {
                       ),
                     ),
                     Positioned(
-                      left: contentPadding.left,
+                      right: contentPadding.right,
                       bottom: closeButtonBottomPadding,
                       child: ElevatedButton(
                         onPressed: () => Navigator.of(context).pop(),
