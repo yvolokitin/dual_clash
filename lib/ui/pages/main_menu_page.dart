@@ -43,6 +43,15 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
 
   bool _isDesktopWidth(BuildContext context) => MediaQuery.of(context).size.width >= 900;
 
+  bool _useCurtainTransition(BuildContext context) {
+    if (kIsWeb) return false;
+    final platform = defaultTargetPlatform;
+    if (platform != TargetPlatform.iOS && platform != TargetPlatform.android) {
+      return false;
+    }
+    return MediaQuery.of(context).size.shortestSide <= 900;
+  }
+
   void _dismissDialog(BuildContext context) {
     final navigator = Navigator.of(context, rootNavigator: true);
     if (navigator.canPop()) {
@@ -248,11 +257,18 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                         _runMenuAction(() async {
                                           controller.humanVsHuman = false;
                                           controller.newGame();
-                                          await _pushWithSlide(
-                                            context,
-                                            GamePage(controller: controller),
-                                            const Offset(-1.0, 0.0),
-                                          );
+                                          if (_useCurtainTransition(context)) {
+                                            await _pushWithCurtain(
+                                              context,
+                                              GamePage(controller: controller),
+                                            );
+                                          } else {
+                                            await _pushWithSlide(
+                                              context,
+                                              GamePage(controller: controller),
+                                              const Offset(-1.0, 0.0),
+                                            );
+                                          }
                                         });
                                       },
                                     ),
@@ -1138,6 +1154,58 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
             position: Tween<Offset>(begin: beginOffset, end: Offset.zero)
                 .animate(curved),
             child: child,
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _pushWithCurtain(BuildContext context, Widget page) async {
+    await Navigator.of(context).push(
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 2500),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        pageBuilder: (context, animation, secondaryAnimation) => page,
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          final curved = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeInOutCubic,
+            reverseCurve: Curves.easeInCubic,
+          );
+          return AnimatedBuilder(
+            animation: curved,
+            builder: (context, _) {
+              final size = MediaQuery.of(context).size;
+              final halfWidth = size.width / 2;
+              final progress = curved.value;
+              final curtainColor = Colors.black.withOpacity(0.9);
+              final childOpacity = CurvedAnimation(
+                parent: animation,
+                curve: const Interval(0.35, 1.0, curve: Curves.easeOutCubic),
+              );
+              return Stack(
+                children: [
+                  FadeTransition(
+                    opacity: childOpacity,
+                    child: child,
+                  ),
+                  Positioned(
+                    left: -halfWidth + (halfWidth * progress),
+                    top: 0,
+                    bottom: 0,
+                    width: halfWidth,
+                    child: ColoredBox(color: curtainColor),
+                  ),
+                  Positioned(
+                    right: -halfWidth + (halfWidth * progress),
+                    top: 0,
+                    bottom: 0,
+                    width: halfWidth,
+                    child: ColoredBox(color: curtainColor),
+                  ),
+                ],
+              );
+            },
           );
         },
       ),
