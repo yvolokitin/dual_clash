@@ -18,21 +18,20 @@ class HelpDialog extends StatelessWidget {
     final bool isMobilePlatform = !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
-    final bool isTabletDevice = isTablet(context);
-    final bool isPhoneFullscreen = isMobilePlatform && !isTabletDevice;
+    final bool isMobileFullscreen = isMobilePlatform;
     final bg = AppColors.bg;
     final boardLabel = '${K.n}x${K.n}';
     return Dialog(
-      insetPadding: isPhoneFullscreen
+      insetPadding: isMobileFullscreen
           ? EdgeInsets.zero
           : EdgeInsets.symmetric(
               horizontal: size.width * 0.1, vertical: size.height * 0.1),
       backgroundColor: Colors.transparent,
       shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(isPhoneFullscreen ? 0 : 22)),
+          borderRadius: BorderRadius.circular(isMobileFullscreen ? 0 : 22)),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(isPhoneFullscreen ? 0 : 22),
+          borderRadius: BorderRadius.circular(isMobileFullscreen ? 0 : 22),
           gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
@@ -47,14 +46,14 @@ class HelpDialog extends StatelessWidget {
         ),
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            maxWidth: isPhoneFullscreen ? size.width : size.width * 0.8,
-            maxHeight: isPhoneFullscreen ? size.height : size.height * 0.8,
-            minWidth: isPhoneFullscreen ? size.width : 0,
-            minHeight: isPhoneFullscreen ? size.height : 0,
+            maxWidth: isMobileFullscreen ? size.width : size.width * 0.8,
+            maxHeight: isMobileFullscreen ? size.height : size.height * 0.8,
+            minWidth: isMobileFullscreen ? size.width : 0,
+            minHeight: isMobileFullscreen ? size.height : 0,
           ),
           child: SafeArea(
-            top: isPhoneFullscreen,
-            bottom: isPhoneFullscreen,
+            top: isMobileFullscreen,
+            bottom: isMobileFullscreen,
             child: Padding(
               padding: const EdgeInsets.all(18.0),
               child: Column(
