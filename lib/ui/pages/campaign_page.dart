@@ -147,54 +147,96 @@ class _CampaignRouteGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const rows = [
-      [28, 29, 30],
-      [20, 21, 22, 23, 24, 25, 26, 27],
-      [11, 12, 13, 14, 15, 16, 17, 18, 19],
-      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-    ];
+    const totalLevels = 30;
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        final height = constraints.maxHeight;
+        const desktopBreakpoint = 900.0;
+        final isDesktopLayout = width >= desktopBreakpoint;
+        final rowPattern = isDesktopLayout
+            ? const [2, 3, 4, 3, 2]
+            : const [1, 2, 3, 2, 1];
+        final truncatedPattern = isDesktopLayout ? const [2] : const [1, 2, 1];
+        final rows = _buildRows(
+          totalLevels: totalLevels,
+          rowPattern: rowPattern,
+          truncatedPattern: truncatedPattern,
+        );
         const rowSpacing = 14.0;
         const columnSpacing = 10.0;
         final maxColumns = rows.map((row) => row.length).reduce(
               (value, element) => value > element ? value : element,
             );
-        final availableWidth =
-            width - columnSpacing * (maxColumns - 1);
-        final availableHeight =
-            height - rowSpacing * (rows.length - 1);
-        final sizeByWidth = availableWidth / maxColumns;
-        final sizeByHeight = availableHeight / rows.length;
-        final nodeSize = sizeByWidth < sizeByHeight ? sizeByWidth : sizeByHeight;
+        final availableWidth = width - columnSpacing * (maxColumns - 1);
+        final nodeSize = availableWidth / maxColumns;
 
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            for (var rowIndex = 0; rowIndex < rows.length; rowIndex++) ...[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  for (var i = 0; i < rows[rowIndex].length; i++) ...[
-                    _CampaignNode(
-                      level: rows[rowIndex][i],
-                      size: nodeSize,
-                      status: _statusForLevel(rows[rowIndex][i]),
-                    ),
-                    if (i < rows[rowIndex].length - 1)
-                      const SizedBox(width: columnSpacing),
+        return SingleChildScrollView(
+          child: Column(
+            children: [
+              for (var rowIndex = 0; rowIndex < rows.length; rowIndex++) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    for (var i = 0; i < rows[rowIndex].length; i++) ...[
+                      _CampaignNode(
+                        level: rows[rowIndex][i],
+                        size: nodeSize,
+                        status: _statusForLevel(rows[rowIndex][i]),
+                      ),
+                      if (i < rows[rowIndex].length - 1)
+                        const SizedBox(width: columnSpacing),
+                    ],
                   ],
-                ],
-              ),
-              if (rowIndex < rows.length - 1)
-                const SizedBox(height: rowSpacing),
+                ),
+                if (rowIndex < rows.length - 1)
+                  const SizedBox(height: rowSpacing),
+              ],
             ],
-          ],
+          ),
         );
       },
     );
+  }
+
+  List<List<int>> _buildRows({
+    required int totalLevels,
+    required List<int> rowPattern,
+    required List<int> truncatedPattern,
+  }) {
+    final rows = <List<int>>[];
+    var currentLevel = 1;
+    final truncatedTotal = truncatedPattern.fold<int>(0, (sum, value) => sum + value);
+
+    while (currentLevel <= totalLevels) {
+      final remaining = totalLevels - currentLevel + 1;
+      if (remaining <= truncatedTotal) {
+        for (final rowSize in truncatedPattern) {
+          if (currentLevel > totalLevels) {
+            break;
+          }
+          final count = remaining < rowSize ? remaining : rowSize;
+          rows.add(
+            List.generate(count, (index) => currentLevel + index),
+          );
+          currentLevel += count;
+        }
+        break;
+      }
+
+      for (final rowSize in rowPattern) {
+        if (currentLevel > totalLevels) {
+          break;
+        }
+        final remainingInBlock = totalLevels - currentLevel + 1;
+        final count = remainingInBlock < rowSize ? remainingInBlock : rowSize;
+        rows.add(
+          List.generate(count, (index) => currentLevel + index),
+        );
+        currentLevel += count;
+      }
+    }
+
+    return rows;
   }
 }
 
