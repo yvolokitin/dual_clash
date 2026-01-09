@@ -23,8 +23,9 @@ class ResultsCard extends StatelessWidget {
             defaultTargetPlatform == TargetPlatform.iOS);
     final bool isTabletDevice = isTablet(context);
     final bool isPhoneFullscreen = isMobilePlatform && !isTabletDevice;
-    final EdgeInsets contentPadding =
-        const EdgeInsets.fromLTRB(16, 20, 16, 20);
+    const EdgeInsets contentPadding = EdgeInsets.fromLTRB(16, 20, 16, 20);
+    const double closeButtonBottomPadding = 20;
+    const double closeButtonReserveSpace = 72;
     final bg = AppColors.bg;
     final redBase = controller.scoreRedBase();
     final blueBase = controller.scoreBlueBase();
@@ -126,184 +127,212 @@ class ResultsCard extends StatelessWidget {
         child: SafeArea(
           top: isPhoneFullscreen,
           bottom: isPhoneFullscreen,
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Padding(
-              padding: contentPadding,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    children: [
-                      const Spacer(),
-                      Text(
-                        l10n.resultsTitle,
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.w900),
-                      ),
-                      const Spacer(),
-                      Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.08),
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white24)),
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          iconSize: 20,
-                          icon: const Icon(Icons.close, color: Colors.white70),
-                          onPressed: () => Navigator.of(context).pop(),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SizedBox(
+                width: constraints.maxWidth,
+                height: constraints.maxHeight,
+                child: Stack(
+                  children: [
+                    SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Padding(
+                        padding: contentPadding.copyWith(
+                          bottom:
+                              contentPadding.bottom + closeButtonReserveSpace,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Row(
+                              children: [
+                                const Spacer(),
+                                Text(
+                                  l10n.resultsTitle,
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w900),
+                                ),
+                                const Spacer(),
+                                Container(
+                                  width: 36,
+                                  height: 36,
+                                  decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.08),
+                                      shape: BoxShape.circle,
+                                      border:
+                                          Border.all(color: Colors.white24)),
+                                  child: IconButton(
+                                    padding: EdgeInsets.zero,
+                                    iconSize: 20,
+                                    icon: const Icon(Icons.close,
+                                        color: Colors.white70),
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            if (isChallengeMode)
+                              _ChallengeOutcomeSummary(
+                                winner: winner,
+                                redTotal: redTotal,
+                                blueTotal: blueTotal,
+                                bestScore: controller.bestChallengeScore,
+                                isNewBest: controller.lastGameWasNewBest,
+                                boardSize: controller.board.length,
+                                isPhoneFullscreen: isPhoneFullscreen,
+                              )
+                            else ...[
+                              LayoutBuilder(
+                                builder: (context, constraints) {
+                                  final width = constraints.maxWidth;
+                                  final int tileCount = tiles.length;
+                                  int columns;
+                                  if (tileCount == 3) {
+                                    columns = 3;
+                                  } else if (tileCount == 4) {
+                                    columns = 3;
+                                  } else if (tileCount == 5) {
+                                    columns = 3;
+                                  } else {
+                                    columns = width >= 420 ? 3 : 2;
+                                  }
+                                  final double spacing = 10;
+                                  final double ratio =
+                                      width >= 420 ? 1.1 : 1.0;
+                                  final bool compactRow =
+                                      tileCount == 3 && width < 550;
+                                  final double baseScale =
+                                      compactRow ? 0.7 : 0.8;
+                                  final double scale = isPhoneFullscreen
+                                      ? baseScale
+                                      : baseScale * 0.8;
+                                  return GridView.count(
+                                    crossAxisCount: columns,
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    crossAxisSpacing: spacing,
+                                    mainAxisSpacing: spacing,
+                                    childAspectRatio: ratio,
+                                    children: tiles
+                                        .map((tile) => _scoreTile(
+                                              data: tile,
+                                              isWinner: tile.state != null &&
+                                                  tile.state == winner,
+                                              isDisabled: hasWinner &&
+                                                  (tile.state == null ||
+                                                      tile.state != winner),
+                                            ))
+                                        .map((tile) => Transform.scale(
+                                              scale: scale,
+                                              child: tile,
+                                            ))
+                                        .toList(),
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 12),
+                              // Points and time on the same row if fit; otherwise they will wrap to 2 rows automatically
+                              Center(
+                                child: Wrap(
+                                  alignment: WrapAlignment.center,
+                                  spacing: 12,
+                                  runSpacing: 10,
+                                  children: [
+                                    // AnimatedTotalCounter(value: controller.totalUserScore),
+                                    _timeChip(
+                                        label: l10n.timePlayedLabel,
+                                        value: formatDurationShort(
+                                            l10n, controller.lastGamePlayMs)),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              // Turns row beneath
+                              if (isDuel && controller.isMultiDuel)
+                                Wrap(
+                                  alignment: WrapAlignment.center,
+                                  spacing: 10,
+                                  runSpacing: 8,
+                                  children: [
+                                    _statChip(
+                                        icon: Icons.rotate_left,
+                                        label: l10n.redTurnsLabel,
+                                        value: controller.turnsRed.toString()),
+                                    _statChip(
+                                        icon: Icons.rotate_left,
+                                        label: l10n.blueTurnsLabel,
+                                        value: controller.turnsBlue.toString()),
+                                    _statChip(
+                                        icon: Icons.rotate_left,
+                                        label: l10n.yellowTurnsLabel,
+                                        value:
+                                            controller.turnsYellow.toString()),
+                                    if (controller.duelPlayerCount >= 4)
+                                      _statChip(
+                                          icon: Icons.rotate_left,
+                                          label: l10n.greenTurnsLabel,
+                                          value:
+                                              controller.turnsGreen.toString()),
+                                  ],
+                                )
+                              else
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    _statChip(
+                                        icon: Icons.rotate_left,
+                                        label: isDuel
+                                            ? l10n.redTurnsLabel
+                                            : l10n.playerTurnsLabel,
+                                        value: controller.turnsRed.toString()),
+                                    _statChip(
+                                        icon: Icons.rotate_right,
+                                        label: isDuel
+                                            ? l10n.blueTurnsLabel
+                                            : l10n.aiTurnsLabel,
+                                        value: controller.turnsBlue.toString()),
+                                  ],
+                                ),
+                            ],
+                            const SizedBox(height: 12),
+                            // Action buttons based on result and AI level
+                            _ResultsActions(
+                                controller: controller, winner: winner),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  if (isChallengeMode)
-                    _ChallengeOutcomeSummary(
-                      winner: winner,
-                      redTotal: redTotal,
-                      blueTotal: blueTotal,
-                      bestScore: controller.bestChallengeScore,
-                      isNewBest: controller.lastGameWasNewBest,
-                      boardSize: controller.board.length,
-                      isPhoneFullscreen: isPhoneFullscreen,
-                    )
-                  else ...[
-                    LayoutBuilder(
-                      builder: (context, constraints) {
-                        final width = constraints.maxWidth;
-                        final int tileCount = tiles.length;
-                        int columns;
-                        if (tileCount == 3) {
-                          columns = 3;
-                        } else if (tileCount == 4) {
-                          columns = 3;
-                        } else if (tileCount == 5) {
-                          columns = 3;
-                        } else {
-                          columns = width >= 420 ? 3 : 2;
-                        }
-                        final double spacing = 10;
-                        final double ratio = width >= 420 ? 1.1 : 1.0;
-                        final bool compactRow = tileCount == 3 && width < 550;
-                        final double baseScale = compactRow ? 0.7 : 0.8;
-                        final double scale =
-                            isPhoneFullscreen ? baseScale : baseScale * 0.8;
-                        return GridView.count(
-                          crossAxisCount: columns,
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          crossAxisSpacing: spacing,
-                          mainAxisSpacing: spacing,
-                          childAspectRatio: ratio,
-                          children: tiles
-                              .map((tile) => _scoreTile(
-                                    data: tile,
-                                    isWinner: tile.state != null &&
-                                        tile.state == winner,
-                                    isDisabled: hasWinner &&
-                                        (tile.state == null ||
-                                            tile.state != winner),
-                                  ))
-                              .map((tile) => Transform.scale(
-                                    scale: scale,
-                                    child: tile,
-                                  ))
-                              .toList(),
-                        );
-                      },
                     ),
-                    const SizedBox(height: 12),
-                    // Points and time on the same row if fit; otherwise they will wrap to 2 rows automatically
-                    Center(
-                      child: Wrap(
-                        alignment: WrapAlignment.center,
-                        spacing: 12,
-                        runSpacing: 10,
-                        children: [
-                          // AnimatedTotalCounter(value: controller.totalUserScore),
-                          _timeChip(
-                              label: l10n.timePlayedLabel,
-                              value: formatDurationShort(
-                                  l10n, controller.lastGamePlayMs)),
-                        ],
+                    Positioned(
+                      left: contentPadding.left,
+                      bottom: closeButtonBottomPadding,
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.brandGold,
+                          foregroundColor: const Color(0xFF2B221D),
+                          shadowColor: Colors.black54,
+                          elevation: 4,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(24)),
+                          textStyle: const TextStyle(
+                              fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                        ),
+                        child: Text(l10n.commonClose),
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    // Turns row beneath
-                    if (isDuel && controller.isMultiDuel)
-                      Wrap(
-                        alignment: WrapAlignment.center,
-                        spacing: 10,
-                        runSpacing: 8,
-                        children: [
-                          _statChip(
-                              icon: Icons.rotate_left,
-                              label: l10n.redTurnsLabel,
-                              value: controller.turnsRed.toString()),
-                          _statChip(
-                              icon: Icons.rotate_left,
-                              label: l10n.blueTurnsLabel,
-                              value: controller.turnsBlue.toString()),
-                          _statChip(
-                              icon: Icons.rotate_left,
-                              label: l10n.yellowTurnsLabel,
-                              value: controller.turnsYellow.toString()),
-                          if (controller.duelPlayerCount >= 4)
-                            _statChip(
-                                icon: Icons.rotate_left,
-                                label: l10n.greenTurnsLabel,
-                                value: controller.turnsGreen.toString()),
-                        ],
-                      )
-                    else
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _statChip(
-                              icon: Icons.rotate_left,
-                              label: isDuel
-                                  ? l10n.redTurnsLabel
-                                  : l10n.playerTurnsLabel,
-                              value: controller.turnsRed.toString()),
-                          _statChip(
-                              icon: Icons.rotate_right,
-                              label:
-                                  isDuel ? l10n.blueTurnsLabel : l10n.aiTurnsLabel,
-                              value: controller.turnsBlue.toString()),
-                        ],
-                      ),
                   ],
-
-                const SizedBox(height: 12),
-                // Action buttons based on result and AI level
-                _ResultsActions(controller: controller, winner: winner),
-                const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.brandGold,
-                      foregroundColor: const Color(0xFF2B221D),
-                      shadowColor: Colors.black54,
-                      elevation: 4,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24)),
-                      textStyle: const TextStyle(
-                          fontWeight: FontWeight.w800, letterSpacing: 0.2),
-                    ),
-                    child: Text(l10n.commonClose),
-                  ),
                 ),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),
