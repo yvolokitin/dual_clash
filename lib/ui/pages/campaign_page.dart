@@ -152,16 +152,10 @@ class _CampaignRouteGrid extends StatelessWidget {
       builder: (context, constraints) {
         final width = constraints.maxWidth;
         final height = constraints.maxHeight;
-        const desktopBreakpoint = 900.0;
-        final isDesktopLayout = width >= desktopBreakpoint;
-        final rowPattern = isDesktopLayout
-            ? const [2, 3, 4, 3, 2]
-            : const [1, 2, 3, 2, 1];
-        final truncatedPattern = isDesktopLayout ? const [2] : const [1, 2, 1];
+        const rowPattern = [2, 3, 4, 3, 2];
         final rows = _buildRows(
           totalLevels: totalLevels,
           rowPattern: rowPattern,
-          truncatedPattern: truncatedPattern,
         );
         const rowSpacing = 14.0;
         const columnSpacing = 10.0;
@@ -204,25 +198,17 @@ class _CampaignRouteGrid extends StatelessWidget {
   List<List<int>> _buildRows({
     required int totalLevels,
     required List<int> rowPattern,
-    required List<int> truncatedPattern,
   }) {
     final rows = <List<int>>[];
     var currentLevel = 1;
-    final truncatedTotal = truncatedPattern.fold<int>(0, (sum, value) => sum + value);
+    final blockSize = rowPattern.fold<int>(0, (sum, value) => sum + value);
 
     while (currentLevel <= totalLevels) {
       final remaining = totalLevels - currentLevel + 1;
-      if (remaining <= truncatedTotal) {
-        for (final rowSize in truncatedPattern) {
-          if (currentLevel > totalLevels) {
-            break;
-          }
-          final count = remaining < rowSize ? remaining : rowSize;
-          rows.add(
-            List.generate(count, (index) => currentLevel + index),
-          );
-          currentLevel += count;
-        }
+      if (remaining <= blockSize) {
+        rows.add(
+          List.generate(remaining, (index) => currentLevel + index),
+        );
         break;
       }
 
