@@ -325,6 +325,9 @@ class _GamePageState extends State<GamePage> {
           context: context,
           controller: controller,
           onClosed: _handleGameCompleted,
+          campaignLevelIndex: widget.challengeConfig?.index,
+          campaignOutcome:
+              widget.challengeConfig == null ? null : _outcomeForChallenge(),
         );
 
         return Scaffold(
