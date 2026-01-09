@@ -68,12 +68,14 @@ class GamePageScoreRow extends StatelessWidget {
     );
   }
 
+  double _crownHeight(double size) => size * 0.4;
+
   Widget _playerIconWithCrown({
     required String asset,
     required double size,
     required bool isLeader,
   }) {
-    final double crownHeight = size * 0.4;
+    final double crownHeight = _crownHeight(size);
     final double crownGap = 4;
     return SizedBox(
       width: size,
@@ -132,6 +134,8 @@ class GamePageScoreRow extends StatelessWidget {
         blueBase > neutralCount;
     final double playerIconSize =
         isMobile ? boardCellSize * 0.8 : scoreItemSize;
+    final double playerIconStackSize =
+        playerIconSize + _crownHeight(playerIconSize) + 4;
 
     final Widget playerCountsRow = Row(
       mainAxisSize: MainAxisSize.min,
@@ -155,7 +159,7 @@ class GamePageScoreRow extends StatelessWidget {
         Text('$blueBase', style: scoreTextStyle),
         const SizedBox(width: 6),
         HoverScaleBox(
-          size: playerIconSize,
+          size: playerIconStackSize,
           onTap: onOpenAiSelector,
           child: _playerIconWithCrown(
             asset: 'assets/icons/player_blue.png',
