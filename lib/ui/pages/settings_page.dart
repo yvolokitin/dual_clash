@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../logic/game_controller.dart';
 import '../../core/colors.dart';
+import '../../core/constants.dart';
 import '../../models/cell_state.dart';
 
 class SettingsDialog extends StatefulWidget {
