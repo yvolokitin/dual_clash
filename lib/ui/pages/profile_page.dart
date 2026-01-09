@@ -350,18 +350,17 @@ class _ProfileDialogState extends State<ProfileDialog> {
     final bool isMobilePlatform = !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
-    final bool isTabletDevice = isTablet(context);
-    final bool isPhoneFullscreen = isMobilePlatform && !isTabletDevice;
+    final bool isMobileFullscreen = isMobilePlatform;
     final bg = AppColors.bg;
     final controller = widget.controller;
     // Legacy badges are deprecated in UI; keep only Achievements and Belts sections
     // final badges = controller.badges.toList()..sort();
-    final EdgeInsets dialogInsetPadding = isPhoneFullscreen
+    final EdgeInsets dialogInsetPadding = isMobileFullscreen
         ? EdgeInsets.zero
         : EdgeInsets.symmetric(
             horizontal: size.width * 0.1, vertical: size.height * 0.1);
     final BorderRadius dialogRadius =
-        BorderRadius.circular(isPhoneFullscreen ? 0 : 22);
+        BorderRadius.circular(isMobileFullscreen ? 0 : 22);
     final EdgeInsets contentPadding =
         const EdgeInsets.fromLTRB(18, 20, 18, 18);
     return Dialog(
@@ -385,14 +384,14 @@ class _ProfileDialogState extends State<ProfileDialog> {
         ),
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            maxWidth: isPhoneFullscreen ? size.width : size.width * 0.8,
-            maxHeight: isPhoneFullscreen ? size.height : size.height * 0.8,
-            minWidth: isPhoneFullscreen ? size.width : 0,
-            minHeight: isPhoneFullscreen ? size.height : 0,
+            maxWidth: isMobileFullscreen ? size.width : size.width * 0.8,
+            maxHeight: isMobileFullscreen ? size.height : size.height * 0.8,
+            minWidth: isMobileFullscreen ? size.width : 0,
+            minHeight: isMobileFullscreen ? size.height : 0,
           ),
           child: SafeArea(
-            top: isPhoneFullscreen,
-            bottom: isPhoneFullscreen,
+            top: isMobileFullscreen,
+            bottom: isMobileFullscreen,
             child: Padding(
               padding: contentPadding,
               child: Column(

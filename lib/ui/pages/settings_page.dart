@@ -114,8 +114,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
     final bool isMobilePlatform = !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
-    final bool isTabletDevice = isTablet(context);
-    final bool isPhoneFullscreen = isMobilePlatform && !isTabletDevice;
+    final bool isMobileFullscreen = isMobilePlatform;
     final bool isDuelMode = widget.controller.humanVsHuman;
     final bool isAllianceMode =
         widget.controller.allianceMode && widget.controller.duelPlayerCount >= 4;
@@ -123,18 +122,18 @@ class _SettingsDialogState extends State<SettingsDialog> {
     final bg = AppColors.bg;
     final Color dialogTop = bg;
     final Color dialogBottom = bg;
-    final EdgeInsets dialogInsetPadding = isPhoneFullscreen
+    final EdgeInsets dialogInsetPadding = isMobileFullscreen
         ? EdgeInsets.zero
         : EdgeInsets.symmetric(
             horizontal: size.width * 0.1, vertical: size.height * 0.1);
     final BorderRadius dialogRadius =
-        BorderRadius.circular(isPhoneFullscreen ? 0 : 22);
+        BorderRadius.circular(isMobileFullscreen ? 0 : 22);
     final EdgeInsets contentPadding =
         const EdgeInsets.fromLTRB(18, 20, 18, 18);
     final bool hasPendingChanges =
         _language != _initialLanguage ||
         _startingPlayer != _initialStartingPlayer;
-    final double languageTileScale = isPhoneFullscreen ? 0.87 : 1.0;
+    final double languageTileScale = isMobileFullscreen ? 0.87 : 1.0;
     // The dialog window — centered, not fullscreen. showDialog will dim the background.
     return Dialog(
       insetPadding: dialogInsetPadding,
@@ -158,14 +157,14 @@ class _SettingsDialogState extends State<SettingsDialog> {
         ),
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            maxWidth: isPhoneFullscreen ? size.width : size.width * 0.8,
-            maxHeight: isPhoneFullscreen ? size.height : size.height * 0.8,
-            minWidth: isPhoneFullscreen ? size.width : 0,
-            minHeight: isPhoneFullscreen ? size.height : 0,
+            maxWidth: isMobileFullscreen ? size.width : size.width * 0.8,
+            maxHeight: isMobileFullscreen ? size.height : size.height * 0.8,
+            minWidth: isMobileFullscreen ? size.width : 0,
+            minHeight: isMobileFullscreen ? size.height : 0,
           ),
           child: SafeArea(
-            top: isPhoneFullscreen,
-            bottom: isPhoneFullscreen,
+            top: isMobileFullscreen,
+            bottom: isMobileFullscreen,
             child: Padding(
               padding: contentPadding,
               child: Column(

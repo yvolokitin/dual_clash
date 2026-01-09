@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import '../../logic/game_controller.dart';
 import '../../models/game_result.dart';
 import '../../core/colors.dart';
-import '../../core/constants.dart';
 
 class HistoryDialog extends StatefulWidget {
   final GameController controller;
@@ -41,16 +40,15 @@ class _HistoryDialogState extends State<HistoryDialog> {
     final bool isMobilePlatform = !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
-    final bool isTabletDevice = isTablet(context);
-    final bool isPhoneFullscreen = isMobilePlatform && !isTabletDevice;
+    final bool isMobileFullscreen = isMobilePlatform;
     final bg = AppColors.bg;
     final items = widget.controller.history.reversed.toList();
-    final EdgeInsets dialogInsetPadding = isPhoneFullscreen
+    final EdgeInsets dialogInsetPadding = isMobileFullscreen
         ? EdgeInsets.zero
         : EdgeInsets.symmetric(
             horizontal: size.width * 0.1, vertical: size.height * 0.1);
     final BorderRadius dialogRadius =
-        BorderRadius.circular(isPhoneFullscreen ? 0 : 22);
+        BorderRadius.circular(isMobileFullscreen ? 0 : 22);
     final EdgeInsets contentPadding =
         const EdgeInsets.fromLTRB(18, 20, 18, 18);
     return Dialog(
@@ -74,14 +72,14 @@ class _HistoryDialogState extends State<HistoryDialog> {
         ),
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            maxWidth: isPhoneFullscreen ? size.width : size.width * 0.8,
-            maxHeight: isPhoneFullscreen ? size.height : size.height * 0.8,
-            minWidth: isPhoneFullscreen ? size.width : 0,
-            minHeight: isPhoneFullscreen ? size.height : 0,
+            maxWidth: isMobileFullscreen ? size.width : size.width * 0.8,
+            maxHeight: isMobileFullscreen ? size.height : size.height * 0.8,
+            minWidth: isMobileFullscreen ? size.width : 0,
+            minHeight: isMobileFullscreen ? size.height : 0,
           ),
           child: SafeArea(
-            top: isPhoneFullscreen,
-            bottom: isPhoneFullscreen,
+            top: isMobileFullscreen,
+            bottom: isMobileFullscreen,
             child: Padding(
               padding: contentPadding,
               child: DefaultTabController(

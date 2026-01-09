@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../logic/game_controller.dart';
 import '../../core/colors.dart';
-import '../../core/constants.dart';
 import 'history_page.dart';
 import 'profile_page.dart';
 
@@ -52,19 +51,17 @@ Future<void> showAnimatedMainMenuDialog(
                     final bool isMobilePlatform = !kIsWeb &&
                         (defaultTargetPlatform == TargetPlatform.android ||
                             defaultTargetPlatform == TargetPlatform.iOS);
-                    final bool isTabletDevice = isTablet(dialogContext);
-                    final bool isPhoneFullscreen =
-                        isMobilePlatform && !isTabletDevice;
-                    final double topInset = isPhoneFullscreen
+                    final bool isMobileFullscreen = isMobilePlatform;
+                    final double topInset = isMobileFullscreen
                         ? MediaQuery.of(dialogContext).padding.top + 20
                         : 0;
-                    final EdgeInsets dialogInsetPadding = isPhoneFullscreen
+                    final EdgeInsets dialogInsetPadding = isMobileFullscreen
                         ? EdgeInsets.only(top: topInset)
                         : EdgeInsets.symmetric(
                             horizontal: size.width * 0.1,
                             vertical: size.height * 0.1);
                     final BorderRadius dialogRadius =
-                        BorderRadius.circular(isPhoneFullscreen ? 0 : 22);
+                        BorderRadius.circular(isMobileFullscreen ? 0 : 22);
                     return Dialog(
                       insetPadding: dialogInsetPadding,
                       backgroundColor: Colors.transparent,
@@ -87,20 +84,20 @@ Future<void> showAnimatedMainMenuDialog(
                         ),
                         child: ConstrainedBox(
                           constraints: BoxConstraints(
-                            maxWidth: isPhoneFullscreen
+                            maxWidth: isMobileFullscreen
                                 ? size.width
                                 : size.width * 0.8,
-                            maxHeight: isPhoneFullscreen
+                            maxHeight: isMobileFullscreen
                                 ? size.height - topInset
                                 : size.height * 0.8,
-                            minWidth: isPhoneFullscreen ? size.width : 0,
-                            minHeight: isPhoneFullscreen
+                            minWidth: isMobileFullscreen ? size.width : 0,
+                            minHeight: isMobileFullscreen
                                 ? size.height - topInset
                                 : 0,
                           ),
                           child: SafeArea(
                             top: false,
-                            bottom: isPhoneFullscreen,
+                            bottom: isMobileFullscreen,
                             child: Padding(
                               padding: const EdgeInsets.all(18.0),
                               child: Column(
@@ -377,14 +374,13 @@ Future<bool?> showLoadGameDialog({
             final bool isMobilePlatform = !kIsWeb &&
                 (defaultTargetPlatform == TargetPlatform.android ||
                     defaultTargetPlatform == TargetPlatform.iOS);
-            final bool isTabletDevice = isTablet(context);
-            final bool isPhoneFullscreen = isMobilePlatform && !isTabletDevice;
-            final EdgeInsets dialogInsetPadding = isPhoneFullscreen
+            final bool isMobileFullscreen = isMobilePlatform;
+            final EdgeInsets dialogInsetPadding = isMobileFullscreen
                 ? EdgeInsets.zero
                 : EdgeInsets.symmetric(
                     horizontal: size.width * 0.1, vertical: size.height * 0.1);
             final BorderRadius dialogRadius =
-                BorderRadius.circular(isPhoneFullscreen ? 0 : 22);
+                BorderRadius.circular(isMobileFullscreen ? 0 : 22);
             final items = snap.data ?? const <Map<String, dynamic>>[];
             // Local stateful wrapper to allow in-dialog deletion and list refresh
             List<Map<String, dynamic>> initialItems =
@@ -447,18 +443,20 @@ Future<bool?> showLoadGameDialog({
                               ),
                               child: ConstrainedBox(
                                 constraints: BoxConstraints(
-                                  maxWidth: isPhoneFullscreen
+                                  maxWidth: isMobileFullscreen
                                       ? size.width
                                       : size.width * 0.8,
-                                  maxHeight: isPhoneFullscreen
+                                  maxHeight: isMobileFullscreen
                                       ? size.height
                                       : size.height * 0.8,
-                                  minWidth: isPhoneFullscreen ? size.width : 0,
-                                  minHeight: isPhoneFullscreen ? size.height : 0,
+                                  minWidth:
+                                      isMobileFullscreen ? size.width : 0,
+                                  minHeight:
+                                      isMobileFullscreen ? size.height : 0,
                                 ),
                                 child: SafeArea(
-                                  top: isPhoneFullscreen,
-                                  bottom: isPhoneFullscreen,
+                                  top: isMobileFullscreen,
+                                  bottom: isMobileFullscreen,
                                   child: Padding(
                                     padding: const EdgeInsets.all(18.0),
                                     child: Column(
