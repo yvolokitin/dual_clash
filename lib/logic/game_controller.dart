@@ -798,6 +798,10 @@ class GameController extends ChangeNotifier {
     }
   }
 
+  void loadStateFromMap(Map<String, dynamic> state) {
+    _applyStateMap(state);
+  }
+
   Future<void> saveCurrentGame({String? name}) async {
     final prefs = await SharedPreferences.getInstance();
     final listJson = prefs.getString(_kSavedGames);

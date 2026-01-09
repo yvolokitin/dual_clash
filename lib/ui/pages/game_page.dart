@@ -86,7 +86,11 @@ class _GamePageState extends State<GamePage> {
     controller.aiLevel = config.aiLevel;
     controller.humanVsHuman = false;
     controller.setBombsEnabled(config.bombsEnabled);
-    controller.newGame();
+    if (config.fixedState != null) {
+      controller.loadStateFromMap(config.fixedState!);
+    } else {
+      controller.newGame();
+    }
   }
 
   void _restoreChallengeConfig() {
