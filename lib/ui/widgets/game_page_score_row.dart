@@ -73,21 +73,43 @@ class GamePageScoreRow extends StatelessWidget {
     required double size,
     required bool isLeader,
   }) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (isLeader)
-          SizedBox(
-            width: size,
-            child: Image.asset(
-              'assets/icons/crown.png',
-              width: size,
-              fit: BoxFit.contain,
+    final double crownHeight = size * 0.4;
+    final double crownGap = 4;
+    return SizedBox(
+      width: size,
+      height: size + crownHeight + crownGap,
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 180),
+              opacity: isLeader ? 1 : 0,
+              child: AnimatedScale(
+                duration: const Duration(milliseconds: 180),
+                scale: isLeader ? 1 : 0.9,
+                child: SizedBox(
+                  width: size,
+                  height: crownHeight,
+                  child: Image.asset(
+                    'assets/icons/crown.png',
+                    width: size,
+                    height: crownHeight,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
             ),
           ),
-        if (isLeader) const SizedBox(height: 4),
-        _playerIcon(asset: asset, size: size, isLeader: isLeader),
-      ],
+          Positioned(
+            bottom: 0,
+            child: _playerIcon(asset: asset, size: size, isLeader: isLeader),
+          ),
+        ],
+      ),
     );
   }
 
