@@ -10,6 +10,7 @@ class GamePageScoreRow extends StatelessWidget {
   final double menuIconSize;
   final double scoreItemSize;
   final double pointsItemSize;
+  final double boardCellSize;
   final TextStyle scoreTextStyle;
   final TextStyle pointsTextStyle;
   final int redBase;
@@ -29,6 +30,7 @@ class GamePageScoreRow extends StatelessWidget {
     required this.menuIconSize,
     required this.scoreItemSize,
     required this.pointsItemSize,
+    required this.boardCellSize,
     required this.scoreTextStyle,
     required this.pointsTextStyle,
     required this.redBase,
@@ -83,6 +85,7 @@ class GamePageScoreRow extends StatelessWidget {
         blueBase == maxScore &&
         blueBase > redBase &&
         blueBase > neutralCount;
+    final double playerIconSize = isMobile ? boardCellSize : scoreItemSize;
 
     final Widget playerCountsRow = Row(
       mainAxisSize: MainAxisSize.min,
@@ -91,7 +94,7 @@ class GamePageScoreRow extends StatelessWidget {
         const SizedBox(width: 6),
         _playerIcon(
           asset: 'assets/icons/player_red.png',
-          size: scoreItemSize,
+          size: playerIconSize,
           isLeader: highlightRed,
         ),
         const SizedBox(width: 18),
@@ -99,18 +102,18 @@ class GamePageScoreRow extends StatelessWidget {
         const SizedBox(width: 6),
         _playerIcon(
           asset: 'assets/icons/player_grey.png',
-          size: scoreItemSize,
+          size: playerIconSize,
           isLeader: highlightNeutral,
         ),
         const SizedBox(width: 18),
         Text('$blueBase', style: scoreTextStyle),
         const SizedBox(width: 6),
         HoverScaleBox(
-          size: scoreItemSize,
+          size: playerIconSize,
           onTap: onOpenAiSelector,
           child: _playerIcon(
             asset: 'assets/icons/player_blue.png',
-            size: scoreItemSize,
+            size: playerIconSize,
             isLeader: highlightBlue,
           ),
         ),
