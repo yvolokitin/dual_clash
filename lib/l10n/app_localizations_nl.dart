@@ -139,6 +139,12 @@ class AppLocalizationsNl extends AppLocalizations {
   String get menuLoadGame => 'Spel laden';
 
   @override
+  String get menuCampaignShort => 'Camp.';
+
+  @override
+  String get menuCampaign => 'Campaign';
+
+  @override
   String get menuHubShort => 'Hub';
 
   @override

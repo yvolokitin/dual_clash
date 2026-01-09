@@ -362,6 +362,18 @@ abstract class AppLocalizations {
   /// **'Load game'**
   String get menuLoadGame;
 
+  /// No description provided for @menuCampaignShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Camp.'**
+  String get menuCampaignShort;
+
+  /// No description provided for @menuCampaign.
+  ///
+  /// In en, this message translates to:
+  /// **'Campaign'**
+  String get menuCampaign;
+
   /// No description provided for @menuHubShort.
   ///
   /// In en, this message translates to:

@@ -139,6 +139,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menuLoadGame => 'Load game';
 
   @override
+  String get menuCampaignShort => 'Camp.';
+
+  @override
+  String get menuCampaign => 'Campaign';
+
+  @override
   String get menuHubShort => 'Hub';
 
   @override

@@ -47,6 +47,8 @@
   "menuDuelMode": "Tryb pojedynku",
   "menuLoadShort": "Wczytaj",
   "menuLoadGame": "Wczytaj grę",
+  "menuCampaignShort": "Camp.",
+  "menuCampaign": "Campaign",
   "menuHubShort": "Hub",
   "menuPlayerHub": "Hub gracza",
   "menuTripleShort": "Potrójny",

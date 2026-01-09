@@ -47,6 +47,8 @@
   "menuDuelMode": "Режим дуэли",
   "menuLoadShort": "Загрузить",
   "menuLoadGame": "Загрузить игру",
+  "menuCampaignShort": "Camp.",
+  "menuCampaign": "Campaign",
   "menuHubShort": "Хаб",
   "menuPlayerHub": "Хаб игрока",
   "menuTripleShort": "Тройной",

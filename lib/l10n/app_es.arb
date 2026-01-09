@@ -47,6 +47,8 @@
   "menuDuelMode": "Modo duelo",
   "menuLoadShort": "Cargar",
   "menuLoadGame": "Cargar partida",
+  "menuCampaignShort": "Camp.",
+  "menuCampaign": "Campaign",
   "menuHubShort": "Hub",
   "menuPlayerHub": "Hub de jugador",
   "menuTripleShort": "Triple",
