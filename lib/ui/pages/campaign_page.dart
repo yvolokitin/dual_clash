@@ -15,7 +15,6 @@ class CampaignPage extends StatelessWidget {
             final height = constraints.maxHeight;
             final width = constraints.maxWidth;
             final headerHeight = height * 0.2;
-            final nodeSize = width < 420 ? 54.0 : 64.0;
             final horizontalPadding = width < 420 ? 20.0 : 32.0;
             return Column(
               children: [
@@ -27,12 +26,12 @@ class CampaignPage extends StatelessWidget {
                   ),
                 ),
                 Expanded(
-                  child: SingleChildScrollView(
+                  child: Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: horizontalPadding,
                       vertical: 12,
                     ),
-                    child: _CampaignRouteList(nodeSize: nodeSize),
+                    child: const _CampaignRouteGrid(),
                   ),
                 ),
               ],
@@ -105,10 +104,8 @@ class _DualClashLogo extends StatelessWidget {
   }
 }
 
-class _CampaignRouteList extends StatelessWidget {
-  final double nodeSize;
-
-  const _CampaignRouteList({required this.nodeSize});
+class _CampaignRouteGrid extends StatelessWidget {
+  const _CampaignRouteGrid();
 
   CampaignLevelStatus _statusForLevel(int level) {
     if (level <= 6) return CampaignLevelStatus.passed;
@@ -118,34 +115,53 @@ class _CampaignRouteList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final levels = List<int>.generate(30, (index) => index + 1);
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: CustomPaint(
-            painter: _RoutePathPainter(),
-          ),
-        ),
-        Column(
-          children: levels.map((level) {
-            final isLeft = level.isOdd;
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: Row(
-                mainAxisAlignment:
-                    isLeft ? MainAxisAlignment.start : MainAxisAlignment.end,
+    const rows = [
+      [28, 29, 30],
+      [20, 21, 22, 23, 24, 25, 26, 27],
+      [11, 12, 13, 14, 15, 16, 17, 18, 19],
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    ];
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final height = constraints.maxHeight;
+        const rowSpacing = 14.0;
+        const columnSpacing = 10.0;
+        final maxColumns = rows.map((row) => row.length).reduce(
+              (value, element) => value > element ? value : element,
+            );
+        final availableWidth =
+            width - columnSpacing * (maxColumns - 1);
+        final availableHeight =
+            height - rowSpacing * (rows.length - 1);
+        final sizeByWidth = availableWidth / maxColumns;
+        final sizeByHeight = availableHeight / rows.length;
+        final nodeSize = sizeByWidth < sizeByHeight ? sizeByWidth : sizeByHeight;
+
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            for (var rowIndex = 0; rowIndex < rows.length; rowIndex++) ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _CampaignNode(
-                    level: level,
-                    size: nodeSize,
-                    status: _statusForLevel(level),
-                  ),
+                  for (var i = 0; i < rows[rowIndex].length; i++) ...[
+                    _CampaignNode(
+                      level: rows[rowIndex][i],
+                      size: nodeSize,
+                      status: _statusForLevel(rows[rowIndex][i]),
+                    ),
+                    if (i < rows[rowIndex].length - 1)
+                      const SizedBox(width: columnSpacing),
+                  ],
                 ],
               ),
-            );
-          }).toList(),
-        ),
-      ],
+              if (rowIndex < rows.length - 1)
+                const SizedBox(height: rowSpacing),
+            ],
+          ],
+        );
+      },
     );
   }
 }
@@ -187,7 +203,7 @@ class _CampaignNode extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         color: backgroundColor,
-        shape: BoxShape.circle,
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: borderColor, width: 3),
         boxShadow: const [
           BoxShadow(
@@ -215,35 +231,4 @@ class _CampaignNode extends StatelessWidget {
       ),
     );
   }
-}
-
-class _RoutePathPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white.withOpacity(0.5)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3
-      ..strokeCap = StrokeCap.round;
-
-    const dashLength = 12.0;
-    const gapLength = 10.0;
-    final centerX = size.width / 2;
-    final path = Path()
-      ..moveTo(centerX, 0)
-      ..lineTo(centerX, size.height);
-
-    for (final metric in path.computeMetrics()) {
-      double distance = 0;
-      while (distance < metric.length) {
-        final end = distance + dashLength;
-        final segment = metric.extractPath(distance, end.clamp(0, metric.length));
-        canvas.drawPath(segment, paint);
-        distance += dashLength + gapLength;
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

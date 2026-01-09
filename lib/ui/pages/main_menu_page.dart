@@ -1153,8 +1153,8 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
   ) async {
     await Navigator.of(context).push(
       PageRouteBuilder(
-        transitionDuration: const Duration(seconds: 3),
-        reverseTransitionDuration: const Duration(milliseconds: 420),
+        transitionDuration: const Duration(milliseconds: 1500),
+        reverseTransitionDuration: const Duration(milliseconds: 360),
         pageBuilder: (context, animation, secondaryAnimation) => page,
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           final curved = CurvedAnimation(
