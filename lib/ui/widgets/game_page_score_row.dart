@@ -136,11 +136,17 @@ class GamePageScoreRow extends StatelessWidget {
         isMobile ? boardCellSize * 0.8 : scoreItemSize;
     final double playerIconStackSize =
         playerIconSize + _crownHeight(playerIconSize) + 4;
+    Widget scoreCount(String value) {
+      return SizedBox(
+        height: playerIconStackSize,
+        child: Center(child: Text(value, style: scoreTextStyle)),
+      );
+    }
 
     final Widget playerCountsRow = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('$redBase', style: scoreTextStyle),
+        scoreCount('$redBase'),
         const SizedBox(width: 6),
         _playerIconWithCrown(
           asset: 'assets/icons/player_red.png',
@@ -148,7 +154,7 @@ class GamePageScoreRow extends StatelessWidget {
           isLeader: highlightRed,
         ),
         const SizedBox(width: 18),
-        Text('$neutralCount', style: scoreTextStyle),
+        scoreCount('$neutralCount'),
         const SizedBox(width: 6),
         _playerIconWithCrown(
           asset: 'assets/icons/player_grey.png',
@@ -156,7 +162,7 @@ class GamePageScoreRow extends StatelessWidget {
           isLeader: highlightNeutral,
         ),
         const SizedBox(width: 18),
-        Text('$blueBase', style: scoreTextStyle),
+        scoreCount('$blueBase'),
         const SizedBox(width: 6),
         HoverScaleBox(
           size: playerIconStackSize,
