@@ -683,7 +683,6 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
           ),
         ),
       ),
-    ),
     );
   }
 
