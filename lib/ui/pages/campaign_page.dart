@@ -139,10 +139,34 @@ class _DualClashLogo extends StatelessWidget {
 class _CampaignRouteGrid extends StatelessWidget {
   const _CampaignRouteGrid();
 
-  CampaignLevelStatus _statusForLevel(int level) {
-    if (level <= 6) return CampaignLevelStatus.passed;
-    if (level == 7) return CampaignLevelStatus.failed;
-    return CampaignLevelStatus.available;
+  CampaignLevelData _dataForLevel(int level) {
+    if (level <= 6) {
+      return CampaignLevelData(
+        level: level,
+        state: _isCheckpointLevel(level)
+            ? CampaignTileState.checkpoint
+            : CampaignTileState.completed,
+      );
+    }
+    if (level == 7) {
+      return const CampaignLevelData(
+        level: 7,
+        state: CampaignTileState.failed,
+      );
+    }
+    if (level == 8) {
+      return const CampaignLevelData(
+        level: 8,
+        state: CampaignTileState.current,
+        isNewlyUnlocked: true,
+      );
+    }
+    return CampaignLevelData(
+      level: level,
+      state: _isCheckpointLevel(level)
+          ? CampaignTileState.checkpoint
+          : CampaignTileState.locked,
+    );
   }
 
   @override
@@ -185,9 +209,8 @@ class _CampaignRouteGrid extends StatelessWidget {
                 children: [
                   for (var i = 0; i < rows[rowIndex].length; i++) ...[
                     _CampaignNode(
-                      level: rows[rowIndex][i],
+                      data: _dataForLevel(rows[rowIndex][i]),
                       size: nodeSize,
-                      status: _statusForLevel(rows[rowIndex][i]),
                       isFinalLevel: rows[rowIndex][i] == totalLevels,
                     ),
                     if (i < rows[rowIndex].length - 1)
@@ -226,6 +249,10 @@ class _CampaignRouteGrid extends StatelessWidget {
     return rows;
   }
 
+  bool _isCheckpointLevel(int level) {
+    return level % 5 == 0 || level == 1;
+  }
+
   _DeviceClass _deviceClassForWidth(double width) {
     if (width >= 1024) {
       return _DeviceClass.desktop;
@@ -250,80 +277,264 @@ class _CampaignRouteGrid extends StatelessWidget {
 
 enum _DeviceClass { mobile, tablet, desktop }
 
-enum CampaignLevelStatus { passed, available, failed }
+enum CampaignTileState { locked, current, completed, failed, checkpoint }
 
-class _CampaignNode extends StatelessWidget {
+class CampaignLevelData {
   final int level;
+  final CampaignTileState state;
+  final bool isNewlyUnlocked;
+
+  const CampaignLevelData({
+    required this.level,
+    required this.state,
+    this.isNewlyUnlocked = false,
+  });
+}
+
+class _CampaignNode extends StatefulWidget {
+  final CampaignLevelData data;
   final double size;
-  final CampaignLevelStatus status;
   final bool isFinalLevel;
 
   const _CampaignNode({
-    required this.level,
+    required this.data,
     required this.size,
-    required this.status,
     required this.isFinalLevel,
   });
 
   @override
-  Widget build(BuildContext context) {
-    Color backgroundColor;
-    Color borderColor;
-    switch (status) {
-      case CampaignLevelStatus.passed:
-        backgroundColor = AppColors.green;
-        borderColor = const Color(0xFF1F7C32);
-        break;
-      case CampaignLevelStatus.failed:
-        backgroundColor = AppColors.red;
-        borderColor = const Color(0xFFA02A1E);
-        break;
-      case CampaignLevelStatus.available:
-        backgroundColor = AppColors.brandGold;
-        borderColor = const Color(0xFFD89A20);
-        break;
+  State<_CampaignNode> createState() => _CampaignNodeState();
+}
+
+class _CampaignNodeState extends State<_CampaignNode>
+    with TickerProviderStateMixin {
+  late final AnimationController _pulseController;
+  late final Animation<double> _pulseAnimation;
+  late final AnimationController _entryController;
+  late final Animation<double> _entryAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    );
+    _pulseAnimation = CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    );
+    _entryController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _entryAnimation = CurvedAnimation(
+      parent: _entryController,
+      curve: Curves.easeOutBack,
+    );
+    _syncAnimationState();
+  }
+
+  @override
+  void didUpdateWidget(covariant _CampaignNode oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.data.state != widget.data.state ||
+        oldWidget.data.isNewlyUnlocked != widget.data.isNewlyUnlocked) {
+      _syncAnimationState();
+    }
+  }
+
+  void _syncAnimationState() {
+    if (widget.data.state == CampaignTileState.current) {
+      _pulseController.repeat(reverse: true);
+    } else {
+      _pulseController.stop();
+      _pulseController.value = 0.0;
     }
 
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: isFinalLevel ? Colors.white : borderColor,
-          width: isFinalLevel ? 4 : 3,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black38,
-            blurRadius: 8,
-            offset: Offset(0, 4),
-          ),
-          if (isFinalLevel)
-            const BoxShadow(
-              color: Colors.white70,
-              blurRadius: 14,
-              offset: Offset(0, 0),
+    if (widget.data.isNewlyUnlocked) {
+      _entryController.forward(from: 0.0);
+    } else {
+      _entryController.value = 1.0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    _entryController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = _colorsForState(widget.data.state);
+    final iconData = _iconForState(widget.data.state);
+    final isAnimated =
+        widget.data.state == CampaignTileState.current || widget.data.isNewlyUnlocked;
+
+    final content = SizedBox(
+      width: widget.size,
+      height: widget.size,
+      child: Stack(
+        children: [
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: colors.background,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: widget.isFinalLevel ? Colors.white : colors.border,
+                width: widget.isFinalLevel ? 4 : 3,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black38,
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+                if (widget.isFinalLevel)
+                  const BoxShadow(
+                    color: Colors.white70,
+                    blurRadius: 14,
+                    offset: Offset(0, 0),
+                  ),
+                if (widget.data.state == CampaignTileState.current)
+                  const BoxShadow(
+                    color: Color(0x662979FF),
+                    blurRadius: 18,
+                    spreadRadius: 1,
+                  ),
+              ],
             ),
+            child: Center(
+              child: Text(
+                '${widget.data.level}',
+                style: TextStyle(
+                  color: colors.text,
+                  fontSize: widget.size * 0.42,
+                  fontWeight: FontWeight.w900,
+                  shadows: const [
+                    Shadow(
+                      color: Colors.black38,
+                      blurRadius: 4,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            right: widget.size * 0.08,
+            top: widget.size * 0.08,
+            child: Icon(
+              iconData,
+              size: widget.size * 0.22,
+              color: colors.icon,
+            ),
+          ),
         ],
       ),
-      alignment: Alignment.center,
-      child: Text(
-        '$level',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: size * 0.42,
-          fontWeight: FontWeight.w900,
-          shadows: const [
-            Shadow(
-              color: Colors.black38,
-              blurRadius: 4,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
+    );
+
+    final tappableContent = Material(
+      color: Colors.transparent,
+      shape: const CircleBorder(),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: () {},
+        child: content,
       ),
     );
+
+    if (!isAnimated) {
+      return tappableContent;
+    }
+
+    return AnimatedBuilder(
+      animation: Listenable.merge([_pulseAnimation, _entryAnimation]),
+      builder: (context, child) {
+        final pulseScale = widget.data.state == CampaignTileState.current
+            ? 1 + (_pulseAnimation.value * 0.04)
+            : 1.0;
+        final entryScale = widget.data.isNewlyUnlocked
+            ? (0.85 + _entryAnimation.value * 0.15)
+            : 1.0;
+        return Transform.scale(
+          scale: pulseScale * entryScale,
+          child: child,
+        );
+      },
+      child: tappableContent,
+    );
+  }
+}
+
+class _CampaignTileColors {
+  final Color background;
+  final Color border;
+  final Color text;
+  final Color icon;
+
+  const _CampaignTileColors({
+    required this.background,
+    required this.border,
+    required this.text,
+    required this.icon,
+  });
+}
+
+_CampaignTileColors _colorsForState(CampaignTileState state) {
+  switch (state) {
+    case CampaignTileState.locked:
+      return const _CampaignTileColors(
+        background: Color(0xFFB0B7C3),
+        border: Color(0xFF8A92A1),
+        text: Colors.white,
+        icon: Colors.white,
+      );
+    case CampaignTileState.current:
+      return const _CampaignTileColors(
+        background: Color(0xFF2979FF),
+        border: Color(0xFF1C5ED6),
+        text: Colors.white,
+        icon: Colors.white,
+      );
+    case CampaignTileState.completed:
+      return const _CampaignTileColors(
+        background: Color(0xFF4CAF50),
+        border: Color(0xFF2E7D32),
+        text: Colors.white,
+        icon: Colors.white,
+      );
+    case CampaignTileState.failed:
+      return const _CampaignTileColors(
+        background: Color(0xFFFF7043),
+        border: Color(0xFFE4572E),
+        text: Colors.white,
+        icon: Colors.white,
+      );
+    case CampaignTileState.checkpoint:
+      return const _CampaignTileColors(
+        background: Color(0xFFFFD54F),
+        border: Color(0xFFD8B340),
+        text: Color(0xFF4B3B1E),
+        icon: Color(0xFF4B3B1E),
+      );
+  }
+}
+
+IconData _iconForState(CampaignTileState state) {
+  switch (state) {
+    case CampaignTileState.locked:
+      return Icons.lock;
+    case CampaignTileState.current:
+      return Icons.play_arrow_rounded;
+    case CampaignTileState.completed:
+      return Icons.check_circle_rounded;
+    case CampaignTileState.failed:
+      return Icons.warning_amber_rounded;
+    case CampaignTileState.checkpoint:
+      return Icons.emoji_events_rounded;
   }
 }
