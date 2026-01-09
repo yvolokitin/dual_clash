@@ -24,6 +24,10 @@ class GamePageAiLevelRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final baseStyle = labelStyle.copyWith(fontWeight: FontWeight.w700);
     final l10n = context.l10n;
+    final bool isTablet =
+        isMobile && MediaQuery.of(context).size.shortestSide >= 600;
+    final double labelFontSize =
+        boardCellSize * 0.288 * (isTablet ? 0.85 : 1.0);
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -40,7 +44,7 @@ class GamePageAiLevelRow extends StatelessWidget {
                   Text(
                     l10n.currentAiLevelLabel,
                     style: baseStyle.copyWith(
-                      fontSize: boardCellSize * 0.288,
+                      fontSize: labelFontSize,
                       height: 1.0,
                     ),
                   ),
@@ -57,7 +61,7 @@ class GamePageAiLevelRow extends StatelessWidget {
                       controller.aiLevel,
                     ),
                     style: baseStyle.copyWith(
-                      fontSize: boardCellSize * 0.288,
+                      fontSize: labelFontSize,
                       height: 1.0,
                     ),
                   ),

@@ -4,11 +4,13 @@ import '../../logic/game_controller.dart';
 class BombActionRow extends StatelessWidget {
   final GameController controller;
   final double? boardWidth;
+  final double boardCellSize;
 
   const BombActionRow({
     super.key,
     required this.controller,
     this.boardWidth,
+    required this.boardCellSize,
   });
 
   @override
@@ -38,6 +40,7 @@ class BombActionRow extends StatelessWidget {
               active: active,
               accent: accent,
               isCooldown: isCooldown,
+              iconSize: boardCellSize,
               canDrag: canDrag,
               onPressed: () {
                 if (!enabled) return;
@@ -71,6 +74,7 @@ class _BombDraggable extends StatelessWidget {
   final bool active;
   final Color accent;
   final bool isCooldown;
+  final double iconSize;
   final bool canDrag;
   final VoidCallback? onPressed;
   final VoidCallback onDragStarted;
@@ -82,6 +86,7 @@ class _BombDraggable extends StatelessWidget {
     required this.active,
     required this.accent,
     required this.isCooldown,
+    required this.iconSize,
     required this.canDrag,
     this.onPressed,
     required this.onDragStarted,
@@ -96,6 +101,7 @@ class _BombDraggable extends StatelessWidget {
       active: active,
       accent: accent,
       isCooldown: isCooldown,
+      iconSize: iconSize,
       onPressed: onPressed,
     );
     if (!canDrag) {
@@ -114,6 +120,7 @@ class _BombDraggable extends StatelessWidget {
           active: active,
           accent: accent,
           isCooldown: isCooldown,
+          iconSize: iconSize,
           onPressed: null,
         ),
       ),
@@ -132,6 +139,7 @@ class _BombButton extends StatelessWidget {
   final bool active;
   final Color accent;
   final bool isCooldown;
+  final double iconSize;
   final VoidCallback? onPressed;
 
   const _BombButton({
@@ -140,6 +148,7 @@ class _BombButton extends StatelessWidget {
     required this.active,
     required this.accent,
     required this.isCooldown,
+    required this.iconSize,
     this.onPressed,
   });
 
@@ -147,7 +156,6 @@ class _BombButton extends StatelessWidget {
   Widget build(BuildContext context) {
     const baseColor = Colors.transparent;
     const borderColor = Colors.transparent;
-    const iconSize = 40.0;
     final icon = Image.asset(
       'assets/icons/bomb.png',
       width: iconSize,

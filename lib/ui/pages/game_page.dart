@@ -263,6 +263,7 @@ class _GamePageState extends State<GamePage> {
                   menuIconSize: metrics.menuIconSize,
                   scoreItemSize: metrics.scoreItemSize,
                   pointsItemSize: metrics.pointsItemSize,
+                  boardCellSize: metrics.boardCellSize,
                   scoreTextStyle: metrics.scoreTextStyle,
                   pointsTextStyle: metrics.pointsTextStyle,
                   redBase: redBase,
@@ -324,10 +325,11 @@ class _GamePageState extends State<GamePage> {
                           ),
                         ),
                       ),
-                      SizedBox(height: isMobile ? 10 : 20),
+                      SizedBox(height: isMobile ? 15 : 20),
                       BombActionRow(
                         controller: controller,
                         boardWidth: metrics.boardWidth,
+                        boardCellSize: metrics.boardCellSize,
                       ),
                       if (isMobile && !controller.humanVsHuman)
                         GamePageAiLevelRow(
