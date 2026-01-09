@@ -279,10 +279,9 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                       color: Colors.orange,
                                       onTap: () async {
                                         await _runMenuAction(() async {
-                                          await _pushWithSlide(
+                                          await _pushWithDrop(
                                             context,
                                             const CampaignPage(),
-                                            const Offset(1.0, 0.0),
                                           );
                                         });
                                       },
@@ -1142,6 +1141,36 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
             position: Tween<Offset>(begin: beginOffset, end: Offset.zero)
                 .animate(curved),
             child: child,
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _pushWithDrop(
+    BuildContext context,
+    Widget page,
+  ) async {
+    await Navigator.of(context).push(
+      PageRouteBuilder(
+        transitionDuration: const Duration(seconds: 3),
+        reverseTransitionDuration: const Duration(milliseconds: 420),
+        pageBuilder: (context, animation, secondaryAnimation) => page,
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          final curved = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+            reverseCurve: Curves.easeInCubic,
+          );
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0.0, -1.2),
+              end: Offset.zero,
+            ).animate(curved),
+            child: FadeTransition(
+              opacity: Tween<double>(begin: 0.0, end: 1.0).animate(curved),
+              child: child,
+            ),
           );
         },
       ),
