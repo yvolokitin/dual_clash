@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dual_clash/core/colors.dart';
-import 'package:dual_clash/core/constants.dart';
 import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/models/cell_state.dart';
@@ -21,8 +20,7 @@ class ResultsCard extends StatelessWidget {
     final bool isMobilePlatform = !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
-    final bool isTabletDevice = isTablet(context);
-    final bool isPhoneFullscreen = isMobilePlatform && !isTabletDevice;
+    final bool isMobileFullscreen = isMobilePlatform;
     const EdgeInsets contentPadding = EdgeInsets.fromLTRB(16, 20, 16, 20);
     const double closeButtonBottomPadding = 20;
     const double closeButtonReserveSpace = 72;
@@ -101,7 +99,7 @@ class ResultsCard extends StatelessWidget {
     ];
 
     final BorderRadius dialogRadius =
-        BorderRadius.circular(isPhoneFullscreen ? 0 : 22);
+        BorderRadius.circular(isMobileFullscreen ? 0 : 22);
     final content = Container(
       decoration: BoxDecoration(
         borderRadius: dialogRadius,
@@ -119,14 +117,14 @@ class ResultsCard extends StatelessWidget {
       ),
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          maxWidth: isPhoneFullscreen ? size.width : size.width * 0.8,
-          maxHeight: isPhoneFullscreen ? size.height : size.height * 0.8,
-          minWidth: isPhoneFullscreen ? size.width : 0,
-          minHeight: isPhoneFullscreen ? size.height : 0,
+          maxWidth: isMobileFullscreen ? size.width : size.width * 0.8,
+          maxHeight: isMobileFullscreen ? size.height : size.height * 0.8,
+          minWidth: isMobileFullscreen ? size.width : 0,
+          minHeight: isMobileFullscreen ? size.height : 0,
         ),
         child: SafeArea(
-          top: isPhoneFullscreen,
-          bottom: isPhoneFullscreen,
+          top: isMobileFullscreen,
+          bottom: isMobileFullscreen,
           child: LayoutBuilder(
             builder: (context, constraints) {
               return SizedBox(
@@ -184,7 +182,7 @@ class ResultsCard extends StatelessWidget {
                                 bestScore: controller.bestChallengeScore,
                                 isNewBest: controller.lastGameWasNewBest,
                                 boardSize: controller.board.length,
-                                isPhoneFullscreen: isPhoneFullscreen,
+                                isPhoneFullscreen: isMobileFullscreen,
                               )
                             else ...[
                               LayoutBuilder(
@@ -208,7 +206,7 @@ class ResultsCard extends StatelessWidget {
                                       tileCount == 3 && width < 550;
                                   final double baseScale =
                                       compactRow ? 0.7 : 0.8;
-                                  final double scale = isPhoneFullscreen
+                                  final double scale = isMobileFullscreen
                                       ? baseScale
                                       : baseScale * 0.8;
                                   return GridView.count(
@@ -338,7 +336,7 @@ class ResultsCard extends StatelessWidget {
       ),
     );
 
-    final EdgeInsets dialogInsetPadding = isPhoneFullscreen
+    final EdgeInsets dialogInsetPadding = isMobileFullscreen
         ? EdgeInsets.zero
         : EdgeInsets.symmetric(
             horizontal: size.width * 0.1, vertical: size.height * 0.1);
@@ -346,7 +344,7 @@ class ResultsCard extends StatelessWidget {
       insetPadding: dialogInsetPadding,
       backgroundColor: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: dialogRadius),
-      child: isPhoneFullscreen
+      child: isMobileFullscreen
           ? SizedBox(
               width: size.width,
               height: size.height,

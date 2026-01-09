@@ -1,6 +1,5 @@
 import 'dart:ui' as ui;
 
-import 'package:dual_clash/core/constants.dart';
 import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/ui/widgets/results_card.dart';
@@ -27,10 +26,9 @@ Future<void> showAnimatedResultsDialog({
       final bool isMobilePlatform = !kIsWeb &&
           (defaultTargetPlatform == TargetPlatform.android ||
               defaultTargetPlatform == TargetPlatform.iOS);
-      final bool isTabletDevice = isTablet(ctx);
-      final bool isPhoneFullscreen = isMobilePlatform && !isTabletDevice;
+      final bool isMobileFullscreen = isMobilePlatform;
       final Alignment dialogAlignment =
-          isPhoneFullscreen ? Alignment.topCenter : Alignment.center;
+          isMobileFullscreen ? Alignment.topCenter : Alignment.center;
       return Stack(
         children: [
           Positioned.fill(
