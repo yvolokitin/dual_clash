@@ -1208,7 +1208,7 @@ class GameController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void newGame() {
+  void newGame({bool notify = true}) {
     _turnStats.clear();
     _undoStack.clear();
     lastMovePoints = 0;
@@ -1255,7 +1255,9 @@ class GameController extends ChangeNotifier {
     if (current == CellState.red) {
       _saveUndoPoint();
     }
-    notifyListeners();
+    if (notify) {
+      notifyListeners();
+    }
     // If AI (Blue) starts, let it make the first move
     if (!humanVsHuman && current == CellState.blue) {
       _scheduleAi();

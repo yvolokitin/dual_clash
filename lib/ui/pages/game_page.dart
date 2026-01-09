@@ -54,6 +54,7 @@ class _GamePageState extends State<GamePage> {
   bool? _previousBombsEnabled;
   bool? _previousHumanVsHuman;
   bool _isApplyingChallengeConfig = false;
+  bool _shouldRestoreConfig = true;
 
   GameController get controller => widget.controller;
 
@@ -117,7 +118,7 @@ class _GamePageState extends State<GamePage> {
   }
 
   void _restoreChallengeConfig() {
-    if (widget.challengeConfig == null) return;
+    if (widget.challengeConfig == null || !_shouldRestoreConfig) return;
     if (_previousGridSize != null) {
       K.n = _previousGridSize!;
     }
@@ -133,6 +134,7 @@ class _GamePageState extends State<GamePage> {
     if (_previousHumanVsHuman != null) {
       controller.humanVsHuman = _previousHumanVsHuman!;
     }
+    controller.newGame(notify: false);
   }
 
   Future<void> _loadPremiumAndMaybeAd() async {
@@ -269,6 +271,7 @@ class _GamePageState extends State<GamePage> {
 
   void _handleGameCompleted() {
     if (_reportedOutcome) return;
+    _shouldRestoreConfig = false;
     final outcome = _outcomeForChallenge();
     if (widget.onGameCompleted != null) {
       widget.onGameCompleted!(outcome);

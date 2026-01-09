@@ -317,7 +317,11 @@ class ResultsCard extends StatelessWidget {
                             const SizedBox(height: 12),
                             // Action buttons based on result and AI level
                             _ResultsActions(
-                                controller: controller, winner: winner),
+                              controller: controller,
+                              winner: winner,
+                              showCampaignProgress: showCampaignProgress,
+                              campaignOutcome: campaignOutcome,
+                            ),
                           ],
                         ),
                       ),
@@ -760,7 +764,14 @@ String _performanceRating(
 class _ResultsActions extends StatelessWidget {
   final GameController controller;
   final CellState? winner;
-  const _ResultsActions({required this.controller, required this.winner});
+  final bool showCampaignProgress;
+  final GameOutcome? campaignOutcome;
+  const _ResultsActions({
+    required this.controller,
+    required this.winner,
+    required this.showCampaignProgress,
+    required this.campaignOutcome,
+  });
 
   @override
   Widget build(BuildContext context) {
