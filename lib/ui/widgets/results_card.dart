@@ -840,6 +840,41 @@ class _ResultsActions extends StatelessWidget {
       );
     }
 
+    if (showCampaignProgress) {
+      final String label = campaignOutcome == GameOutcome.win
+          ? 'Continue to next level'
+          : 'Try again';
+      final String asset = campaignOutcome == GameOutcome.win
+          ? primaryTileAsset
+          : secondaryTileAsset;
+      final Color color = campaignOutcome == GameOutcome.win
+          ? AppColors.red
+          : AppColors.green;
+      final tile = menuActionTile(
+        label: label,
+        asset: asset,
+        color: color,
+        onTap: () {
+          Navigator.of(context).pop();
+        },
+      );
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final double tileWidth =
+              constraints.maxWidth < 240 ? constraints.maxWidth : 240;
+          return Center(
+            child: SizedBox(
+              width: tileWidth,
+              child: AspectRatio(
+                aspectRatio: 1.1,
+                child: tile,
+              ),
+            ),
+          );
+        },
+      );
+    }
+
     List<Widget> buttons = [];
     if (winner == CellState.red && ai < 7) {
       final l10n = context.l10n;

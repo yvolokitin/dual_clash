@@ -88,7 +88,12 @@ class CampaignController extends ChangeNotifier {
     } else {
       _statusByLevel[level.index] = CampaignLevelStatus.failed;
       notifyListeners();
-      Navigator.of(context).pop();
+      launchLevel(
+        context: context,
+        gameController: gameController,
+        level: level,
+        replace: true,
+      );
     }
   }
 
