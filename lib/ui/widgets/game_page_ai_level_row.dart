@@ -25,7 +25,7 @@ class GamePageAiLevelRow extends StatelessWidget {
     final baseStyle = labelStyle.copyWith(fontWeight: FontWeight.w700);
     final l10n = context.l10n;
     final bool isTablet =
-        isMobile && MediaQuery.of(context).shortestSide >= 600;
+        isMobile && MediaQuery.of(context).size.shortestSide >= 600;
     final double labelFontSize =
         boardCellSize * 0.288 * (isTablet ? 0.85 : 1.0);
     return Column(
