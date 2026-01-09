@@ -147,48 +147,58 @@ class _CampaignRouteGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const totalLevels = 30;
+    const totalLevels = 29;
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        const rowPattern = [2, 3, 4, 3, 2];
+        final height = constraints.maxHeight;
+        const rowPattern = [4, 6, 8, 6, 4, 1];
         final rows = _buildRows(
           totalLevels: totalLevels,
           rowPattern: rowPattern,
-          blockCount: 2,
         );
-        const rowSpacing = 14.0;
         const columnSpacing = 10.0;
         final deviceClass = _deviceClassForWidth(width);
-        final nodeSize = _nodeSizeForDeviceClass(deviceClass);
-        const blockGap = 28.0;
+        final minNodeSize = _nodeSizeForDeviceClass(deviceClass);
+        final maxColumns = rows.map((row) => row.length).reduce(
+              (value, element) => value > element ? value : element,
+            );
+        final availableWidth = width - columnSpacing * (maxColumns - 1);
+        final maxRowSpacing = rows.length > 1
+            ? (height - minNodeSize * rows.length) / (rows.length - 1)
+            : 14.0;
+        final rowSpacing = maxRowSpacing < 14.0
+            ? (maxRowSpacing < 0 ? 0.0 : maxRowSpacing)
+            : 14.0;
+        final availableHeight = height - rowSpacing * (rows.length - 1);
+        final sizeByWidth = availableWidth / maxColumns;
+        final sizeByHeight = availableHeight / rows.length;
+        final maxNodeSize = sizeByWidth < sizeByHeight ? sizeByWidth : sizeByHeight;
+        final nodeSize = maxNodeSize < minNodeSize ? minNodeSize : maxNodeSize;
 
-        return SingleChildScrollView(
-          child: Column(
-            children: [
-              for (var rowIndex = 0; rowIndex < rows.length; rowIndex++) ...[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    for (var i = 0; i < rows[rowIndex].length; i++) ...[
-                      _CampaignNode(
-                        level: rows[rowIndex][i],
-                        size: nodeSize,
-                        status: _statusForLevel(rows[rowIndex][i]),
-                      ),
-                      if (i < rows[rowIndex].length - 1)
-                        const SizedBox(width: columnSpacing),
-                    ],
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            for (var rowIndex = 0; rowIndex < rows.length; rowIndex++) ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  for (var i = 0; i < rows[rowIndex].length; i++) ...[
+                    _CampaignNode(
+                      level: rows[rowIndex][i],
+                      size: nodeSize,
+                      status: _statusForLevel(rows[rowIndex][i]),
+                      isFinalLevel: rows[rowIndex][i] == totalLevels,
+                    ),
+                    if (i < rows[rowIndex].length - 1)
+                      const SizedBox(width: columnSpacing),
                   ],
-                ),
-                if (rowIndex < rows.length - 1) ...[
-                  if ((rowIndex + 1) % rowPattern.length == 0)
-                    const SizedBox(height: blockGap),
-                  const SizedBox(height: rowSpacing),
                 ],
-              ],
+              ),
+              if (rowIndex < rows.length - 1)
+                const SizedBox(height: rowSpacing),
             ],
-          ),
+          ],
         );
       },
     );
@@ -197,30 +207,20 @@ class _CampaignRouteGrid extends StatelessWidget {
   List<List<int>> _buildRows({
     required int totalLevels,
     required List<int> rowPattern,
-    required int blockCount,
   }) {
     final rows = <List<int>>[];
     var currentLevel = 1;
 
-    for (var blockIndex = 0; blockIndex < blockCount; blockIndex++) {
-      for (final rowSize in rowPattern) {
-        if (currentLevel > totalLevels) {
-          break;
-        }
-        final remainingInBlock = totalLevels - currentLevel + 1;
-        final count = remainingInBlock < rowSize ? remainingInBlock : rowSize;
-        rows.add(
-          List.generate(count, (index) => currentLevel + index),
-        );
-        currentLevel += count;
+    for (final rowSize in rowPattern) {
+      if (currentLevel > totalLevels) {
+        break;
       }
-    }
-
-    final remaining = totalLevels - currentLevel + 1;
-    if (remaining > 0) {
+      final remaining = totalLevels - currentLevel + 1;
+      final count = remaining < rowSize ? remaining : rowSize;
       rows.add(
-        List.generate(remaining, (index) => currentLevel + index),
+        List.generate(count, (index) => currentLevel + index),
       );
+      currentLevel += count;
     }
 
     return rows;
@@ -256,11 +256,13 @@ class _CampaignNode extends StatelessWidget {
   final int level;
   final double size;
   final CampaignLevelStatus status;
+  final bool isFinalLevel;
 
   const _CampaignNode({
     required this.level,
     required this.size,
     required this.status,
+    required this.isFinalLevel,
   });
 
   @override
@@ -288,13 +290,22 @@ class _CampaignNode extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor,
         shape: BoxShape.circle,
-        border: Border.all(color: borderColor, width: 3),
-        boxShadow: const [
+        border: Border.all(
+          color: isFinalLevel ? Colors.white : borderColor,
+          width: isFinalLevel ? 4 : 3,
+        ),
+        boxShadow: [
           BoxShadow(
             color: Colors.black38,
             blurRadius: 8,
             offset: Offset(0, 4),
           ),
+          if (isFinalLevel)
+            const BoxShadow(
+              color: Colors.white70,
+              blurRadius: 14,
+              offset: Offset(0, 0),
+            ),
         ],
       ),
       alignment: Alignment.center,
