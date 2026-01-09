@@ -1163,7 +1163,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
   Future<void> _pushWithCurtain(BuildContext context, Widget page) async {
     await Navigator.of(context).push(
       PageRouteBuilder(
-        transitionDuration: const Duration(milliseconds: 2500),
+        transitionDuration: const Duration(milliseconds: 1500),
         reverseTransitionDuration: const Duration(milliseconds: 300),
         pageBuilder: (context, animation, secondaryAnimation) => page,
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -1179,25 +1179,19 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
               final halfWidth = size.width / 2;
               final progress = curved.value;
               final curtainColor = Colors.black.withOpacity(0.9);
-              final childOpacity = CurvedAnimation(
-                parent: animation,
-                curve: const Interval(0.35, 1.0, curve: Curves.easeOutCubic),
-              );
+              final curtainOffset = -halfWidth * progress;
               return Stack(
                 children: [
-                  FadeTransition(
-                    opacity: childOpacity,
-                    child: child,
-                  ),
+                  child,
                   Positioned(
-                    left: -halfWidth + (halfWidth * progress),
+                    left: curtainOffset,
                     top: 0,
                     bottom: 0,
                     width: halfWidth,
                     child: ColoredBox(color: curtainColor),
                   ),
                   Positioned(
-                    right: -halfWidth + (halfWidth * progress),
+                    right: curtainOffset,
                     top: 0,
                     bottom: 0,
                     width: halfWidth,
