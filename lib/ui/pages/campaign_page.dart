@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/colors.dart';
+import '../../core/localization.dart';
 
 class CampaignPage extends StatelessWidget {
   const CampaignPage({super.key});
@@ -16,22 +17,52 @@ class CampaignPage extends StatelessWidget {
             final width = constraints.maxWidth;
             final headerHeight = height * 0.2;
             final horizontalPadding = width < 420 ? 20.0 : 32.0;
-            return Column(
+            final l10n = context.l10n;
+            return Stack(
               children: [
-                SizedBox(
-                  height: headerHeight,
-                  child: const Padding(
-                    padding: EdgeInsets.only(top: 8.0),
-                    child: _DualClashLogo(),
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: horizontalPadding,
-                      vertical: 12,
+                Column(
+                  children: [
+                    SizedBox(
+                      height: headerHeight,
+                      child: const Padding(
+                        padding: EdgeInsets.only(top: 8.0),
+                        child: _DualClashLogo(),
+                      ),
                     ),
-                    child: const _CampaignRouteGrid(),
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: horizontalPadding,
+                          vertical: 12,
+                        ),
+                        child: const _CampaignRouteGrid(),
+                      ),
+                    ),
+                  ],
+                ),
+                Positioned(
+                  right: horizontalPadding,
+                  bottom: 12,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.brandGold,
+                      foregroundColor: const Color(0xFF2B221D),
+                      shadowColor: Colors.black54,
+                      elevation: 4,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      textStyle: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                    child: Text(l10n.commonClose),
                   ),
                 ),
               ],
