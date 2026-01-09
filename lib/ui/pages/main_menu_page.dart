@@ -276,7 +276,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                       label: compactLabels
                                           ? l10n.menuCampaignShort
                                           : l10n.menuCampaign,
-                                      color: _menuGreen,
+                                      color: Colors.orange,
                                       onTap: () async {
                                         await _runMenuAction(() async {
                                           await _pushWithSlide(
