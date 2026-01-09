@@ -151,45 +151,44 @@ class _CampaignRouteGrid extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        final height = constraints.maxHeight;
         const rowPattern = [2, 3, 4, 3, 2];
         final rows = _buildRows(
           totalLevels: totalLevels,
           rowPattern: rowPattern,
+          blockCount: 2,
         );
         const rowSpacing = 14.0;
         const columnSpacing = 10.0;
-        final maxColumns = rows.map((row) => row.length).reduce(
-              (value, element) => value > element ? value : element,
-            );
-        final availableWidth = width - columnSpacing * (maxColumns - 1);
-        final availableHeight = height - rowSpacing * (rows.length - 1);
-        final sizeByWidth = availableWidth / maxColumns;
-        final sizeByHeight = availableHeight / rows.length;
-        final nodeSize = sizeByWidth < sizeByHeight ? sizeByWidth : sizeByHeight;
+        final deviceClass = _deviceClassForWidth(width);
+        final nodeSize = _nodeSizeForDeviceClass(deviceClass);
+        const blockGap = 28.0;
 
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            for (var rowIndex = 0; rowIndex < rows.length; rowIndex++) ...[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  for (var i = 0; i < rows[rowIndex].length; i++) ...[
-                    _CampaignNode(
-                      level: rows[rowIndex][i],
-                      size: nodeSize,
-                      status: _statusForLevel(rows[rowIndex][i]),
-                    ),
-                    if (i < rows[rowIndex].length - 1)
-                      const SizedBox(width: columnSpacing),
+        return SingleChildScrollView(
+          child: Column(
+            children: [
+              for (var rowIndex = 0; rowIndex < rows.length; rowIndex++) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    for (var i = 0; i < rows[rowIndex].length; i++) ...[
+                      _CampaignNode(
+                        level: rows[rowIndex][i],
+                        size: nodeSize,
+                        status: _statusForLevel(rows[rowIndex][i]),
+                      ),
+                      if (i < rows[rowIndex].length - 1)
+                        const SizedBox(width: columnSpacing),
+                    ],
                   ],
+                ),
+                if (rowIndex < rows.length - 1) ...[
+                  if ((rowIndex + 1) % rowPattern.length == 0)
+                    const SizedBox(height: blockGap),
+                  const SizedBox(height: rowSpacing),
                 ],
-              ),
-              if (rowIndex < rows.length - 1)
-                const SizedBox(height: rowSpacing),
+              ],
             ],
-          ],
+          ),
         );
       },
     );
@@ -198,20 +197,12 @@ class _CampaignRouteGrid extends StatelessWidget {
   List<List<int>> _buildRows({
     required int totalLevels,
     required List<int> rowPattern,
+    required int blockCount,
   }) {
     final rows = <List<int>>[];
     var currentLevel = 1;
-    final blockSize = rowPattern.fold<int>(0, (sum, value) => sum + value);
 
-    while (currentLevel <= totalLevels) {
-      final remaining = totalLevels - currentLevel + 1;
-      if (remaining <= blockSize) {
-        rows.add(
-          List.generate(remaining, (index) => currentLevel + index),
-        );
-        break;
-      }
-
+    for (var blockIndex = 0; blockIndex < blockCount; blockIndex++) {
       for (final rowSize in rowPattern) {
         if (currentLevel > totalLevels) {
           break;
@@ -225,9 +216,39 @@ class _CampaignRouteGrid extends StatelessWidget {
       }
     }
 
+    final remaining = totalLevels - currentLevel + 1;
+    if (remaining > 0) {
+      rows.add(
+        List.generate(remaining, (index) => currentLevel + index),
+      );
+    }
+
     return rows;
   }
+
+  _DeviceClass _deviceClassForWidth(double width) {
+    if (width >= 1024) {
+      return _DeviceClass.desktop;
+    }
+    if (width >= 600) {
+      return _DeviceClass.tablet;
+    }
+    return _DeviceClass.mobile;
+  }
+
+  double _nodeSizeForDeviceClass(_DeviceClass deviceClass) {
+    switch (deviceClass) {
+      case _DeviceClass.desktop:
+        return 72;
+      case _DeviceClass.tablet:
+        return 64;
+      case _DeviceClass.mobile:
+        return 56;
+    }
+  }
 }
+
+enum _DeviceClass { mobile, tablet, desktop }
 
 enum CampaignLevelStatus { passed, available, failed }
 
@@ -266,7 +287,7 @@ class _CampaignNode extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(12),
+        shape: BoxShape.circle,
         border: Border.all(color: borderColor, width: 3),
         boxShadow: const [
           BoxShadow(
