@@ -147,31 +147,37 @@ class _CampaignRouteGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const rows = [
-      [28, 29, 30],
-      [20, 21, 22, 23, 24, 25, 26, 27],
-      [11, 12, 13, 14, 15, 16, 17, 18, 19],
-      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-    ];
+    const totalLevels = 29;
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
         final height = constraints.maxHeight;
-        const rowSpacing = 14.0;
+        const rowPattern = [4, 6, 8, 6, 4, 1];
+        final rows = _buildRows(
+          totalLevels: totalLevels,
+          rowPattern: rowPattern,
+        );
         const columnSpacing = 10.0;
+        final deviceClass = _deviceClassForWidth(width);
+        final minNodeSize = _nodeSizeForDeviceClass(deviceClass);
         final maxColumns = rows.map((row) => row.length).reduce(
               (value, element) => value > element ? value : element,
             );
-        final availableWidth =
-            width - columnSpacing * (maxColumns - 1);
-        final availableHeight =
-            height - rowSpacing * (rows.length - 1);
+        final availableWidth = width - columnSpacing * (maxColumns - 1);
+        final maxRowSpacing = rows.length > 1
+            ? (height - minNodeSize * rows.length) / (rows.length - 1)
+            : 14.0;
+        final rowSpacing = maxRowSpacing < 14.0
+            ? (maxRowSpacing < 0 ? 0.0 : maxRowSpacing)
+            : 14.0;
+        final availableHeight = height - rowSpacing * (rows.length - 1);
         final sizeByWidth = availableWidth / maxColumns;
         final sizeByHeight = availableHeight / rows.length;
-        final nodeSize = sizeByWidth < sizeByHeight ? sizeByWidth : sizeByHeight;
+        final maxNodeSize = sizeByWidth < sizeByHeight ? sizeByWidth : sizeByHeight;
+        final nodeSize = maxNodeSize < minNodeSize ? minNodeSize : maxNodeSize;
 
         return Column(
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             for (var rowIndex = 0; rowIndex < rows.length; rowIndex++) ...[
               Row(
@@ -182,6 +188,7 @@ class _CampaignRouteGrid extends StatelessWidget {
                       level: rows[rowIndex][i],
                       size: nodeSize,
                       status: _statusForLevel(rows[rowIndex][i]),
+                      isFinalLevel: rows[rowIndex][i] == totalLevels,
                     ),
                     if (i < rows[rowIndex].length - 1)
                       const SizedBox(width: columnSpacing),
@@ -189,14 +196,59 @@ class _CampaignRouteGrid extends StatelessWidget {
                 ],
               ),
               if (rowIndex < rows.length - 1)
-                const SizedBox(height: rowSpacing),
+                SizedBox(height: rowSpacing),
             ],
           ],
         );
       },
     );
   }
+
+  List<List<int>> _buildRows({
+    required int totalLevels,
+    required List<int> rowPattern,
+  }) {
+    final rows = <List<int>>[];
+    var currentLevel = 1;
+
+    for (final rowSize in rowPattern) {
+      if (currentLevel > totalLevels) {
+        break;
+      }
+      final remaining = totalLevels - currentLevel + 1;
+      final count = remaining < rowSize ? remaining : rowSize;
+      rows.add(
+        List.generate(count, (index) => currentLevel + index),
+      );
+      currentLevel += count;
+    }
+
+    return rows;
+  }
+
+  _DeviceClass _deviceClassForWidth(double width) {
+    if (width >= 1024) {
+      return _DeviceClass.desktop;
+    }
+    if (width >= 600) {
+      return _DeviceClass.tablet;
+    }
+    return _DeviceClass.mobile;
+  }
+
+  double _nodeSizeForDeviceClass(_DeviceClass deviceClass) {
+    switch (deviceClass) {
+      case _DeviceClass.desktop:
+        return 72;
+      case _DeviceClass.tablet:
+        return 64;
+      case _DeviceClass.mobile:
+        return 56;
+    }
+  }
 }
+
+enum _DeviceClass { mobile, tablet, desktop }
 
 enum CampaignLevelStatus { passed, available, failed }
 
@@ -204,11 +256,13 @@ class _CampaignNode extends StatelessWidget {
   final int level;
   final double size;
   final CampaignLevelStatus status;
+  final bool isFinalLevel;
 
   const _CampaignNode({
     required this.level,
     required this.size,
     required this.status,
+    required this.isFinalLevel,
   });
 
   @override
@@ -235,14 +289,23 @@ class _CampaignNode extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderColor, width: 3),
-        boxShadow: const [
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: isFinalLevel ? Colors.white : borderColor,
+          width: isFinalLevel ? 4 : 3,
+        ),
+        boxShadow: [
           BoxShadow(
             color: Colors.black38,
             blurRadius: 8,
             offset: Offset(0, 4),
           ),
+          if (isFinalLevel)
+            const BoxShadow(
+              color: Colors.white70,
+              blurRadius: 14,
+              offset: Offset(0, 0),
+            ),
         ],
       ),
       alignment: Alignment.center,
