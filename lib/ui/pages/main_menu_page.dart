@@ -1163,7 +1163,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
   Future<void> _pushWithCurtain(BuildContext context, Widget page) async {
     await Navigator.of(context).push(
       PageRouteBuilder(
-        transitionDuration: const Duration(milliseconds: 1500),
+        transitionDuration: const Duration(milliseconds: 1000),
         reverseTransitionDuration: const Duration(milliseconds: 300),
         pageBuilder: (context, animation, secondaryAnimation) => page,
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
