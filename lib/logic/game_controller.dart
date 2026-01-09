@@ -150,6 +150,7 @@ class GameController extends ChangeNotifier {
   List<List<CellState>> board = RulesEngine.emptyBoard();
   final List<_BombToken> _bombs = <_BombToken>[];
   final Map<CellState, int> _lastBombTurns = <CellState, int>{};
+  bool bombsEnabled = true;
   bool bombMode = false;
   bool bombDragActive = false;
   Set<(int, int)> bombDragTargets = <(int, int)>{};
@@ -379,9 +380,10 @@ class GameController extends ChangeNotifier {
   }
 
   bool get canActivateAnyBomb =>
-      _bombs.any((bomb) => _canActivateBombToken(bomb));
+      bombsEnabled && _bombs.any((bomb) => _canActivateBombToken(bomb));
 
   bool get canPlaceBomb {
+    if (!bombsEnabled) return false;
     if (gameOver || isAiThinking || isExploding || isFalling || isQuaking) {
       return false;
     }
@@ -452,6 +454,29 @@ class GameController extends ChangeNotifier {
       return 'Detonate a bomb to clear space.';
     }
     return 'Place a bomb on an empty cell.';
+  }
+
+  void setBombsEnabled(bool enabled) {
+    if (bombsEnabled == enabled) return;
+    bombsEnabled = enabled;
+    if (!enabled) {
+      for (int r = 0; r < board.length; r++) {
+        for (int c = 0; c < board[r].length; c++) {
+          if (board[r][c] == CellState.bomb) {
+            board[r][c] = CellState.empty;
+          }
+        }
+      }
+      _bombs.clear();
+      _lastBombTurns.clear();
+      bombMode = false;
+      bombDragActive = false;
+      bombDragTargets = <(int, int)>{};
+      bombModeTargets = <(int, int)>{};
+      bombAutoCountdownActive = false;
+      bombAutoCountdownValue = 0;
+    }
+    notifyListeners();
   }
 
   void startBombDrag() {

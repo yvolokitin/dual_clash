@@ -2,9 +2,31 @@ import 'package:flutter/material.dart';
 
 import '../../core/colors.dart';
 import '../../core/localization.dart';
+import '../../logic/game_controller.dart';
+import '../controllers/campaign_controller.dart';
 
-class CampaignPage extends StatelessWidget {
-  const CampaignPage({super.key});
+class CampaignPage extends StatefulWidget {
+  final GameController controller;
+  const CampaignPage({super.key, required this.controller});
+
+  @override
+  State<CampaignPage> createState() => _CampaignPageState();
+}
+
+class _CampaignPageState extends State<CampaignPage> {
+  late final CampaignController _campaignController;
+
+  @override
+  void initState() {
+    super.initState();
+    _campaignController = CampaignController();
+  }
+
+  @override
+  void dispose() {
+    _campaignController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +55,15 @@ class CampaignPage extends StatelessWidget {
                       horizontal: horizontalPadding,
                       vertical: 12,
                     ),
-                    child: const _CampaignRouteGrid(),
+                    child: AnimatedBuilder(
+                      animation: _campaignController,
+                      builder: (context, _) {
+                        return _CampaignRouteGrid(
+                          campaignController: _campaignController,
+                          gameController: widget.controller,
+                        );
+                      },
+                    ),
                   ),
                 ),
                 Padding(
@@ -137,17 +167,17 @@ class _DualClashLogo extends StatelessWidget {
 }
 
 class _CampaignRouteGrid extends StatelessWidget {
-  const _CampaignRouteGrid();
+  final CampaignController campaignController;
+  final GameController gameController;
 
-  CampaignLevelStatus _statusForLevel(int level) {
-    if (level <= 6) return CampaignLevelStatus.passed;
-    if (level == 7) return CampaignLevelStatus.failed;
-    return CampaignLevelStatus.available;
-  }
+  const _CampaignRouteGrid({
+    required this.campaignController,
+    required this.gameController,
+  });
 
   @override
   Widget build(BuildContext context) {
-    const totalLevels = 29;
+    final totalLevels = campaignController.levels.length;
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
@@ -187,8 +217,19 @@ class _CampaignRouteGrid extends StatelessWidget {
                     _CampaignNode(
                       level: rows[rowIndex][i],
                       size: nodeSize,
-                      status: _statusForLevel(rows[rowIndex][i]),
+                      status: campaignController
+                          .statusForLevel(rows[rowIndex][i]),
                       isFinalLevel: rows[rowIndex][i] == totalLevels,
+                      onTap: () {
+                        final level = campaignController
+                            .levelForIndex(rows[rowIndex][i]);
+                        if (level == null) return;
+                        campaignController.launchLevel(
+                          context: context,
+                          gameController: gameController,
+                          level: level,
+                        );
+                      },
                     ),
                     if (i < rows[rowIndex].length - 1)
                       const SizedBox(width: columnSpacing),
@@ -250,19 +291,19 @@ class _CampaignRouteGrid extends StatelessWidget {
 
 enum _DeviceClass { mobile, tablet, desktop }
 
-enum CampaignLevelStatus { passed, available, failed }
-
 class _CampaignNode extends StatelessWidget {
   final int level;
   final double size;
   final CampaignLevelStatus status;
   final bool isFinalLevel;
+  final VoidCallback? onTap;
 
   const _CampaignNode({
     required this.level,
     required this.size,
     required this.status,
     required this.isFinalLevel,
+    this.onTap,
   });
 
   @override
@@ -282,46 +323,57 @@ class _CampaignNode extends StatelessWidget {
         backgroundColor = AppColors.brandGold;
         borderColor = const Color(0xFFD89A20);
         break;
+      case CampaignLevelStatus.locked:
+        backgroundColor = const Color(0xFF7A7A7A);
+        borderColor = const Color(0xFF5B5B5B);
+        break;
     }
 
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: isFinalLevel ? Colors.white : borderColor,
-          width: isFinalLevel ? 4 : 3,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black38,
-            blurRadius: 8,
-            offset: Offset(0, 4),
+    final isLocked = status == CampaignLevelStatus.locked;
+    return GestureDetector(
+      onTap: isLocked ? null : onTap,
+      child: Opacity(
+        opacity: isLocked ? 0.55 : 1,
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: isFinalLevel ? Colors.white : borderColor,
+              width: isFinalLevel ? 4 : 3,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black38,
+                blurRadius: 8,
+                offset: Offset(0, 4),
+              ),
+              if (isFinalLevel)
+                const BoxShadow(
+                  color: Colors.white70,
+                  blurRadius: 14,
+                  offset: Offset(0, 0),
+                ),
+            ],
           ),
-          if (isFinalLevel)
-            const BoxShadow(
-              color: Colors.white70,
-              blurRadius: 14,
-              offset: Offset(0, 0),
+          alignment: Alignment.center,
+          child: Text(
+            '$level',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: size * 0.42,
+              fontWeight: FontWeight.w900,
+              shadows: const [
+                Shadow(
+                  color: Colors.black38,
+                  blurRadius: 4,
+                  offset: Offset(0, 2),
+                ),
+              ],
             ),
-        ],
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        '$level',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: size * 0.42,
-          fontWeight: FontWeight.w900,
-          shadows: const [
-            Shadow(
-              color: Colors.black38,
-              blurRadius: 4,
-              offset: Offset(0, 2),
-            ),
-          ],
+          ),
         ),
       ),
     );

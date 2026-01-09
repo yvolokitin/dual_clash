@@ -58,15 +58,16 @@ Future<void> showAnimatedResultsDialog({
 }
 
 /// Show the results dialog once when the game ends.
-void maybeShowResultsDialog({
+Future<void> maybeShowResultsDialog({
   required BuildContext context,
   required GameController controller,
-}) {
+  VoidCallback? onClosed,
+}) async {
   if (controller.gameOver && !controller.resultsShown) {
     controller.resultsShown = true;
-    Future.delayed(Duration(milliseconds: controller.winnerBorderAnimMs), () {
-      if (!context.mounted) return;
-      showAnimatedResultsDialog(context: context, controller: controller);
-    });
+    await Future.delayed(Duration(milliseconds: controller.winnerBorderAnimMs));
+    if (!context.mounted) return;
+    await showAnimatedResultsDialog(context: context, controller: controller);
+    onClosed?.call();
   }
 }
