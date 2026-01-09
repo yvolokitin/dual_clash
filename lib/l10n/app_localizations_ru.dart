@@ -139,6 +139,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get menuLoadGame => 'Загрузить игру';
 
   @override
+  String get menuCampaignShort => 'Camp.';
+
+  @override
+  String get menuCampaign => 'Campaign';
+
+  @override
   String get menuHubShort => 'Хаб';
 
   @override

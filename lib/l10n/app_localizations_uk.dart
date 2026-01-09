@@ -139,6 +139,12 @@ class AppLocalizationsUk extends AppLocalizations {
   String get menuLoadGame => 'Завантажити гру';
 
   @override
+  String get menuCampaignShort => 'Camp.';
+
+  @override
+  String get menuCampaign => 'Campaign';
+
+  @override
   String get menuHubShort => 'Хаб';
 
   @override

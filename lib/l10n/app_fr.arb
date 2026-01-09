@@ -47,6 +47,8 @@
   "menuDuelMode": "Mode duel",
   "menuLoadShort": "Charger",
   "menuLoadGame": "Charger une partie",
+  "menuCampaignShort": "Camp.",
+  "menuCampaign": "Campaign",
   "menuHubShort": "Hub",
   "menuPlayerHub": "Hub joueur",
   "menuTripleShort": "Triple",

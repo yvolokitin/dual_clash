@@ -11,6 +11,7 @@ import '../widgets/main_menu/flyout_tile.dart';
 import '../widgets/main_menu/menu_tile.dart';
 import '../widgets/main_menu/startup_hero_logo.dart';
 import '../widgets/main_menu/waves_painter.dart';
+import 'campaign_page.dart';
 import 'history_page.dart';
 import 'menu_page.dart' show showLoadGameDialog; // reuse existing dialog
 import 'profile_page.dart';
@@ -29,7 +30,7 @@ class MainMenuPage extends StatefulWidget {
 class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderStateMixin {
   final GlobalKey _duelTileKey = GlobalKey();
   final GlobalKey _gameTileKey = GlobalKey();
-  final GlobalKey _loadTileKey = GlobalKey();
+  final GlobalKey _campaignTileKey = GlobalKey();
   final GlobalKey _playerHubTileKey = GlobalKey();
   Animation<double>? _bgAnim;
   VoidCallback? _bgAnimListener;
@@ -270,16 +271,19 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                       },
                                     ),
                                     MenuTile(
-                                      key: _loadTileKey,
-                                      imagePath: 'assets/icons/menu_load.png',
+                                      key: _campaignTileKey,
+                                      imagePath: 'assets/icons/menu_camp.png',
                                       label: compactLabels
-                                          ? l10n.menuLoadShort
-                                          : l10n.menuLoadGame,
-                                      color: Colors.orange,
+                                          ? l10n.menuCampaignShort
+                                          : l10n.menuCampaign,
+                                      color: _menuGreen,
                                       onTap: () async {
                                         await _runMenuAction(() async {
-                                          // Press effect comes from InkWell; keep dialog for loading
-                                          await _handleLoadGame(context, controller);
+                                          await _pushWithSlide(
+                                            context,
+                                            const CampaignPage(),
+                                            const Offset(1.0, 0.0),
+                                          );
                                         });
                                       },
                                     ),
@@ -340,7 +344,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
           gameRect = Rect.fromLTWH(topLeft.dx, topLeft.dy, box.size.width, box.size.height);
         }
       }
-      final ctxLoad = _loadTileKey.currentContext;
+      final ctxLoad = _campaignTileKey.currentContext;
       if (ctxLoad != null) {
         final box = ctxLoad.findRenderObject() as RenderBox?;
         if (box != null && box.hasSize) {
@@ -513,7 +517,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                   ),
                 ),
 
-                // Quad Clash → lands over Load game
+                // Quad Clash → lands over Campaign
                 Positioned(
                   left: r3.left,
                   top: r3.top,
@@ -606,7 +610,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
           duelRect = Rect.fromLTWH(topLeft.dx, topLeft.dy, box.size.width, box.size.height);
         }
       }
-      final ctxLoad = _loadTileKey.currentContext;
+      final ctxLoad = _campaignTileKey.currentContext;
       if (ctxLoad != null) {
         final box = ctxLoad.findRenderObject() as RenderBox?;
         if (box != null && box.hasSize) {

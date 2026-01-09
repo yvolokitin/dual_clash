@@ -139,6 +139,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String get menuLoadGame => 'Wczytaj grę';
 
   @override
+  String get menuCampaignShort => 'Camp.';
+
+  @override
+  String get menuCampaign => 'Campaign';
+
+  @override
   String get menuHubShort => 'Hub';
 
   @override

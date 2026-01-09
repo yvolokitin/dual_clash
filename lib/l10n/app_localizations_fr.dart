@@ -140,6 +140,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get menuLoadGame => 'Charger une partie';
 
   @override
+  String get menuCampaignShort => 'Camp.';
+
+  @override
+  String get menuCampaign => 'Campaign';
+
+  @override
   String get menuHubShort => 'Hub';
 
   @override

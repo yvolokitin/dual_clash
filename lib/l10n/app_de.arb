@@ -47,6 +47,8 @@
   "menuDuelMode": "Duellmodus",
   "menuLoadShort": "Laden",
   "menuLoadGame": "Spiel laden",
+  "menuCampaignShort": "Camp.",
+  "menuCampaign": "Campaign",
   "menuHubShort": "Hub",
   "menuPlayerHub": "Spieler-Hub",
   "menuTripleShort": "Triple",
