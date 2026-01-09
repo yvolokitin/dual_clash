@@ -336,7 +336,6 @@ class ResultsCard extends StatelessWidget {
           ),
         ),
       ),
-    ),
     );
 
     final EdgeInsets dialogInsetPadding = isPhoneFullscreen
