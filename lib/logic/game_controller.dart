@@ -456,7 +456,7 @@ class GameController extends ChangeNotifier {
     return 'Place a bomb on an empty cell.';
   }
 
-  void setBombsEnabled(bool enabled) {
+  void setBombsEnabled(bool enabled, {bool notify = true}) {
     if (bombsEnabled == enabled) return;
     bombsEnabled = enabled;
     if (!enabled) {
@@ -476,7 +476,9 @@ class GameController extends ChangeNotifier {
       bombAutoCountdownActive = false;
       bombAutoCountdownValue = 0;
     }
-    notifyListeners();
+    if (notify) {
+      notifyListeners();
+    }
   }
 
   void startBombDrag() {

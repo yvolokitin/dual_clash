@@ -96,11 +96,24 @@ class _GamePageState extends State<GamePage> {
     controller.aiLevel = config.aiLevel;
     controller.humanVsHuman = false;
     controller.setBombsEnabled(config.bombsEnabled);
-    if (config.fixedState != null) {
-      controller.loadStateFromMap(config.fixedState!);
+    final fixedState = config.fixedState;
+    if (fixedState != null && _isValidFixedState(config, fixedState)) {
+      controller.loadStateFromMap(fixedState);
     } else {
       controller.newGame();
     }
+  }
+
+  bool _isValidFixedState(
+      CampaignLevel config, Map<String, dynamic> fixedState) {
+    final board = fixedState['board'];
+    if (board is! List) return false;
+    if (board.length != config.boardSize) return false;
+    for (final row in board) {
+      if (row is! List) return false;
+      if (row.length != config.boardSize) return false;
+    }
+    return true;
   }
 
   void _restoreChallengeConfig() {
@@ -115,7 +128,7 @@ class _GamePageState extends State<GamePage> {
       controller.aiLevel = _previousAiLevel!;
     }
     if (_previousBombsEnabled != null) {
-      controller.setBombsEnabled(_previousBombsEnabled!);
+      controller.setBombsEnabled(_previousBombsEnabled!, notify: false);
     }
     if (_previousHumanVsHuman != null) {
       controller.humanVsHuman = _previousHumanVsHuman!;
