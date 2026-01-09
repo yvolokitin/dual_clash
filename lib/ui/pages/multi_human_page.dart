@@ -170,9 +170,9 @@ class _MultiScaffoldState extends State<_MultiScaffold> {
                                 ],
                               ),
                               const SizedBox(height: 12),
-                              const Text(
+                              Text(
                                 context.l10n.leaveMultiModeMessage,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.white70,
                                   fontSize: 16,
                                   height: 1.2,

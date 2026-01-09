@@ -196,7 +196,7 @@ class _CampaignRouteGrid extends StatelessWidget {
                 ],
               ),
               if (rowIndex < rows.length - 1)
-                const SizedBox(height: rowSpacing),
+                SizedBox(height: rowSpacing),
             ],
           ],
         );
