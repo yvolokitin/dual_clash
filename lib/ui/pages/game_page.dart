@@ -319,9 +319,9 @@ class _GamePageState extends State<GamePage> {
   @override
   Widget build(BuildContext context) {
     if (_isApplyingChallengeConfig) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: AppColors.bg,
-        body: Center(
+        body: const Center(
           child: CircularProgressIndicator(),
         ),
       );

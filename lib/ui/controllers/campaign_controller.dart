@@ -12,8 +12,8 @@ class CampaignController extends ChangeNotifier {
   final Map<int, CampaignLevelStatus> _statusByLevel =
       <int, CampaignLevelStatus>{};
 
-  CampaignController({List<CampaignLevel> levels = campaignLevels})
-      : _levels = List<CampaignLevel>.from(levels) {
+  CampaignController({List<CampaignLevel>? levels})
+      : _levels = List<CampaignLevel>.from(levels ?? campaignLevels) {
     for (final level in _levels) {
       _statusByLevel[level.index] = CampaignLevelStatus.locked;
     }
