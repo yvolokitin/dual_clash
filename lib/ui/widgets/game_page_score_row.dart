@@ -68,6 +68,29 @@ class GamePageScoreRow extends StatelessWidget {
     );
   }
 
+  Widget _playerIconWithCrown({
+    required String asset,
+    required double size,
+    required bool isLeader,
+  }) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (isLeader)
+          SizedBox(
+            width: size,
+            child: Image.asset(
+              'assets/icons/crown.png',
+              width: size,
+              fit: BoxFit.contain,
+            ),
+          ),
+        if (isLeader) const SizedBox(height: 4),
+        _playerIcon(asset: asset, size: size, isLeader: isLeader),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final int maxScore = [redBase, neutralCount, blueBase].reduce(
@@ -93,7 +116,7 @@ class GamePageScoreRow extends StatelessWidget {
       children: [
         Text('$redBase', style: scoreTextStyle),
         const SizedBox(width: 6),
-        _playerIcon(
+        _playerIconWithCrown(
           asset: 'assets/icons/player_red.png',
           size: playerIconSize,
           isLeader: highlightRed,
@@ -101,7 +124,7 @@ class GamePageScoreRow extends StatelessWidget {
         const SizedBox(width: 18),
         Text('$neutralCount', style: scoreTextStyle),
         const SizedBox(width: 6),
-        _playerIcon(
+        _playerIconWithCrown(
           asset: 'assets/icons/player_grey.png',
           size: playerIconSize,
           isLeader: highlightNeutral,
@@ -112,7 +135,7 @@ class GamePageScoreRow extends StatelessWidget {
         HoverScaleBox(
           size: playerIconSize,
           onTap: onOpenAiSelector,
-          child: _playerIcon(
+          child: _playerIconWithCrown(
             asset: 'assets/icons/player_blue.png',
             size: playerIconSize,
             isLeader: highlightBlue,
