@@ -85,7 +85,8 @@ class GamePageScoreRow extends StatelessWidget {
         blueBase == maxScore &&
         blueBase > redBase &&
         blueBase > neutralCount;
-    final double playerIconSize = isMobile ? boardCellSize : scoreItemSize;
+    final double playerIconSize =
+        isMobile ? boardCellSize * 0.8 : scoreItemSize;
 
     final Widget playerCountsRow = Row(
       mainAxisSize: MainAxisSize.min,
