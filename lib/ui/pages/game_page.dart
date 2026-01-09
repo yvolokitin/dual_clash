@@ -53,13 +53,23 @@ class _GamePageState extends State<GamePage> {
   int? _previousAiLevel;
   bool? _previousBombsEnabled;
   bool? _previousHumanVsHuman;
+  bool _isApplyingChallengeConfig = false;
 
   GameController get controller => widget.controller;
 
   @override
   void initState() {
     super.initState();
-    _applyChallengeConfig();
+    if (widget.challengeConfig != null) {
+      _isApplyingChallengeConfig = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _applyChallengeConfig();
+        setState(() {
+          _isApplyingChallengeConfig = false;
+        });
+      });
+    }
     if (FF_ADS) {
       _loadPremiumAndMaybeAd();
     }
@@ -308,6 +318,14 @@ class _GamePageState extends State<GamePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isApplyingChallengeConfig) {
+      return const Scaffold(
+        backgroundColor: AppColors.bg,
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
     return AnimatedBuilder(
       animation: controller,
       builder: (context, _) {
