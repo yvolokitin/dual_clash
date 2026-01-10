@@ -68,6 +68,51 @@ class GamePageScoreRow extends StatelessWidget {
     );
   }
 
+  double _crownHeight(double size) => size * 0.4;
+
+  Widget _playerIconWithCrown({
+    required double size,
+    required bool isLeader,
+    required Widget icon,
+  }) {
+    final double crownHeight = _crownHeight(size);
+    final double crownGap = 4;
+    return SizedBox(
+      width: size,
+      height: size,
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.center,
+        children: [
+          Positioned(
+            top: -(crownHeight + crownGap),
+            left: 0,
+            right: 0,
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 180),
+              opacity: isLeader ? 1 : 0,
+              child: AnimatedScale(
+                duration: const Duration(milliseconds: 180),
+                scale: isLeader ? 1 : 0.9,
+                child: SizedBox(
+                  width: size,
+                  height: crownHeight,
+                  child: Image.asset(
+                    'assets/icons/crown.png',
+                    width: size,
+                    height: crownHeight,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          icon,
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final int maxScore = [redBase, neutralCount, blueBase].reduce(
@@ -87,35 +132,47 @@ class GamePageScoreRow extends StatelessWidget {
         blueBase > neutralCount;
     final double playerIconSize =
         isMobile ? boardCellSize * 0.8 : scoreItemSize;
-
     final Widget playerCountsRow = Row(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text('$redBase', style: scoreTextStyle),
         const SizedBox(width: 6),
-        _playerIcon(
-          asset: 'assets/icons/player_red.png',
+        _playerIconWithCrown(
           size: playerIconSize,
           isLeader: highlightRed,
+          icon: _playerIcon(
+            asset: 'assets/icons/player_red.png',
+            size: playerIconSize,
+            isLeader: highlightRed,
+          ),
         ),
         const SizedBox(width: 18),
         Text('$neutralCount', style: scoreTextStyle),
         const SizedBox(width: 6),
-        _playerIcon(
-          asset: 'assets/icons/player_grey.png',
+        _playerIconWithCrown(
           size: playerIconSize,
           isLeader: highlightNeutral,
+          icon: _playerIcon(
+            asset: 'assets/icons/player_grey.png',
+            size: playerIconSize,
+            isLeader: highlightNeutral,
+          ),
         ),
         const SizedBox(width: 18),
         Text('$blueBase', style: scoreTextStyle),
         const SizedBox(width: 6),
-        HoverScaleBox(
+        _playerIconWithCrown(
           size: playerIconSize,
-          onTap: onOpenAiSelector,
-          child: _playerIcon(
-            asset: 'assets/icons/player_blue.png',
+          isLeader: highlightBlue,
+          icon: HoverScaleBox(
             size: playerIconSize,
-            isLeader: highlightBlue,
+            onTap: onOpenAiSelector,
+            child: _playerIcon(
+              asset: 'assets/icons/player_blue.png',
+              size: playerIconSize,
+              isLeader: highlightBlue,
+            ),
           ),
         ),
       ],
