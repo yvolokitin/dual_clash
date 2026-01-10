@@ -71,20 +71,21 @@ class GamePageScoreRow extends StatelessWidget {
   double _crownHeight(double size) => size * 0.4;
 
   Widget _playerIconWithCrown({
-    required String asset,
     required double size,
     required bool isLeader,
+    required Widget icon,
   }) {
     final double crownHeight = _crownHeight(size);
     final double crownGap = 4;
     return SizedBox(
       width: size,
-      height: size + crownHeight + crownGap,
+      height: size,
       child: Stack(
-        alignment: Alignment.bottomCenter,
+        clipBehavior: Clip.none,
+        alignment: Alignment.center,
         children: [
           Positioned(
-            top: 0,
+            top: -(crownHeight + crownGap),
             left: 0,
             right: 0,
             child: AnimatedOpacity(
@@ -106,10 +107,7 @@ class GamePageScoreRow extends StatelessWidget {
               ),
             ),
           ),
-          Positioned(
-            bottom: 0,
-            child: _playerIcon(asset: asset, size: size, isLeader: isLeader),
-          ),
+          icon,
         ],
       ),
     );
@@ -134,43 +132,47 @@ class GamePageScoreRow extends StatelessWidget {
         blueBase > neutralCount;
     final double playerIconSize =
         isMobile ? boardCellSize * 0.8 : scoreItemSize;
-    final double playerIconStackSize =
-        playerIconSize + _crownHeight(playerIconSize) + 4;
-    Widget scoreCount(String value) {
-      return SizedBox(
-        height: playerIconStackSize,
-        child: Center(child: Text(value, style: scoreTextStyle)),
-      );
-    }
-
     final Widget playerCountsRow = Row(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        scoreCount('$redBase'),
+        Text('$redBase', style: scoreTextStyle),
         const SizedBox(width: 6),
         _playerIconWithCrown(
-          asset: 'assets/icons/player_red.png',
           size: playerIconSize,
           isLeader: highlightRed,
+          icon: _playerIcon(
+            asset: 'assets/icons/player_red.png',
+            size: playerIconSize,
+            isLeader: highlightRed,
+          ),
         ),
         const SizedBox(width: 18),
-        scoreCount('$neutralCount'),
+        Text('$neutralCount', style: scoreTextStyle),
         const SizedBox(width: 6),
         _playerIconWithCrown(
-          asset: 'assets/icons/player_grey.png',
           size: playerIconSize,
           isLeader: highlightNeutral,
+          icon: _playerIcon(
+            asset: 'assets/icons/player_grey.png',
+            size: playerIconSize,
+            isLeader: highlightNeutral,
+          ),
         ),
         const SizedBox(width: 18),
-        scoreCount('$blueBase'),
+        Text('$blueBase', style: scoreTextStyle),
         const SizedBox(width: 6),
-        HoverScaleBox(
-          size: playerIconStackSize,
-          onTap: onOpenAiSelector,
-          child: _playerIconWithCrown(
-            asset: 'assets/icons/player_blue.png',
+        _playerIconWithCrown(
+          size: playerIconSize,
+          isLeader: highlightBlue,
+          icon: HoverScaleBox(
             size: playerIconSize,
-            isLeader: highlightBlue,
+            onTap: onOpenAiSelector,
+            child: _playerIcon(
+              asset: 'assets/icons/player_blue.png',
+              size: playerIconSize,
+              isLeader: highlightBlue,
+            ),
           ),
         ),
       ],
