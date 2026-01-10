@@ -2,10 +2,13 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:dual_clash/core/colors.dart';
+import 'package:dual_clash/core/constants.dart';
 import 'package:dual_clash/core/feature_flags.dart';
 import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/logic/rules_engine.dart';
+import 'package:dual_clash/models/campaign_level.dart';
+import 'package:dual_clash/models/game_outcome.dart';
 import 'package:dual_clash/models/cell_state.dart';
 import 'package:dual_clash/ui/dialogs/ai_difficulty_dialog.dart';
 import 'package:dual_clash/ui/dialogs/main_menu_dialog.dart' as mmd;
@@ -24,7 +27,14 @@ import 'statistics_page.dart';
 
 class GamePage extends StatefulWidget {
   final GameController controller;
-  const GamePage({super.key, required this.controller});
+  final CampaignLevel? challengeConfig;
+  final ValueChanged<GameOutcome>? onGameCompleted;
+  const GamePage({
+    super.key,
+    required this.controller,
+    this.challengeConfig,
+    this.onGameCompleted,
+  });
 
   @override
   State<GamePage> createState() => _GamePageState();
@@ -37,12 +47,30 @@ class _GamePageState extends State<GamePage> {
   bool _hasPremium = false;
   bool _isLoadingAd = false;
   Timer? _adRetryTimer;
+  bool _reportedOutcome = false;
+  int? _previousBoardSize;
+  int? _previousGridSize;
+  int? _previousAiLevel;
+  bool? _previousBombsEnabled;
+  bool? _previousHumanVsHuman;
+  bool _isApplyingChallengeConfig = false;
+  bool _shouldRestoreConfig = true;
 
   GameController get controller => widget.controller;
 
   @override
   void initState() {
     super.initState();
+    if (widget.challengeConfig != null) {
+      _isApplyingChallengeConfig = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _applyChallengeConfig();
+        setState(() {
+          _isApplyingChallengeConfig = false;
+        });
+      });
+    }
     if (FF_ADS) {
       _loadPremiumAndMaybeAd();
     }
@@ -52,7 +80,61 @@ class _GamePageState extends State<GamePage> {
   void dispose() {
     _adRetryTimer?.cancel();
     _bannerAd?.dispose();
+    _restoreChallengeConfig();
     super.dispose();
+  }
+
+  void _applyChallengeConfig() {
+    final config = widget.challengeConfig;
+    if (config == null) return;
+    _previousGridSize = K.n;
+    _previousBoardSize = controller.boardSize;
+    _previousAiLevel = controller.aiLevel;
+    _previousBombsEnabled = controller.bombsEnabled;
+    _previousHumanVsHuman = controller.humanVsHuman;
+    K.n = config.boardSize;
+    controller.boardSize = config.boardSize;
+    controller.aiLevel = config.aiLevel;
+    controller.humanVsHuman = false;
+    controller.setBombsEnabled(config.bombsEnabled);
+    final fixedState = config.fixedState;
+    if (fixedState != null && _isValidFixedState(config, fixedState)) {
+      controller.loadStateFromMap(fixedState);
+    } else {
+      controller.newGame();
+    }
+  }
+
+  bool _isValidFixedState(
+      CampaignLevel config, Map<String, dynamic> fixedState) {
+    final board = fixedState['board'];
+    if (board is! List) return false;
+    if (board.length != config.boardSize) return false;
+    for (final row in board) {
+      if (row is! List) return false;
+      if (row.length != config.boardSize) return false;
+    }
+    return true;
+  }
+
+  void _restoreChallengeConfig() {
+    if (widget.challengeConfig == null || !_shouldRestoreConfig) return;
+    if (_previousGridSize != null) {
+      K.n = _previousGridSize!;
+    }
+    if (_previousBoardSize != null) {
+      controller.boardSize = _previousBoardSize!;
+    }
+    if (_previousAiLevel != null) {
+      controller.aiLevel = _previousAiLevel!;
+    }
+    if (_previousBombsEnabled != null) {
+      controller.setBombsEnabled(_previousBombsEnabled!, notify: false);
+    }
+    if (_previousHumanVsHuman != null) {
+      controller.humanVsHuman = _previousHumanVsHuman!;
+    }
+    controller.newGame(notify: false);
   }
 
   Future<void> _loadPremiumAndMaybeAd() async {
@@ -187,6 +269,31 @@ class _GamePageState extends State<GamePage> {
     });
   }
 
+  void _handleGameCompleted() {
+    if (_reportedOutcome) return;
+    _shouldRestoreConfig = false;
+    final outcome = _outcomeForChallenge();
+    if (widget.onGameCompleted != null) {
+      widget.onGameCompleted!(outcome);
+    }
+    _reportedOutcome = true;
+  }
+
+  GameOutcome _outcomeForChallenge() {
+    final redTotal = controller.scoreRedTotal();
+    final blueTotal = controller.scoreBlueTotal();
+    final neutrals = RulesEngine.countOf(controller.board, CellState.neutral);
+    final int maxScore = [redTotal, blueTotal, neutrals]
+        .reduce((a, b) => a > b ? a : b);
+    final int topCount = [redTotal, blueTotal, neutrals]
+        .where((score) => score == maxScore)
+        .length;
+    if (topCount != 1) {
+      return GameOutcome.loss;
+    }
+    return maxScore == redTotal ? GameOutcome.win : GameOutcome.loss;
+  }
+
   Widget _buildBottomBar(BuildContext context) {
     if (!FF_ADS) {
       return SizedBox(
@@ -227,6 +334,14 @@ class _GamePageState extends State<GamePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isApplyingChallengeConfig) {
+      return Scaffold(
+        backgroundColor: AppColors.bg,
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
     return AnimatedBuilder(
       animation: controller,
       builder: (context, _) {
@@ -244,7 +359,14 @@ class _GamePageState extends State<GamePage> {
         }
 
         // Auto-show end results dialog once
-        maybeShowResultsDialog(context: context, controller: controller);
+        maybeShowResultsDialog(
+          context: context,
+          controller: controller,
+          onClosed: _handleGameCompleted,
+          campaignLevelIndex: widget.challengeConfig?.index,
+          campaignOutcome:
+              widget.challengeConfig == null ? null : _outcomeForChallenge(),
+        );
 
         return Scaffold(
           backgroundColor: AppColors.bg,
@@ -326,11 +448,12 @@ class _GamePageState extends State<GamePage> {
                         ),
                       ),
                       SizedBox(height: isMobile ? 15 : 20),
-                      BombActionRow(
-                        controller: controller,
-                        boardWidth: metrics.boardWidth,
-                        boardCellSize: metrics.boardCellSize,
-                      ),
+                      if (controller.bombsEnabled)
+                        BombActionRow(
+                          controller: controller,
+                          boardWidth: metrics.boardWidth,
+                          boardCellSize: metrics.boardCellSize,
+                        ),
                       if (isMobile && !controller.humanVsHuman)
                         GamePageAiLevelRow(
                           controller: controller,

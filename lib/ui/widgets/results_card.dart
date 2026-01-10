@@ -4,6 +4,7 @@ import 'package:dual_clash/core/colors.dart';
 import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/models/cell_state.dart';
+import 'package:dual_clash/models/game_outcome.dart';
 import 'package:dual_clash/logic/rules_engine.dart';
 import 'package:dual_clash/ui/widgets/main_menu/menu_tile.dart';
 import 'package:dual_clash/l10n/app_localizations.dart';
@@ -11,7 +12,14 @@ import 'package:dual_clash/l10n/app_localizations.dart';
 // Independent ResultsCard widget extracted to be reusable across the app.
 class ResultsCard extends StatelessWidget {
   final GameController controller;
-  const ResultsCard({super.key, required this.controller});
+  final int? campaignLevelIndex;
+  final GameOutcome? campaignOutcome;
+  const ResultsCard({
+    super.key,
+    required this.controller,
+    this.campaignLevelIndex,
+    this.campaignOutcome,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +75,8 @@ class ResultsCard extends StatelessWidget {
     final bool showYellow = isDuel && controller.isMultiDuel;
     final bool showGreen =
         isDuel && controller.isMultiDuel && controller.duelPlayerCount >= 4;
+    final bool showCampaignProgress =
+        campaignOutcome != null && campaignLevelIndex != null;
 
     final tiles = [
       _ResultTileData(
@@ -174,7 +184,7 @@ class ResultsCard extends StatelessWidget {
                               ],
                             ),
                             const SizedBox(height: 12),
-                            if (isChallengeMode)
+                            if (isChallengeMode) ...[
                               _ChallengeOutcomeSummary(
                                 winner: winner,
                                 redTotal: redTotal,
@@ -183,8 +193,13 @@ class ResultsCard extends StatelessWidget {
                                 isNewBest: controller.lastGameWasNewBest,
                                 boardSize: controller.board.length,
                                 isPhoneFullscreen: isMobileFullscreen,
-                              )
-                            else ...[
+                              ),
+                              if (showCampaignProgress)
+                                _CampaignOutcomeSummary(
+                                  levelIndex: campaignLevelIndex!,
+                                  outcome: campaignOutcome!,
+                                ),
+                            ] else ...[
                               LayoutBuilder(
                                 builder: (context, constraints) {
                                   final width = constraints.maxWidth;
@@ -302,7 +317,11 @@ class ResultsCard extends StatelessWidget {
                             const SizedBox(height: 12),
                             // Action buttons based on result and AI level
                             _ResultsActions(
-                                controller: controller, winner: winner),
+                              controller: controller,
+                              winner: winner,
+                              showCampaignProgress: showCampaignProgress,
+                              campaignOutcome: campaignOutcome,
+                            ),
                           ],
                         ),
                       ),
@@ -624,6 +643,59 @@ class _ChallengeOutcomeSummary extends StatelessWidget {
   }
 }
 
+class _CampaignOutcomeSummary extends StatelessWidget {
+  final int levelIndex;
+  final GameOutcome outcome;
+
+  const _CampaignOutcomeSummary({
+    required this.levelIndex,
+    required this.outcome,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isWin = outcome == GameOutcome.win;
+    final title = isWin ? 'Level $levelIndex cleared' : 'Level $levelIndex failed';
+    final message = isWin
+        ? 'Great job! The next level is now unlocked.'
+        : 'Try again to clear this level.';
+    final accentColor = isWin ? AppColors.green : AppColors.red;
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.06),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: accentColor.withOpacity(0.6)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                color: accentColor,
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              message,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _ChallengeOutcomeData {
   final String asset;
   final String summary;
@@ -692,7 +764,14 @@ String _performanceRating(
 class _ResultsActions extends StatelessWidget {
   final GameController controller;
   final CellState? winner;
-  const _ResultsActions({required this.controller, required this.winner});
+  final bool showCampaignProgress;
+  final GameOutcome? campaignOutcome;
+  const _ResultsActions({
+    required this.controller,
+    required this.winner,
+    required this.showCampaignProgress,
+    required this.campaignOutcome,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -765,6 +844,41 @@ class _ResultsActions extends StatelessWidget {
                     controller.newGame();
                   },
                 ),
+              ),
+            ),
+          );
+        },
+      );
+    }
+
+    if (showCampaignProgress) {
+      final String label = campaignOutcome == GameOutcome.win
+          ? 'Continue to next level'
+          : 'Try again';
+      final String asset = campaignOutcome == GameOutcome.win
+          ? primaryTileAsset
+          : secondaryTileAsset;
+      final Color color = campaignOutcome == GameOutcome.win
+          ? AppColors.red
+          : AppColors.green;
+      final tile = menuActionTile(
+        label: label,
+        asset: asset,
+        color: color,
+        onTap: () {
+          Navigator.of(context).pop();
+        },
+      );
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final double tileWidth =
+              constraints.maxWidth < 240 ? constraints.maxWidth : 240;
+          return Center(
+            child: SizedBox(
+              width: tileWidth,
+              child: AspectRatio(
+                aspectRatio: 1.1,
+                child: tile,
               ),
             ),
           );

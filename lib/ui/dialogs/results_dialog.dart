@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/logic/game_controller.dart';
+import 'package:dual_clash/models/game_outcome.dart';
 import 'package:dual_clash/ui/widgets/results_card.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,8 @@ import 'package:flutter/material.dart';
 Future<void> showAnimatedResultsDialog({
   required BuildContext context,
   required GameController controller,
+  int? campaignLevelIndex,
+  GameOutcome? campaignOutcome,
 }) {
   return showGeneralDialog(
     context: context,
@@ -47,7 +50,11 @@ Future<void> showAnimatedResultsDialog({
               opacity: curved,
               child: ScaleTransition(
                 scale: Tween<double>(begin: 0.94, end: 1.0).animate(curved),
-                child: ResultsCard(controller: controller),
+                child: ResultsCard(
+                  controller: controller,
+                  campaignLevelIndex: campaignLevelIndex,
+                  campaignOutcome: campaignOutcome,
+                ),
               ),
             ),
           ),
@@ -58,15 +65,23 @@ Future<void> showAnimatedResultsDialog({
 }
 
 /// Show the results dialog once when the game ends.
-void maybeShowResultsDialog({
+Future<void> maybeShowResultsDialog({
   required BuildContext context,
   required GameController controller,
-}) {
+  VoidCallback? onClosed,
+  int? campaignLevelIndex,
+  GameOutcome? campaignOutcome,
+}) async {
   if (controller.gameOver && !controller.resultsShown) {
     controller.resultsShown = true;
-    Future.delayed(Duration(milliseconds: controller.winnerBorderAnimMs), () {
-      if (!context.mounted) return;
-      showAnimatedResultsDialog(context: context, controller: controller);
-    });
+    await Future.delayed(Duration(milliseconds: controller.winnerBorderAnimMs));
+    if (!context.mounted) return;
+    await showAnimatedResultsDialog(
+      context: context,
+      controller: controller,
+      campaignLevelIndex: campaignLevelIndex,
+      campaignOutcome: campaignOutcome,
+    );
+    onClosed?.call();
   }
 }

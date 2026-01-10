@@ -281,7 +281,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                         await _runMenuAction(() async {
                                           await _pushWithDrop(
                                             context,
-                                            const CampaignPage(),
+                                            CampaignPage(controller: controller),
                                           );
                                         });
                                       },

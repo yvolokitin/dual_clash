@@ -1,0 +1,1 @@
+enum GameOutcome { win, loss }
