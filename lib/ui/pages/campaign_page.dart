@@ -31,7 +31,7 @@ class _CampaignPageState extends State<CampaignPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF4B3B8F),
+      backgroundColor: const Color(0xFF800080),
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
