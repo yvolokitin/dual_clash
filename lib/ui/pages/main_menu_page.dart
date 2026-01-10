@@ -38,7 +38,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
   bool _menuActionInProgress = false;
   static const Color _violet = Color(0xFF8A2BE2);
   static const Color _menuGreen = Color(0xFF22B14C);
-  static const Color _playerHubColor = Color(0xFF7C3AED);
+  static const Color _playerHubColor = Colors.orange;
 
   bool _isCompactWidth(BuildContext context) => MediaQuery.of(context).size.width < 430;
 
@@ -276,7 +276,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                       label: compactLabels
                                           ? l10n.menuCampaignShort
                                           : l10n.menuCampaign,
-                                      color: Colors.orange,
+                                      color: _violet,
                                       onTap: () async {
                                         await _runMenuAction(() async {
                                           await _pushWithDrop(
