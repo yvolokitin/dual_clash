@@ -18,6 +18,7 @@ class GamePageScoreRow extends StatelessWidget {
   final int blueBase;
   final int redGamePoints;
   final bool showLeaderShadow;
+  final bool aiSelectorEnabled;
   final VoidCallback onOpenMenu;
   final VoidCallback onOpenStatistics;
   final VoidCallback onOpenAiSelector;
@@ -38,6 +39,7 @@ class GamePageScoreRow extends StatelessWidget {
     required this.blueBase,
     required this.redGamePoints,
     required this.showLeaderShadow,
+    required this.aiSelectorEnabled,
     required this.onOpenMenu,
     required this.onOpenStatistics,
     required this.onOpenAiSelector,
@@ -132,6 +134,21 @@ class GamePageScoreRow extends StatelessWidget {
         blueBase > neutralCount;
     final double playerIconSize =
         isMobile ? boardCellSize * 0.8 : scoreItemSize;
+    final Widget bluePlayerIcon = aiSelectorEnabled
+        ? HoverScaleBox(
+            size: playerIconSize,
+            onTap: onOpenAiSelector,
+            child: _playerIcon(
+              asset: 'assets/icons/player_blue.png',
+              size: playerIconSize,
+              isLeader: highlightBlue,
+            ),
+          )
+        : _playerIcon(
+            asset: 'assets/icons/player_blue.png',
+            size: playerIconSize,
+            isLeader: highlightBlue,
+          );
     final Widget playerCountsRow = Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -165,15 +182,7 @@ class GamePageScoreRow extends StatelessWidget {
         _playerIconWithCrown(
           size: playerIconSize,
           isLeader: highlightBlue,
-          icon: HoverScaleBox(
-            size: playerIconSize,
-            onTap: onOpenAiSelector,
-            child: _playerIcon(
-              asset: 'assets/icons/player_blue.png',
-              size: playerIconSize,
-              isLeader: highlightBlue,
-            ),
-          ),
+          icon: bluePlayerIcon,
         ),
       ],
     );
