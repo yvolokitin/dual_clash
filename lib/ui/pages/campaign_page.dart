@@ -20,6 +20,7 @@ class _CampaignPageState extends State<CampaignPage> {
   void initState() {
     super.initState();
     _campaignController = CampaignController();
+    _campaignController.loadProgress();
   }
 
   @override
