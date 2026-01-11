@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../logic/game_controller.dart';
 import '../../models/campaign_level.dart';
@@ -8,6 +11,7 @@ import '../pages/game_page.dart';
 enum CampaignLevelStatus { locked, available, passed, failed }
 
 class CampaignController extends ChangeNotifier {
+  static const String _kCampaignProgress = 'campaign_progress';
   final List<CampaignLevel> _levels;
   final Map<int, CampaignLevelStatus> _statusByLevel =
       <int, CampaignLevelStatus>{};
@@ -20,6 +24,34 @@ class CampaignController extends ChangeNotifier {
     if (_levels.isNotEmpty) {
       _statusByLevel[_levels.first.index] = CampaignLevelStatus.available;
     }
+  }
+
+  Future<void> loadProgress() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_kCampaignProgress);
+    if (raw == null || raw.isEmpty) return;
+    final decoded = jsonDecode(raw);
+    if (decoded is! Map) return;
+    for (final entry in decoded.entries) {
+      final levelIndex = int.tryParse(entry.key.toString());
+      if (levelIndex == null || !_statusByLevel.containsKey(levelIndex)) {
+        continue;
+      }
+      final statusName = entry.value?.toString();
+      final status = CampaignLevelStatus.values
+          .firstWhere((value) => value.name == statusName, orElse: () {
+        return CampaignLevelStatus.locked;
+      });
+      _statusByLevel[levelIndex] = status;
+    }
+    if (_levels.isNotEmpty &&
+        !_statusByLevel.values.any((status) =>
+            status == CampaignLevelStatus.available ||
+            status == CampaignLevelStatus.passed ||
+            status == CampaignLevelStatus.failed)) {
+      _statusByLevel[_levels.first.index] = CampaignLevelStatus.available;
+    }
+    notifyListeners();
   }
 
   List<CampaignLevel> get levels => List<CampaignLevel>.unmodifiable(_levels);
@@ -74,6 +106,7 @@ class CampaignController extends ChangeNotifier {
           statusForLevel(nextLevel.index) == CampaignLevelStatus.locked) {
         _statusByLevel[nextLevel.index] = CampaignLevelStatus.available;
       }
+      _persistProgress();
       notifyListeners();
       if (nextLevel != null) {
         launchLevel(
@@ -87,6 +120,7 @@ class CampaignController extends ChangeNotifier {
       }
     } else {
       _statusByLevel[level.index] = CampaignLevelStatus.failed;
+      _persistProgress();
       notifyListeners();
       launchLevel(
         context: context,
@@ -101,5 +135,14 @@ class CampaignController extends ChangeNotifier {
     final idx = _levels.indexWhere((level) => level.index == current.index);
     if (idx == -1 || idx + 1 >= _levels.length) return null;
     return _levels[idx + 1];
+  }
+
+  Future<void> _persistProgress() async {
+    final prefs = await SharedPreferences.getInstance();
+    final payload = <String, String>{};
+    _statusByLevel.forEach((index, status) {
+      payload[index.toString()] = status.name;
+    });
+    await prefs.setString(_kCampaignProgress, jsonEncode(payload));
   }
 }
