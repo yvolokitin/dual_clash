@@ -204,7 +204,7 @@ class _CampaignRouteGrid extends StatelessWidget {
         final sizeByWidth = availableWidth / maxColumns;
         final sizeByHeight = availableHeight / rows.length;
         final maxNodeSize = sizeByWidth < sizeByHeight ? sizeByWidth : sizeByHeight;
-        final nodeSize = maxNodeSize < minNodeSize ? minNodeSize : maxNodeSize;
+        final nodeSize = maxNodeSize < minNodeSize ? maxNodeSize : minNodeSize;
 
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
