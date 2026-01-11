@@ -6,11 +6,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../logic/game_controller.dart';
 import '../../models/campaign_level.dart';
 import '../../models/game_outcome.dart';
+import '../../models/game_result.dart';
 import '../pages/game_page.dart';
 
 enum CampaignLevelStatus { locked, available, passed, failed }
 
 class CampaignController extends ChangeNotifier {
+  static const String _kCampaignResults = 'campaign_results';
   static const String _kCampaignProgress = 'campaign_progress';
   final List<CampaignLevel> _levels;
   final Map<int, CampaignLevelStatus> _statusByLevel =
@@ -107,6 +109,7 @@ class CampaignController extends ChangeNotifier {
         _statusByLevel[nextLevel.index] = CampaignLevelStatus.available;
       }
       _persistProgress();
+      _recordCampaignWinStats(level.index, gameController);
       notifyListeners();
       if (nextLevel != null) {
         launchLevel(
@@ -144,5 +147,42 @@ class CampaignController extends ChangeNotifier {
       payload[index.toString()] = status.name;
     });
     await prefs.setString(_kCampaignProgress, jsonEncode(payload));
+  }
+
+  Future<void> _recordCampaignWinStats(
+    int levelIndex,
+    GameController controller,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_kCampaignResults);
+    Map<String, dynamic> decoded = <String, dynamic>{};
+    if (raw != null && raw.isNotEmpty) {
+      final decodedRaw = jsonDecode(raw);
+      if (decodedRaw is Map) {
+        decoded = Map<String, dynamic>.from(decodedRaw);
+      }
+    }
+    final levelKey = levelIndex.toString();
+    final List<dynamic> entries =
+        (decoded[levelKey] as List<dynamic>?) ?? <dynamic>[];
+    final redTotal = controller.scoreRedTotal();
+    final blueTotal = controller.scoreBlueTotal();
+    final result = GameResult(
+      timestampMs: DateTime.now().millisecondsSinceEpoch,
+      redBase: controller.scoreRedBase(),
+      blueBase: controller.scoreBlueBase(),
+      bonusRed: controller.bonusRed,
+      bonusBlue: controller.bonusBlue,
+      redTotal: redTotal,
+      blueTotal: blueTotal,
+      winner: GameResult.winnerFromTotals(redTotal, blueTotal),
+      aiLevel: controller.aiLevel,
+      turnsRed: controller.turnsRed,
+      turnsBlue: controller.turnsBlue,
+      playMs: controller.lastGamePlayMs,
+    );
+    entries.add(result.toMap());
+    decoded[levelKey] = entries;
+    await prefs.setString(_kCampaignResults, jsonEncode(decoded));
   }
 }
