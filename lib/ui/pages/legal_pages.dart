@@ -95,33 +95,55 @@ class PrivacyPolicyPage extends StatelessWidget {
         InfoSection(
           heading: 'Overview',
           body:
-              'Dual Clash respects your privacy. This policy explains what data is collected and how it is used when you play in the web experience.',
+              'Dual Clash respects your privacy. This policy explains what data is collected and how it is used when you play the game.',
         ),
         InfoSection(
-          heading: 'Data we collect',
+          heading: 'Data We Collect',
           bullets: [
-            'Gameplay progress, settings, and preferences stored on your device or browser.',
-            'Basic analytics about feature usage and performance to improve stability.',
+            'Gameplay progress, settings, and preferences stored locally on your device or browser.',
           ],
         ),
         InfoSection(
-          heading: 'What we do not collect',
+          heading: 'Analytics',
+          body:
+              'Dual Clash does not use analytics, tracking technologies, cookies, or third-party measurement services.',
+        ),
+        InfoSection(
+          heading: 'What We Do Not Collect',
           bullets: [
             'No precise location data.',
-            'No contacts or personal address book information.',
+            'No contacts or address book information.',
+            'No advertising identifiers.',
             'No sensitive personal information.',
+            'No personal data used for tracking or profiling.',
           ],
         ),
         InfoSection(
-          heading: 'How data is used',
+          heading: 'Children',
+          body: 'Dual Clash does not knowingly collect personal data from children.',
+        ),
+        InfoSection(
+          heading: 'How Data Is Used',
           bullets: [
-            'To provide core gameplay features and restore your preferences.',
-            'To improve reliability, fix bugs, and balance gameplay.',
+            'To provide core gameplay features.',
+            'To save and restore your preferences.',
+            'To ensure stability and correct functionality of the game.',
           ],
+        ),
+        InfoSection(
+          heading: 'Data Sharing',
+          body:
+              'Dual Clash does not sell, share, or transfer user data to third parties.',
+        ),
+        InfoSection(
+          heading: 'Changes to This Policy',
+          body:
+              'If this policy changes, the updated version will be made available within the game or on the official website.',
         ),
         InfoSection(
           heading: 'Contact',
-          body: 'Questions? Email support@dualclash.app.',
+          body:
+              'If you have questions about this Privacy Policy, contact: support@dualclash.app',
         ),
       ],
     );
