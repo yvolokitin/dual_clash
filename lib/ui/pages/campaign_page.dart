@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/colors.dart';
@@ -304,24 +305,30 @@ class _CampaignRouteGrid extends StatelessWidget {
           totalLevels: totalLevels,
           rowPattern: rowPattern,
         );
-        const columnSpacing = 10.0;
+        final isMobilePlatform = defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS;
+        final isCompactMobileLayout = isMobilePlatform && width < 700;
+        final columnSpacing = isCompactMobileLayout ? 2.0 : 10.0;
         final deviceClass = _deviceClassForWidth(width);
         final minNodeSize = _nodeSizeForDeviceClass(deviceClass);
         final maxColumns = rows.map((row) => row.length).reduce(
               (value, element) => value > element ? value : element,
             );
         final availableWidth = width - columnSpacing * (maxColumns - 1);
+        final minRowSpacing = isCompactMobileLayout ? 2.0 : 14.0;
         final maxRowSpacing = rows.length > 1
             ? (height - minNodeSize * rows.length) / (rows.length - 1)
-            : 14.0;
-        final rowSpacing = maxRowSpacing < 14.0
+            : minRowSpacing;
+        final rowSpacing = maxRowSpacing < minRowSpacing
             ? (maxRowSpacing < 0 ? 0.0 : maxRowSpacing)
-            : 14.0;
+            : minRowSpacing;
         final availableHeight = height - rowSpacing * (rows.length - 1);
         final sizeByWidth = availableWidth / maxColumns;
         final sizeByHeight = availableHeight / rows.length;
         final maxNodeSize = sizeByWidth < sizeByHeight ? sizeByWidth : sizeByHeight;
         final nodeSize = maxNodeSize < minNodeSize ? minNodeSize : maxNodeSize;
+        final adjustedNodeSize =
+            isCompactMobileLayout ? nodeSize * 0.9 : nodeSize;
 
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -333,7 +340,7 @@ class _CampaignRouteGrid extends StatelessWidget {
                   for (var i = 0; i < rows[rowIndex].length; i++) ...[
                     _CampaignNode(
                       level: rows[rowIndex][i],
-                      size: nodeSize,
+                      size: adjustedNodeSize,
                       status: campaignController
                           .statusForLevel(rows[rowIndex][i]),
                       isFinalLevel: rows[rowIndex][i] == totalLevels,
