@@ -239,7 +239,7 @@ abstract class AppLocalizations {
   /// No description provided for @helpTitle.
   ///
   /// In en, this message translates to:
-  /// **'How to Play'**
+  /// **'Help'**
   String get helpTitle;
 
   /// No description provided for @settingsTitle.

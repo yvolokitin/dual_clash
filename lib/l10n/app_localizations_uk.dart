@@ -76,7 +76,7 @@ class AppLocalizationsUk extends AppLocalizations {
   String get statisticsTitle => 'Статистика';
 
   @override
-  String get helpTitle => 'Як грати';
+  String get helpTitle => 'Допомога';
 
   @override
   String get settingsTitle => 'Налаштування';

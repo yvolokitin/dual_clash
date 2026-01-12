@@ -76,7 +76,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statisticsTitle => 'Statistics';
 
   @override
-  String get helpTitle => 'How to Play';
+  String get helpTitle => 'Help';
 
   @override
   String get settingsTitle => 'Settings';
