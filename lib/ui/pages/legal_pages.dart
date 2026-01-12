@@ -205,14 +205,17 @@ class SupportPage extends StatelessWidget {
       sections: [
         InfoSection(
           heading: 'Contact support',
-          body: 'Email us at support@dualclash.app and we will get back to you.',
+          body:
+              'Need help with the web, mobile, or desktop version of Dual Clash?\nEmail us at support@dualclash.app and we will get back to you.\n\nWe usually respond within 1–2 business days.',
         ),
         InfoSection(
           heading: 'FAQ',
           bullets: [
-            'How do I reset my settings? Use Settings > Reset within the app.',
-            'Does the web version save progress? Progress and preferences are stored in your browser.',
-            'I found a bug. What should I include? Tell us your device, browser, and steps to reproduce.',
+            'How do I reset my settings? Use Settings → Reset within the app on any platform.',
+            'Does Dual Clash save my progress? Yes. Progress and preferences are stored locally on your device or browser, depending on the platform you use.',
+            'Which platforms are supported? Dual Clash is available on web, iOS, Android, and desktop. Core gameplay features are consistent across all versions.',
+            'I found a bug. What should I include? Please include: Platform (web, iOS, Android, or desktop); device model or operating system; app version (if available); and steps to reproduce the issue.',
+            'For the latest updates and fixes, please ensure you are using the most recent version of the app.',
           ],
         ),
       ],
