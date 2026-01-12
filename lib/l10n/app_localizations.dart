@@ -197,13 +197,13 @@ abstract class AppLocalizations {
   /// No description provided for @returnToMainMenuLabel.
   ///
   /// In en, this message translates to:
-  /// **'Return to main menu'**
+  /// **'Back to main menu'**
   String get returnToMainMenuLabel;
 
   /// No description provided for @returnToMainMenuTitle.
   ///
   /// In en, this message translates to:
-  /// **'Return to main menu'**
+  /// **'Back to main menu'**
   String get returnToMainMenuTitle;
 
   /// No description provided for @returnToMainMenuMessage.

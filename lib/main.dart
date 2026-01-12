@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:dual_clash/l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:window_manager/window_manager.dart';
 
 import 'core/constants.dart';
 import 'logic/game_controller.dart';
@@ -17,9 +18,29 @@ import 'ui/pages/main_menu_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  if (Platform.isWindows) {
+    await windowManager.ensureInitialized();
+
+    const minSize = Size(900, 700); // <--- your minimum
+    const initialSize = Size(1100, 800);
+
+    WindowOptions windowOptions = const WindowOptions(
+      size: initialSize,
+      minimumSize: minSize,
+      center: true,
+      title: 'Dual Clash',
+    );
+
+    await windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.show();
+      await windowManager.focus();
+    });
+  }
+
   _configureBoardSizeForDevice();
 
-  // AdMob SDK init, Инициализируем AdMob только там, где поддерживается плагин
+  // AdMob SDK init, Initialize AdMob only is supported
   if (FF_ADS && (Platform.isAndroid || Platform.isIOS)) {
     await MobileAds.instance.initialize();
   }

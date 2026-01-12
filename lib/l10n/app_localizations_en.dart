@@ -53,10 +53,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gameMenuTitle => 'Game Menu';
 
   @override
-  String get returnToMainMenuLabel => 'Return to main menu';
+  String get returnToMainMenuLabel => 'Back to main menu';
 
   @override
-  String get returnToMainMenuTitle => 'Return to main menu';
+  String get returnToMainMenuTitle => 'Back to main menu';
 
   @override
   String get returnToMainMenuMessage =>
