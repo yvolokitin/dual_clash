@@ -6,10 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:dual_clash/utils/web_reload.dart';
 
 class StartupHeroLogo extends StatefulWidget {
-  const StartupHeroLogo({super.key, this.onAttachAnimation, this.onCompleted});
+  const StartupHeroLogo({
+    super.key,
+    this.onAttachAnimation,
+    this.onCompleted,
+    this.forceStatic = false,
+  });
 
   final ValueChanged<Animation<double>>? onAttachAnimation;
   final VoidCallback? onCompleted;
+  final bool forceStatic;
 
   static bool get hasPlayed => _StartupHeroLogoState._playedOnce;
 
@@ -68,7 +74,7 @@ class _StartupHeroLogoState extends State<StartupHeroLogo>
         }
       }
     });
-    if (!_playedOnce) {
+    if (!widget.forceStatic && !_playedOnce) {
       _ctrl = AnimationController(
         vsync: this,
         duration: const Duration(milliseconds: 3500),
@@ -93,9 +99,11 @@ class _StartupHeroLogoState extends State<StartupHeroLogo>
     } else {
       _showStaticLogo = true;
       // If skipping animation, notify parent immediately so page content shows
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        widget.onCompleted?.call();
-      });
+      if (!widget.forceStatic) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          widget.onCompleted?.call();
+        });
+      }
     }
   }
 
@@ -162,7 +170,7 @@ class _StartupHeroLogoState extends State<StartupHeroLogo>
   @override
   Widget build(BuildContext context) {
     // If already played earlier in session and this is not the first instance, show the composed 2x2 grid using cached images
-    if (_playedOnce && _showStaticLogo) {
+    if ((widget.forceStatic) || (_playedOnce && _showStaticLogo)) {
       return LayoutBuilder(
         builder: (context, constraints) {
           final w = constraints.maxWidth;
