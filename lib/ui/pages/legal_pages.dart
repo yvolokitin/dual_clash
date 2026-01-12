@@ -253,29 +253,19 @@ class AppStorePrivacyPage extends StatelessWidget {
       title: 'App Store Connect Privacy Declarations',
       sections: [
         InfoSection(
-          heading: 'Data collection summary',
+          heading: 'Data Collection Summary',
           body:
-              'The mobile version of Dual Clash may collect the following data to support gameplay and app quality.',
+              'Dual Clash does not collect any user data.\nAll gameplay progress, settings, and preferences are stored locally on the user’s device or browser and are not transmitted off the device.',
         ),
         InfoSection(
-          heading: 'Data linked to you',
-          bullets: [
-            'Identifiers (such as device identifiers) for analytics and app functionality.',
-            'Usage data to understand feature engagement and improve performance.',
-          ],
+          heading: 'Analytics',
+          body:
+              'The app does not use analytics, tracking technologies, advertising identifiers, or third-party measurement services.',
         ),
         InfoSection(
-          heading: 'Data not linked to you',
-          bullets: [
-            'Diagnostics to monitor crashes and app stability.',
-          ],
-        ),
-        InfoSection(
-          heading: 'Data usage',
-          bullets: [
-            'Analytics and product improvement.',
-            'App functionality such as restoring preferences.',
-          ],
+          heading: 'Data Sharing',
+          body:
+              'No personal data is collected, linked to the user, or shared with third parties.',
         ),
       ],
     );
