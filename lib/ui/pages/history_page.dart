@@ -41,6 +41,7 @@ class _HistoryDialogState extends State<HistoryDialog> {
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
     final bool isMobileFullscreen = isMobilePlatform;
+    final bool isCompactLayout = isMobilePlatform && size.width < 800;
     final bg = AppColors.bg;
     final items = widget.controller.history.reversed.toList();
     final EdgeInsets dialogInsetPadding = isMobileFullscreen
@@ -135,8 +136,8 @@ class _HistoryDialogState extends State<HistoryDialog> {
                     Expanded(
                       child: TabBarView(
                         children: [
-                          _buildGamesTab(items),
-                          _buildDailyActivityTab(items),
+                          _buildGamesTab(items, isCompactLayout),
+                          _buildDailyActivityTab(items, isCompactLayout),
                         ],
                       ),
                     ),
@@ -170,7 +171,7 @@ class _HistoryDialogState extends State<HistoryDialog> {
     );
   }
 
-  Widget _buildGamesTab(List<GameResult> items) {
+  Widget _buildGamesTab(List<GameResult> items, bool isCompactLayout) {
     if (items.isEmpty) {
       return Center(
           child: Text(context.l10n.noFinishedGamesYet,
@@ -186,13 +187,14 @@ class _HistoryDialogState extends State<HistoryDialog> {
         separatorBuilder: (_, __) => const SizedBox(height: 10),
         itemBuilder: (context, index) {
           final gr = items[index];
-          return _HistoryTile(gr: gr);
+          return _HistoryTile(gr: gr, isCompactLayout: isCompactLayout);
         },
       ),
     );
   }
 
-  Widget _buildDailyActivityTab(List<GameResult> items) {
+  Widget _buildDailyActivityTab(
+      List<GameResult> items, bool isCompactLayout) {
     final activity = _aggregateDaily(items);
     if (activity.isEmpty) {
       return Center(
@@ -209,7 +211,8 @@ class _HistoryDialogState extends State<HistoryDialog> {
         separatorBuilder: (_, __) => const SizedBox(height: 10),
         itemBuilder: (context, index) {
           final entry = activity[index];
-          return _DailyActivityTile(entry: entry);
+          return _DailyActivityTile(
+              entry: entry, isCompactLayout: isCompactLayout);
         },
       ),
     );
@@ -311,7 +314,9 @@ class _DailyAccumulator {
 
 class _DailyActivityTile extends StatelessWidget {
   final _DailyActivity entry;
-  const _DailyActivityTile({required this.entry});
+  final bool isCompactLayout;
+  const _DailyActivityTile(
+      {required this.entry, required this.isCompactLayout});
 
   String _formatDate(DateTime dt) =>
       '${dt.year}-${_pad2(dt.month)}-${_pad2(dt.day)}';
@@ -326,12 +331,8 @@ class _DailyActivityTile extends StatelessWidget {
         border: Border.all(color: Colors.white24, width: 1),
       ),
       padding: const EdgeInsets.all(12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 120,
-            child: Column(
+      child: isCompactLayout
+          ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(_formatDate(entry.date),
@@ -340,26 +341,57 @@ class _DailyActivityTile extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(l10n.gamesCountLabel(entry.games),
                     style: const TextStyle(color: Colors.white70)),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 6,
+                  children: [
+                    _chip(l10n.winsLabel, entry.wins.toString(),
+                        color: AppColors.red),
+                    _chip(l10n.lossesLabel, entry.losses.toString(),
+                        color: AppColors.blue),
+                    _chip(l10n.drawsLabel, entry.draws.toString()),
+                    _chip(l10n.totalTimeLabel, _formatDuration(entry.totalMs)),
+                  ],
+                ),
               ],
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Wrap(
-              spacing: 12,
-              runSpacing: 6,
+            )
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _chip(l10n.winsLabel, entry.wins.toString(),
-                    color: AppColors.red),
-                _chip(l10n.lossesLabel, entry.losses.toString(),
-                    color: AppColors.blue),
-                _chip(l10n.drawsLabel, entry.draws.toString()),
-                _chip(l10n.totalTimeLabel, _formatDuration(entry.totalMs)),
+                SizedBox(
+                  width: 120,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(_formatDate(entry.date),
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w800)),
+                      const SizedBox(height: 6),
+                      Text(l10n.gamesCountLabel(entry.games),
+                          style: const TextStyle(color: Colors.white70)),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Wrap(
+                    spacing: 12,
+                    runSpacing: 6,
+                    children: [
+                      _chip(l10n.winsLabel, entry.wins.toString(),
+                          color: AppColors.red),
+                      _chip(l10n.lossesLabel, entry.losses.toString(),
+                          color: AppColors.blue),
+                      _chip(l10n.drawsLabel, entry.draws.toString()),
+                      _chip(l10n.totalTimeLabel,
+                          _formatDuration(entry.totalMs)),
+                    ],
+                  ),
+                ),
               ],
             ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -392,7 +424,8 @@ String _dateKey(DateTime dt) =>
 
 class _HistoryTile extends StatelessWidget {
   final GameResult gr;
-  const _HistoryTile({required this.gr});
+  final bool isCompactLayout;
+  const _HistoryTile({required this.gr, required this.isCompactLayout});
 
   @override
   Widget build(BuildContext context) {
@@ -422,12 +455,8 @@ class _HistoryTile extends StatelessWidget {
         border: Border.all(color: borderTint, width: 1),
       ),
       padding: const EdgeInsets.all(12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 180,
-            child: Column(
+      child: isCompactLayout
+          ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(when,
@@ -435,36 +464,74 @@ class _HistoryTile extends StatelessWidget {
                         color: Colors.white, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 4),
                 Text(
-                    l10n.aiLabelWithName(
-                        aiBeltName(l10n, gr.aiLevel)),
+                    l10n.aiLabelWithName(aiBeltName(l10n, gr.aiLevel)),
                     style: const TextStyle(color: Colors.white70)),
                 Text(l10n.winnerLabel(resultLabel),
                     style: const TextStyle(color: Colors.white70)),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 6,
+                  children: [
+                    _chip(l10n.yourScoreLabel, gr.redTotal.toString(),
+                        color: AppColors.red),
+                    _chip(l10n.timeLabel, _formatDuration(gr.playMs)),
+                    _chip(l10n.redBaseLabel, gr.redBase.toString(),
+                        color: AppColors.red),
+                    _chip(l10n.blueBaseLabel, gr.blueBase.toString(),
+                        color: AppColors.blue),
+                    _chip(l10n.totalBlueLabel, gr.blueTotal.toString(),
+                        color: AppColors.blue),
+                    _chip(l10n.turnsRedLabel, gr.turnsRed.toString()),
+                    _chip(l10n.turnsBlueLabel, gr.turnsBlue.toString()),
+                  ],
+                ),
               ],
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Wrap(
-              spacing: 12,
-              runSpacing: 6,
+            )
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _chip(l10n.yourScoreLabel, gr.redTotal.toString(),
-                    color: AppColors.red),
-                _chip(l10n.timeLabel, _formatDuration(gr.playMs)),
-                _chip(l10n.redBaseLabel, gr.redBase.toString(),
-                    color: AppColors.red),
-                _chip(l10n.blueBaseLabel, gr.blueBase.toString(),
-                    color: AppColors.blue),
-                _chip(l10n.totalBlueLabel, gr.blueTotal.toString(),
-                    color: AppColors.blue),
-                _chip(l10n.turnsRedLabel, gr.turnsRed.toString()),
-                _chip(l10n.turnsBlueLabel, gr.turnsBlue.toString()),
+                SizedBox(
+                  width: 180,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(when,
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w800)),
+                      const SizedBox(height: 4),
+                      Text(
+                          l10n.aiLabelWithName(
+                              aiBeltName(l10n, gr.aiLevel)),
+                          style: const TextStyle(color: Colors.white70)),
+                      Text(l10n.winnerLabel(resultLabel),
+                          style: const TextStyle(color: Colors.white70)),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Wrap(
+                    spacing: 12,
+                    runSpacing: 6,
+                    children: [
+                      _chip(l10n.yourScoreLabel, gr.redTotal.toString(),
+                          color: AppColors.red),
+                      _chip(l10n.timeLabel, _formatDuration(gr.playMs)),
+                      _chip(l10n.redBaseLabel, gr.redBase.toString(),
+                          color: AppColors.red),
+                      _chip(l10n.blueBaseLabel, gr.blueBase.toString(),
+                          color: AppColors.blue),
+                      _chip(l10n.totalBlueLabel, gr.blueTotal.toString(),
+                          color: AppColors.blue),
+                      _chip(l10n.turnsRedLabel, gr.turnsRed.toString()),
+                      _chip(l10n.turnsBlueLabel, gr.turnsBlue.toString()),
+                    ],
+                  ),
+                ),
               ],
             ),
-          ),
-        ],
-      ),
     );
   }
 
