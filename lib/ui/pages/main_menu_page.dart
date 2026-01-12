@@ -1220,9 +1220,7 @@ class _LegalLink extends StatelessWidget {
       onPressed: onTap,
       style: TextButton.styleFrom(
         foregroundColor: Colors.white.withOpacity(0.9),
-        textStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
-              decoration: TextDecoration.underline,
-            ),
+        textStyle: Theme.of(context).textTheme.bodySmall,
       ),
       child: Text(label),
     );
