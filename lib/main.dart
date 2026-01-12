@@ -11,6 +11,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'core/constants.dart';
 import 'logic/game_controller.dart';
+import 'ui/pages/legal_pages.dart';
 import 'ui/pages/main_menu_page.dart';
 
 
@@ -81,6 +82,12 @@ class _TwoTouchAppState extends State<TwoTouchApp> {
         };
         return MaterialApp(
           navigatorKey: appNavigatorKey,
+          routes: {
+            '/privacy': (context) => const PrivacyPolicyPage(),
+            '/terms': (context) => const TermsOfUsePage(),
+            '/support': (context) => const SupportPage(),
+            '/app-store-privacy': (context) => const AppStorePrivacyPage(),
+          },
           onGenerateTitle: (context) =>
               context.l10n.appTitle('${K.n}x${K.n}'),
           debugShowCheckedModeBanner: false,
