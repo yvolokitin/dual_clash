@@ -197,13 +197,13 @@ abstract class AppLocalizations {
   /// No description provided for @returnToMainMenuLabel.
   ///
   /// In en, this message translates to:
-  /// **'Back to main menu'**
+  /// **'Back to menu'**
   String get returnToMainMenuLabel;
 
   /// No description provided for @returnToMainMenuTitle.
   ///
   /// In en, this message translates to:
-  /// **'Back to main menu'**
+  /// **'Back to menu'**
   String get returnToMainMenuTitle;
 
   /// No description provided for @returnToMainMenuMessage.
@@ -215,7 +215,7 @@ abstract class AppLocalizations {
   /// No description provided for @restartGameLabel.
   ///
   /// In en, this message translates to:
-  /// **'Restart/Start the game'**
+  /// **'Restart game'**
   String get restartGameLabel;
 
   /// No description provided for @restartGameTitle.
@@ -263,7 +263,7 @@ abstract class AppLocalizations {
   /// No description provided for @saveGameTitle.
   ///
   /// In en, this message translates to:
-  /// **'Save game'**
+  /// **'Save Game'**
   String get saveGameTitle;
 
   /// No description provided for @saveGameNameLabel.
@@ -335,7 +335,7 @@ abstract class AppLocalizations {
   /// No description provided for @menuGameChallenge.
   ///
   /// In en, this message translates to:
-  /// **'Game challange'**
+  /// **'Game Challenge'**
   String get menuGameChallenge;
 
   /// No description provided for @menuDuelShort.
@@ -575,7 +575,7 @@ abstract class AppLocalizations {
   /// No description provided for @aiDifficultyTitle.
   ///
   /// In en, this message translates to:
-  /// **'AI difficulty'**
+  /// **'AI Difficulty'**
   String get aiDifficultyTitle;
 
   /// No description provided for @aiDifficultyTipBeginner.
@@ -755,7 +755,7 @@ abstract class AppLocalizations {
   /// No description provided for @youWinReachedScore.
   ///
   /// In en, this message translates to:
-  /// **'You win and reached {score} score points'**
+  /// **'ou won and scored {score} points'**
   String youWinReachedScore(Object score);
 
   /// No description provided for @redTerritoryControlled.

@@ -22,7 +22,7 @@
   "returnToMainMenuLabel": "Back to menu",
   "returnToMainMenuTitle": "Back to menu",
   "returnToMainMenuMessage": "Do you want to return to the main menu?\n\nProgress will not be saved.",
-  "restartGameLabel": "Restart the game",
+  "restartGameLabel": "Restart game",
   "restartGameTitle": "Restart game",
   "restartGameMessage": "Restart the game from scratch?\n\nCurrent progress will be lost.",
   "statisticsTitle": "Statistics",
@@ -30,7 +30,7 @@
   "settingsTitle": "Settings",
   "profileTitle": "Profile",
   "historyTitle": "History",
-  "saveGameTitle": "Save game",
+  "saveGameTitle": "Save Game",
   "saveGameNameLabel": "Name for this save",
   "saveGameNameHint": "Enter name...",
   "saveGameBarrierLabel": "Save Game",
@@ -42,7 +42,7 @@
   "removeAdsLabel": "Remove Ads — 1€",
   "restorePurchasesLabel": "Restore Purchases",
   "menuGameShort": "Game",
-  "menuGameChallenge": "Game challange",
+  "menuGameChallenge": "Game Challenge",
   "menuDuelShort": "Duel",
   "menuDuelMode": "Duel mode",
   "menuLoadShort": "Load",
@@ -93,7 +93,7 @@
   "helpAiLevelBody": "Choose the AI difficulty in Settings (1–7). Higher levels think further ahead but take longer.",
   "helpHistoryProfileTitle": "History & Profile",
   "helpHistoryProfileBody": "Your finished games are saved in History with all details.",
-  "aiDifficultyTitle": "AI difficulty",
+  "aiDifficultyTitle": "AI Difficulty",
   "aiDifficultyTipBeginner": "White — Beginner: makes random moves.",
   "aiDifficultyTipEasy": "Yellow — Easy: prefers immediate gains.",
   "aiDifficultyTipNormal": "Orange — Normal: greedy with basic positioning.",
@@ -139,7 +139,7 @@
       "points": {}
     }
   },
-  "youWinReachedScore": "You win and reached {score} score points",
+  "youWinReachedScore": "ou won and scored {score} points",
   "@youWinReachedScore": {
     "placeholders": {
       "score": {}

@@ -53,17 +53,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gameMenuTitle => 'Game Menu';
 
   @override
-  String get returnToMainMenuLabel => 'Back to main menu';
+  String get returnToMainMenuLabel => 'Back to menu';
 
   @override
-  String get returnToMainMenuTitle => 'Back to main menu';
+  String get returnToMainMenuTitle => 'Back to menu';
 
   @override
   String get returnToMainMenuMessage =>
       'Do you want to return to the main menu?\n\nProgress will not be saved.';
 
   @override
-  String get restartGameLabel => 'Restart/Start the game';
+  String get restartGameLabel => 'Restart game';
 
   @override
   String get restartGameTitle => 'Restart game';
@@ -88,7 +88,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get historyTitle => 'History';
 
   @override
-  String get saveGameTitle => 'Save game';
+  String get saveGameTitle => 'Save Game';
 
   @override
   String get saveGameNameLabel => 'Name for this save';
@@ -124,7 +124,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menuGameShort => 'Game';
 
   @override
-  String get menuGameChallenge => 'Game challange';
+  String get menuGameChallenge => 'Game Challenge';
 
   @override
   String get menuDuelShort => 'Duel';
@@ -256,7 +256,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your finished games are saved in History with all details.';
 
   @override
-  String get aiDifficultyTitle => 'AI difficulty';
+  String get aiDifficultyTitle => 'AI Difficulty';
 
   @override
   String get aiDifficultyTipBeginner => 'White — Beginner: makes random moves.';
@@ -364,7 +364,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String youWinReachedScore(Object score) {
-    return 'You win and reached $score score points';
+    return 'ou won and scored $score points';
   }
 
   @override
