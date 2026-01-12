@@ -18,7 +18,7 @@ class StartupHeroLogo extends StatefulWidget {
 }
 
 class _StartupHeroLogoState extends State<StartupHeroLogo>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   static bool _playedOnce = false; // session-scoped within app process
   AnimationController? _ctrl;
   Animation<double>? _t;
