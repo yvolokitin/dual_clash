@@ -19,6 +19,7 @@ import 'package:dual_clash/ui/widgets/game_page_ai_level_row.dart';
 import 'package:dual_clash/ui/widgets/game_page_score_row.dart';
 import 'package:dual_clash/ui/widgets/support_links_bar.dart';
 import 'package:dual_clash/ui/widgets/game_layout_metrics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -57,6 +58,7 @@ class _GamePageState extends State<GamePage> {
   bool _shouldRestoreConfig = true;
 
   GameController get controller => widget.controller;
+  bool get _isAndroidOrIOS => !kIsWeb && (Platform.isAndroid || Platform.isIOS);
 
   @override
   void initState() {
@@ -170,7 +172,7 @@ class _GamePageState extends State<GamePage> {
 
   void _startAdRetryTimer() {
     if (!FF_ADS) return;
-    if (!Platform.isAndroid && !Platform.isIOS) return;
+    if (!_isAndroidOrIOS) return;
     if (_hasPremium) return;
     if (_adRetryTimer?.isActive ?? false) return;
     _adRetryTimer = Timer.periodic(const Duration(seconds: 15), (_) async {
@@ -192,7 +194,7 @@ class _GamePageState extends State<GamePage> {
 
   Future<void> _loadBannerIfEligible(BuildContext context) async {
     if (!FF_ADS) return;
-    if (!(Platform.isAndroid || Platform.isIOS)) return;
+    if (!_isAndroidOrIOS) return;
     if (_hasPremium) return;
     if (_bannerAd != null) return;
     if (_isLoadingAd) return;
@@ -259,7 +261,7 @@ class _GamePageState extends State<GamePage> {
 
   void _scheduleBannerLoad(BuildContext context) {
     if (!FF_ADS) return;
-    if (!(Platform.isAndroid || Platform.isIOS)) return;
+    if (!_isAndroidOrIOS) return;
     if (_hasPremium) return;
     if (_bannerAd != null || _isLoadingAd) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -306,7 +308,7 @@ class _GamePageState extends State<GamePage> {
     if (_hasPremium) {
       return const SizedBox.shrink();
     }
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (_isAndroidOrIOS) {
       if (_isAdLoaded && _bannerAd != null) {
         final bannerWidth = _bannerAd!.size.width.toDouble();
         final bannerHeight = _bannerAd!.size.height.toDouble();
@@ -374,7 +376,7 @@ class _GamePageState extends State<GamePage> {
           body: SafeArea(
             child: Column(
               children: [
-                if (Platform.isAndroid || Platform.isIOS)
+                if (_isAndroidOrIOS)
                   const SizedBox(height: 20),
 
                 // Score row before the board — kept width-aligned with board.

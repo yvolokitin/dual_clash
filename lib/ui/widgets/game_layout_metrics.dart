@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dual_clash/core/constants.dart';
 import 'package:dual_clash/logic/game_controller.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Layout values derived from the board size and platform characteristics.
@@ -33,7 +34,8 @@ class GameLayoutMetrics {
 
   factory GameLayoutMetrics.from(
       BuildContext context, GameController controller) {
-    final bool isMobile = Platform.isAndroid || Platform.isIOS;
+    final bool isMobile =
+        !kIsWeb && (Platform.isAndroid || Platform.isIOS);
     final bool isTallMobile =
         isMobile && MediaQuery.of(context).size.height > 1200;
 
