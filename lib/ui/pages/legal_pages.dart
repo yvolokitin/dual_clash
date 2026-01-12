@@ -145,13 +145,23 @@ class TermsOfUsePage extends StatelessWidget {
           heading: 'Permitted use',
           bullets: [
             'Use the game for personal entertainment.',
-            'Do not disrupt gameplay or attempt to reverse engineer the app.',
+            'Do not disrupt gameplay, misuse the service, or attempt to modify or interfere with the app.',
           ],
         ),
         InfoSection(
           heading: 'Content and updates',
           body:
               'Game content may change over time to improve quality, balance, or performance.',
+        ),
+        InfoSection(
+          heading: 'Privacy',
+          body:
+              'Dual Clash does not knowingly collect, store, or share personal data.',
+        ),
+        InfoSection(
+          heading: 'Access',
+          body:
+              'We reserve the right to restrict or terminate access if these terms are violated.',
         ),
         InfoSection(
           heading: 'Disclaimer',
