@@ -140,6 +140,27 @@ class CampaignController extends ChangeNotifier {
     return _levels[idx + 1];
   }
 
+  Future<GameResult?> bestResultForLevel(int levelIndex) async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_kCampaignResults);
+    if (raw == null || raw.isEmpty) return null;
+    final decodedRaw = jsonDecode(raw);
+    if (decodedRaw is! Map) return null;
+    final entries = decodedRaw[levelIndex.toString()];
+    if (entries is! List) return null;
+    final results = entries
+        .whereType<Map>()
+        .map((entry) => GameResult.fromMap(Map<String, dynamic>.from(entry)))
+        .toList();
+    if (results.isEmpty) return null;
+    results.sort((a, b) {
+      final totalCompare = b.redTotal.compareTo(a.redTotal);
+      if (totalCompare != 0) return totalCompare;
+      return a.playMs.compareTo(b.playMs);
+    });
+    return results.first;
+  }
+
   Future<void> _persistProgress() async {
     final prefs = await SharedPreferences.getInstance();
     final payload = <String, String>{};
