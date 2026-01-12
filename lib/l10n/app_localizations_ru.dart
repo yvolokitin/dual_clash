@@ -76,7 +76,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get statisticsTitle => 'Статистика';
 
   @override
-  String get helpTitle => 'Как играть';
+  String get helpTitle => 'Помощь';
 
   @override
   String get settingsTitle => 'Настройки';

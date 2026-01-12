@@ -351,6 +351,7 @@ class _ProfileDialogState extends State<ProfileDialog> {
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
     final bool isMobileFullscreen = isMobilePlatform;
+    final bool isNarrowMobile = isMobilePlatform && size.width < 700;
     final bg = AppColors.bg;
     final controller = widget.controller;
     // Legacy badges are deprecated in UI; keep only Achievements and Belts sections
@@ -479,32 +480,34 @@ class _ProfileDialogState extends State<ProfileDialog> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        ElevatedButton(
-                          onPressed: () async {
-                            Navigator.of(context).pop();
-                            await Future.delayed(
-                                const Duration(milliseconds: 50));
-                            if (context.mounted) {
-                              await showAnimatedHistoryDialog(
-                                  context: context, controller: controller);
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.green,
-                            foregroundColor: Colors.white,
-                            shadowColor: Colors.black54,
-                            elevation: 4,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 12),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(24)),
-                            textStyle: const TextStyle(
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 0.2),
+                        if (!isNarrowMobile) ...[
+                          ElevatedButton(
+                            onPressed: () async {
+                              Navigator.of(context).pop();
+                              await Future.delayed(
+                                  const Duration(milliseconds: 50));
+                              if (context.mounted) {
+                                await showAnimatedHistoryDialog(
+                                    context: context, controller: controller);
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.green,
+                              foregroundColor: Colors.white,
+                              shadowColor: Colors.black54,
+                              elevation: 4,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(24)),
+                              textStyle: const TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.2),
+                            ),
+                            child: Text(l10n.historyTitle),
                           ),
-                          child: Text(l10n.historyTitle),
-                        ),
-                        const SizedBox(width: 10),
+                          const SizedBox(width: 10),
+                        ],
                         ElevatedButton(
                           onPressed: () async {
                             Navigator.of(context).pop();

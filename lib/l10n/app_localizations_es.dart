@@ -76,7 +76,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get statisticsTitle => 'Estadísticas';
 
   @override
-  String get helpTitle => 'Cómo jugar';
+  String get helpTitle => 'Ayuda';
 
   @override
   String get settingsTitle => 'Ajustes';
