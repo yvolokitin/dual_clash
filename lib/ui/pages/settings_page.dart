@@ -133,7 +133,11 @@ class _SettingsDialogState extends State<SettingsDialog> {
     final bool hasPendingChanges =
         _language != _initialLanguage ||
         _startingPlayer != _initialStartingPlayer;
-    final double languageTileScale = isMobileFullscreen ? 0.87 : 1.0;
+    final bool isNarrowMobile = isMobilePlatform && size.width < 700;
+    final double languageTileScale = isMobileFullscreen
+        ? (isNarrowMobile ? 0.85 : 0.87)
+        : 1.0;
+    final double imageChoiceTileScale = isNarrowMobile ? 0.85 : 1.0;
     // The dialog window — centered, not fullscreen. showDialog will dim the background.
     return Dialog(
       insetPadding: dialogInsetPadding,
@@ -260,6 +264,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                                       label: l10n.startingPlayerHuman,
                                       asset: 'assets/icons/human.jpg',
                                       accent: AppColors.red,
+                                      scale: imageChoiceTileScale,
                                       onTap: () => setState(
                                           () => _startingPlayer = CellState.red),
                                     ),
@@ -269,6 +274,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                                       label: l10n.startingPlayerAi,
                                       asset: 'assets/icons/ai.jpg',
                                       accent: AppColors.blue,
+                                      scale: imageChoiceTileScale,
                                       onTap: () => setState(
                                           () => _startingPlayer = CellState.blue),
                                     ),
@@ -632,11 +638,12 @@ class _SettingsDialogState extends State<SettingsDialog> {
     required String label,
     required String asset,
     required Color accent,
+    double scale = 1.0,
     VoidCallback? onTap,
   }) {
-    const double tileWidth = 120;
-    const double tileHeight = 72;
-    const double borderWidth = 3;
+    final double tileWidth = 120 * scale;
+    final double tileHeight = 72 * scale;
+    final double borderWidth = 3 * scale;
     const BorderRadius tileRadius = BorderRadius.all(Radius.circular(12));
     const LinearGradient selectedBorderGradient = LinearGradient(
       begin: Alignment.topCenter,
@@ -683,7 +690,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                 ),
               ),
             ),
-            const SizedBox(height: 6),
+            SizedBox(height: 6 * scale),
             SizedBox(
               width: tileWidth,
               child: Row(
@@ -691,12 +698,12 @@ class _SettingsDialogState extends State<SettingsDialog> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 8,
-                    height: 8,
+                    width: 8 * scale,
+                    height: 8 * scale,
                     decoration:
                         BoxDecoration(color: accent, shape: BoxShape.circle),
                   ),
-                  const SizedBox(width: 6),
+                  SizedBox(width: 6 * scale),
                   Flexible(
                     child: Text(
                       label,
@@ -707,7 +714,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                         color: Colors.white,
                         fontWeight:
                             selected ? FontWeight.w700 : FontWeight.w500,
-                        fontSize: 12,
+                        fontSize: 12 * scale,
                       ),
                     ),
                   ),
