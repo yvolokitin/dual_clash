@@ -364,7 +364,7 @@ class _CampaignRouteGrid extends StatelessWidget {
                       },
                     ),
                     if (i < rows[rowIndex].length - 1)
-                      const SizedBox(width: columnSpacing),
+                      SizedBox(width: columnSpacing),
                   ],
                 ],
               ),
