@@ -600,7 +600,9 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: FlyoutTile(
                         imagePath: 'assets/icons/menu_222.png',
-                        label: l10n.menuAlliance2v2,
+                        label: compactLabels
+                            ? l10n.menuAlliance2v2Short
+                            : l10n.menuAlliance2v2,
                         disabled: true,
                         color: Colors.grey,
                         width: r4.width,

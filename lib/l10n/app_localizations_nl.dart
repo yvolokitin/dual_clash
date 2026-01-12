@@ -166,6 +166,9 @@ class AppLocalizationsNl extends AppLocalizations {
   String get menuAlliance2v2 => 'Alliantie 2-tegen-2';
 
   @override
+  String get menuAlliance2v2Short => 'Alliantie';
+
+  @override
   String get playerHubBarrierLabel => 'Spelershub';
 
   @override

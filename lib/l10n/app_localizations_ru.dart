@@ -166,6 +166,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get menuAlliance2v2 => 'Alliance 2vs2';
 
   @override
+  String get menuAlliance2v2Short => 'Альянс';
+
+  @override
   String get playerHubBarrierLabel => 'Хаб игрока';
 
   @override

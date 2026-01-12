@@ -416,6 +416,12 @@ abstract class AppLocalizations {
   /// **'Alliance 2vs2'**
   String get menuAlliance2v2;
 
+  /// No description provided for @menuAlliance2v2Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Alliance'**
+  String get menuAlliance2v2Short;
+
   /// No description provided for @playerHubBarrierLabel.
   ///
   /// In en, this message translates to:
