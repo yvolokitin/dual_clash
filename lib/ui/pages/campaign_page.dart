@@ -300,14 +300,16 @@ class _CampaignRouteGrid extends StatelessWidget {
       builder: (context, constraints) {
         final width = constraints.maxWidth;
         final height = constraints.maxHeight;
-        const rowPattern = [4, 6, 8, 6, 4, 1];
+        final isMobilePlatform = defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS;
+        final isCompactMobileLayout = isMobilePlatform && width < 700;
+        final rowPattern = isCompactMobileLayout
+            ? [4, 5, 5, 5, 5, 4, 1]
+            : [4, 6, 8, 6, 4, 1];
         final rows = _buildRows(
           totalLevels: totalLevels,
           rowPattern: rowPattern,
         );
-        final isMobilePlatform = defaultTargetPlatform == TargetPlatform.android ||
-            defaultTargetPlatform == TargetPlatform.iOS;
-        final isCompactMobileLayout = isMobilePlatform && width < 700;
         final columnSpacing = isCompactMobileLayout ? 2.0 : 10.0;
         final deviceClass = _deviceClassForWidth(width);
         final minNodeSize = _nodeSizeForDeviceClass(deviceClass);
