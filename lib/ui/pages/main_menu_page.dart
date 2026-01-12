@@ -32,6 +32,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
   final GlobalKey _gameTileKey = GlobalKey();
   final GlobalKey _campaignTileKey = GlobalKey();
   final GlobalKey _playerHubTileKey = GlobalKey();
+  static bool _hasLoggedScreenSize = false;
   Animation<double>? _bgAnim;
   VoidCallback? _bgAnimListener;
   bool _showContent = true; // hidden until startup animation completes
@@ -117,6 +118,15 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
     if (_showContent) {
       // Ensure waves start if launch animation was already played earlier in the session
       WidgetsBinding.instance.addPostFrameCallback((_) => _startWavesIfNeeded());
+    }
+    if (!_hasLoggedScreenSize) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final double width = MediaQuery.sizeOf(context).width;
+        final double height = MediaQuery.sizeOf(context).height;
+        debugPrint('Device screen size: ${width}x${height}');
+        _hasLoggedScreenSize = true;
+      });
     }
   }
 
