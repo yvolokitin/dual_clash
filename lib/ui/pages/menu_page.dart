@@ -463,231 +463,213 @@ Future<bool?> showLoadGameDialog({
                                     ),
                                     SizedBox(height: 12 * scale),
                                     Expanded(
-                                          child: localItems.isEmpty
-                                              ? Center(
-                                                  child: Text(
-                                                      l10n.noSavedGamesMessage,
-                                                      style: const TextStyle(
-                                                          color:
-                                                              Colors.white70)))
-                                              : ListView.separated(
-                                                  itemCount: localItems.length,
-                                                  separatorBuilder: (_, __) =>
-                                                      const SizedBox(
-                                                          height: 10),
-                                                  itemBuilder:
-                                                      (context, index) {
-                                                    final it =
-                                                        localItems[index];
-                                                    final when = DateTime
-                                                        .fromMillisecondsSinceEpoch(
-                                                            it['ts'] as int);
-                                                    final title =
-                                                        it['name'] as String? ??
-                                                            l10n.savedGameDefaultName;
-                                                    final subtitle =
-                                                        l10n.savedGameSubtitle(
-                                                            when.toLocal().toString(),
-                                                            it['current'] as String);
-                                                    final id =
-                                                        it['id'] as String;
-                                                    return Container(
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.white
-                                                            .withOpacity(0.06),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(12),
-                                                        border: Border.all(
+                                      child: localItems.isEmpty
+                                          ? Center(
+                                              child: Text(
+                                                  l10n.noSavedGamesMessage,
+                                                  style: const TextStyle(
+                                                      color: Colors.white70)))
+                                          : ListView.separated(
+                                              itemCount: localItems.length,
+                                              separatorBuilder: (_, __) =>
+                                                  const SizedBox(height: 10),
+                                              itemBuilder: (context, index) {
+                                                final it = localItems[index];
+                                                final when = DateTime
+                                                    .fromMillisecondsSinceEpoch(
+                                                        it['ts'] as int);
+                                                final title = it['name']
+                                                        as String? ??
+                                                    l10n.savedGameDefaultName;
+                                                final subtitle =
+                                                    l10n.savedGameSubtitle(
+                                                        when.toLocal().toString(),
+                                                        it['current'] as String);
+                                                final id = it['id'] as String;
+                                                return Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white
+                                                        .withOpacity(0.06),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12),
+                                                    border: Border.all(
+                                                        color: Colors.white24,
+                                                        width: 1),
+                                                  ),
+                                                  child: ListTile(
+                                                    title: Text(title,
+                                                        style: const TextStyle(
                                                             color:
-                                                                Colors.white24,
-                                                            width: 1),
-                                                      ),
-                                                      child: ListTile(
-                                                        title: Text(title,
-                                                            style:
-                                                                const TextStyle(
-                                                                    color: Colors
-                                                                        .white)),
-                                                        subtitle: Text(subtitle,
-                                                            style:
-                                                                const TextStyle(
-                                                                    color: Colors
-                                                                        .white70)),
-                                                        trailing: Row(
-                                                          mainAxisSize:
-                                                              MainAxisSize.min,
-                                                          children: [
-                                                            // Play button opens the saved game (same as tapping the row)
-                                                            IconButton(
-                                                              tooltip: l10n.playLabel,
-                                                              icon: Image.asset(
-                                                                  'assets/icons/play.png',
-                                                                  width: 31,
-                                                                  height: 31),
-                                                              onPressed:
-                                                                  () async {
-                                                                if (closing) {
-                                                                  return;
-                                                                }
-                                                                closing = true;
-                                                                await controller
-                                                                    .loadSavedGameById(
-                                                                        id);
-                                                                if (context
-                                                                        .mounted &&
-                                                                    Navigator
-                                                                        .of(
-                                                                      context,
-                                                                      rootNavigator:
-                                                                          true,
-                                                                    ).canPop()) {
-                                                                  Navigator.of(
-                                                                    context,
-                                                                    rootNavigator:
-                                                                        true,
-                                                                  ).pop(true);
-                                                                }
-                                                              },
-                                                            ),
-                                                            const SizedBox(
-                                                                width: 6),
-                                                            // Delete button (30% bigger icon)
-                                                            if (deletingId ==
-                                                                id)
-                                                              const SizedBox(
-                                                                  width: 31,
-                                                                  height: 31,
-                                                                  child:
-                                                                      CircularProgressIndicator(
-                                                                          strokeWidth:
-                                                                              2))
-                                                            else
-                                                              IconButton(
-                                                                tooltip:
-                                                                    l10n.deleteLabel,
-                                                                icon:
-                                                                    Image.asset(
-                                                                        'assets/icons/delete.png',
-                                                                        width:
-                                                                            31,
-                                                                        height:
-                                                                            31),
-                                                                onPressed:
-                                                                    () async {
-                                                                  final confirm =
-                                                                      await showDialog<
-                                                                          bool>(
-                                                                    context:
-                                                                        context,
-                                                                    builder:
-                                                                        (dCtx) {
-                                                                      return AlertDialog(
-                                                                        title: Text(
-                                                                            l10n.deleteSaveTitle),
-                                                                        content:
-                                                                            Text(
-                                                                                l10n.deleteSaveMessage),
-                                                                        actions: [
-                                                                          TextButton(
-                                                                              onPressed: () => Navigator.of(dCtx).pop(false),
-                                                                              child: Text(l10n.commonCancel)),
-                                                                          TextButton(
-                                                                              onPressed: () => Navigator.of(dCtx).pop(true),
-                                                                              child: Text(l10n.deleteLabel)),
-                                                                        ],
-                                                                      );
-                                                                    },
-                                                                  );
-                                                                  if (confirm ==
-                                                                      true) {
-                                                                    setState(() =>
-                                                                        deletingId =
-                                                                            id);
-                                                                    final ok =
-                                                                        await controller
-                                                                            .deleteSavedGameById(
-                                                                                id);
-                                                                    if (ok) {
-                                                                      setState(
-                                                                          () {
-                                                                        localItems
-                                                                            .removeAt(
-                                                                                index);
-                                                                        deletingId =
-                                                                            null;
-                                                                      });
-                                                                      // Success: intentionally no confirmation notification shown
-                                                                    } else {
-                                                                      setState(() =>
-                                                                          deletingId =
-                                                                              null);
-                                                                      final messenger =
-                                                                          ScaffoldMessenger
-                                                                              .maybeOf(
-                                                                                  context);
-                                                                      messenger?.showSnackBar(SnackBar(
-                                                                          content:
-                                                                              Text(l10n.failedToDeleteMessage),
-                                                                          backgroundColor:
-                                                                              Colors.red));
-                                                                    }
-                                                                  }
-                                                                },
-                                                              ),
-                                                          ],
-                                                        ),
-                                                        onTap: () async {
-                                                          if (closing) return;
-                                                          closing = true;
-                                                          await controller
-                                                              .loadSavedGameById(
-                                                                  id);
-                                                          if (context.mounted &&
+                                                                Colors.white)),
+                                                    subtitle: Text(subtitle,
+                                                        style: const TextStyle(
+                                                            color: Colors
+                                                                .white70)),
+                                                    trailing: Row(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        // Play button opens the saved game (same as tapping the row)
+                                                        IconButton(
+                                                          tooltip:
+                                                              l10n.playLabel,
+                                                          icon: Image.asset(
+                                                              'assets/icons/play.png',
+                                                              width: 31,
+                                                              height: 31),
+                                                          onPressed: () async {
+                                                            if (closing) {
+                                                              return;
+                                                            }
+                                                            closing = true;
+                                                            await controller
+                                                                .loadSavedGameById(
+                                                                    id);
+                                                            if (context
+                                                                    .mounted &&
+                                                                Navigator.of(
+                                                                  context,
+                                                                  rootNavigator:
+                                                                      true,
+                                                                ).canPop()) {
                                                               Navigator.of(
                                                                 context,
                                                                 rootNavigator:
                                                                     true,
-                                                              ).canPop()) {
-                                                            Navigator.of(
-                                                              context,
-                                                              rootNavigator:
-                                                                  true,
-                                                            ).pop(true);
-                                                          }
-                                                        },
-                                                      ),
-                                                    );
-                                                  },
-                                                ),
-                                        ),
-                                        SizedBox(height: 12 * scale),
-                                        Align(
-                                          alignment: Alignment.centerRight,
-                                          child: ElevatedButton(
-                                            onPressed: () =>
-                                                Navigator.of(context).pop(),
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor:
-                                                  AppColors.brandGold,
-                                              foregroundColor:
-                                                  const Color(0xFF2B221D),
-                                              shadowColor: Colors.black54,
-                                              elevation: 4,
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: 20 * scale,
-                                                  vertical: 12 * scale),
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          24)),
-                                              textStyle: const TextStyle(
-                                                  fontWeight: FontWeight.w800,
-                                                  letterSpacing: 0.2),
+                                                              ).pop(true);
+                                                            }
+                                                          },
+                                                        ),
+                                                        const SizedBox(
+                                                            width: 6),
+                                                        // Delete button (30% bigger icon)
+                                                        if (deletingId == id)
+                                                          const SizedBox(
+                                                              width: 31,
+                                                              height: 31,
+                                                              child:
+                                                                  CircularProgressIndicator(
+                                                                      strokeWidth:
+                                                                          2))
+                                                        else
+                                                          IconButton(
+                                                            tooltip:
+                                                                l10n.deleteLabel,
+                                                            icon: Image.asset(
+                                                                'assets/icons/delete.png',
+                                                                width: 31,
+                                                                height: 31),
+                                                            onPressed:
+                                                                () async {
+                                                              final confirm =
+                                                                  await showDialog<
+                                                                      bool>(
+                                                                context:
+                                                                    context,
+                                                                builder:
+                                                                    (dCtx) {
+                                                                  return AlertDialog(
+                                                                    title: Text(
+                                                                        l10n.deleteSaveTitle),
+                                                                    content: Text(
+                                                                        l10n.deleteSaveMessage),
+                                                                    actions: [
+                                                                      TextButton(
+                                                                          onPressed: () => Navigator.of(dCtx).pop(false),
+                                                                          child: Text(l10n.commonCancel)),
+                                                                      TextButton(
+                                                                          onPressed: () => Navigator.of(dCtx).pop(true),
+                                                                          child: Text(l10n.deleteLabel)),
+                                                                    ],
+                                                                  );
+                                                                },
+                                                              );
+                                                              if (confirm ==
+                                                                  true) {
+                                                                setState(() =>
+                                                                    deletingId =
+                                                                        id);
+                                                                final ok = await controller
+                                                                    .deleteSavedGameById(
+                                                                        id);
+                                                                if (ok) {
+                                                                  setState(() {
+                                                                    localItems
+                                                                        .removeAt(
+                                                                            index);
+                                                                    deletingId =
+                                                                        null;
+                                                                  });
+                                                                  // Success: intentionally no confirmation notification shown
+                                                                } else {
+                                                                  setState(() =>
+                                                                      deletingId =
+                                                                          null);
+                                                                  final messenger =
+                                                                      ScaffoldMessenger
+                                                                          .maybeOf(
+                                                                              context);
+                                                                  messenger?.showSnackBar(
+                                                                    SnackBar(
+                                                                        content: Text(
+                                                                            l10n.failedToDeleteMessage),
+                                                                        backgroundColor:
+                                                                            Colors.red),
+                                                                  );
+                                                                }
+                                                              }
+                                                            },
+                                                          ),
+                                                      ],
+                                                    ),
+                                                    onTap: () async {
+                                                      if (closing) return;
+                                                      closing = true;
+                                                      await controller
+                                                          .loadSavedGameById(
+                                                              id);
+                                                      if (context.mounted &&
+                                                          Navigator.of(
+                                                            context,
+                                                            rootNavigator: true,
+                                                          ).canPop()) {
+                                                        Navigator.of(
+                                                          context,
+                                                          rootNavigator: true,
+                                                        ).pop(true);
+                                                      }
+                                                    },
+                                                  ),
+                                                );
+                                              },
                                             ),
-                                            child: Text(l10n.commonClose),
-                                          ),
+                                    ),
+                                    SizedBox(height: 12 * scale),
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: ElevatedButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: AppColors.brandGold,
+                                          foregroundColor:
+                                              const Color(0xFF2B221D),
+                                          shadowColor: Colors.black54,
+                                          elevation: 4,
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 20 * scale,
+                                              vertical: 12 * scale),
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(24)),
+                                          textStyle: const TextStyle(
+                                              fontWeight: FontWeight.w800,
+                                              letterSpacing: 0.2),
                                         ),
+                                        child: Text(l10n.commonClose),
+                                      ),
+                                    ),
                                       ],
                                     ),
                                   ),

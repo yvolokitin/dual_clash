@@ -94,54 +94,52 @@ class _StatisticsDialogState extends State<StatisticsDialog> {
                           itemCount: items.length,
                           separatorBuilder: (_, __) =>
                               const SizedBox(height: 10),
-                              itemBuilder: (context, index) {
-                                final it = items[index];
-                                final isLatest =
-                                    index == 0; // first is the latest
-                                // Compute cumulative total up to this turn from original list
-                                final totalAtTurn = original
-                                    .where((e) => e.turn <= it.turn)
-                                    .fold<int>(0, (sum, e) => sum + e.points);
-                                return _StatTile(
-                                  turn: it.turn,
-                                  desc: it.desc,
-                                  points: it.points,
-                                  total: totalAtTurn,
-                                  showUndo: isLatest,
-                                  canUndo: widget.controller.canUndo,
-                                  onUndo: widget.controller.canUndo
-                                      ? () {
-                                          // Close statistics then undo
-                                          Navigator.of(context).pop();
-                                          widget.controller
-                                              .undoToPreviousUserTurn();
-                                        }
-                                      : null,
-                                );
-                              },
-                            ),
-                          ),
-                  ),
-                  SizedBox(height: 12 * scale),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.brandGold,
-                        foregroundColor: const Color(0xFF2B221D),
-                        shadowColor: Colors.black54,
-                        elevation: 4,
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 20 * scale, vertical: 12 * scale),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24)),
-                        textStyle: const TextStyle(
-                            fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                          itemBuilder: (context, index) {
+                            final it = items[index];
+                            final isLatest = index == 0; // first is the latest
+                            // Compute cumulative total up to this turn from original list
+                            final totalAtTurn = original
+                                .where((e) => e.turn <= it.turn)
+                                .fold<int>(0, (sum, e) => sum + e.points);
+                            return _StatTile(
+                              turn: it.turn,
+                              desc: it.desc,
+                              points: it.points,
+                              total: totalAtTurn,
+                              showUndo: isLatest,
+                              canUndo: widget.controller.canUndo,
+                              onUndo: widget.controller.canUndo
+                                  ? () {
+                                      // Close statistics then undo
+                                      Navigator.of(context).pop();
+                                      widget.controller.undoToPreviousUserTurn();
+                                    }
+                                  : null,
+                            );
+                          },
+                        ),
                       ),
-                      child: Text(l10n.commonClose),
-                    ),
+              ),
+              SizedBox(height: 12 * scale),
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.brandGold,
+                    foregroundColor: const Color(0xFF2B221D),
+                    shadowColor: Colors.black54,
+                    elevation: 4,
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 20 * scale, vertical: 12 * scale),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24)),
+                    textStyle: const TextStyle(
+                        fontWeight: FontWeight.w800, letterSpacing: 0.2),
                   ),
+                  child: Text(l10n.commonClose),
+                ),
+              ),
                 ],
               ),
             ),
