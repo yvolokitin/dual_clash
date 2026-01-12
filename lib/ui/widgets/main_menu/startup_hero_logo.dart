@@ -1,6 +1,9 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import 'package:dual_clash/utils/web_reload.dart';
 
 class StartupHeroLogo extends StatefulWidget {
   const StartupHeroLogo({super.key, this.onAttachAnimation, this.onCompleted});
@@ -19,6 +22,7 @@ class _StartupHeroLogoState extends State<StartupHeroLogo>
   static bool _playedOnce = false; // session-scoped within app process
   AnimationController? _ctrl;
   Animation<double>? _t;
+  AnimationController? _interactionCtrl;
   bool _showStaticLogo = false; // show static composed grid on subsequent entries only
   static List<String>? _sessionImages; // cache 4 random player images for the session
 
@@ -45,6 +49,24 @@ class _StartupHeroLogoState extends State<StartupHeroLogo>
   void initState() {
     super.initState();
     _initSessionImagesIfNeeded();
+    _interactionCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+    _interactionCtrl!.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        if (kIsWeb) {
+          reloadPage();
+          return;
+        }
+        _sessionImages = null;
+        _initSessionImagesIfNeeded();
+        _interactionCtrl!.reset();
+        if (mounted) {
+          setState(() {});
+        }
+      }
+    });
     if (!_playedOnce) {
       _ctrl = AnimationController(
         vsync: this,
@@ -79,7 +101,60 @@ class _StartupHeroLogoState extends State<StartupHeroLogo>
   @override
   void dispose() {
     _ctrl?.dispose();
+    _interactionCtrl?.dispose();
     super.dispose();
+  }
+
+  void _triggerInteraction() {
+    if (_interactionCtrl == null || _interactionCtrl!.isAnimating) {
+      return;
+    }
+    _interactionCtrl!.forward(from: 0.0);
+  }
+
+  Offset _interactionOffset(int index, double tileSize, double height) {
+    if (_interactionCtrl == null) {
+      return Offset.zero;
+    }
+    final t = _interactionCtrl!.value.clamp(0.0, 1.0);
+    if (t <= 0) {
+      return Offset.zero;
+    }
+    const shakePhase = 0.35;
+    if (t < shakePhase) {
+      final sp = (t / shakePhase).clamp(0.0, 1.0);
+      final amp = (1.0 - sp) * (tileSize * 0.06);
+      final phase = index * math.pi / 3;
+      final dx = amp * math.sin(sp * 10 * math.pi + phase);
+      final dy = amp * 0.6 * math.cos(sp * 10 * math.pi + phase);
+      return Offset(dx, dy);
+    }
+    final fallT = ((t - shakePhase) / (1 - shakePhase)).clamp(0.0, 1.0);
+    final fallY = Curves.easeIn.transform(fallT) * (height + tileSize);
+    return Offset(0, fallY);
+  }
+
+  double _interactionLogoScale() {
+    if (_interactionCtrl == null) {
+      return 1.0;
+    }
+    final t = _interactionCtrl!.value.clamp(0.0, 1.0);
+    if (t <= 0) {
+      return 1.0;
+    }
+    final zoomT = Curves.easeOut.transform(math.min(t, 0.2) / 0.2);
+    return 1.0 + 0.07 * zoomT;
+  }
+
+  Widget _buildInteractiveLogo({required Widget child}) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => _triggerInteraction(),
+      child: GestureDetector(
+        onTap: _triggerInteraction,
+        child: child,
+      ),
+    );
   }
 
   @override
@@ -104,9 +179,10 @@ class _StartupHeroLogoState extends State<StartupHeroLogo>
           final images = _sessionImages!;
           List<Widget> tiles = [];
           for (int i = 0; i < 4; i++) {
+            final offset = _interactionOffset(i, tileSize, h);
             tiles.add(Positioned(
-              left: finalPos[i].dx,
-              top: finalPos[i].dy,
+              left: finalPos[i].dx + offset.dx,
+              top: finalPos[i].dy + offset.dy,
               width: tileSize,
               height: tileSize,
               child: Image.asset(images[i], fit: BoxFit.contain),
@@ -118,11 +194,14 @@ class _StartupHeroLogoState extends State<StartupHeroLogo>
             top: centerY - targetSize / 2,
             width: targetSize,
             height: targetSize,
-            child: IgnorePointer(
+            child: _buildInteractiveLogo(
               child: Center(
-                child: Image.asset(
-                  'assets/icons/dual_clash-words-removebg.png',
-                  fit: BoxFit.contain,
+                child: Transform.scale(
+                  scale: _interactionLogoScale(),
+                  child: Image.asset(
+                    'assets/icons/dual_clash-words-removebg.png',
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
             ),
@@ -252,6 +331,9 @@ class _StartupHeroLogoState extends State<StartupHeroLogo>
                 pos = finalPos[i];
               }
 
+              final interactionOffset = _interactionOffset(i, tileSize, h);
+              pos += interactionOffset;
+
               // slight scale-in during fly
               final scale = t < flyEnd ? (0.6 + 0.4 * flyT) : 1.0;
               final opacity = (t < 0.05 && i > 1) ? (t / 0.05) : 1.0; // early fade-in
@@ -278,13 +360,16 @@ class _StartupHeroLogoState extends State<StartupHeroLogo>
               top: centerY - targetSize / 2,
               width: targetSize,
               height: targetSize,
-              child: IgnorePointer(
-                child: Opacity(
-                  opacity: Curves.easeIn.transform(wordsT),
+              child: Opacity(
+                opacity: Curves.easeIn.transform(wordsT),
+                child: _buildInteractiveLogo(
                   child: Center(
-                    child: Image.asset(
-                      'assets/icons/dual_clash-words-removebg.png',
-                      fit: BoxFit.contain,
+                    child: Transform.scale(
+                      scale: _interactionLogoScale(),
+                      child: Image.asset(
+                        'assets/icons/dual_clash-words-removebg.png',
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ),
                 ),
