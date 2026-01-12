@@ -182,14 +182,14 @@ class _CampaignRouteGrid extends StatelessWidget {
       builder: (context, constraints) {
         final width = constraints.maxWidth;
         final height = constraints.maxHeight;
-        const rowPattern = [4, 6, 8, 6, 4, 1];
+        const rowPattern = [3, 5, 7, 8, 7, 5, 3];
         final rows = _buildRows(
           totalLevels: totalLevels,
           rowPattern: rowPattern,
         );
         const columnSpacing = 10.0;
         final deviceClass = _deviceClassForWidth(width);
-        final minNodeSize = _nodeSizeForDeviceClass(deviceClass);
+        final minNodeSize = _nodeSizeForDeviceClass(deviceClass) * 2;
         final maxColumns = rows.map((row) => row.length).reduce(
               (value, element) => value > element ? value : element,
             );
