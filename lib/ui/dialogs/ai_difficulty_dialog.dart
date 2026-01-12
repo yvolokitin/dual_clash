@@ -4,6 +4,8 @@ import 'package:dual_clash/core/colors.dart';
 import 'package:dual_clash/core/constants.dart';
 import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/logic/game_controller.dart';
+import 'package:dual_clash/ui/widgets/dialog_header.dart';
+import 'package:dual_clash/ui/widgets/responsive_dialog.dart';
 import 'package:flutter/material.dart';
 
 /// Shows a dialog that lets the player choose the AI difficulty belt.
@@ -25,6 +27,7 @@ Future<void> showAiDifficultyDialog({
           curve: Curves.easeOutCubic,
           reverseCurve: Curves.easeInCubic);
       final bg = AppColors.bg;
+      final scale = dialogTextScale(ctx);
       return Stack(
         children: [
           Positioned.fill(
@@ -42,12 +45,11 @@ Future<void> showAiDifficultyDialog({
               opacity: curved,
               child: ScaleTransition(
                 scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
-                child: Dialog(
-                  insetPadding:
+                child: ResponsiveDialog(
+                  insetPadding: scaleInsets(
                       const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-                  backgroundColor: Colors.transparent,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(22)),
+                      scale),
+                  scrollable: true,
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(22),
@@ -64,129 +66,110 @@ Future<void> showAiDifficultyDialog({
                       border: Border.all(
                           color: AppColors.dialogOutline, width: 1),
                     ),
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(
-                          maxWidth: 560, maxHeight: 520),
-                      child: Padding(
-                        padding: const EdgeInsets.all(18.0),
-                        child: StatefulBuilder(
-                          builder: (ctx2, setState) {
-                            return Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Row(
-                                  children: [
-                                    const Spacer(),
-                                    Text(context.l10n.aiDifficultyTitle,
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.w800)),
-                                    const Spacer(),
-                                    Container(
-                                      width: 36,
-                                      height: 36,
-                                      decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.08),
-                                          shape: BoxShape.circle,
-                                          border:
-                                              Border.all(color: Colors.white24)),
-                                      child: IconButton(
-                                        padding: EdgeInsets.zero,
-                                        iconSize: 20,
-                                        icon: const Icon(Icons.close,
-                                            color: Colors.white70),
-                                        onPressed: () =>
-                                            Navigator.of(ctx).pop(),
+                    child: Padding(
+                      padding: scaleInsets(const EdgeInsets.all(18), scale),
+                      child: StatefulBuilder(
+                        builder: (ctx2, setState) {
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              DialogHeader(
+                                title: context.l10n.aiDifficultyTitle,
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w800),
+                                onClose: () => Navigator.of(ctx).pop(),
+                              ),
+                              SizedBox(height: 12 * scale),
+                              Wrap(
+                                spacing: 10 * scale,
+                                runSpacing: 10 * scale,
+                                children: [
+                                  for (int lvl = 1; lvl <= 7; lvl++)
+                                    Tooltip(
+                                      message: _aiLevelShortTip(lvl),
+                                      child: _aiLevelChoiceTile(
+                                        level: lvl,
+                                        selected: tempLevel == lvl,
+                                        onTap: () => setState(() {
+                                          tempLevel = lvl;
+                                        }),
                                       ),
                                     ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-                                Wrap(
-                                  spacing: 10,
-                                  runSpacing: 10,
-                                  children: [
-                                    for (int lvl = 1; lvl <= 7; lvl++)
-                                      Tooltip(
-                                        message: _aiLevelShortTip(lvl),
-                                        child: _aiLevelChoiceTile(
-                                          level: lvl,
-                                          selected: tempLevel == lvl,
-                                          onTap: () => setState(() {
-                                            tempLevel = lvl;
-                                          }),
-                                        ),
+                                ],
+                              ),
+                              SizedBox(height: 8 * scale),
+                              Text(
+                                _aiLevelShortTip(tempLevel),
+                                style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 12,
+                                    height: 1.2),
+                              ),
+                              SizedBox(height: 16 * scale),
+                              Wrap(
+                                spacing: 12 * scale,
+                                runSpacing: 8 * scale,
+                                children: [
+                                  SizedBox(
+                                    width: 160,
+                                    child: TextButton(
+                                      onPressed: () =>
+                                          Navigator.of(ctx).pop(),
+                                      style: TextButton.styleFrom(
+                                        backgroundColor:
+                                            Colors.white.withOpacity(0.08),
+                                        foregroundColor: Colors.white,
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 16 * scale,
+                                            vertical: 12 * scale),
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            side: const BorderSide(
+                                                color: Colors.white24)),
+                                        textStyle: const TextStyle(
+                                            fontWeight: FontWeight.w800,
+                                            letterSpacing: 0.2),
                                       ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  _aiLevelShortTip(tempLevel),
-                                  style: const TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 12,
-                                      height: 1.2),
-                                ),
-                                const SizedBox(height: 16),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: TextButton(
-                                        onPressed: () =>
-                                            Navigator.of(ctx).pop(),
-                                        style: TextButton.styleFrom(
-                                          backgroundColor:
-                                              Colors.white.withOpacity(0.08),
-                                          foregroundColor: Colors.white,
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 16, vertical: 12),
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                              side: const BorderSide(
-                                                  color: Colors.white24)),
-                                          textStyle: const TextStyle(
-                                              fontWeight: FontWeight.w800,
-                                              letterSpacing: 0.2),
-                                        ),
-                                        child: Text(context.l10n.commonCancel),
-                                      ),
+                                      child: Text(context.l10n.commonCancel),
                                     ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: ElevatedButton(
-                                        onPressed: () async {
-                                          await controller.setAiLevel(tempLevel);
-                                          if (context.mounted) {
-                                            Navigator.of(ctx).pop();
-                                          }
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: AppColors.brandGold,
-                                          foregroundColor:
-                                              const Color(0xFF2B221D),
-                                          shadowColor: Colors.black54,
-                                          elevation: 4,
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 16, vertical: 12),
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12)),
-                                          textStyle: const TextStyle(
-                                              fontWeight: FontWeight.w800,
-                                              letterSpacing: 0.2),
-                                        ),
-                                        child: Text(context.l10n.commonConfirm),
+                                  ),
+                                  SizedBox(
+                                    width: 160,
+                                    child: ElevatedButton(
+                                      onPressed: () async {
+                                        await controller.setAiLevel(tempLevel);
+                                        if (context.mounted) {
+                                          Navigator.of(ctx).pop();
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: AppColors.brandGold,
+                                        foregroundColor:
+                                            const Color(0xFF2B221D),
+                                        shadowColor: Colors.black54,
+                                        elevation: 4,
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 16 * scale,
+                                            vertical: 12 * scale),
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12)),
+                                        textStyle: const TextStyle(
+                                            fontWeight: FontWeight.w800,
+                                            letterSpacing: 0.2),
                                       ),
+                                      child: Text(context.l10n.commonConfirm),
                                     ),
-                                  ],
-                                ),
-                              ],
-                            );
-                          },
-                        ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ),
                   ),

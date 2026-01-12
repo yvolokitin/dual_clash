@@ -6,6 +6,8 @@ import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/models/cell_state.dart';
 import 'package:dual_clash/models/game_outcome.dart';
 import 'package:dual_clash/logic/rules_engine.dart';
+import 'package:dual_clash/ui/widgets/dialog_header.dart';
+import 'package:dual_clash/ui/widgets/responsive_dialog.dart';
 import 'package:dual_clash/ui/widgets/main_menu/menu_tile.dart';
 import 'package:dual_clash/l10n/app_localizations.dart';
 
@@ -25,13 +27,15 @@ class ResultsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final size = MediaQuery.of(context).size;
+    final scale = dialogTextScale(context);
     final bool isMobilePlatform = !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
     final bool isMobileFullscreen = isMobilePlatform;
-    const EdgeInsets contentPadding = EdgeInsets.fromLTRB(16, 20, 16, 20);
-    const double closeButtonBottomPadding = 20;
-    const double closeButtonReserveSpace = 72;
+    final EdgeInsets contentPadding =
+        EdgeInsets.fromLTRB(16 * scale, 20 * scale, 16 * scale, 20 * scale);
+    final double closeButtonBottomPadding = 20 * scale;
+    final double closeButtonReserveSpace = 72 * scale;
     final bg = AppColors.bg;
     final redBase = controller.scoreRedBase();
     final blueBase = controller.scoreBlueBase();
@@ -153,37 +157,15 @@ class ResultsCard extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Row(
-                              children: [
-                                const Spacer(),
-                                Text(
-                                  l10n.resultsTitle,
-                                  style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.w900),
-                                ),
-                                const Spacer(),
-                                Container(
-                                  width: 36,
-                                  height: 36,
-                                  decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.08),
-                                      shape: BoxShape.circle,
-                                      border:
-                                          Border.all(color: Colors.white24)),
-                                  child: IconButton(
-                                    padding: EdgeInsets.zero,
-                                    iconSize: 20,
-                                    icon: const Icon(Icons.close,
-                                        color: Colors.white70),
-                                    onPressed: () =>
-                                        Navigator.of(context).pop(),
-                                  ),
-                                ),
-                              ],
+                            DialogHeader(
+                              title: l10n.resultsTitle,
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w900),
+                              onClose: () => Navigator.of(context).pop(),
                             ),
-                            const SizedBox(height: 12),
+                            SizedBox(height: 12 * scale),
                             if (isChallengeMode) ...[
                               _ChallengeOutcomeSummary(
                                 winner: winner,

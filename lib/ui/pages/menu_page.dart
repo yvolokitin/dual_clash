@@ -3,6 +3,8 @@ import 'dart:ui' as ui;
 import 'package:dual_clash/core/localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:dual_clash/ui/widgets/dialog_header.dart';
+import 'package:dual_clash/ui/widgets/responsive_dialog.dart';
 import '../../logic/game_controller.dart';
 import '../../core/colors.dart';
 import 'history_page.dart';
@@ -371,6 +373,7 @@ Future<bool?> showLoadGameDialog({
           future: controller.listSavedGames(),
           builder: (context, snap) {
             final size = MediaQuery.of(context).size;
+            final scale = dialogTextScale(context);
             final bool isMobilePlatform = !kIsWeb &&
                 (defaultTargetPlatform == TargetPlatform.android ||
                     defaultTargetPlatform == TargetPlatform.iOS);
@@ -420,11 +423,11 @@ Future<bool?> showLoadGameDialog({
                         child: ScaleTransition(
                           scale: Tween<double>(begin: 0.92, end: 1.0)
                               .animate(curved),
-                          child: Dialog(
+                          child: ResponsiveDialog(
                             insetPadding: dialogInsetPadding,
-                            backgroundColor: Colors.transparent,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: dialogRadius),
+                            borderRadius: dialogRadius,
+                            fullscreen: isMobileFullscreen,
+                            forceHeight: true,
                             child: Container(
                               decoration: BoxDecoration(
                                 borderRadius: dialogRadius,
@@ -441,61 +444,25 @@ Future<bool?> showLoadGameDialog({
                                 border: Border.all(
                                     color: AppColors.dialogOutline, width: 1),
                               ),
-                              child: ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  maxWidth: isMobileFullscreen
-                                      ? size.width
-                                      : size.width * 0.8,
-                                  maxHeight: isMobileFullscreen
-                                      ? size.height
-                                      : size.height * 0.8,
-                                  minWidth:
-                                      isMobileFullscreen ? size.width : 0,
-                                  minHeight:
-                                      isMobileFullscreen ? size.height : 0,
-                                ),
-                                child: SafeArea(
-                                  top: isMobileFullscreen,
-                                  bottom: isMobileFullscreen,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(18.0),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            const Spacer(),
-                                            Text(l10n.menuLoadGame,
-                                                style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 22,
-                                                    fontWeight:
-                                                        FontWeight.w800)),
-                                            const Spacer(),
-                                            Container(
-                                              width: 36,
-                                              height: 36,
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white
-                                                      .withOpacity(0.08),
-                                                  shape: BoxShape.circle,
-                                                  border: Border.all(
-                                                      color: Colors.white24)),
-                                              child: IconButton(
-                                                padding: EdgeInsets.zero,
-                                                iconSize: 20,
-                                                icon: const Icon(Icons.close,
-                                                    color: Colors.white70),
-                                                onPressed: () =>
-                                                    Navigator.of(context).pop(),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 12),
-                                        Expanded(
+                              child: Padding(
+                                padding: scaleInsets(
+                                    const EdgeInsets.all(18), scale),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    DialogHeader(
+                                      title: l10n.menuLoadGame,
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w800),
+                                      onClose: () =>
+                                          Navigator.of(context).pop(),
+                                    ),
+                                    SizedBox(height: 12 * scale),
+                                    Expanded(
                                           child: localItems.isEmpty
                                               ? Center(
                                                   child: Text(
@@ -694,7 +661,7 @@ Future<bool?> showLoadGameDialog({
                                                   },
                                                 ),
                                         ),
-                                        const SizedBox(height: 12),
+                                        SizedBox(height: 12 * scale),
                                         Align(
                                           alignment: Alignment.centerRight,
                                           child: ElevatedButton(
@@ -707,10 +674,9 @@ Future<bool?> showLoadGameDialog({
                                                   const Color(0xFF2B221D),
                                               shadowColor: Colors.black54,
                                               elevation: 4,
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 20,
-                                                      vertical: 12),
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 20 * scale,
+                                                  vertical: 12 * scale),
                                               shape: RoundedRectangleBorder(
                                                   borderRadius:
                                                       BorderRadius.circular(

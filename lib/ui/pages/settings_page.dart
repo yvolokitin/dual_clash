@@ -4,6 +4,8 @@ import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:dual_clash/ui/widgets/dialog_header.dart';
+import 'package:dual_clash/ui/widgets/responsive_dialog.dart';
 import '../../logic/game_controller.dart';
 import '../../core/colors.dart';
 import '../../core/constants.dart';
@@ -111,6 +113,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final l10n = context.l10n;
+    final scale = dialogTextScale(context);
     final bool isMobilePlatform = !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
@@ -135,10 +138,11 @@ class _SettingsDialogState extends State<SettingsDialog> {
         _startingPlayer != _initialStartingPlayer;
     final double languageTileScale = isMobileFullscreen ? 0.87 : 1.0;
     // The dialog window — centered, not fullscreen. showDialog will dim the background.
-    return Dialog(
+    return ResponsiveDialog(
       insetPadding: dialogInsetPadding,
-      backgroundColor: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: dialogRadius),
+      borderRadius: dialogRadius,
+      fullscreen: isMobileFullscreen,
+      forceHeight: true,
       child: Container(
         decoration: BoxDecoration(
           borderRadius: dialogRadius,
@@ -155,58 +159,28 @@ class _SettingsDialogState extends State<SettingsDialog> {
           ],
           border: Border.all(color: AppColors.dialogOutline, width: 1),
         ),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: isMobileFullscreen ? size.width : size.width * 0.8,
-            maxHeight: isMobileFullscreen ? size.height : size.height * 0.8,
-            minWidth: isMobileFullscreen ? size.width : 0,
-            minHeight: isMobileFullscreen ? size.height : 0,
-          ),
-          child: SafeArea(
-            top: isMobileFullscreen,
-            bottom: isMobileFullscreen,
-            child: Padding(
-              padding: contentPadding,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+        child: Padding(
+          padding: scaleInsets(contentPadding, scale),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              DialogHeader(
+                title: l10n.settingsTitle,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.dialogTitle,
+                  letterSpacing: 0.2,
+                ),
+                onClose: () => Navigator.of(context).pop(),
+              ),
+              SizedBox(height: 12 * scale),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Spacer(),
-                      Text(
-                        l10n.settingsTitle,
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.dialogTitle,
-                          letterSpacing: 0.2,
-                        ),
-                      ),
-                      const Spacer(),
-                      Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.08),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white24, width: 1),
-                        ),
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          iconSize: 20,
-                          icon: const Icon(Icons.close, color: Colors.white70),
-                          onPressed: () => Navigator.of(context).pop(),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
                           // Language selector
                           _label(l10n.languageTitle),
                           Wrap(
@@ -274,68 +248,66 @@ class _SettingsDialogState extends State<SettingsDialog> {
                                     ),
                                   ],
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      if (hasPendingChanges)
-                        ElevatedButton(
-                          onPressed: () async {
-                            if (_language != _initialLanguage) {
-                              await widget.controller.setLanguage(_language);
-                              _initialLanguage = _language;
-                            }
-                            if (_startingPlayer != _initialStartingPlayer) {
-                              await widget.controller
-                                  .setStartingPlayer(_startingPlayer);
-                              _initialStartingPlayer = _startingPlayer;
-                            }
-                            if (context.mounted) {
-                              Navigator.of(context).pop();
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.red,
-                            foregroundColor: Colors.white,
-                            shadowColor: Colors.black54,
-                            elevation: 4,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 12),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(24)),
-                            textStyle: const TextStyle(
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 0.2),
-                          ),
-                          child: Text(l10n.commonSave),
-                        ),
-                      const Spacer(),
-                      ElevatedButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.brandGold,
-                          foregroundColor: const Color(0xFF2B221D),
-                          shadowColor: Colors.black54,
-                          elevation: 4,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 12),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(24)),
-                          textStyle: const TextStyle(
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0.2),
-                        ),
-                        child: Text(l10n.commonClose),
-                      ),
                     ],
                   ),
-                ], // Added closing bracket here
+                ),
               ),
-            ),
+              SizedBox(height: 12 * scale),
+              Wrap(
+                alignment: WrapAlignment.end,
+                spacing: 12 * scale,
+                runSpacing: 8 * scale,
+                children: [
+                  if (hasPendingChanges)
+                    ElevatedButton(
+                      onPressed: () async {
+                        if (_language != _initialLanguage) {
+                          await widget.controller.setLanguage(_language);
+                          _initialLanguage = _language;
+                        }
+                        if (_startingPlayer != _initialStartingPlayer) {
+                          await widget.controller
+                              .setStartingPlayer(_startingPlayer);
+                          _initialStartingPlayer = _startingPlayer;
+                        }
+                        if (context.mounted) {
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.red,
+                        foregroundColor: Colors.white,
+                        shadowColor: Colors.black54,
+                        elevation: 4,
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 20 * scale, vertical: 12 * scale),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24)),
+                        textStyle: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.2),
+                      ),
+                      child: Text(l10n.commonSave),
+                    ),
+                  ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.brandGold,
+                      foregroundColor: const Color(0xFF2B221D),
+                      shadowColor: Colors.black54,
+                      elevation: 4,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 20 * scale, vertical: 12 * scale),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24)),
+                      textStyle: const TextStyle(
+                          fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                    ),
+                    child: Text(l10n.commonClose),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),

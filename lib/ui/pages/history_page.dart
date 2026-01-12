@@ -3,6 +3,8 @@ import 'dart:ui' as ui;
 import 'package:dual_clash/core/localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:dual_clash/ui/widgets/dialog_header.dart';
+import 'package:dual_clash/ui/widgets/responsive_dialog.dart';
 import '../../logic/game_controller.dart';
 import '../../models/game_result.dart';
 import '../../core/colors.dart';
@@ -37,6 +39,7 @@ class _HistoryDialogState extends State<HistoryDialog> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final l10n = context.l10n;
+    final scale = dialogTextScale(context);
     final bool isMobilePlatform = !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
@@ -51,10 +54,12 @@ class _HistoryDialogState extends State<HistoryDialog> {
         BorderRadius.circular(isMobileFullscreen ? 0 : 22);
     final EdgeInsets contentPadding =
         const EdgeInsets.fromLTRB(18, 20, 18, 18);
-    return Dialog(
+    final double tabHeight = 42 * scale;
+    return ResponsiveDialog(
       insetPadding: dialogInsetPadding,
-      backgroundColor: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: dialogRadius),
+      borderRadius: dialogRadius,
+      fullscreen: isMobileFullscreen,
+      forceHeight: true,
       child: Container(
         decoration: BoxDecoration(
           borderRadius: dialogRadius,
@@ -70,99 +75,70 @@ class _HistoryDialogState extends State<HistoryDialog> {
           ],
           border: Border.all(color: AppColors.dialogOutline, width: 1),
         ),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: isMobileFullscreen ? size.width : size.width * 0.8,
-            maxHeight: isMobileFullscreen ? size.height : size.height * 0.8,
-            minWidth: isMobileFullscreen ? size.width : 0,
-            minHeight: isMobileFullscreen ? size.height : 0,
-          ),
-          child: SafeArea(
-            top: isMobileFullscreen,
-            bottom: isMobileFullscreen,
-            child: Padding(
-              padding: contentPadding,
-              child: DefaultTabController(
-                length: 2,
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        const Spacer(),
-                        Text(l10n.historyTitle,
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 22,
-                                fontWeight: FontWeight.w800)),
-                        const Spacer(),
-                        Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.08),
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white24)),
-                          child: IconButton(
-                            padding: EdgeInsets.zero,
-                            iconSize: 20,
-                            icon: const Icon(Icons.close, color: Colors.white70),
-                            onPressed: () => Navigator.of(context).pop(),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      height: 42,
-                      decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.04),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                              color: Colors.white.withOpacity(0.12))),
-                      child: TabBar(
-                        indicator: BoxDecoration(
-                            color: Colors.white12,
-                            borderRadius: BorderRadius.all(Radius.circular(10))),
-                        labelColor: Colors.white,
-                        unselectedLabelColor: Colors.white70,
-                        tabs: [
-                          Tab(text: l10n.historyTabGames),
-                          Tab(text: l10n.historyTabDailyActivity),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Expanded(
-                      child: TabBarView(
-                        children: [
-                          _buildGamesTab(items),
-                          _buildDailyActivityTab(items),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: ElevatedButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.brandGold,
-                          foregroundColor: const Color(0xFF2B221D),
-                          shadowColor: Colors.black54,
-                          elevation: 4,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 12),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(24)),
-                          textStyle: const TextStyle(
-                              fontWeight: FontWeight.w800, letterSpacing: 0.2),
-                        ),
-                        child: Text(l10n.commonClose),
-                      ),
-                    ),
-                  ],
+        child: Padding(
+          padding: scaleInsets(contentPadding, scale),
+          child: DefaultTabController(
+            length: 2,
+            child: Column(
+              children: [
+                DialogHeader(
+                  title: l10n.historyTitle,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800),
+                  onClose: () => Navigator.of(context).pop(),
                 ),
-              ),
+                SizedBox(height: 12 * scale),
+                Container(
+                  height: tabHeight,
+                  decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.04),
+                      borderRadius: BorderRadius.circular(12),
+                      border:
+                          Border.all(color: Colors.white.withOpacity(0.12))),
+                  child: TabBar(
+                    indicator: const BoxDecoration(
+                        color: Colors.white12,
+                        borderRadius: BorderRadius.all(Radius.circular(10))),
+                    labelColor: Colors.white,
+                    unselectedLabelColor: Colors.white70,
+                    tabs: [
+                      Tab(text: l10n.historyTabGames),
+                      Tab(text: l10n.historyTabDailyActivity),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 12 * scale),
+                Expanded(
+                  child: TabBarView(
+                    children: [
+                      _buildGamesTab(items),
+                      _buildDailyActivityTab(items),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 12 * scale),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.brandGold,
+                      foregroundColor: const Color(0xFF2B221D),
+                      shadowColor: Colors.black54,
+                      elevation: 4,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 20 * scale, vertical: 12 * scale),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24)),
+                      textStyle: const TextStyle(
+                          fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                    ),
+                    child: Text(l10n.commonClose),
+                  ),
+                ),
+              ],
             ),
           ),
         ),

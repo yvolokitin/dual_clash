@@ -4,6 +4,8 @@ import 'package:dual_clash/core/localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:dual_clash/ui/widgets/dialog_header.dart';
+import 'package:dual_clash/ui/widgets/responsive_dialog.dart';
 import '../../logic/game_controller.dart';
 import '../../core/colors.dart';
 import '../../core/constants.dart';
@@ -347,6 +349,7 @@ class _ProfileDialogState extends State<ProfileDialog> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final l10n = context.l10n;
+    final scale = dialogTextScale(context);
     final bool isMobilePlatform = !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
@@ -363,10 +366,11 @@ class _ProfileDialogState extends State<ProfileDialog> {
         BorderRadius.circular(isMobileFullscreen ? 0 : 22);
     final EdgeInsets contentPadding =
         const EdgeInsets.fromLTRB(18, 20, 18, 18);
-    return Dialog(
+    return ResponsiveDialog(
       insetPadding: dialogInsetPadding,
-      backgroundColor: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: dialogRadius),
+      borderRadius: dialogRadius,
+      fullscreen: isMobileFullscreen,
+      forceHeight: true,
       child: Container(
         decoration: BoxDecoration(
           borderRadius: dialogRadius,
@@ -382,54 +386,27 @@ class _ProfileDialogState extends State<ProfileDialog> {
           ],
           border: Border.all(color: AppColors.dialogOutline, width: 1),
         ),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: isMobileFullscreen ? size.width : size.width * 0.8,
-            maxHeight: isMobileFullscreen ? size.height : size.height * 0.8,
-            minWidth: isMobileFullscreen ? size.width : 0,
-            minHeight: isMobileFullscreen ? size.height : 0,
-          ),
-          child: SafeArea(
-            top: isMobileFullscreen,
-            bottom: isMobileFullscreen,
-            child: Padding(
-              padding: contentPadding,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+        child: Padding(
+          padding: scaleInsets(contentPadding, scale),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              DialogHeader(
+                title: l10n.profileTitle,
+                style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.dialogTitle,
+                    letterSpacing: 0.2),
+                onClose: () => Navigator.of(context).pop(),
+              ),
+              SizedBox(height: 12 * scale),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Spacer(),
-                      Text(l10n.profileTitle,
-                          style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.dialogTitle,
-                              letterSpacing: 0.2)),
-                      const Spacer(),
-                      Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.08),
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white24, width: 1)),
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          iconSize: 20,
-                          icon: const Icon(Icons.close, color: Colors.white70),
-                          onPressed: () => Navigator.of(context).pop(),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
                           _nicknameRow(),
                           const SizedBox(height: 8),
                           _countryRow(),
@@ -469,91 +446,83 @@ class _ProfileDialogState extends State<ProfileDialog> {
                             ],
                           ),
                           // Legacy badges section removed as per spec; only Achievements and Belts remain
-                        ],
-                      ),
-                    ),
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () async {
-                            Navigator.of(context).pop();
-                            await Future.delayed(
-                                const Duration(milliseconds: 50));
-                            if (context.mounted) {
-                              await showAnimatedHistoryDialog(
-                                  context: context, controller: controller);
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.green,
-                            foregroundColor: Colors.white,
-                            shadowColor: Colors.black54,
-                            elevation: 4,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 12),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(24)),
-                            textStyle: const TextStyle(
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 0.2),
-                          ),
-                          child: Text(l10n.historyTitle),
-                        ),
-                        const SizedBox(width: 10),
-                        ElevatedButton(
-                          onPressed: () async {
-                            Navigator.of(context).pop();
-                            await Future.delayed(
-                                const Duration(milliseconds: 50));
-                            if (context.mounted) {
-                              await showAnimatedHelpDialog(
-                                  context: context, controller: controller);
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.red,
-                            foregroundColor: Colors.white,
-                            shadowColor: Colors.black54,
-                            elevation: 4,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 12),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(24)),
-                            textStyle: const TextStyle(
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 0.2),
-                          ),
-                          child: Text(l10n.helpTitle),
-                        ),
-                        const SizedBox(width: 10),
-                        ElevatedButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.brandGold,
-                            foregroundColor: const Color(0xFF2B221D),
-                            shadowColor: Colors.black54,
-                            elevation: 4,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 12),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(24)),
-                            textStyle: const TextStyle(
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 0.2),
-                          ),
-                          child: Text(l10n.commonClose),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+              SizedBox(height: 12 * scale),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Wrap(
+                  spacing: 10 * scale,
+                  runSpacing: 8 * scale,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        Navigator.of(context).pop();
+                        await Future.delayed(const Duration(milliseconds: 50));
+                        if (context.mounted) {
+                          await showAnimatedHistoryDialog(
+                              context: context, controller: controller);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.green,
+                        foregroundColor: Colors.white,
+                        shadowColor: Colors.black54,
+                        elevation: 4,
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 16 * scale, vertical: 12 * scale),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24)),
+                        textStyle: const TextStyle(
+                            fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                      ),
+                      child: Text(l10n.historyTitle),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        Navigator.of(context).pop();
+                        await Future.delayed(const Duration(milliseconds: 50));
+                        if (context.mounted) {
+                          await showAnimatedHelpDialog(
+                              context: context, controller: controller);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.red,
+                        foregroundColor: Colors.white,
+                        shadowColor: Colors.black54,
+                        elevation: 4,
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 16 * scale, vertical: 12 * scale),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24)),
+                        textStyle: const TextStyle(
+                            fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                      ),
+                      child: Text(l10n.helpTitle),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.brandGold,
+                        foregroundColor: const Color(0xFF2B221D),
+                        shadowColor: Colors.black54,
+                        elevation: 4,
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 20 * scale, vertical: 12 * scale),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24)),
+                        textStyle: const TextStyle(
+                            fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                      ),
+                      child: Text(l10n.commonClose),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),

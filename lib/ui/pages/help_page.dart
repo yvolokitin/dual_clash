@@ -3,6 +3,8 @@ import 'dart:ui' as ui;
 import 'package:dual_clash/core/localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:dual_clash/ui/widgets/dialog_header.dart';
+import 'package:dual_clash/ui/widgets/responsive_dialog.dart';
 import '../../logic/game_controller.dart';
 import '../../core/colors.dart';
 import '../../core/constants.dart';
@@ -15,20 +17,21 @@ class HelpDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final l10n = context.l10n;
+    final scale = dialogTextScale(context);
     final bool isMobilePlatform = !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
     final bool isMobileFullscreen = isMobilePlatform;
     final bg = AppColors.bg;
     final boardLabel = '${K.n}x${K.n}';
-    return Dialog(
+    return ResponsiveDialog(
       insetPadding: isMobileFullscreen
           ? EdgeInsets.zero
           : EdgeInsets.symmetric(
               horizontal: size.width * 0.1, vertical: size.height * 0.1),
-      backgroundColor: Colors.transparent,
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(isMobileFullscreen ? 0 : 22)),
+      borderRadius: BorderRadius.circular(isMobileFullscreen ? 0 : 22),
+      fullscreen: isMobileFullscreen,
+      forceHeight: true,
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(isMobileFullscreen ? 0 : 22),
@@ -44,100 +47,71 @@ class HelpDialog extends StatelessWidget {
           ],
           border: Border.all(color: AppColors.dialogOutline, width: 1),
         ),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: isMobileFullscreen ? size.width : size.width * 0.8,
-            maxHeight: isMobileFullscreen ? size.height : size.height * 0.8,
-            minWidth: isMobileFullscreen ? size.width : 0,
-            minHeight: isMobileFullscreen ? size.height : 0,
-          ),
-          child: SafeArea(
-            top: isMobileFullscreen,
-            bottom: isMobileFullscreen,
-            child: Padding(
-              padding: const EdgeInsets.all(18.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+        child: Padding(
+          padding: scaleInsets(const EdgeInsets.all(18), scale),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              DialogHeader(
+                title: l10n.helpTitle,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800),
+                onClose: () => Navigator.of(context).pop(),
+              ),
+              SizedBox(height: 12 * scale),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Spacer(),
-                      Text(l10n.helpTitle,
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.w800)),
-                      const Spacer(),
-                      Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.08),
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white24)),
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          iconSize: 20,
-                          icon: const Icon(Icons.close, color: Colors.white70),
-                          onPressed: () => Navigator.of(context).pop(),
-                        ),
-                      ),
+                      _SectionTitle(l10n.helpGoalTitle),
+                      _BodyText(l10n.helpGoalBody(boardLabel)),
+                      SizedBox(height: 12 * scale),
+                      _SectionTitle(l10n.helpTurnsTitle),
+                      _BodyText(l10n.helpTurnsBody),
+                      SizedBox(height: 12 * scale),
+                      _SectionTitle(l10n.helpScoringTitle),
+                      _BodyText(l10n.helpScoringBase),
+                      _BodyText(l10n.helpScoringBonus),
+                      _BodyText(l10n.helpScoringTotal),
+                      _BodyText(l10n.helpScoringEarning),
+                      _BodyText(l10n.helpScoringCumulative),
+                      SizedBox(height: 12 * scale),
+                      _SectionTitle(l10n.helpWinningTitle),
+                      _BodyText(l10n.helpWinningBody),
+                      SizedBox(height: 12 * scale),
+                      _SectionTitle(l10n.helpAiLevelTitle),
+                      _BodyText(l10n.helpAiLevelBody),
+                      SizedBox(height: 12 * scale),
+                      _SectionTitle(l10n.helpHistoryProfileTitle),
+                      _BodyText(l10n.helpHistoryProfileBody),
                     ],
                   ),
-                  const SizedBox(height: 12),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _SectionTitle(l10n.helpGoalTitle),
-                          _BodyText(l10n.helpGoalBody(boardLabel)),
-                          const SizedBox(height: 12),
-                          _SectionTitle(l10n.helpTurnsTitle),
-                          _BodyText(l10n.helpTurnsBody),
-                          const SizedBox(height: 12),
-                          _SectionTitle(l10n.helpScoringTitle),
-                          _BodyText(l10n.helpScoringBase),
-                          _BodyText(l10n.helpScoringBonus),
-                          _BodyText(l10n.helpScoringTotal),
-                          _BodyText(l10n.helpScoringEarning),
-                          _BodyText(l10n.helpScoringCumulative),
-                          const SizedBox(height: 12),
-                          _SectionTitle(l10n.helpWinningTitle),
-                          _BodyText(l10n.helpWinningBody),
-                          const SizedBox(height: 12),
-                          _SectionTitle(l10n.helpAiLevelTitle),
-                          _BodyText(l10n.helpAiLevelBody),
-                          const SizedBox(height: 12),
-                          _SectionTitle(l10n.helpHistoryProfileTitle),
-                          _BodyText(l10n.helpHistoryProfileBody),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.brandGold,
-                        foregroundColor: const Color(0xFF2B221D),
-                        shadowColor: Colors.black54,
-                        elevation: 4,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 12),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24)),
-                        textStyle: const TextStyle(
-                            fontWeight: FontWeight.w800, letterSpacing: 0.2),
-                      ),
-                      child: Text(l10n.commonClose),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+              SizedBox(height: 12 * scale),
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.brandGold,
+                    foregroundColor: const Color(0xFF2B221D),
+                    shadowColor: Colors.black54,
+                    elevation: 4,
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 20 * scale, vertical: 12 * scale),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24)),
+                    textStyle: const TextStyle(
+                        fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                  ),
+                  child: Text(l10n.commonClose),
+                ),
+              ),
+            ],
           ),
         ),
       ),

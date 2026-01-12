@@ -3,6 +3,8 @@ import 'dart:ui' as ui;
 import 'package:dual_clash/core/localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:dual_clash/ui/widgets/dialog_header.dart';
+import 'package:dual_clash/ui/widgets/responsive_dialog.dart';
 import '../../logic/game_controller.dart';
 import '../../core/colors.dart';
 
@@ -33,6 +35,7 @@ class _StatisticsDialogState extends State<StatisticsDialog> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final l10n = context.l10n;
+    final scale = dialogTextScale(context);
     final bool isMobilePlatform = !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
@@ -41,14 +44,14 @@ class _StatisticsDialogState extends State<StatisticsDialog> {
     // Prepare lists: original order and reversed (latest first)
     final original = widget.controller.turnStats;
     final items = original.reversed.toList(growable: false);
-    return Dialog(
+    return ResponsiveDialog(
       insetPadding: isMobileFullscreen
           ? EdgeInsets.zero
           : EdgeInsets.symmetric(
               horizontal: size.width * 0.1, vertical: size.height * 0.1),
-      backgroundColor: Colors.transparent,
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(isMobileFullscreen ? 0 : 22)),
+      borderRadius: BorderRadius.circular(isMobileFullscreen ? 0 : 22),
+      fullscreen: isMobileFullscreen,
+      forceHeight: true,
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(isMobileFullscreen ? 0 : 22),
@@ -64,60 +67,33 @@ class _StatisticsDialogState extends State<StatisticsDialog> {
           ],
           border: Border.all(color: AppColors.dialogOutline, width: 1),
         ),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: isMobileFullscreen ? size.width : size.width * 0.8,
-            maxHeight: isMobileFullscreen ? size.height : size.height * 0.8,
-            minWidth: isMobileFullscreen ? size.width : 0,
-            minHeight: isMobileFullscreen ? size.height : 0,
-          ),
-          child: SafeArea(
-            top: isMobileFullscreen,
-            bottom: isMobileFullscreen,
-            child: Padding(
-              padding: const EdgeInsets.all(18.0),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      const Spacer(),
-                      Text(l10n.statisticsTitle,
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.w800)),
-                      const Spacer(),
-                      Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.08),
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white24)),
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          iconSize: 20,
-                          icon: const Icon(Icons.close, color: Colors.white70),
-                          onPressed: () => Navigator.of(context).pop(),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Expanded(
-                    child: items.isEmpty
-                        ? Center(
-                            child: Text(l10n.noTurnsYetMessage,
-                                style: const TextStyle(color: Colors.white70)))
-                        : Scrollbar(
-                            thumbVisibility: true,
-                            trackVisibility: true,
-                            controller: _scrollCtrl,
-                            child: ListView.separated(
-                              controller: _scrollCtrl,
-                              itemCount: items.length,
-                              separatorBuilder: (_, __) =>
-                                  const SizedBox(height: 10),
+        child: Padding(
+          padding: scaleInsets(const EdgeInsets.all(18), scale),
+          child: Column(
+            children: [
+              DialogHeader(
+                title: l10n.statisticsTitle,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800),
+                onClose: () => Navigator.of(context).pop(),
+              ),
+              SizedBox(height: 12 * scale),
+              Expanded(
+                child: items.isEmpty
+                    ? Center(
+                        child: Text(l10n.noTurnsYetMessage,
+                            style: const TextStyle(color: Colors.white70)))
+                    : Scrollbar(
+                        thumbVisibility: true,
+                        trackVisibility: true,
+                        controller: _scrollCtrl,
+                        child: ListView.separated(
+                          controller: _scrollCtrl,
+                          itemCount: items.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 10),
                               itemBuilder: (context, index) {
                                 final it = items[index];
                                 final isLatest =
@@ -146,7 +122,7 @@ class _StatisticsDialogState extends State<StatisticsDialog> {
                             ),
                           ),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12 * scale),
                   Align(
                     alignment: Alignment.centerRight,
                     child: ElevatedButton(
@@ -156,8 +132,8 @@ class _StatisticsDialogState extends State<StatisticsDialog> {
                         foregroundColor: const Color(0xFF2B221D),
                         shadowColor: Colors.black54,
                         elevation: 4,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 12),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 20 * scale, vertical: 12 * scale),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24)),
                         textStyle: const TextStyle(
