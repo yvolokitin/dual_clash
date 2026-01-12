@@ -5,6 +5,7 @@ import '../../core/localization.dart';
 import '../../logic/game_controller.dart';
 import '../../models/campaign_level.dart';
 import '../controllers/campaign_controller.dart';
+import '../widgets/main_menu/startup_hero_logo.dart';
 
 class CampaignPage extends StatefulWidget {
   final GameController controller;
@@ -48,7 +49,7 @@ class _CampaignPageState extends State<CampaignPage> {
                   height: headerHeight,
                   child: const Padding(
                     padding: EdgeInsets.only(top: 8.0),
-                    child: _DualClashLogo(),
+                    child: StartupHeroLogo(forceStatic: true),
                   ),
                 ),
                 Expanded(
@@ -103,67 +104,6 @@ class _CampaignPageState extends State<CampaignPage> {
           },
         ),
       ),
-    );
-  }
-}
-
-class _DualClashLogo extends StatelessWidget {
-  const _DualClashLogo();
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final size = constraints.maxHeight * 0.9;
-        final tileSize = size / 2;
-        return Center(
-          child: SizedBox(
-            width: size,
-            height: size,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Positioned(
-                  left: 0,
-                  top: 0,
-                  width: tileSize,
-                  height: tileSize,
-                  child: Image.asset('assets/icons/player_red.png', fit: BoxFit.contain),
-                ),
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  width: tileSize,
-                  height: tileSize,
-                  child: Image.asset('assets/icons/player_grey.png', fit: BoxFit.contain),
-                ),
-                Positioned(
-                  left: 0,
-                  bottom: 0,
-                  width: tileSize,
-                  height: tileSize,
-                  child: Image.asset('assets/icons/player_red.png', fit: BoxFit.contain),
-                ),
-                Positioned(
-                  right: 0,
-                  bottom: 0,
-                  width: tileSize,
-                  height: tileSize,
-                  child: Image.asset('assets/icons/player_blue.png', fit: BoxFit.contain),
-                ),
-                Center(
-                  child: Image.asset(
-                    'assets/icons/dual_clash-words-removebg.png',
-                    fit: BoxFit.contain,
-                    width: size,
-                    height: size,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 }
