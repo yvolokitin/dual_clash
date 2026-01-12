@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/colors.dart';
 import '../../core/localization.dart';
 import '../../logic/game_controller.dart';
+import '../../models/campaign_level.dart';
 import '../controllers/campaign_controller.dart';
 
 class CampaignPage extends StatefulWidget {
@@ -20,6 +21,7 @@ class _CampaignPageState extends State<CampaignPage> {
   void initState() {
     super.initState();
     _campaignController = CampaignController();
+    _campaignController.loadProgress();
   }
 
   @override
@@ -175,6 +177,181 @@ class _CampaignRouteGrid extends StatelessWidget {
     required this.gameController,
   });
 
+  void _showPassedLevelMenu({
+    required BuildContext context,
+    required CampaignLevel level,
+  }) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: const Color(0xFF3B2F77),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.info_outline, color: Colors.white),
+                  title: const Text(
+                    'Details',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _showLevelDetails(context, level);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.emoji_events_outlined,
+                      color: Colors.white),
+                  title: const Text(
+                    'Results',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _showBestResult(context, level);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.play_arrow, color: Colors.white),
+                  title: const Text(
+                    'Play again',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    campaignController.launchLevel(
+                      context: context,
+                      gameController: gameController,
+                      level: level,
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showLevelDetails(BuildContext context, CampaignLevel level) {
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF3B2F77),
+          title: Text(
+            'Level ${level.index} details',
+            style: const TextStyle(color: Colors.white),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _detailRow('Board size', '${level.boardSize}x${level.boardSize}'),
+              _detailRow('AI level', level.aiLevel.toString()),
+              _detailRow(
+                'Bombs',
+                level.bombsEnabled ? 'Enabled' : 'Disabled',
+              ),
+              _detailRow(
+                'Preset',
+                level.fixedState == null ? 'No' : 'Yes',
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(color: Colors.white70),
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(color: Colors.white),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showBestResult(
+    BuildContext context,
+    CampaignLevel level,
+  ) async {
+    final result = await campaignController.bestResultForLevel(level.index);
+    if (!context.mounted) return;
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF3B2F77),
+          title: Text(
+            'Level ${level.index} results',
+            style: const TextStyle(color: Colors.white),
+          ),
+          content: result == null
+              ? const Text(
+                  'No results saved yet.',
+                  style: TextStyle(color: Colors.white70),
+                )
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _detailRow('Winner', result.winner),
+                    _detailRow('Red total', result.redTotal.toString()),
+                    _detailRow('Blue total', result.blueTotal.toString()),
+                    _detailRow('Bonus red', result.bonusRed.toString()),
+                    _detailRow('Bonus blue', result.bonusBlue.toString()),
+                    _detailRow('Turns red', result.turnsRed.toString()),
+                    _detailRow('Turns blue', result.turnsBlue.toString()),
+                    _detailRow(
+                      'Play time',
+                      _formatPlayTime(result.playMs),
+                    ),
+                  ],
+                ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  String _formatPlayTime(int ms) {
+    final totalSeconds = (ms / 1000).round();
+    final minutes = totalSeconds ~/ 60;
+    final seconds = totalSeconds % 60;
+    return '${minutes}m ${seconds}s';
+  }
+
   @override
   Widget build(BuildContext context) {
     final totalLevels = campaignController.levels.length;
@@ -224,6 +401,14 @@ class _CampaignRouteGrid extends StatelessWidget {
                         final level = campaignController
                             .levelForIndex(rows[rowIndex][i]);
                         if (level == null) return;
+                        if (campaignController.statusForLevel(level.index) ==
+                            CampaignLevelStatus.passed) {
+                          _showPassedLevelMenu(
+                            context: context,
+                            level: level,
+                          );
+                          return;
+                        }
                         campaignController.launchLevel(
                           context: context,
                           gameController: gameController,

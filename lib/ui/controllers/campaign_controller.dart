@@ -1,13 +1,19 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../logic/game_controller.dart';
 import '../../models/campaign_level.dart';
 import '../../models/game_outcome.dart';
+import '../../models/game_result.dart';
 import '../pages/game_page.dart';
 
 enum CampaignLevelStatus { locked, available, passed, failed }
 
 class CampaignController extends ChangeNotifier {
+  static const String _kCampaignResults = 'campaign_results';
+  static const String _kCampaignProgress = 'campaign_progress';
   final List<CampaignLevel> _levels;
   final Map<int, CampaignLevelStatus> _statusByLevel =
       <int, CampaignLevelStatus>{};
@@ -20,6 +26,34 @@ class CampaignController extends ChangeNotifier {
     if (_levels.isNotEmpty) {
       _statusByLevel[_levels.first.index] = CampaignLevelStatus.available;
     }
+  }
+
+  Future<void> loadProgress() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_kCampaignProgress);
+    if (raw == null || raw.isEmpty) return;
+    final decoded = jsonDecode(raw);
+    if (decoded is! Map) return;
+    for (final entry in decoded.entries) {
+      final levelIndex = int.tryParse(entry.key.toString());
+      if (levelIndex == null || !_statusByLevel.containsKey(levelIndex)) {
+        continue;
+      }
+      final statusName = entry.value?.toString();
+      final status = CampaignLevelStatus.values
+          .firstWhere((value) => value.name == statusName, orElse: () {
+        return CampaignLevelStatus.locked;
+      });
+      _statusByLevel[levelIndex] = status;
+    }
+    if (_levels.isNotEmpty &&
+        !_statusByLevel.values.any((status) =>
+            status == CampaignLevelStatus.available ||
+            status == CampaignLevelStatus.passed ||
+            status == CampaignLevelStatus.failed)) {
+      _statusByLevel[_levels.first.index] = CampaignLevelStatus.available;
+    }
+    notifyListeners();
   }
 
   List<CampaignLevel> get levels => List<CampaignLevel>.unmodifiable(_levels);
@@ -74,6 +108,8 @@ class CampaignController extends ChangeNotifier {
           statusForLevel(nextLevel.index) == CampaignLevelStatus.locked) {
         _statusByLevel[nextLevel.index] = CampaignLevelStatus.available;
       }
+      _persistProgress();
+      _recordCampaignWinStats(level.index, gameController);
       notifyListeners();
       if (nextLevel != null) {
         launchLevel(
@@ -87,6 +123,7 @@ class CampaignController extends ChangeNotifier {
       }
     } else {
       _statusByLevel[level.index] = CampaignLevelStatus.failed;
+      _persistProgress();
       notifyListeners();
       launchLevel(
         context: context,
@@ -101,5 +138,72 @@ class CampaignController extends ChangeNotifier {
     final idx = _levels.indexWhere((level) => level.index == current.index);
     if (idx == -1 || idx + 1 >= _levels.length) return null;
     return _levels[idx + 1];
+  }
+
+  Future<GameResult?> bestResultForLevel(int levelIndex) async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_kCampaignResults);
+    if (raw == null || raw.isEmpty) return null;
+    final decodedRaw = jsonDecode(raw);
+    if (decodedRaw is! Map) return null;
+    final entries = decodedRaw[levelIndex.toString()];
+    if (entries is! List) return null;
+    final results = entries
+        .whereType<Map>()
+        .map((entry) => GameResult.fromMap(Map<String, dynamic>.from(entry)))
+        .toList();
+    if (results.isEmpty) return null;
+    results.sort((a, b) {
+      final totalCompare = b.redTotal.compareTo(a.redTotal);
+      if (totalCompare != 0) return totalCompare;
+      return a.playMs.compareTo(b.playMs);
+    });
+    return results.first;
+  }
+
+  Future<void> _persistProgress() async {
+    final prefs = await SharedPreferences.getInstance();
+    final payload = <String, String>{};
+    _statusByLevel.forEach((index, status) {
+      payload[index.toString()] = status.name;
+    });
+    await prefs.setString(_kCampaignProgress, jsonEncode(payload));
+  }
+
+  Future<void> _recordCampaignWinStats(
+    int levelIndex,
+    GameController controller,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_kCampaignResults);
+    Map<String, dynamic> decoded = <String, dynamic>{};
+    if (raw != null && raw.isNotEmpty) {
+      final decodedRaw = jsonDecode(raw);
+      if (decodedRaw is Map) {
+        decoded = Map<String, dynamic>.from(decodedRaw);
+      }
+    }
+    final levelKey = levelIndex.toString();
+    final List<dynamic> entries =
+        (decoded[levelKey] as List<dynamic>?) ?? <dynamic>[];
+    final redTotal = controller.scoreRedTotal();
+    final blueTotal = controller.scoreBlueTotal();
+    final result = GameResult(
+      timestampMs: DateTime.now().millisecondsSinceEpoch,
+      redBase: controller.scoreRedBase(),
+      blueBase: controller.scoreBlueBase(),
+      bonusRed: controller.bonusRed,
+      bonusBlue: controller.bonusBlue,
+      redTotal: redTotal,
+      blueTotal: blueTotal,
+      winner: GameResult.winnerFromTotals(redTotal, blueTotal),
+      aiLevel: controller.aiLevel,
+      turnsRed: controller.turnsRed,
+      turnsBlue: controller.turnsBlue,
+      playMs: controller.lastGamePlayMs,
+    );
+    entries.add(result.toMap());
+    decoded[levelKey] = entries;
+    await prefs.setString(_kCampaignResults, jsonEncode(decoded));
   }
 }
