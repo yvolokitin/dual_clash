@@ -25,6 +25,7 @@ class _StartupHeroLogoState extends State<StartupHeroLogo>
   AnimationController? _interactionCtrl;
   bool _showStaticLogo = false; // show static composed grid on subsequent entries only
   static List<String>? _sessionImages; // cache 4 random player images for the session
+  bool _isHovering = false;
 
   List<String> _candidatePlayers() => const [
         'assets/icons/player_blue.png',
@@ -149,7 +150,8 @@ class _StartupHeroLogoState extends State<StartupHeroLogo>
   Widget _buildInteractiveLogo({required Widget child}) {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
-      onEnter: (_) => _triggerInteraction(),
+      onEnter: (_) => setState(() => _isHovering = true),
+      onExit: (_) => setState(() => _isHovering = false),
       child: GestureDetector(
         onTap: _triggerInteraction,
         child: child,
@@ -198,9 +200,14 @@ class _StartupHeroLogoState extends State<StartupHeroLogo>
               child: Center(
                 child: Transform.scale(
                   scale: _interactionLogoScale(),
-                  child: Image.asset(
-                    'assets/icons/dual_clash-words-removebg.png',
-                    fit: BoxFit.contain,
+                  child: AnimatedScale(
+                    scale: _isHovering ? 1.07 : 1.0,
+                    duration: const Duration(milliseconds: 160),
+                    curve: Curves.easeOut,
+                    child: Image.asset(
+                      'assets/icons/dual_clash-words-removebg.png',
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ),
               ),
@@ -366,9 +373,14 @@ class _StartupHeroLogoState extends State<StartupHeroLogo>
                   child: Center(
                     child: Transform.scale(
                       scale: _interactionLogoScale(),
-                      child: Image.asset(
-                        'assets/icons/dual_clash-words-removebg.png',
-                        fit: BoxFit.contain,
+                      child: AnimatedScale(
+                        scale: _isHovering ? 1.07 : 1.0,
+                        duration: const Duration(milliseconds: 160),
+                        curve: Curves.easeOut,
+                        child: Image.asset(
+                          'assets/icons/dual_clash-words-removebg.png',
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                   ),
