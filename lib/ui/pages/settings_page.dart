@@ -135,9 +135,9 @@ class _SettingsDialogState extends State<SettingsDialog> {
         _startingPlayer != _initialStartingPlayer;
     final bool isNarrowMobile = isMobilePlatform && size.width < 700;
     final double languageTileScale = isMobileFullscreen
-        ? (isNarrowMobile ? 0.85 : 0.87)
+        ? (isNarrowMobile ? 0.9 : 0.87)
         : 1.0;
-    final double imageChoiceTileScale = isNarrowMobile ? 0.85 : 1.0;
+    final double imageChoiceTileScale = isNarrowMobile ? 0.9 : 1.0;
     // The dialog window — centered, not fullscreen. showDialog will dim the background.
     return Dialog(
       insetPadding: dialogInsetPadding,
