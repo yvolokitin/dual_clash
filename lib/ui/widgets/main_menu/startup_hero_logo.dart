@@ -46,7 +46,10 @@ class _StartupHeroLogoState extends State<StartupHeroLogo>
     super.initState();
     _initSessionImagesIfNeeded();
     if (!_playedOnce) {
-      _ctrl = AnimationController(vsync: this, duration: const Duration(seconds: 4));
+      _ctrl = AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 3500),
+      );
       _t = CurvedAnimation(parent: _ctrl!, curve: Curves.easeInOutCubic);
       // Expose the animation to parent so it can drive background color
       WidgetsBinding.instance.addPostFrameCallback((_) {

@@ -310,6 +310,36 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         : const SizedBox.shrink(),
                   ),
                 ),
+                if (kIsWeb)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+                    child: Center(
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 12,
+                        runSpacing: 4,
+                        children: [
+                          _LegalLink(
+                            label: 'Privacy Policy',
+                            onTap: () => Navigator.of(context).pushNamed('/privacy'),
+                          ),
+                          _LegalLink(
+                            label: 'Terms of Use',
+                            onTap: () => Navigator.of(context).pushNamed('/terms'),
+                          ),
+                          _LegalLink(
+                            label: 'Support',
+                            onTap: () => Navigator.of(context).pushNamed('/support'),
+                          ),
+                          _LegalLink(
+                            label: 'App Store Privacy',
+                            onTap: () =>
+                                Navigator.of(context).pushNamed('/app-store-privacy'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
               ],
             ),
           ],
@@ -1174,6 +1204,25 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
           );
         },
       ),
+    );
+  }
+}
+
+class _LegalLink extends StatelessWidget {
+  const _LegalLink({required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: onTap,
+      style: TextButton.styleFrom(
+        foregroundColor: Colors.white.withOpacity(0.9),
+        textStyle: Theme.of(context).textTheme.bodySmall,
+      ),
+      child: Text(label),
     );
   }
 }
