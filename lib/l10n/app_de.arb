@@ -1,6 +1,6 @@
 {
   "@@locale": "de",
-  "appTitle": "Two Touch {size}",
+  "appTitle": "Dual Clash",
   "@appTitle": {
     "placeholders": {
       "size": {}

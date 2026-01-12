@@ -10,7 +10,7 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String appTitle(Object size) {
-    return 'Two Touch $size';
+    return 'Dual Clash';
   }
 
   @override

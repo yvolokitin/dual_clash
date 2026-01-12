@@ -113,7 +113,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'Two Touch {size}'**
+  /// **'Dual Clash'**
   String appTitle(Object size);
 
   /// No description provided for @commonClose.
