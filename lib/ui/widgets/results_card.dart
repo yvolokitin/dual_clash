@@ -632,6 +632,11 @@ class _CampaignResultsContent extends StatelessWidget {
     final bool nextUnlocked = isWin && hasNextLevel;
     final String interpretation =
         _campaignInterpretation(context, controller, outcome);
+    final int redBase = controller.scoreRedBase();
+    final int blueBase = controller.scoreBlueBase();
+    final int neutrals =
+        RulesEngine.countOf(controller.board, CellState.neutral);
+    final int redTotal = controller.scoreRedTotal();
     final String progressLabel = 'Level $levelIndex / $totalLevels';
     final String unlockLabel = nextUnlocked
         ? 'Next level unlocked'
@@ -711,6 +716,50 @@ class _CampaignResultsContent extends StatelessWidget {
                     unlockLabel,
                     style: TextStyle(
                       color: unlockColor,
+                      fontWeight: FontWeight.w700,
+                      fontSize: hintSize,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: spacing),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.06),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.white24),
+              ),
+              child: Column(
+                children: [
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 12,
+                    runSpacing: 8,
+                    children: [
+                      _CampaignCountChip(
+                        label: 'Red',
+                        value: redBase,
+                        color: AppColors.red,
+                      ),
+                      _CampaignCountChip(
+                        label: 'Blue',
+                        value: blueBase,
+                        color: AppColors.blue,
+                      ),
+                      _CampaignCountChip(
+                        label: 'Grey',
+                        value: neutrals,
+                        color: Colors.grey,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Score: $redTotal',
+                    style: TextStyle(
+                      color: Colors.white,
                       fontWeight: FontWeight.w700,
                       fontSize: hintSize,
                     ),
@@ -874,6 +923,59 @@ class _CampaignResultsActions extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+class _CampaignCountChip extends StatelessWidget {
+  final String label;
+  final int value;
+  final Color color;
+
+  const _CampaignCountChip({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white24),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white70,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            value.toString(),
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
