@@ -664,43 +664,97 @@ class _CampaignRouteGrid extends StatelessWidget {
     showDialog<void>(
       context: context,
       builder: (context) {
-        return AlertDialog(
+        return Dialog(
           backgroundColor: const Color(0xFF3B2F77),
-          title: Text(
-            levelDetails == null
-                ? 'Level ${level.index} details'
-                : 'Level ${level.index}: ${levelDetails.title}',
-            style: const TextStyle(color: Colors.white),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 32,
+            vertical: 24,
+          ),
+          child: Stack(
             children: [
-              if (levelDetails != null) ...[
-                Text(
-                  levelDetails.description,
-                  style: const TextStyle(color: Colors.white70, height: 1.4),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 360),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        levelDetails == null
+                            ? 'Level ${level.index} details'
+                            : 'Level ${level.index}: ${levelDetails.title}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      if (levelDetails != null) ...[
+                        Text(
+                          levelDetails.description,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            height: 1.4,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                      _detailRow(
+                        'Board size',
+                        '${level.boardSize}x${level.boardSize}',
+                      ),
+                      _detailRow('AI level', level.aiLevel.toString()),
+                      _detailRow(
+                        'Bombs',
+                        level.bombsEnabled ? 'Enabled' : 'Disabled',
+                      ),
+                      _detailRow(
+                        'Preset',
+                        level.fixedState == null ? 'No' : 'Yes',
+                      ),
+                      const SizedBox(height: 16),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: ElevatedButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.brandGold,
+                            foregroundColor: const Color(0xFF2B221D),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            textStyle: const TextStyle(
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.2,
+                            ),
+                          ),
+                          child: const Text('Close'),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 12),
-              ],
-              _detailRow('Board size', '${level.boardSize}x${level.boardSize}'),
-              _detailRow('AI level', level.aiLevel.toString()),
-              _detailRow(
-                'Bombs',
-                level.bombsEnabled ? 'Enabled' : 'Disabled',
               ),
-              _detailRow(
-                'Preset',
-                level.fixedState == null ? 'No' : 'Yes',
+              Positioned(
+                top: 4,
+                right: 4,
+                child: IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(Icons.close, color: Colors.white),
+                  tooltip: 'Close',
+                ),
               ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
-            ),
-          ],
         );
       },
     );
@@ -838,8 +892,13 @@ class _CampaignRouteGrid extends StatelessWidget {
                         final level = campaignController
                             .levelForIndex(rows[rowIndex][i]);
                         if (level == null) return;
-                        if (campaignController.statusForLevel(level.index) ==
-                            CampaignLevelStatus.passed) {
+                        final status =
+                            campaignController.statusForLevel(level.index);
+                        if (status == CampaignLevelStatus.locked) {
+                          _showLevelDetails(context, level);
+                          return;
+                        }
+                        if (status == CampaignLevelStatus.passed) {
                           _showPassedLevelMenu(
                             context: context,
                             level: level,
