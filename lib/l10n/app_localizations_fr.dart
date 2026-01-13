@@ -150,7 +150,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get buddhaCampaignDescription =>
-      'La Campagne Bouddha est un voyage de calme, de contrôle et de clarté stratégique. Chaque niveau vous met au défi de lire le plateau, d\\'agir avec précision et de gagner par l\\'équilibre plutôt que par la force.';
+      'La Campagne Bouddha est un voyage de calme, de contrôle et de clarté stratégique. Chaque niveau vous met au défi de lire le plateau, d\'agir avec précision et de gagner par l\'équilibre plutôt que par la force.';
 
   @override
   String get shivaCampaignTitle => 'Shiva Campaign';
