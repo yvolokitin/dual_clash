@@ -145,6 +145,13 @@ class AppLocalizationsPl extends AppLocalizations {
   String get menuCampaign => 'Campaign';
 
   @override
+  String get buddhaCampaignTitle => 'Kampania Buddy';
+
+  @override
+  String get buddhaCampaignDescription =>
+      'Kampania Buddy to podróż spokoju, kontroli i strategicznej jasności. Każdy poziom stawia przed tobą wyzwanie: czytać planszę, działać precyzyjnie i wygrywać dzięki równowadze, a nie sile.';
+
+  @override
   String get menuHubShort => 'Hub';
 
   @override

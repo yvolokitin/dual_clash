@@ -146,6 +146,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get menuCampaign => 'Campaign';
 
   @override
+  String get buddhaCampaignTitle => 'Campagne Bouddha';
+
+  @override
+  String get buddhaCampaignDescription =>
+      'La Campagne Bouddha est un voyage de calme, de contrôle et de clarté stratégique. Chaque niveau vous met au défi de lire le plateau, d\\'agir avec précision et de gagner par l\\'équilibre plutôt que par la force.';
+
+  @override
   String get menuHubShort => 'Hub';
 
   @override

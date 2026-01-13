@@ -145,6 +145,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get menuCampaign => 'Campaign';
 
   @override
+  String get buddhaCampaignTitle => 'Кампания Будды';
+
+  @override
+  String get buddhaCampaignDescription =>
+      'Кампания Будды — это путь спокойствия, контроля и стратегической ясности. Каждый уровень бросает вызов: читать поле, действовать точно и побеждать благодаря балансу, а не силе.';
+
+  @override
   String get menuHubShort => 'Хаб';
 
   @override

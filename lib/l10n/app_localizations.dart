@@ -374,6 +374,18 @@ abstract class AppLocalizations {
   /// **'Campaign'**
   String get menuCampaign;
 
+  /// No description provided for @buddhaCampaignTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Buddha Campaign'**
+  String get buddhaCampaignTitle;
+
+  /// No description provided for @buddhaCampaignDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Buddha Campaign is a journey of calm, control, and strategic clarity. Each level challenges you to read the board, act with precision, and win through balance rather than force.'**
+  String get buddhaCampaignDescription;
+
   /// No description provided for @menuHubShort.
   ///
   /// In en, this message translates to:
