@@ -212,7 +212,7 @@ class GamePageScoreRow extends StatelessWidget {
                             height: menuIconSize,
                           ),
                           icon: Image.asset(
-                            'assets/icons/menu_pvai.png',
+                            'assets/icons/menu/menu_pvai.png',
                             width: menuIconSize,
                             height: menuIconSize,
                           ),
@@ -262,7 +262,7 @@ class GamePageScoreRow extends StatelessWidget {
                             height: menuIconSize,
                           ),
                           icon: Image.asset(
-                            'assets/icons/menu_pvai.png',
+                            'assets/icons/menu/menu_pvai.png',
                             width: menuIconSize,
                             height: menuIconSize,
                           ),

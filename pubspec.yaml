@@ -52,6 +52,10 @@ flutter:
   generate: true
   uses-material-design: true
   assets:
+    - assets/icons/achievements/
+    - assets/icons/campaigns/
+    - assets/icons/languages/
+    - assets/icons/menu/
     - assets/icons/
   fonts:
     - family: Fredoka

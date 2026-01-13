@@ -55,7 +55,7 @@ class _CampaignPageState extends State<CampaignPage> {
         id: 'shiva',
         title: l10n.shivaCampaignTitle,
         description: l10n.shivaCampaignDescription,
-        iconAsset: 'assets/icons/shiva.png',
+        iconAsset: 'assets/icons/campaigns/shiva.png',
         isUnlocked: false,
         totalLevels: campaignLevels.length,
         levels: campaignLevels,
@@ -64,7 +64,7 @@ class _CampaignPageState extends State<CampaignPage> {
         id: 'buddha',
         title: l10n.buddhaCampaignTitle,
         description: l10n.buddhaCampaignDescription,
-        iconAsset: 'assets/icons/buddha.png',
+        iconAsset: 'assets/icons/campaigns/buddha.png',
         isUnlocked: true,
         totalLevels: campaignLevels.length,
         levels: campaignLevels,
@@ -73,7 +73,7 @@ class _CampaignPageState extends State<CampaignPage> {
         id: 'ganesha',
         title: l10n.ganeshaCampaignTitle,
         description: l10n.ganeshaCampaignDescription,
-        iconAsset: 'assets/icons/ganesha.png',
+        iconAsset: 'assets/icons/campaigns/ganesha.png',
         isUnlocked: false,
         totalLevels: campaignLevels.length,
         levels: campaignLevels,
@@ -1058,7 +1058,7 @@ class _CampaignNode extends StatelessWidget {
     final isLocked = status == CampaignLevelStatus.locked;
     final DecorationImage? backgroundImage = showBuddhaBackground
         ? const DecorationImage(
-            image: AssetImage('assets/icons/buddha_face_contur.png'),
+            image: AssetImage('assets/icons/campaigns/buddha_face_contur.png'),
             fit: BoxFit.contain,
             opacity: 0.28,
           )

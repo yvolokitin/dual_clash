@@ -325,7 +325,7 @@ class _DuelPageState extends State<DuelPage> {
                                         height: menuIconSize,
                                       ),
                                       icon: Image.asset(
-                                        'assets/icons/menu_pvai.png',
+                                        'assets/icons/menu/menu_pvai.png',
                                         width: menuIconSize,
                                         height: menuIconSize,
                                       ),
@@ -361,7 +361,7 @@ class _DuelPageState extends State<DuelPage> {
                                       height: menuIconSize,
                                     ),
                                     icon: Image.asset(
-                                      'assets/icons/menu_pvai.png',
+                                      'assets/icons/menu/menu_pvai.png',
                                       width: menuIconSize,
                                       height: menuIconSize,
                                     ),

@@ -250,7 +250,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                   children: [
                                     MenuTile(
                                       key: _gameTileKey,
-                                      imagePath: 'assets/icons/menu_pvai.png',
+                                      imagePath: 'assets/icons/menu/menu_pvai.png',
                                       label: compactLabels
                                           ? l10n.menuGameShort
                                           : l10n.menuGameChallenge,
@@ -269,7 +269,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                     ),
                                     MenuTile(
                                       key: _duelTileKey,
-                                      imagePath: 'assets/icons/menu_121.png',
+                                      imagePath: 'assets/icons/menu/menu_121.png',
                                       label: compactLabels
                                           ? l10n.menuDuelShort
                                           : l10n.menuDuelMode,
@@ -282,7 +282,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                     ),
                                     MenuTile(
                                       key: _campaignTileKey,
-                                      imagePath: 'assets/icons/menu_camp.png',
+                                      imagePath: 'assets/icons/menu/menu_camp.png',
                                       label: compactLabels
                                           ? l10n.menuCampaignShort
                                           : l10n.menuCampaign,
@@ -298,7 +298,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                     ),
                                     MenuTile(
                                       key: _playerHubTileKey,
-                                      imagePath: 'assets/icons/menu_settings.png',
+                                      imagePath: 'assets/icons/menu/menu_settings.png',
                                       label: compactLabels
                                           ? l10n.menuHubShort
                                           : l10n.menuPlayerHub,
@@ -503,7 +503,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                     child: ScaleTransition(
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: FlyoutTile(
-                        imagePath: 'assets/icons/menu_323.png',
+                        imagePath: 'assets/icons/menu/menu_323.png',
                         label: compactLabels
                             ? l10n.menuTripleShort
                             : l10n.menuTripleThreat,
@@ -535,7 +535,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                     child: ScaleTransition(
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: FlyoutTile(
-                        imagePath: 'assets/icons/menu_121.png',
+                        imagePath: 'assets/icons/menu/menu_121.png',
                         label: compactLabels
                             ? l10n.menuDuelShort
                             : l10n.menuDuelMode,
@@ -567,7 +567,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                     child: ScaleTransition(
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: FlyoutTile(
-                        imagePath: 'assets/icons/menu_424.png',
+                        imagePath: 'assets/icons/menu/menu_424.png',
                         label: compactLabels
                             ? l10n.menuQuadShort
                             : l10n.menuQuadClash,
@@ -599,7 +599,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                     child: ScaleTransition(
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: FlyoutTile(
-                        imagePath: 'assets/icons/menu_222.png',
+                        imagePath: 'assets/icons/menu/menu_222.png',
                         label: compactLabels
                             ? l10n.menuAlliance2v2Short
                             : l10n.menuAlliance2v2,
@@ -749,7 +749,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                     child: ScaleTransition(
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: FlyoutTile(
-                        imagePath: 'assets/icons/menu_profile.png',
+                        imagePath: 'assets/icons/menu/menu_profile.png',
                         label: l10n.profileTitle,
                         disabled: false,
                         color: AppColors.red,
@@ -776,7 +776,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                     child: ScaleTransition(
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: FlyoutTile(
-                        imagePath: 'assets/icons/menu_options.png',
+                        imagePath: 'assets/icons/menu/menu_options.png',
                         label: l10n.settingsTitle,
                         disabled: false,
                         color: _violet,
@@ -803,7 +803,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                     child: ScaleTransition(
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: FlyoutTile(
-                        imagePath: 'assets/icons/menu_load.png',
+                        imagePath: 'assets/icons/menu/menu_load.png',
                         label: compactLabels
                             ? l10n.menuLoadShort
                             : l10n.menuLoadGame,
@@ -829,7 +829,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                     child: ScaleTransition(
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: FlyoutTile(
-                        imagePath: 'assets/icons/menu_history.png',
+                        imagePath: 'assets/icons/menu/menu_history.png',
                         label: l10n.historyTitle,
                         disabled: false,
                         color: AppColors.blue,
@@ -919,7 +919,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                             runSpacing: 14,
                             children: [
                               FlyoutTile(
-                                imagePath: 'assets/icons/menu_profile.png',
+                                imagePath: 'assets/icons/menu/menu_profile.png',
                                 label: l10n.profileTitle,
                                 disabled: false,
                                 width: tileWidth,
@@ -934,7 +934,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                 },
                               ),
                               FlyoutTile(
-                                imagePath: 'assets/icons/menu_options.png',
+                                imagePath: 'assets/icons/menu/menu_options.png',
                                 label: l10n.languageTitle,
                                 disabled: false,
                                 width: tileWidth,
@@ -949,7 +949,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                 },
                               ),
                               FlyoutTile(
-                                imagePath: 'assets/icons/menu_history.png',
+                                imagePath: 'assets/icons/menu/menu_history.png',
                                 label: l10n.historyTitle,
                                 disabled: false,
                                 width: tileWidth,
@@ -964,7 +964,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                 },
                               ),
                               FlyoutTile(
-                                imagePath: 'assets/icons/menu_load.png',
+                                imagePath: 'assets/icons/menu/menu_load.png',
                                 label: l10n.menuLoadGame,
                                 disabled: false,
                                 width: tileWidth,
@@ -1058,7 +1058,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   FlyoutTile(
-                                    imagePath: 'assets/icons/menu_323.png',
+                                    imagePath: 'assets/icons/menu/menu_323.png',
                                     label: compactLabels
                                         ? l10n.menuTripleShort
                                         : l10n.menuTripleThreat,
@@ -1080,7 +1080,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                   ),
                                   const SizedBox(width: 14),
                                   FlyoutTile(
-                                    imagePath: 'assets/icons/menu_121.png',
+                                    imagePath: 'assets/icons/menu/menu_121.png',
                                     label: compactLabels
                                         ? l10n.menuDuelShort
                                         : l10n.menuDuelMode,
@@ -1105,7 +1105,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   FlyoutTile(
-                                    imagePath: 'assets/icons/menu_424.png',
+                                    imagePath: 'assets/icons/menu/menu_424.png',
                                     label: compactLabels
                                         ? l10n.menuQuadShort
                                         : l10n.menuQuadClash,
@@ -1127,7 +1127,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                   ),
                                   const SizedBox(width: 14),
                                   FlyoutTile(
-                                    imagePath: 'assets/icons/menu_222.png',
+                                    imagePath: 'assets/icons/menu/menu_222.png',
                                     label: l10n.menuAlliance2v2,
                                     disabled: true,
                                     width: tileWidth,

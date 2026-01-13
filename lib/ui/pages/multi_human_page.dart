@@ -258,7 +258,7 @@ class _MultiScaffoldState extends State<_MultiScaffold> {
                     child: Row(
                       children: [
                         IconButton(
-                          icon: Image.asset('assets/icons/menu_121.png', width: 28, height: 28),
+                          icon: Image.asset('assets/icons/menu/menu_121.png', width: 28, height: 28),
                           tooltip: context.l10n.mainMenuTooltip,
                           onPressed: () async {
                             final ok = await _confirmLeave(context);
