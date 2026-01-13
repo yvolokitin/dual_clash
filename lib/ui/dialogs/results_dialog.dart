@@ -13,10 +13,16 @@ Future<void> showAnimatedResultsDialog({
   required GameController controller,
   int? campaignLevelIndex,
   GameOutcome? campaignOutcome,
+  String? campaignId,
+  int? campaignTotalLevels,
+  VoidCallback? onCampaignContinue,
+  VoidCallback? onCampaignRetry,
+  VoidCallback? onCampaignBack,
+  bool barrierDismissible = true,
 }) {
   return showGeneralDialog(
     context: context,
-    barrierDismissible: true,
+    barrierDismissible: barrierDismissible,
     barrierLabel: context.l10n.resultsTitle,
     barrierColor: Colors.black.withOpacity(0.55),
     transitionDuration: const Duration(milliseconds: 260),
@@ -54,6 +60,11 @@ Future<void> showAnimatedResultsDialog({
                   controller: controller,
                   campaignLevelIndex: campaignLevelIndex,
                   campaignOutcome: campaignOutcome,
+                  campaignId: campaignId,
+                  campaignTotalLevels: campaignTotalLevels,
+                  onCampaignContinue: onCampaignContinue,
+                  onCampaignRetry: onCampaignRetry,
+                  onCampaignBack: onCampaignBack,
                 ),
               ),
             ),
@@ -71,16 +82,29 @@ Future<void> maybeShowResultsDialog({
   VoidCallback? onClosed,
   int? campaignLevelIndex,
   GameOutcome? campaignOutcome,
+  String? campaignId,
+  int? campaignTotalLevels,
+  VoidCallback? onCampaignContinue,
+  VoidCallback? onCampaignRetry,
+  VoidCallback? onCampaignBack,
 }) async {
   if (controller.gameOver && !controller.resultsShown) {
     controller.resultsShown = true;
     await Future.delayed(Duration(milliseconds: controller.winnerBorderAnimMs));
     if (!context.mounted) return;
+    final bool isCampaignResult =
+        campaignOutcome != null && campaignLevelIndex != null;
     await showAnimatedResultsDialog(
       context: context,
       controller: controller,
       campaignLevelIndex: campaignLevelIndex,
       campaignOutcome: campaignOutcome,
+      campaignId: campaignId,
+      campaignTotalLevels: campaignTotalLevels,
+      onCampaignContinue: onCampaignContinue,
+      onCampaignRetry: onCampaignRetry,
+      onCampaignBack: onCampaignBack,
+      barrierDismissible: !isCampaignResult,
     );
     onClosed?.call();
   }

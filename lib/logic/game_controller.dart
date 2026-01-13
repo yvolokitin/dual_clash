@@ -79,6 +79,11 @@ class GameController extends ChangeNotifier {
   bool humanVsHuman = false;
   int duelPlayerCount = 2;
   bool allianceMode = false;
+  int? campaignRestoreGridSize;
+  int? campaignRestoreBoardSize;
+  int? campaignRestoreAiLevel;
+  bool? campaignRestoreBombsEnabled;
+  bool? campaignRestoreHumanVsHuman;
   // --- Analytics & activity ---
   int totalPlayTimeMs = 0;
 
@@ -1207,7 +1212,7 @@ class GameController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void newGame({bool notify = true}) {
+  void newGame({bool notify = true, bool skipAi = false}) {
     _turnStats.clear();
     _undoStack.clear();
     lastMovePoints = 0;
@@ -1258,7 +1263,7 @@ class GameController extends ChangeNotifier {
       notifyListeners();
     }
     // If AI (Blue) starts, let it make the first move
-    if (!humanVsHuman && current == CellState.blue) {
+    if (!skipAi && !humanVsHuman && current == CellState.blue) {
       _scheduleAi();
     }
   }

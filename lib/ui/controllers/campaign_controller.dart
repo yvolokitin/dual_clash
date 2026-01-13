@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../logic/game_controller.dart';
 import '../../models/campaign_level.dart';
+import '../../models/campaign_result_action.dart';
 import '../../models/game_outcome.dart';
 import '../../models/game_result.dart';
 import '../pages/game_page.dart';
@@ -94,12 +95,15 @@ class CampaignController extends ChangeNotifier {
     final page = GamePage(
       controller: gameController,
       challengeConfig: level,
-      onGameCompleted: (outcome) => _handleLevelOutcome(
+      onCampaignAction: (outcome, action) => _handleLevelOutcome(
         context: context,
         gameController: gameController,
         level: level,
         outcome: outcome,
+        action: action,
       ),
+      campaignId: campaignId,
+      campaignTotalLevels: totalLevels,
     );
     final route = MaterialPageRoute(builder: (_) => page);
     if (replace) {
@@ -114,11 +118,12 @@ class CampaignController extends ChangeNotifier {
     required GameController gameController,
     required CampaignLevel level,
     required GameOutcome outcome,
+    required CampaignResultAction action,
   }) {
     if (!context.mounted) return;
+    final nextLevel = _nextLevel(level);
     if (outcome == GameOutcome.win) {
       _statusByLevel[level.index] = CampaignLevelStatus.passed;
-      final nextLevel = _nextLevel(level);
       if (nextLevel != null &&
           statusForLevel(nextLevel.index) == CampaignLevelStatus.locked) {
         _statusByLevel[nextLevel.index] = CampaignLevelStatus.available;
@@ -126,6 +131,28 @@ class CampaignController extends ChangeNotifier {
       _persistProgress();
       _recordCampaignWinStats(level.index, gameController);
       notifyListeners();
+    } else {
+      _statusByLevel[level.index] = CampaignLevelStatus.failed;
+      _persistProgress();
+      notifyListeners();
+    }
+
+    if (action == CampaignResultAction.backToCampaign) {
+      return;
+    }
+
+    if (action == CampaignResultAction.retry) {
+      launchLevel(
+        context: context,
+        gameController: gameController,
+        level: level,
+        replace: true,
+      );
+      return;
+    }
+
+    if (action == CampaignResultAction.continueNext &&
+        outcome == GameOutcome.win) {
       if (nextLevel != null) {
         launchLevel(
           context: context,
@@ -136,16 +163,6 @@ class CampaignController extends ChangeNotifier {
       } else {
         Navigator.of(context).pop();
       }
-    } else {
-      _statusByLevel[level.index] = CampaignLevelStatus.failed;
-      _persistProgress();
-      notifyListeners();
-      launchLevel(
-        context: context,
-        gameController: gameController,
-        level: level,
-        replace: true,
-      );
     }
   }
 
