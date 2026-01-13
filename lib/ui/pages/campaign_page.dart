@@ -888,6 +888,8 @@ class _CampaignRouteGrid extends StatelessWidget {
                       status: campaignController
                           .statusForLevel(rows[rowIndex][i]),
                       isFinalLevel: rows[rowIndex][i] == totalLevels,
+                      showBuddhaBackground:
+                          campaignController.campaignId == 'buddha',
                       onTap: () {
                         final level = campaignController
                             .levelForIndex(rows[rowIndex][i]);
@@ -1018,6 +1020,7 @@ class _CampaignNode extends StatelessWidget {
   final double size;
   final CampaignLevelStatus status;
   final bool isFinalLevel;
+  final bool showBuddhaBackground;
   final VoidCallback? onTap;
 
   const _CampaignNode({
@@ -1025,6 +1028,7 @@ class _CampaignNode extends StatelessWidget {
     required this.size,
     required this.status,
     required this.isFinalLevel,
+    required this.showBuddhaBackground,
     this.onTap,
   });
 
@@ -1052,6 +1056,13 @@ class _CampaignNode extends StatelessWidget {
     }
 
     final isLocked = status == CampaignLevelStatus.locked;
+    final DecorationImage? backgroundImage = showBuddhaBackground
+        ? const DecorationImage(
+            image: AssetImage('assets/icons/buddha_face_contur.png'),
+            fit: BoxFit.contain,
+            opacity: 0.28,
+          )
+        : null;
     return GestureDetector(
       onTap: isLocked ? null : onTap,
       child: Opacity(
@@ -1066,6 +1077,7 @@ class _CampaignNode extends StatelessWidget {
               color: isFinalLevel ? Colors.white : borderColor,
               width: isFinalLevel ? 4 : 3,
             ),
+            image: backgroundImage,
             boxShadow: [
               BoxShadow(
                 color: Colors.black38,
