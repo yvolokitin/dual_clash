@@ -349,7 +349,7 @@ class _CampaignNavigationHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconSize = imageHeight.clamp(40, 96);
+    final iconSize = imageHeight.clamp(40, 96).toDouble();
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
