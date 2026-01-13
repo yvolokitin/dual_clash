@@ -787,35 +787,45 @@ class _CampaignResultsActions extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Opacity(
-                opacity: primaryEnabled ? 1 : 0.4,
-                child: MenuTile(
-                  imagePath: showContinuePrimary
-                      ? primaryTileAsset
-                      : secondaryTileAsset,
-                  label: primaryLabel,
-                  color: showContinuePrimary
-                      ? AppColors.brandGold
-                      : AppColors.red,
-                  onTap: primaryEnabled
-                      ? () => primaryAction?.call()
-                      : () {},
-                  showLabel: false,
-                  transparentBackground: true,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                primaryLabel,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ],
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final double tileSize =
+                  (constraints.maxWidth * 0.32).clamp(120, 160);
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Opacity(
+                    opacity: primaryEnabled ? 1 : 0.4,
+                    child: SizedBox(
+                      width: tileSize,
+                      height: tileSize,
+                      child: MenuTile(
+                        imagePath: showContinuePrimary
+                            ? primaryTileAsset
+                            : secondaryTileAsset,
+                        label: primaryLabel,
+                        color: showContinuePrimary
+                            ? AppColors.brandGold
+                            : AppColors.red,
+                        onTap: primaryEnabled
+                            ? () => primaryAction?.call()
+                            : () {},
+                        showLabel: false,
+                        transparentBackground: true,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    primaryLabel,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ),
         const SizedBox(height: 12),
