@@ -30,7 +30,7 @@ class _CampaignPageState extends State<CampaignPage> {
   void initState() {
     super.initState();
     _pageController =
-        PageController(viewportFraction: 0.7, initialPage: _currentIndex);
+        PageController(viewportFraction: 1.0, initialPage: _currentIndex);
   }
 
   @override
@@ -738,15 +738,15 @@ class _CampaignRouteGrid extends StatelessWidget {
               children: [
                 Icon(
                   Icons.lock,
-                  color: Colors.white.withOpacity(0.85),
-                  size: adjustedNodeSize * 1.4,
+                  color: AppColors.brandGold,
+                  size: adjustedNodeSize * 2,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   comingSoonLabel,
                   style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 16,
+                    color: AppColors.brandGold,
+                    fontSize: 20.8,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.4,
                   ),
