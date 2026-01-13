@@ -80,6 +80,11 @@ class GameController extends ChangeNotifier {
   bool humanVsHuman = false;
   int duelPlayerCount = 2;
   bool allianceMode = false;
+  int? campaignRestoreGridSize;
+  int? campaignRestoreBoardSize;
+  int? campaignRestoreAiLevel;
+  bool? campaignRestoreBombsEnabled;
+  bool? campaignRestoreHumanVsHuman;
   // --- Analytics & activity ---
   int totalPlayTimeMs = 0;
 

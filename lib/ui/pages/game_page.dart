@@ -55,6 +55,7 @@ class _GamePageState extends State<GamePage> {
   bool _isLoadingAd = false;
   Timer? _adRetryTimer;
   bool _reportedOutcome = false;
+  bool _shouldRestoreConfig = true;
   int? _previousBoardSize;
   int? _previousGridSize;
   int? _previousAiLevel;
@@ -94,11 +95,16 @@ class _GamePageState extends State<GamePage> {
   void _applyChallengeConfig() {
     final config = widget.challengeConfig;
     if (config == null) return;
-    _previousGridSize = K.n;
-    _previousBoardSize = controller.boardSize;
-    _previousAiLevel = controller.aiLevel;
-    _previousBombsEnabled = controller.bombsEnabled;
-    _previousHumanVsHuman = controller.humanVsHuman;
+    controller.campaignRestoreGridSize ??= K.n;
+    controller.campaignRestoreBoardSize ??= controller.boardSize;
+    controller.campaignRestoreAiLevel ??= controller.aiLevel;
+    controller.campaignRestoreBombsEnabled ??= controller.bombsEnabled;
+    controller.campaignRestoreHumanVsHuman ??= controller.humanVsHuman;
+    _previousGridSize = controller.campaignRestoreGridSize;
+    _previousBoardSize = controller.campaignRestoreBoardSize;
+    _previousAiLevel = controller.campaignRestoreAiLevel;
+    _previousBombsEnabled = controller.campaignRestoreBombsEnabled;
+    _previousHumanVsHuman = controller.campaignRestoreHumanVsHuman;
     K.n = config.boardSize;
     controller.boardSize = config.boardSize;
     controller.aiLevel = config.aiLevel;
@@ -125,7 +131,7 @@ class _GamePageState extends State<GamePage> {
   }
 
   void _restoreChallengeConfig() {
-    if (widget.challengeConfig == null) return;
+    if (widget.challengeConfig == null || !_shouldRestoreConfig) return;
     if (_previousGridSize != null) {
       K.n = _previousGridSize!;
     }
@@ -142,6 +148,11 @@ class _GamePageState extends State<GamePage> {
       controller.humanVsHuman = _previousHumanVsHuman!;
     }
     controller.newGame(notify: false, skipAi: true);
+    controller.campaignRestoreGridSize = null;
+    controller.campaignRestoreBoardSize = null;
+    controller.campaignRestoreAiLevel = null;
+    controller.campaignRestoreBombsEnabled = null;
+    controller.campaignRestoreHumanVsHuman = null;
   }
 
   Future<void> _loadPremiumAndMaybeAd() async {
@@ -278,6 +289,7 @@ class _GamePageState extends State<GamePage> {
 
   void _handleGameCompleted() {
     if (_reportedOutcome) return;
+    _shouldRestoreConfig = true;
     final outcome = _outcomeForChallenge();
     widget.onCampaignAction?.call(outcome, CampaignResultAction.continueNext);
     _reportedOutcome = true;
@@ -285,6 +297,16 @@ class _GamePageState extends State<GamePage> {
 
   void _handleCampaignAction(CampaignResultAction action) {
     if (_reportedOutcome) return;
+    if (action == CampaignResultAction.backToCampaign) {
+      _shouldRestoreConfig = true;
+    } else if (action == CampaignResultAction.continueNext) {
+      final hasNextLevel = widget.campaignTotalLevels != null &&
+          widget.challengeConfig != null &&
+          widget.challengeConfig!.index < widget.campaignTotalLevels!;
+      _shouldRestoreConfig = !hasNextLevel;
+    } else {
+      _shouldRestoreConfig = false;
+    }
     final outcome = _outcomeForChallenge();
     widget.onCampaignAction?.call(outcome, action);
     _reportedOutcome = true;
