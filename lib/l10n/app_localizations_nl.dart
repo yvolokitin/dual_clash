@@ -145,6 +145,13 @@ class AppLocalizationsNl extends AppLocalizations {
   String get menuCampaign => 'Campaign';
 
   @override
+  String get buddhaCampaignTitle => 'Boeddha-campagne';
+
+  @override
+  String get buddhaCampaignDescription =>
+      'De Boeddha-campagne is een reis van kalmte, controle en strategische helderheid. Elk niveau daagt je uit het bord te lezen, met precisie te handelen en te winnen door balans in plaats van kracht.';
+
+  @override
   String get menuHubShort => 'Hub';
 
   @override

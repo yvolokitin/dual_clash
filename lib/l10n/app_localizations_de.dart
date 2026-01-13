@@ -145,6 +145,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get menuCampaign => 'Campaign';
 
   @override
+  String get buddhaCampaignTitle => 'Buddha-Kampagne';
+
+  @override
+  String get buddhaCampaignDescription =>
+      'Die Buddha-Kampagne ist eine Reise der Ruhe, Kontrolle und strategischen Klarheit. Jede Stufe fordert dich heraus, das Brett zu lesen, mit Präzision zu handeln und durch Balance statt durch Kraft zu gewinnen.';
+
+  @override
   String get menuHubShort => 'Hub';
 
   @override

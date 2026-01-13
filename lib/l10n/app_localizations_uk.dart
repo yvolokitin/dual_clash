@@ -145,6 +145,13 @@ class AppLocalizationsUk extends AppLocalizations {
   String get menuCampaign => 'Campaign';
 
   @override
+  String get buddhaCampaignTitle => 'Кампанія Будди';
+
+  @override
+  String get buddhaCampaignDescription =>
+      'Кампанія Будди — це шлях спокою, контролю та стратегічної ясності. Кожен рівень кидає виклик: читати поле, діяти з точністю та перемагати завдяки балансу, а не силі.';
+
+  @override
   String get menuHubShort => 'Хаб';
 
   @override
