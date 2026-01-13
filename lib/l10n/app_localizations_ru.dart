@@ -53,24 +53,24 @@ class AppLocalizationsRu extends AppLocalizations {
   String get gameMenuTitle => 'Игровое меню';
 
   @override
-  String get returnToMainMenuLabel => 'Вернуться в главное меню';
+  String get returnToMainMenuLabel => 'Вернуться в меню';
 
   @override
-  String get returnToMainMenuTitle => 'Вернуться в главное меню';
+  String get returnToMainMenuTitle => 'Вернуться в меню';
 
   @override
   String get returnToMainMenuMessage =>
-      'Хотите вернуться в главное меню?\n\nПрогресс не будет сохранён.';
+      'Хотите вернуться в главное меню?\n\nТекущий прогресс будет потерян (если вы его не сохранили)';
 
   @override
-  String get restartGameLabel => 'Перезапустить/начать игру';
+  String get restartGameLabel => 'Перезапустить игру';
 
   @override
   String get restartGameTitle => 'Перезапустить игру';
 
   @override
   String get restartGameMessage =>
-      'Перезапустить игру с нуля?\n\nТекущий прогресс будет потерян.';
+      'Перезапустить игру с нуля?\n\nТекущий прогресс будет потерян (если вы его не сохранили).';
 
   @override
   String get statisticsTitle => 'Статистика';
@@ -106,13 +106,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get simulateGameLabel => 'Симуляция игры';
 
   @override
-  String get simulateGameHumanWinLabel => 'Симуляция игры (победа человека)';
+  String get simulateGameHumanWinLabel => 'Симуляция (человек)';
 
   @override
-  String get simulateGameAiWinLabel => 'Симуляция игры (победа ИИ)';
+  String get simulateGameAiWinLabel => 'Симуляция (ИИ)';
 
   @override
-  String get simulateGameGreyWinLabel => 'Симуляция игры (победа серых)';
+  String get simulateGameGreyWinLabel => 'Симуляция (серый)';
 
   @override
   String get removeAdsLabel => 'Убрать рекламу — 1€';
@@ -124,7 +124,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get menuGameShort => 'Игра';
 
   @override
-  String get menuGameChallenge => 'Игра челлендж';
+  String get menuGameChallenge => 'Челлендж';
 
   @override
   String get menuDuelShort => 'Дуэль';
@@ -139,10 +139,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get menuLoadGame => 'Загрузить игру';
 
   @override
-  String get menuCampaignShort => 'Camp.';
+  String get menuCampaignShort => 'Камп.';
 
   @override
-  String get menuCampaign => 'Campaign';
+  String get menuCampaign => 'Кампания';
 
   @override
   String get buddhaCampaignTitle => 'Кампания Будды';
@@ -152,21 +152,21 @@ class AppLocalizationsRu extends AppLocalizations {
       'Кампания Будды — это путь спокойствия, контроля и стратегической ясности. Каждый уровень бросает вызов: читать поле, действовать точно и побеждать благодаря балансу, а не силе.';
 
   @override
-  String get shivaCampaignTitle => 'Shiva Campaign';
+  String get shivaCampaignTitle => 'Кампания Шивы';
 
   @override
   String get shivaCampaignDescription =>
-      'Shiva Campaign embraces destruction, aggression, and relentless pressure. Bombs become central tools, the board shifts rapidly, and decisive strikes define victory. Coming Soon.';
+      'Кампания Шивы — это разрушение, агрессия и непрерывное давление. Бомбы становятся главным инструментом, поле быстро меняется, а решающие удары определяют победу.\n\nСкоро выйдет';
 
   @override
-  String get ganeshaCampaignTitle => 'Ganesha Campaign';
+  String get ganeshaCampaignTitle => 'Кампания Ганеши';
 
   @override
   String get ganeshaCampaignDescription =>
-      'Ganesha Campaign challenges perception through obstacles, clever positioning, and unconventional rules. Success depends on adaptability, foresight, and finding paths where none seem obvious. Coming Soon.';
+      'Кампания Ганеши проверяет восприятие через препятствия, умное позиционирование и нестандартные правила. Успех зависит от гибкости, дальновидности и умения находить путь там, где его почти не видно.\n\nСкоро выйдет';
 
   @override
-  String get campaignComingSoon => 'Coming Soon';
+  String get campaignComingSoon => 'Скоро выйдет';
 
   @override
   String get menuHubShort => 'Хаб';
@@ -187,7 +187,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get menuQuadClash => 'Четверной бой';
 
   @override
-  String get menuAlliance2v2 => 'Alliance 2vs2';
+  String get menuAlliance2v2 => 'Союз 2×2';
 
   @override
   String get menuAlliance2v2Short => 'Альянс';
