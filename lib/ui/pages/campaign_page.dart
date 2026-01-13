@@ -924,49 +924,52 @@ class _CampaignNode extends StatelessWidget {
             opacity: 0.28,
           )
         : null;
-    return GestureDetector(
-      onTap: isLocked ? null : onTap,
-      child: Opacity(
-        opacity: isLocked ? 0.55 : 1,
-        child: Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: isFinalLevel ? Colors.white : borderColor,
-              width: isFinalLevel ? 4 : 3,
-            ),
-            image: backgroundImage,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black38,
-                blurRadius: 8,
-                offset: Offset(0, 4),
+    return MouseRegion(
+      cursor: isLocked ? SystemMouseCursors.basic : SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: isLocked ? null : onTap,
+        child: Opacity(
+          opacity: isLocked ? 0.55 : 1,
+          child: Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: isFinalLevel ? Colors.white : borderColor,
+                width: isFinalLevel ? 4 : 3,
               ),
-              if (isFinalLevel)
-                const BoxShadow(
-                  color: Colors.white70,
-                  blurRadius: 14,
-                  offset: Offset(0, 0),
-                ),
-            ],
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            '$level',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: size * 0.42,
-              fontWeight: FontWeight.w900,
-              shadows: const [
-                Shadow(
+              image: backgroundImage,
+              boxShadow: [
+                BoxShadow(
                   color: Colors.black38,
-                  blurRadius: 4,
-                  offset: Offset(0, 2),
+                  blurRadius: 8,
+                  offset: Offset(0, 4),
                 ),
+                if (isFinalLevel)
+                  const BoxShadow(
+                    color: Colors.white70,
+                    blurRadius: 14,
+                    offset: Offset(0, 0),
+                  ),
               ],
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              '$level',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: size * 0.42,
+                fontWeight: FontWeight.w900,
+                shadows: const [
+                  Shadow(
+                    color: Colors.black38,
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
