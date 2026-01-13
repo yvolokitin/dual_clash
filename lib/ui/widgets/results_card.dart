@@ -780,66 +780,85 @@ class _CampaignResultsActions extends StatelessWidget {
     final bool primaryEnabled = showContinuePrimary
         ? nextUnlocked && onContinue != null
         : onRetry != null;
+    const String primaryTileAsset = 'assets/icons/play.png';
+    const String secondaryTileAsset = 'assets/icons/replay.png';
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: primaryEnabled ? primaryAction : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: showContinuePrimary
-                  ? AppColors.brandGold
-                  : AppColors.red,
-              foregroundColor: const Color(0xFF2B221D),
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+        Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Opacity(
+                opacity: primaryEnabled ? 1 : 0.4,
+                child: MenuTile(
+                  imagePath: showContinuePrimary
+                      ? primaryTileAsset
+                      : secondaryTileAsset,
+                  label: primaryLabel,
+                  color: showContinuePrimary
+                      ? AppColors.brandGold
+                      : AppColors.red,
+                  onTap: primaryEnabled
+                      ? () => primaryAction?.call()
+                      : () {},
+                  showLabel: false,
+                  transparentBackground: true,
+                ),
               ),
-              textStyle: const TextStyle(
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.2,
+              const SizedBox(height: 6),
+              Text(
+                primaryLabel,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
-            ),
-            child: Text(primaryLabel),
+            ],
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             if (showRetrySecondary)
               Expanded(
-                child: OutlinedButton(
-                  onPressed: onRetry,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    side: const BorderSide(color: Colors.white24),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: OutlinedButton(
+                    onPressed: onRetry,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      side: const BorderSide(color: Colors.white24),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      textStyle: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.1,
+                      ),
                     ),
-                    textStyle: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.1,
-                    ),
+                    child: const Text('Retry'),
                   ),
-                  child: const Text('Retry'),
                 ),
               ),
             if (showRetrySecondary) const SizedBox(width: 12),
             Expanded(
-              child: TextButton(
-                onPressed: onBack,
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.white70,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  textStyle: const TextStyle(
-                    fontWeight: FontWeight.w600,
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: onBack,
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.white70,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    textStyle: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
+                  child: const Text('Back to Campaign'),
                 ),
-                child: const Text('Back to Campaign'),
               ),
             ),
           ],
