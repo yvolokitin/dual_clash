@@ -153,6 +153,23 @@ class AppLocalizationsFr extends AppLocalizations {
       'La Campagne Bouddha est un voyage de calme, de contrôle et de clarté stratégique. Chaque niveau vous met au défi de lire le plateau, d\\'agir avec précision et de gagner par l\\'équilibre plutôt que par la force.';
 
   @override
+  String get shivaCampaignTitle => 'Shiva Campaign';
+
+  @override
+  String get shivaCampaignDescription =>
+      'Shiva Campaign embraces destruction, aggression, and relentless pressure. Bombs become central tools, the board shifts rapidly, and decisive strikes define victory. Coming Soon.';
+
+  @override
+  String get ganeshaCampaignTitle => 'Ganesha Campaign';
+
+  @override
+  String get ganeshaCampaignDescription =>
+      'Ganesha Campaign challenges perception through obstacles, clever positioning, and unconventional rules. Success depends on adaptability, foresight, and finding paths where none seem obvious. Coming Soon.';
+
+  @override
+  String get campaignComingSoon => 'Coming Soon';
+
+  @override
   String get menuHubShort => 'Hub';
 
   @override

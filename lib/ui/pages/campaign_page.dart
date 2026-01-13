@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/colors.dart';
 import '../../core/localization.dart';
 import '../../logic/game_controller.dart';
 import '../../models/campaign_level.dart';
+import '../../models/campaign_metadata.dart';
 import '../controllers/campaign_controller.dart';
 
 class CampaignPage extends StatefulWidget {
@@ -16,22 +18,114 @@ class CampaignPage extends StatefulWidget {
 }
 
 class _CampaignPageState extends State<CampaignPage> {
-  late final CampaignController _campaignController;
+  static const String _kLastCampaignId = 'campaign_last_played';
+  final Map<String, CampaignController> _campaignControllers =
+      <String, CampaignController>{};
+  final Set<String> _loadedProgress = <String>{};
+  late final PageController _pageController;
+  List<CampaignMetadata> _campaigns = const [];
+  int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _campaignController = CampaignController();
-    _campaignController.loadProgress();
+    _pageController = PageController();
   }
 
   @override
   void dispose() {
-    _campaignController.dispose();
+    for (final controller in _campaignControllers.values) {
+      controller.dispose();
+    }
+    _pageController.dispose();
     super.dispose();
   }
 
-  void _showBuddhaCampaignInfo(BuildContext context) {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _initializeCampaigns();
+  }
+
+  void _initializeCampaigns() {
+    final l10n = context.l10n;
+    final definitions = <CampaignMetadata>[
+      CampaignMetadata(
+        id: 'buddha',
+        title: l10n.buddhaCampaignTitle,
+        description: l10n.buddhaCampaignDescription,
+        iconAsset: 'assets/icons/buddha.png',
+        isUnlocked: true,
+        totalLevels: campaignLevels.length,
+        levels: campaignLevels,
+      ),
+      CampaignMetadata(
+        id: 'shiva',
+        title: l10n.shivaCampaignTitle,
+        description: l10n.shivaCampaignDescription,
+        iconAsset: 'assets/icons/shiva.png',
+        isUnlocked: false,
+        totalLevels: campaignLevels.length,
+        levels: campaignLevels,
+      ),
+      CampaignMetadata(
+        id: 'ganesha',
+        title: l10n.ganeshaCampaignTitle,
+        description: l10n.ganeshaCampaignDescription,
+        iconAsset: 'assets/icons/ganesha.png',
+        isUnlocked: false,
+        totalLevels: campaignLevels.length,
+        levels: campaignLevels,
+      ),
+    ];
+    final unlocked = definitions.where((campaign) => campaign.isUnlocked).toList();
+    final locked = definitions.where((campaign) => !campaign.isUnlocked).toList();
+    _campaigns = <CampaignMetadata>[...unlocked, ...locked];
+    for (final campaign in _campaigns) {
+      _campaignControllers.putIfAbsent(
+        campaign.id,
+        () => CampaignController(
+          campaignId: campaign.id,
+          isUnlocked: campaign.isUnlocked,
+          totalLevels: campaign.totalLevels,
+          levels: campaign.levels,
+        ),
+      );
+      if (campaign.isUnlocked && !_loadedProgress.contains(campaign.id)) {
+        _loadedProgress.add(campaign.id);
+        _campaignControllers[campaign.id]!.loadProgress();
+      }
+    }
+    _restoreLastCampaignIfNeeded();
+  }
+
+  Future<void> _restoreLastCampaignIfNeeded() async {
+    if (_campaigns.isEmpty) return;
+    final unlocked = _campaigns.where((campaign) => campaign.isUnlocked).toList();
+    if (unlocked.length <= 1) return;
+    final prefs = await SharedPreferences.getInstance();
+    final lastCampaignId = prefs.getString(_kLastCampaignId);
+    if (lastCampaignId == null) return;
+    final index = _campaigns.indexWhere(
+      (campaign) => campaign.id == lastCampaignId && campaign.isUnlocked,
+    );
+    if (index <= -1 || index == _currentIndex) return;
+    if (!mounted) return;
+    setState(() {
+      _currentIndex = index;
+    });
+    _pageController.jumpToPage(index);
+  }
+
+  Future<void> _persistSelectedCampaign(CampaignMetadata campaign) async {
+    final unlocked = _campaigns.where((entry) => entry.isUnlocked).toList();
+    if (unlocked.length <= 1) return;
+    if (!campaign.isUnlocked) return;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kLastCampaignId, campaign.id);
+  }
+
+  void _showCampaignInfo(BuildContext context, CampaignMetadata campaign) {
     final l10n = context.l10n;
     showDialog<void>(
       context: context,
@@ -56,7 +150,7 @@ class _CampaignPageState extends State<CampaignPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        l10n.buddhaCampaignTitle,
+                        campaign.title,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 20,
@@ -65,7 +159,7 @@ class _CampaignPageState extends State<CampaignPage> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        l10n.buddhaCampaignDescription,
+                        campaign.description,
                         style: const TextStyle(
                           color: Colors.white70,
                           height: 1.4,
@@ -126,18 +220,36 @@ class _CampaignPageState extends State<CampaignPage> {
             final headerHeight = height * 0.2;
             final horizontalPadding = width < 420 ? 20.0 : 32.0;
             final l10n = context.l10n;
+            if (_campaigns.isEmpty) {
+              return const SizedBox.shrink();
+            }
             return Column(
               children: [
                 SizedBox(
                   height: headerHeight,
                   child: Padding(
                     padding: const EdgeInsets.only(top: 8.0),
-                    child: Center(
-                      child: _BuddhaCampaignHeader(
-                        title: l10n.buddhaCampaignTitle,
-                        onTap: () => _showBuddhaCampaignInfo(context),
-                        imageHeight: headerHeight * 0.55,
-                      ),
+                    child: _CampaignNavigationHeader(
+                      campaign: _campaigns[_currentIndex],
+                      totalCampaigns: _campaigns.length,
+                      currentIndex: _currentIndex,
+                      imageHeight: headerHeight * 0.55,
+                      onTap: () =>
+                          _showCampaignInfo(context, _campaigns[_currentIndex]),
+                      onPrevious: _currentIndex > 0
+                          ? () => _pageController.previousPage(
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.easeOut,
+                              )
+                          : null,
+                      onNext: _currentIndex < _campaigns.length - 1
+                          ? () => _pageController.nextPage(
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.easeOut,
+                              )
+                          : null,
+                      comingSoonLabel: l10n.campaignComingSoon,
+                      isLocked: !_campaigns[_currentIndex].isUnlocked,
                     ),
                   ),
                 ),
@@ -147,12 +259,27 @@ class _CampaignPageState extends State<CampaignPage> {
                       horizontal: horizontalPadding,
                       vertical: 12,
                     ),
-                    child: AnimatedBuilder(
-                      animation: _campaignController,
-                      builder: (context, _) {
-                        return _CampaignRouteGrid(
-                          campaignController: _campaignController,
-                          gameController: widget.controller,
+                    child: PageView.builder(
+                      controller: _pageController,
+                      onPageChanged: (index) {
+                        if (!mounted) return;
+                        setState(() {
+                          _currentIndex = index;
+                        });
+                        _persistSelectedCampaign(_campaigns[index]);
+                      },
+                      itemCount: _campaigns.length,
+                      itemBuilder: (context, index) {
+                        final campaign = _campaigns[index];
+                        final controller = _campaignControllers[campaign.id]!;
+                        return AnimatedBuilder(
+                          animation: controller,
+                          builder: (context, _) {
+                            return _CampaignRouteGrid(
+                              campaignController: controller,
+                              gameController: widget.controller,
+                            );
+                          },
                         );
                       },
                     ),
@@ -197,48 +324,93 @@ class _CampaignPageState extends State<CampaignPage> {
   }
 }
 
-class _BuddhaCampaignHeader extends StatelessWidget {
-  final String title;
+class _CampaignNavigationHeader extends StatelessWidget {
+  final CampaignMetadata campaign;
+  final int currentIndex;
+  final int totalCampaigns;
+  final bool isLocked;
+  final String comingSoonLabel;
   final double imageHeight;
   final VoidCallback onTap;
+  final VoidCallback? onPrevious;
+  final VoidCallback? onNext;
 
-  const _BuddhaCampaignHeader({
-    required this.title,
+  const _CampaignNavigationHeader({
+    required this.campaign,
+    required this.currentIndex,
+    required this.totalCampaigns,
+    required this.isLocked,
+    required this.comingSoonLabel,
     required this.imageHeight,
     required this.onTap,
+    required this.onPrevious,
+    required this.onNext,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(24),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Image.asset(
-                'assets/icons/buddha.png',
-                height: imageHeight.clamp(40, 96),
-                fit: BoxFit.contain,
-              ),
-              const SizedBox(height: 6),
-              Text(
-                title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.2,
+    final iconSize = imageHeight.clamp(40, 96);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          onPressed: onPrevious,
+          icon: const Icon(Icons.chevron_left, color: Colors.white),
+          disabledColor: Colors.white24,
+          tooltip: currentIndex > 0 ? 'Previous campaign' : null,
+        ),
+        Flexible(
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(24),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(
+                      campaign.iconAsset,
+                      height: iconSize,
+                      fit: BoxFit.contain,
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      campaign.title,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                    if (isLocked) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        comingSoonLabel,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
         ),
-      ),
+        IconButton(
+          onPressed: onNext,
+          icon: const Icon(Icons.chevron_right, color: Colors.white),
+          disabledColor: Colors.white24,
+          tooltip: currentIndex < totalCampaigns - 1 ? 'Next campaign' : null,
+        ),
+      ],
     );
   }
 }
@@ -429,7 +601,7 @@ class _CampaignRouteGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final totalLevels = campaignController.levels.length;
+    final totalLevels = campaignController.totalLevels;
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;

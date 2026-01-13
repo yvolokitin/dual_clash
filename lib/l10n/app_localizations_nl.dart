@@ -152,6 +152,23 @@ class AppLocalizationsNl extends AppLocalizations {
       'De Boeddha-campagne is een reis van kalmte, controle en strategische helderheid. Elk niveau daagt je uit het bord te lezen, met precisie te handelen en te winnen door balans in plaats van kracht.';
 
   @override
+  String get shivaCampaignTitle => 'Shiva Campaign';
+
+  @override
+  String get shivaCampaignDescription =>
+      'Shiva Campaign embraces destruction, aggression, and relentless pressure. Bombs become central tools, the board shifts rapidly, and decisive strikes define victory. Coming Soon.';
+
+  @override
+  String get ganeshaCampaignTitle => 'Ganesha Campaign';
+
+  @override
+  String get ganeshaCampaignDescription =>
+      'Ganesha Campaign challenges perception through obstacles, clever positioning, and unconventional rules. Success depends on adaptability, foresight, and finding paths where none seem obvious. Coming Soon.';
+
+  @override
+  String get campaignComingSoon => 'Coming Soon';
+
+  @override
   String get menuHubShort => 'Hub';
 
   @override

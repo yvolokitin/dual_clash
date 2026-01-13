@@ -152,6 +152,23 @@ class AppLocalizationsRu extends AppLocalizations {
       'Кампания Будды — это путь спокойствия, контроля и стратегической ясности. Каждый уровень бросает вызов: читать поле, действовать точно и побеждать благодаря балансу, а не силе.';
 
   @override
+  String get shivaCampaignTitle => 'Shiva Campaign';
+
+  @override
+  String get shivaCampaignDescription =>
+      'Shiva Campaign embraces destruction, aggression, and relentless pressure. Bombs become central tools, the board shifts rapidly, and decisive strikes define victory. Coming Soon.';
+
+  @override
+  String get ganeshaCampaignTitle => 'Ganesha Campaign';
+
+  @override
+  String get ganeshaCampaignDescription =>
+      'Ganesha Campaign challenges perception through obstacles, clever positioning, and unconventional rules. Success depends on adaptability, foresight, and finding paths where none seem obvious. Coming Soon.';
+
+  @override
+  String get campaignComingSoon => 'Coming Soon';
+
+  @override
   String get menuHubShort => 'Хаб';
 
   @override
