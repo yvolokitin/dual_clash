@@ -460,6 +460,133 @@ class _CampaignRouteGrid extends StatelessWidget {
   final CampaignController campaignController;
   final GameController gameController;
   final String comingSoonLabel;
+  final Map<int, _LevelDetails> _buddhaLevelDetails = const {
+    1: _LevelDetails(
+      title: 'First Breath',
+      description:
+          'Your journey begins. Make your first move and feel the balance of the board.',
+    ),
+    2: _LevelDetails(
+      title: 'Still Mind',
+      description:
+          'Patience reveals opportunities. The simplest move can be the strongest.',
+    ),
+    3: _LevelDetails(
+      title: 'Center Focus',
+      description:
+          'Control the center early to shape the game in your favor.',
+    ),
+    4: _LevelDetails(
+      title: 'Silent Expansion',
+      description:
+          'Grow your presence quietly without exposing yourself too soon.',
+    ),
+    5: _LevelDetails(
+      title: 'Balanced Steps',
+      description: 'Every move matters. Think one step ahead.',
+    ),
+    6: _LevelDetails(
+      title: 'Pressure Appears',
+      description:
+          'The opponent gains ground. Find stability under pressure.',
+    ),
+    7: _LevelDetails(
+      title: 'Calm Under Threat',
+      description: 'Maintain control even when space is limited.',
+    ),
+    8: _LevelDetails(
+      title: 'Narrow Paths',
+      description: 'The board tightens. Choose your direction carefully.',
+    ),
+    9: _LevelDetails(
+      title: 'Measured Risk',
+      description: 'Risk can be powerful—when it is calculated.',
+    ),
+    10: _LevelDetails(
+      title: 'Turning Point',
+      description: 'One precise move can change everything.',
+    ),
+    11: _LevelDetails(
+      title: 'Quiet Dominance',
+      description: 'Win through position, not aggression.',
+    ),
+    12: _LevelDetails(
+      title: 'Lines of Influence',
+      description: 'Placement matters more than numbers.',
+    ),
+    13: _LevelDetails(
+      title: 'Space Awareness',
+      description:
+          'Learn to value empty space as much as occupied tiles.',
+    ),
+    14: _LevelDetails(
+      title: 'Inner Balance',
+      description: 'Balance attack and defense with clarity.',
+    ),
+    15: _LevelDetails(
+      title: 'The Bomb Lesson',
+      description: 'Destruction is a tool, not the goal.',
+    ),
+    16: _LevelDetails(
+      title: 'After the Impact',
+      description: 'Think beyond the explosion and plan what follows.',
+    ),
+    17: _LevelDetails(
+      title: 'Controlled Chaos',
+      description: 'Chaos can be shaped with a clear mind.',
+    ),
+    18: _LevelDetails(
+      title: 'Reading Intentions',
+      description:
+          'Anticipate your opponent instead of reacting blindly.',
+    ),
+    19: _LevelDetails(
+      title: 'Defensive Wisdom',
+      description: 'A strong defense can be the best offense.',
+    ),
+    20: _LevelDetails(
+      title: 'One Chance',
+      description: 'There is no room for error here. Precision is key.',
+    ),
+    21: _LevelDetails(
+      title: 'Endgame Calm',
+      description: 'When the board is full, every tile counts.',
+    ),
+    22: _LevelDetails(
+      title: 'No Rush',
+      description: 'Haste clouds judgment. Stay composed.',
+    ),
+    23: _LevelDetails(
+      title: 'Fragile Advantage',
+      description: 'An advantage is powerful only if protected.',
+    ),
+    24: _LevelDetails(
+      title: 'Final Balance',
+      description: 'Hold control when everything is on the edge.',
+    ),
+    25: _LevelDetails(
+      title: 'Almost There',
+      description: 'The goal is close—but focus remains essential.',
+    ),
+    26: _LevelDetails(
+      title: 'Clear Mind',
+      description: 'Remove distractions. Only the right move remains.',
+    ),
+    27: _LevelDetails(
+      title: 'Last Patterns',
+      description: 'Apply everything you have learned so far.',
+    ),
+    28: _LevelDetails(
+      title: 'Path of Control',
+      description:
+          'The board yields to those who see the whole picture.',
+    ),
+    29: _LevelDetails(
+      title: 'Enlightenment',
+      description:
+          'True victory comes from complete understanding.',
+    ),
+  };
 
   const _CampaignRouteGrid({
     required this.campaignController,
@@ -531,19 +658,31 @@ class _CampaignRouteGrid extends StatelessWidget {
   }
 
   void _showLevelDetails(BuildContext context, CampaignLevel level) {
+    final levelDetails = campaignController.campaignId == 'buddha'
+        ? _buddhaLevelDetails[level.index]
+        : null;
     showDialog<void>(
       context: context,
       builder: (context) {
         return AlertDialog(
           backgroundColor: const Color(0xFF3B2F77),
           title: Text(
-            'Level ${level.index} details',
+            levelDetails == null
+                ? 'Level ${level.index} details'
+                : 'Level ${level.index}: ${levelDetails.title}',
             style: const TextStyle(color: Colors.white),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (levelDetails != null) ...[
+                Text(
+                  levelDetails.description,
+                  style: const TextStyle(color: Colors.white70, height: 1.4),
+                ),
+                const SizedBox(height: 12),
+              ],
               _detailRow('Board size', '${level.boardSize}x${level.boardSize}'),
               _detailRow('AI level', level.aiLevel.toString()),
               _detailRow(
@@ -804,6 +943,16 @@ class _CampaignRouteGrid extends StatelessWidget {
 }
 
 enum _DeviceClass { mobile, tablet, desktop }
+
+class _LevelDetails {
+  final String title;
+  final String description;
+
+  const _LevelDetails({
+    required this.title,
+    required this.description,
+  });
+}
 
 class _CampaignNode extends StatelessWidget {
   final int level;
