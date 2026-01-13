@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:math' as math;
-import 'dart:io';
 import '../models/cell_state.dart';
 import 'rules_engine.dart';
 import 'ai.dart';

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:dual_clash/core/colors.dart';
 import 'package:dual_clash/core/constants.dart';
@@ -21,6 +20,7 @@ import 'package:dual_clash/ui/widgets/support_links_bar.dart';
 import 'package:dual_clash/ui/widgets/game_layout_metrics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:dual_clash/core/platforms.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -58,7 +58,7 @@ class _GamePageState extends State<GamePage> {
   bool _shouldRestoreConfig = true;
 
   GameController get controller => widget.controller;
-  bool get _isAndroidOrIOS => !kIsWeb && (Platform.isAndroid || Platform.isIOS);
+  bool get _isAndroidOrIOS => isMobile;
 
   @override
   void initState() {
@@ -182,15 +182,7 @@ class _GamePageState extends State<GamePage> {
     });
   }
 
-  Future<bool> _hasNetwork() async {
-    try {
-      final result = await InternetAddress.lookup('example.com')
-          .timeout(const Duration(seconds: 3));
-      return result.isNotEmpty && result.first.rawAddress.isNotEmpty;
-    } catch (_) {
-      return false;
-    }
-  }
+  // Removed network pre-check to keep web-safe and rely on AdMob callbacks
 
   Future<void> _loadBannerIfEligible(BuildContext context) async {
     if (!FF_ADS) return;
@@ -201,11 +193,6 @@ class _GamePageState extends State<GamePage> {
     final bannerWidth = MediaQuery.of(context).size.width.truncate();
     if (bannerWidth <= 0) return;
     _isLoadingAd = true;
-    final hasNetwork = await _hasNetwork();
-    if (!hasNetwork) {
-      _isLoadingAd = false;
-      return;
-    }
     final adaptiveSize =
         await AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(
             bannerWidth);
@@ -218,7 +205,7 @@ class _GamePageState extends State<GamePage> {
         _adaptiveBannerSize = adaptiveSize;
       });
     }
-    final adUnitId = Platform.isAndroid
+    final adUnitId = isAndroid
         ? 'ca-app-pub-3940256099942544/9214589741'
         : 'ca-app-pub-3940256099942544/2435281174';
     final banner = BannerAd(

@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/ui/widgets/save_game_card.dart';
 import 'package:flutter/material.dart';
+import 'package:dual_clash/core/platforms.dart';
 
 /// Shows the animated Save Game dialog with soft blur, fade and scale
 /// transitions, wrapping the universal SaveGameCard.
@@ -65,6 +66,7 @@ Future<void> showAnimatedSaveGameDialog({
                   nameHint: nameHint,
                   saveButtonLabel: saveButtonLabel,
                   cancelButtonLabel: cancelButtonLabel,
+                  infoNote: isWeb ? context.l10n.webSaveGameNote : null,
                 ),
               ),
             ),

@@ -303,5 +303,7 @@
       "country": {}
     }
   },
-  "whoStartsFirstTip": "If no turns have been made, changes apply immediately; otherwise they take effect in the next game."
+  "whoStartsFirstTip": "If no turns have been made, changes apply immediately; otherwise they take effect in the next game.",
+  "webSaveGameNote": "Nota web: tu guardado se almacenará en el almacenamiento local de este navegador para este sitio. No se sincroniza entre dispositivos ni en ventanas privadas.",
+  "webLoadGameNote": "Nota web: la lista de abajo proviene del almacenamiento local de este navegador para este sitio (no se comparte entre otros navegadores ni ventanas privadas)."
 }

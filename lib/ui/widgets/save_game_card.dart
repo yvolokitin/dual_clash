@@ -16,6 +16,7 @@ class SaveGameCard extends StatefulWidget {
   final String saveButtonLabel;
   final String cancelButtonLabel;
   final String nameHint;
+  final String? infoNote;
 
   const SaveGameCard({
     super.key,
@@ -27,6 +28,7 @@ class SaveGameCard extends StatefulWidget {
     required this.saveButtonLabel,
     required this.cancelButtonLabel,
     required this.nameHint,
+    this.infoNote,
   });
 
   @override
@@ -116,6 +118,21 @@ class _SaveGameCardState extends State<SaveGameCard> {
                   ],
                 ),
                 const SizedBox(height: 12),
+                if (widget.infoNote != null) ...[
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.06),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.white24, width: 1),
+                    ),
+                    child: Text(
+                      widget.infoNote!,
+                      style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
                 Text(widget.nameLabel,
                     style: const TextStyle(
                         color: Colors.white70, fontWeight: FontWeight.w700)),

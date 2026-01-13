@@ -303,5 +303,7 @@
   "deleteSaveTitle": "Удалить сохранение?",
   "deleteSaveMessage": "Вы уверены, что хотите удалить это сохранение?",
   "failedToDeleteMessage": "Не удалось удалить",
-  "whoStartsFirstTip": "If no turns have been made, changes apply immediately; otherwise they take effect in the next game."
+  "whoStartsFirstTip": "If no turns have been made, changes apply immediately; otherwise they take effect in the next game.",
+  "webSaveGameNote": "Веб‑примечание: ваше сохранение будет храниться в локальном хранилище этого браузера для этого сайта. Оно не синхронизируется между устройствами и не сохраняется в приватных окнах.",
+  "webLoadGameNote": "Веб‑примечание: список ниже берётся из локального хранилища этого браузера для этого сайта (не используется совместно с другими браузерами и приватными окнами)."
 }

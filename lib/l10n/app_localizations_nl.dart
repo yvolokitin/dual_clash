@@ -906,4 +906,12 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String get failedToDeleteMessage => 'Verwijderen mislukt';
+
+  @override
+  String get webSaveGameNote =>
+      'Web-opmerking: je opslag wordt opgeslagen in de lokale opslag van deze browser voor deze site. Het synchroniseert niet tussen apparaten of privévensters.';
+
+  @override
+  String get webLoadGameNote =>
+      'Web-opmerking: de onderstaande lijst komt uit de lokale opslag van deze browser voor deze site (niet gedeeld tussen andere browsers of privévensters).';
 }

@@ -910,4 +910,12 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get failedToDeleteMessage => 'No se pudo eliminar';
+
+  @override
+  String get webSaveGameNote =>
+      'Nota web: tu guardado se almacenará en el almacenamiento local de este navegador para este sitio. No se sincroniza entre dispositivos ni en ventanas privadas.';
+
+  @override
+  String get webLoadGameNote =>
+      'Nota web: la lista de abajo proviene del almacenamiento local de este navegador para este sitio (no se comparte entre otros navegadores ni ventanas privadas).';
 }

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:dual_clash/core/feature_flags.dart';
@@ -8,7 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:dual_clash/l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:window_manager/window_manager.dart';
+import 'package:window_manager/window_manager.dart' if (dart.library.html) 'package:dual_clash/core/noop_window_manager.dart';
+import 'core/platforms.dart';
 
 import 'core/constants.dart';
 import 'logic/game_controller.dart';
@@ -19,7 +19,7 @@ import 'ui/pages/main_menu_page.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (Platform.isWindows) {
+  if (isWindows) {
     await windowManager.ensureInitialized();
 
     const minSize = Size(900, 700); // <--- your minimum
@@ -40,8 +40,8 @@ Future<void> main() async {
 
   _configureBoardSizeForDevice();
 
-  // AdMob SDK init, Initialize AdMob only is supported
-  if (FF_ADS && (Platform.isAndroid || Platform.isIOS)) {
+  // AdMob SDK init, Initialize AdMob only if supported (mobile)
+  if (FF_ADS && isMobile) {
     await MobileAds.instance.initialize();
   }
 

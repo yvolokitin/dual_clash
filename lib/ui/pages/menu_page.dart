@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'package:dual_clash/core/localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:dual_clash/core/platforms.dart';
 import '../../logic/game_controller.dart';
 import '../../core/colors.dart';
 import 'history_page.dart';
@@ -495,6 +496,21 @@ Future<bool?> showLoadGameDialog({
                                           ],
                                         ),
                                         const SizedBox(height: 12),
+                                        if (isWeb) ...[
+                                          Container(
+                                            padding: const EdgeInsets.all(10),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white.withOpacity(0.06),
+                                              borderRadius: BorderRadius.circular(12),
+                                              border: Border.all(color: Colors.white24, width: 1),
+                                            ),
+                                            child: Text(
+                                              l10n.webLoadGameNote,
+                                              style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 12),
+                                        ],
                                         Expanded(
                                           child: localItems.isEmpty
                                               ? Center(

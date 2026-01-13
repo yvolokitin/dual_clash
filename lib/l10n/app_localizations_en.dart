@@ -902,4 +902,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get failedToDeleteMessage => 'Failed to delete';
+
+  @override
+  String get webSaveGameNote =>
+      'Web note: your save will be stored in this browser’s local storage for this site. It won’t sync across devices or private windows.';
+
+  @override
+  String get webLoadGameNote =>
+      'Web note: the list below comes from this browser’s local storage for this site (not shared across other browsers or private windows).';
 }

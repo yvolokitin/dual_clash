@@ -907,4 +907,12 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get failedToDeleteMessage => 'Löschen fehlgeschlagen';
+
+  @override
+  String get webSaveGameNote =>
+      'Web-Hinweis: Deine Speicherung wird im lokalen Speicher dieses Browsers für diese Website gespeichert. Sie wird nicht zwischen Geräten oder privaten Fenstern synchronisiert.';
+
+  @override
+  String get webLoadGameNote =>
+      'Web-Hinweis: Die Liste unten stammt aus dem lokalen Speicher dieses Browsers für diese Website (nicht zwischen anderen Browsern oder privaten Fenstern geteilt).';
 }

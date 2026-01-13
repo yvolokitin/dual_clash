@@ -908,4 +908,12 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get failedToDeleteMessage => 'Échec de la suppression';
+
+  @override
+  String get webSaveGameNote =>
+      'Note Web : votre sauvegarde sera stockée dans le stockage local de ce navigateur pour ce site. Elle ne se synchronise pas entre appareils ni en navigation privée.';
+
+  @override
+  String get webLoadGameNote =>
+      'Note Web : la liste ci-dessous provient du stockage local de ce navigateur pour ce site (non partagé avec d’autres navigateurs ni les fenêtres privées).';
 }

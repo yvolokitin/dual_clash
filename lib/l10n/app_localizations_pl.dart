@@ -907,4 +907,12 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get failedToDeleteMessage => 'Nie udało się usunąć';
+
+  @override
+  String get webSaveGameNote =>
+      'Uwaga web: twój zapis będzie przechowywany w lokalnej pamięci tej przeglądarki dla tej witryny. Nie synchronizuje się między urządzeniami ani w oknach prywatnych.';
+
+  @override
+  String get webLoadGameNote =>
+      'Uwaga web: poniższa lista pochodzi z lokalnej pamięci tej przeglądarki dla tej witryny (nie jest współdzielona z innymi przeglądarkami ani oknami prywatnymi).';
 }

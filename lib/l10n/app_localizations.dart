@@ -1369,6 +1369,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to delete'**
   String get failedToDeleteMessage;
+
+  /// No description provided for @webSaveGameNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Web note: your save will be stored in this browser’s local storage for this site. It won’t sync across devices or private windows.'**
+  String get webSaveGameNote;
+
+  /// No description provided for @webLoadGameNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Web note: the list below comes from this browser’s local storage for this site (not shared across other browsers or private windows).'**
+  String get webLoadGameNote;
 }
 
 class _AppLocalizationsDelegate

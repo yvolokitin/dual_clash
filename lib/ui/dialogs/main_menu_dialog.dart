@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:dual_clash/core/feature_flags.dart';
 import 'package:dual_clash/core/localization.dart';
@@ -17,6 +16,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dual_clash/core/platforms.dart';
 
 /// Minimal, independent "Main Menu" dialog styled like Profile dialog
 /// but with a solid #FFA213 background as requested.
@@ -81,7 +81,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
   @override
   void initState() {
     super.initState();
-    if (FF_ADS && (Platform.isAndroid || Platform.isIOS)) {
+    if (FF_ADS && isMobile) {
       _iap = InAppPurchase.instance;
       _purchaseSub = _iap!.purchaseStream.listen(
         _handlePurchases,
@@ -642,7 +642,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                           ],
                           if (FF_ADS &&
                               config.showRestorePurchases &&
-                              Platform.isIOS) ...[
+                              isIOS) ...[
                             const SizedBox(height: 6),
                             _menuTile(
                               context,

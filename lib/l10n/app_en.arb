@@ -303,5 +303,7 @@
   },
   "deleteSaveTitle": "Delete save?",
   "deleteSaveMessage": "Are you sure you want to delete this saved game?",
-  "failedToDeleteMessage": "Failed to delete"
+  "failedToDeleteMessage": "Failed to delete",
+  "webSaveGameNote": "Web note: your save will be stored in this browser’s local storage for this site. It won’t sync across devices or private windows.",
+  "webLoadGameNote": "Web note: the list below comes from this browser’s local storage for this site (not shared across other browsers or private windows)."
 }
