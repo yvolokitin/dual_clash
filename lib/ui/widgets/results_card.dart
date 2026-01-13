@@ -652,7 +652,7 @@ class _CampaignResultsContent extends StatelessWidget {
         final double compactSpacing = tightHeight ? 8 : 10;
 
         return Column(
-          mainAxisSize: MainAxisSize.max,
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
@@ -740,7 +740,7 @@ class _CampaignResultsContent extends StatelessWidget {
                 ),
               ),
             ],
-            const Spacer(),
+            SizedBox(height: spacing),
             _CampaignResultsActions(
               isWin: isWin,
               nextUnlocked: nextUnlocked,
