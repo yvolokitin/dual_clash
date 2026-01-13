@@ -636,7 +636,7 @@ class _CampaignResultsContent extends StatelessWidget {
     final int blueBase = controller.scoreBlueBase();
     final int neutrals =
         RulesEngine.countOf(controller.board, CellState.neutral);
-    final int redTotal = controller.scoreRedTotal();
+    final int redGamePoints = controller.redGamePoints;
     final String progressLabel = 'Level $levelIndex / $totalLevels';
     final String unlockLabel = nextUnlocked
         ? 'Next level unlocked'
@@ -757,7 +757,7 @@ class _CampaignResultsContent extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Score: $redTotal',
+                    'Score: $redGamePoints',
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w700,
