@@ -7,6 +7,7 @@ import 'package:dual_clash/core/feature_flags.dart';
 import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/logic/rules_engine.dart';
+import 'package:dual_clash/models/campaign_result_action.dart';
 import 'package:dual_clash/models/campaign_level.dart';
 import 'package:dual_clash/models/game_outcome.dart';
 import 'package:dual_clash/models/cell_state.dart';
@@ -29,12 +30,17 @@ import 'statistics_page.dart';
 class GamePage extends StatefulWidget {
   final GameController controller;
   final CampaignLevel? challengeConfig;
-  final ValueChanged<GameOutcome>? onGameCompleted;
+  final void Function(GameOutcome outcome, CampaignResultAction action)?
+      onCampaignAction;
+  final String? campaignId;
+  final int? campaignTotalLevels;
   const GamePage({
     super.key,
     required this.controller,
     this.challengeConfig,
-    this.onGameCompleted,
+    this.onCampaignAction,
+    this.campaignId,
+    this.campaignTotalLevels,
   });
 
   @override
@@ -275,9 +281,17 @@ class _GamePageState extends State<GamePage> {
     if (_reportedOutcome) return;
     _shouldRestoreConfig = false;
     final outcome = _outcomeForChallenge();
-    if (widget.onGameCompleted != null) {
-      widget.onGameCompleted!(outcome);
+    widget.onCampaignAction?.call(outcome, CampaignResultAction.continueNext);
+    _reportedOutcome = true;
+  }
+
+  void _handleCampaignAction(CampaignResultAction action) {
+    if (_reportedOutcome) return;
+    if (action != CampaignResultAction.backToCampaign) {
+      _shouldRestoreConfig = false;
     }
+    final outcome = _outcomeForChallenge();
+    widget.onCampaignAction?.call(outcome, action);
     _reportedOutcome = true;
   }
 
@@ -364,10 +378,32 @@ class _GamePageState extends State<GamePage> {
         maybeShowResultsDialog(
           context: context,
           controller: controller,
-          onClosed: _handleGameCompleted,
+          onClosed:
+              widget.onCampaignAction == null ? _handleGameCompleted : null,
           campaignLevelIndex: widget.challengeConfig?.index,
           campaignOutcome:
               widget.challengeConfig == null ? null : _outcomeForChallenge(),
+          campaignId: widget.campaignId,
+          campaignTotalLevels: widget.campaignTotalLevels,
+          onCampaignContinue: widget.onCampaignAction == null
+              ? null
+              : () {
+                  Navigator.of(context).pop();
+                  _handleCampaignAction(CampaignResultAction.continueNext);
+                },
+          onCampaignRetry: widget.onCampaignAction == null
+              ? null
+              : () {
+                  Navigator.of(context).pop();
+                  _handleCampaignAction(CampaignResultAction.retry);
+                },
+          onCampaignBack: widget.onCampaignAction == null
+              ? null
+              : () {
+                  Navigator.of(context).pop();
+                  _handleCampaignAction(CampaignResultAction.backToCampaign);
+                  Navigator.of(context).pop();
+                },
         );
 
         return Scaffold(

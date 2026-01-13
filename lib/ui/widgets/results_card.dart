@@ -4,6 +4,7 @@ import 'package:dual_clash/core/colors.dart';
 import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/models/cell_state.dart';
+import 'package:dual_clash/models/campaign_level_details.dart';
 import 'package:dual_clash/models/game_outcome.dart';
 import 'package:dual_clash/logic/rules_engine.dart';
 import 'package:dual_clash/ui/widgets/main_menu/menu_tile.dart';
@@ -14,11 +15,21 @@ class ResultsCard extends StatelessWidget {
   final GameController controller;
   final int? campaignLevelIndex;
   final GameOutcome? campaignOutcome;
+  final String? campaignId;
+  final int? campaignTotalLevels;
+  final VoidCallback? onCampaignContinue;
+  final VoidCallback? onCampaignRetry;
+  final VoidCallback? onCampaignBack;
   const ResultsCard({
     super.key,
     required this.controller,
     this.campaignLevelIndex,
     this.campaignOutcome,
+    this.campaignId,
+    this.campaignTotalLevels,
+    this.onCampaignContinue,
+    this.onCampaignRetry,
+    this.onCampaignBack,
   });
 
   @override
@@ -29,16 +40,25 @@ class ResultsCard extends StatelessWidget {
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
     final bool isMobileFullscreen = isMobilePlatform;
-    final bool showCampaignProgress =
-        campaignOutcome != null && campaignLevelIndex != null;
+    final bool showCampaignProgress = campaignOutcome != null &&
+        campaignLevelIndex != null &&
+        campaignTotalLevels != null;
     final bool isCompactMobile = isMobileFullscreen && size.width < 750;
     final bool isCompactCampaign = isCompactMobile && showCampaignProgress;
-    final EdgeInsets contentPadding = isCompactCampaign
-        ? const EdgeInsets.fromLTRB(12, 12, 12, 12)
-        : const EdgeInsets.fromLTRB(16, 20, 16, 20);
-    final double closeButtonBottomPadding = isCompactCampaign ? 16 : 20;
-    final double closeButtonReserveSpace = isCompactCampaign ? 56 : 72;
-    final double sectionSpacing = isCompactCampaign ? 8 : 12;
+    final EdgeInsets contentPadding = showCampaignProgress
+        ? (isCompactMobile
+            ? const EdgeInsets.fromLTRB(16, 16, 16, 16)
+            : const EdgeInsets.fromLTRB(24, 24, 24, 20))
+        : (isCompactCampaign
+            ? const EdgeInsets.fromLTRB(12, 12, 12, 12)
+            : const EdgeInsets.fromLTRB(16, 20, 16, 20));
+    final double closeButtonBottomPadding =
+        isCompactCampaign && !showCampaignProgress ? 16 : 20;
+    final double closeButtonReserveSpace =
+        showCampaignProgress ? 0 : (isCompactCampaign ? 56 : 72);
+    final double sectionSpacing = showCampaignProgress
+        ? (isCompactMobile ? 10 : 14)
+        : (isCompactCampaign ? 8 : 12);
     final bg = AppColors.bg;
     final redBase = controller.scoreRedBase();
     final blueBase = controller.scoreBlueBase();
@@ -150,198 +170,225 @@ class ResultsCard extends StatelessWidget {
                       contentPadding: contentPadding,
                       closeButtonReserveSpace: closeButtonReserveSpace,
                       sectionSpacing: sectionSpacing,
-                      isScrollable: !isCompactCampaign,
-                      header: Row(
-                        children: [
-                          const Spacer(),
-                          Text(
-                            l10n.resultsTitle,
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 22,
-                                fontWeight: FontWeight.w900),
-                          ),
-                          const Spacer(),
-                          Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.08),
-                                shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white24)),
-                            child: IconButton(
-                              padding: EdgeInsets.zero,
-                              iconSize: 20,
-                              icon: const Icon(Icons.close,
-                                  color: Colors.white70),
-                              onPressed: () => Navigator.of(context).pop(),
+                      isScrollable:
+                          !showCampaignProgress && !isCompactCampaign,
+                      header: showCampaignProgress
+                          ? const SizedBox.shrink()
+                          : Row(
+                              children: [
+                                const Spacer(),
+                                Text(
+                                  l10n.resultsTitle,
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w900),
+                                ),
+                                const Spacer(),
+                                Container(
+                                  width: 36,
+                                  height: 36,
+                                  decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.08),
+                                      shape: BoxShape.circle,
+                                      border: Border.all(color: Colors.white24)),
+                                  child: IconButton(
+                                    padding: EdgeInsets.zero,
+                                    iconSize: 20,
+                                    icon: const Icon(Icons.close,
+                                        color: Colors.white70),
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                      body: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          if (isChallengeMode) ...[
-                            _ChallengeOutcomeSummary(
-                              winner: winner,
-                              redTotal: redTotal,
-                              blueTotal: blueTotal,
-                              bestScore: controller.bestChallengeScore,
-                              isNewBest: controller.lastGameWasNewBest,
-                              boardSize: controller.board.length,
-                              isPhoneFullscreen: isMobileFullscreen,
-                              iconScale: isCompactCampaign ? 0.8 : 1,
-                            ),
-                            if (showCampaignProgress)
-                              _CampaignOutcomeSummary(
+                      body: showCampaignProgress
+                          ? _CampaignResultsContent(
+                              controller: controller,
+                              levelIndex: campaignLevelIndex!,
+                              totalLevels: campaignTotalLevels!,
+                              outcome: campaignOutcome!,
+                              levelDetails: campaignLevelDetailsFor(
+                                campaignId: campaignId,
                                 levelIndex: campaignLevelIndex!,
-                                outcome: campaignOutcome!,
                               ),
-                          ] else ...[
-                            LayoutBuilder(
-                              builder: (context, constraints) {
-                                final width = constraints.maxWidth;
-                                final int tileCount = tiles.length;
-                                int columns;
-                                if (tileCount == 3) {
-                                  columns = 3;
-                                } else if (tileCount == 4) {
-                                  columns = 3;
-                                } else if (tileCount == 5) {
-                                  columns = 3;
-                                } else {
-                                  columns = width >= 420 ? 3 : 2;
-                                }
-                                final double spacing = 10;
-                                final double ratio = width >= 420 ? 1.1 : 1.0;
-                                final bool compactRow =
-                                    tileCount == 3 && width < 550;
-                                final double baseScale =
-                                    compactRow ? 0.7 : 0.8;
-                                final double scale = isMobileFullscreen
-                                    ? baseScale
-                                    : baseScale * 0.8;
-                                return GridView.count(
-                                  crossAxisCount: columns,
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  crossAxisSpacing: spacing,
-                                  mainAxisSpacing: spacing,
-                                  childAspectRatio: ratio,
-                                  children: tiles
-                                      .map((tile) => _scoreTile(
-                                            data: tile,
-                                            isWinner: tile.state != null &&
-                                                tile.state == winner,
-                                            isDisabled: hasWinner &&
-                                                (tile.state == null ||
-                                                    tile.state != winner),
-                                          ))
-                                      .map((tile) => Transform.scale(
-                                            scale: scale,
-                                            child: tile,
-                                          ))
-                                      .toList(),
-                                );
-                              },
+                              onContinue: onCampaignContinue,
+                              onRetry: onCampaignRetry,
+                              onBack: onCampaignBack,
+                            )
+                          : Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                if (isChallengeMode) ...[
+                                  _ChallengeOutcomeSummary(
+                                    winner: winner,
+                                    redTotal: redTotal,
+                                    blueTotal: blueTotal,
+                                    bestScore: controller.bestChallengeScore,
+                                    isNewBest: controller.lastGameWasNewBest,
+                                    boardSize: controller.board.length,
+                                    isPhoneFullscreen: isMobileFullscreen,
+                                    iconScale: isCompactCampaign ? 0.8 : 1,
+                                  ),
+                                  if (showCampaignProgress)
+                                    _CampaignOutcomeSummary(
+                                      levelIndex: campaignLevelIndex!,
+                                      outcome: campaignOutcome!,
+                                    ),
+                                ] else ...[
+                                  LayoutBuilder(
+                                    builder: (context, constraints) {
+                                      final width = constraints.maxWidth;
+                                      final int tileCount = tiles.length;
+                                      int columns;
+                                      if (tileCount == 3) {
+                                        columns = 3;
+                                      } else if (tileCount == 4) {
+                                        columns = 3;
+                                      } else if (tileCount == 5) {
+                                        columns = 3;
+                                      } else {
+                                        columns = width >= 420 ? 3 : 2;
+                                      }
+                                      final double spacing = 10;
+                                      final double ratio =
+                                          width >= 420 ? 1.1 : 1.0;
+                                      final bool compactRow =
+                                          tileCount == 3 && width < 550;
+                                      final double baseScale =
+                                          compactRow ? 0.7 : 0.8;
+                                      final double scale = isMobileFullscreen
+                                          ? baseScale
+                                          : baseScale * 0.8;
+                                      return GridView.count(
+                                        crossAxisCount: columns,
+                                        shrinkWrap: true,
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        crossAxisSpacing: spacing,
+                                        mainAxisSpacing: spacing,
+                                        childAspectRatio: ratio,
+                                        children: tiles
+                                            .map((tile) => _scoreTile(
+                                                  data: tile,
+                                                  isWinner: tile.state != null &&
+                                                      tile.state == winner,
+                                                  isDisabled: hasWinner &&
+                                                      (tile.state == null ||
+                                                          tile.state != winner),
+                                                ))
+                                            .map((tile) => Transform.scale(
+                                                  scale: scale,
+                                                  child: tile,
+                                                ))
+                                            .toList(),
+                                      );
+                                    },
+                                  ),
+                                  SizedBox(height: sectionSpacing),
+                                  // Points and time on the same row if fit; otherwise they will wrap to 2 rows automatically
+                                  Center(
+                                    child: Wrap(
+                                      alignment: WrapAlignment.center,
+                                      spacing: 12,
+                                      runSpacing: 10,
+                                      children: [
+                                        // AnimatedTotalCounter(value: controller.totalUserScore),
+                                        _timeChip(
+                                            label: l10n.timePlayedLabel,
+                                            value: formatDurationShort(l10n,
+                                                controller.lastGamePlayMs)),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: sectionSpacing),
+                                  // Turns row beneath
+                                  if (isDuel && controller.isMultiDuel)
+                                    Wrap(
+                                      alignment: WrapAlignment.center,
+                                      spacing: 10,
+                                      runSpacing: 8,
+                                      children: [
+                                        _statChip(
+                                            icon: Icons.rotate_left,
+                                            label: l10n.redTurnsLabel,
+                                            value: controller.turnsRed
+                                                .toString()),
+                                        _statChip(
+                                            icon: Icons.rotate_left,
+                                            label: l10n.blueTurnsLabel,
+                                            value: controller.turnsBlue
+                                                .toString()),
+                                        _statChip(
+                                            icon: Icons.rotate_left,
+                                            label: l10n.yellowTurnsLabel,
+                                            value: controller.turnsYellow
+                                                .toString()),
+                                        if (controller.duelPlayerCount >= 4)
+                                          _statChip(
+                                              icon: Icons.rotate_left,
+                                              label: l10n.greenTurnsLabel,
+                                              value: controller.turnsGreen
+                                                  .toString()),
+                                      ],
+                                    )
+                                  else
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        _statChip(
+                                            icon: Icons.rotate_left,
+                                            label: isDuel
+                                                ? l10n.redTurnsLabel
+                                                : l10n.playerTurnsLabel,
+                                            value:
+                                                controller.turnsRed.toString()),
+                                        _statChip(
+                                            icon: Icons.rotate_right,
+                                            label: isDuel
+                                                ? l10n.blueTurnsLabel
+                                                : l10n.aiTurnsLabel,
+                                            value: controller.turnsBlue
+                                                .toString()),
+                                      ],
+                                    ),
+                                ],
+                                SizedBox(height: sectionSpacing),
+                                // Action buttons based on result and AI level
+                                _ResultsActions(
+                                  controller: controller,
+                                  winner: winner,
+                                  showCampaignProgress: showCampaignProgress,
+                                  campaignOutcome: campaignOutcome,
+                                ),
+                              ],
                             ),
-                            SizedBox(height: sectionSpacing),
-                            // Points and time on the same row if fit; otherwise they will wrap to 2 rows automatically
-                            Center(
-                              child: Wrap(
-                                alignment: WrapAlignment.center,
-                                spacing: 12,
-                                runSpacing: 10,
-                                children: [
-                                  // AnimatedTotalCounter(value: controller.totalUserScore),
-                                  _timeChip(
-                                      label: l10n.timePlayedLabel,
-                                      value: formatDurationShort(
-                                          l10n, controller.lastGamePlayMs)),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: sectionSpacing),
-                            // Turns row beneath
-                            if (isDuel && controller.isMultiDuel)
-                              Wrap(
-                                alignment: WrapAlignment.center,
-                                spacing: 10,
-                                runSpacing: 8,
-                                children: [
-                                  _statChip(
-                                      icon: Icons.rotate_left,
-                                      label: l10n.redTurnsLabel,
-                                      value: controller.turnsRed.toString()),
-                                  _statChip(
-                                      icon: Icons.rotate_left,
-                                      label: l10n.blueTurnsLabel,
-                                      value: controller.turnsBlue.toString()),
-                                  _statChip(
-                                      icon: Icons.rotate_left,
-                                      label: l10n.yellowTurnsLabel,
-                                      value: controller.turnsYellow.toString()),
-                                  if (controller.duelPlayerCount >= 4)
-                                    _statChip(
-                                        icon: Icons.rotate_left,
-                                        label: l10n.greenTurnsLabel,
-                                        value:
-                                            controller.turnsGreen.toString()),
-                                ],
-                              )
-                            else
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  _statChip(
-                                      icon: Icons.rotate_left,
-                                      label: isDuel
-                                          ? l10n.redTurnsLabel
-                                          : l10n.playerTurnsLabel,
-                                      value: controller.turnsRed.toString()),
-                                  _statChip(
-                                      icon: Icons.rotate_right,
-                                      label: isDuel
-                                          ? l10n.blueTurnsLabel
-                                          : l10n.aiTurnsLabel,
-                                      value: controller.turnsBlue.toString()),
-                                ],
-                              ),
-                          ],
-                          SizedBox(height: sectionSpacing),
-                          // Action buttons based on result and AI level
-                          _ResultsActions(
-                            controller: controller,
-                            winner: winner,
-                            showCampaignProgress: showCampaignProgress,
-                            campaignOutcome: campaignOutcome,
+                    ),
+                    if (!showCampaignProgress)
+                      Positioned(
+                        right: contentPadding.right,
+                        bottom: closeButtonBottomPadding,
+                        child: ElevatedButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.brandGold,
+                            foregroundColor: const Color(0xFF2B221D),
+                            shadowColor: Colors.black54,
+                            elevation: 4,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24)),
+                            textStyle: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 0.2),
                           ),
-                        ],
-                      ),
-                    ),
-                    Positioned(
-                      right: contentPadding.right,
-                      bottom: closeButtonBottomPadding,
-                      child: ElevatedButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.brandGold,
-                          foregroundColor: const Color(0xFF2B221D),
-                          shadowColor: Colors.black54,
-                          elevation: 4,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 12),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(24)),
-                          textStyle: const TextStyle(
-                              fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                          child: Text(l10n.commonClose),
                         ),
-                        child: Text(l10n.commonClose),
                       ),
-                    ),
                   ],
                 ),
               );
@@ -355,17 +402,20 @@ class ResultsCard extends StatelessWidget {
         ? EdgeInsets.zero
         : EdgeInsets.symmetric(
             horizontal: size.width * 0.1, vertical: size.height * 0.1);
-    return Dialog(
-      insetPadding: dialogInsetPadding,
-      backgroundColor: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: dialogRadius),
-      child: isMobileFullscreen
-          ? SizedBox(
-              width: size.width,
-              height: size.height,
-              child: content,
-            )
-          : content,
+    return WillPopScope(
+      onWillPop: () async => !showCampaignProgress,
+      child: Dialog(
+        insetPadding: dialogInsetPadding,
+        backgroundColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: dialogRadius),
+        child: isMobileFullscreen
+            ? SizedBox(
+                width: size.width,
+                height: size.height,
+                child: content,
+              )
+            : content,
+      ),
     );
   }
 
@@ -552,6 +602,251 @@ class _ResultTileData {
 
   const _ResultTileData(
       {required this.asset, required this.count, required this.state});
+}
+
+class _CampaignResultsContent extends StatelessWidget {
+  final GameController controller;
+  final int levelIndex;
+  final int totalLevels;
+  final GameOutcome outcome;
+  final CampaignLevelDetails levelDetails;
+  final VoidCallback? onContinue;
+  final VoidCallback? onRetry;
+  final VoidCallback? onBack;
+
+  const _CampaignResultsContent({
+    required this.controller,
+    required this.levelIndex,
+    required this.totalLevels,
+    required this.outcome,
+    required this.levelDetails,
+    this.onContinue,
+    this.onRetry,
+    this.onBack,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isWin = outcome == GameOutcome.win;
+    final bool hasNextLevel = levelIndex < totalLevels;
+    final bool nextUnlocked = isWin && hasNextLevel;
+    final String interpretation =
+        _campaignInterpretation(context, controller, outcome);
+    final String progressLabel = 'Level $levelIndex / $totalLevels';
+    final String unlockLabel = nextUnlocked
+        ? 'Next level unlocked'
+        : (hasNextLevel ? 'Next level locked' : 'Campaign complete');
+    final Color unlockColor = nextUnlocked
+        ? AppColors.green
+        : (hasNextLevel ? AppColors.red : AppColors.brandGold);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double height = constraints.maxHeight;
+        final bool tightHeight = height < 620;
+        final double titleSize = (height * 0.045).clamp(18, 26);
+        final double descriptionSize = (height * 0.022).clamp(12, 16);
+        final double interpretationSize = (height * 0.026).clamp(14, 18);
+        final double hintSize = (height * 0.02).clamp(12, 15);
+        final double spacing = tightHeight ? 10 : 14;
+        final double compactSpacing = tightHeight ? 8 : 10;
+
+        return Column(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Level $levelIndex: ${levelDetails.title}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+                fontSize: titleSize,
+              ),
+            ),
+            SizedBox(height: compactSpacing),
+            Text(
+              levelDetails.description,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: descriptionSize,
+                height: 1.3,
+              ),
+            ),
+            SizedBox(height: spacing),
+            Text(
+              interpretation,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                fontSize: interpretationSize,
+              ),
+            ),
+            SizedBox(height: spacing),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.06),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.white24),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    progressLabel,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      fontSize: descriptionSize,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    unlockLabel,
+                    style: TextStyle(
+                      color: unlockColor,
+                      fontWeight: FontWeight.w700,
+                      fontSize: hintSize,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (!isWin) ...[
+              SizedBox(height: spacing),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.06),
+                  borderRadius: BorderRadius.circular(16),
+                  border:
+                      Border.all(color: AppColors.red.withOpacity(0.6)),
+                ),
+                child: Text(
+                  'Hint: ${levelDetails.hint}',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontWeight: FontWeight.w600,
+                    fontSize: hintSize,
+                  ),
+                ),
+              ),
+            ],
+            const Spacer(),
+            _CampaignResultsActions(
+              isWin: isWin,
+              nextUnlocked: nextUnlocked,
+              onContinue: onContinue,
+              onRetry: onRetry,
+              onBack: onBack,
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _CampaignResultsActions extends StatelessWidget {
+  final bool isWin;
+  final bool nextUnlocked;
+  final VoidCallback? onContinue;
+  final VoidCallback? onRetry;
+  final VoidCallback? onBack;
+
+  const _CampaignResultsActions({
+    required this.isWin,
+    required this.nextUnlocked,
+    this.onContinue,
+    this.onRetry,
+    this.onBack,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bool showRetrySecondary = isWin;
+    final bool showContinuePrimary = isWin;
+    final String primaryLabel = showContinuePrimary ? 'Continue' : 'Retry';
+    final VoidCallback? primaryAction =
+        showContinuePrimary ? onContinue : onRetry;
+    final bool primaryEnabled = showContinuePrimary
+        ? nextUnlocked && onContinue != null
+        : onRetry != null;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: primaryEnabled ? primaryAction : null,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: showContinuePrimary
+                  ? AppColors.brandGold
+                  : AppColors.red,
+              foregroundColor: const Color(0xFF2B221D),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              textStyle: const TextStyle(
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.2,
+              ),
+            ),
+            child: Text(primaryLabel),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            if (showRetrySecondary)
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: onRetry,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    side: const BorderSide(color: Colors.white24),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    textStyle: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.1,
+                    ),
+                  ),
+                  child: const Text('Retry'),
+                ),
+              ),
+            if (showRetrySecondary) const SizedBox(width: 12),
+            Expanded(
+              child: TextButton(
+                onPressed: onBack,
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white70,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  textStyle: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                child: const Text('Back to Campaign'),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
 }
 
 class _ChallengeOutcomeSummary extends StatelessWidget {
@@ -804,6 +1099,26 @@ String _performanceRating(
     return l10n.performanceRiskyEffective;
   }
   return l10n.performanceSolidStrategy;
+}
+
+String _campaignInterpretation(
+    BuildContext context, GameController controller, GameOutcome outcome) {
+  final l10n = context.l10n;
+  final redTotal = controller.scoreRedTotal();
+  final blueTotal = controller.scoreBlueTotal();
+  final boardSize = controller.board.length;
+  final int totalCells = boardSize * boardSize;
+  final int margin = (redTotal - blueTotal).abs();
+  final int clearWinMargin = (totalCells * 0.25).ceil();
+  final int solidWinMargin = (totalCells * 0.12).ceil();
+  return _performanceRating(
+    l10n,
+    margin: margin,
+    isNewBest: false,
+    clearWinMargin: clearWinMargin,
+    solidWinMargin: solidWinMargin,
+    aiWon: outcome == GameOutcome.loss,
+  );
 }
 
 class _ResultsActions extends StatelessWidget {
