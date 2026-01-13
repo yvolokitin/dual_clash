@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/colors.dart';
@@ -6,7 +5,6 @@ import '../../core/localization.dart';
 import '../../logic/game_controller.dart';
 import '../../models/campaign_level.dart';
 import '../controllers/campaign_controller.dart';
-import '../widgets/main_menu/startup_hero_logo.dart';
 
 class CampaignPage extends StatefulWidget {
   final GameController controller;
@@ -32,6 +30,89 @@ class _CampaignPageState extends State<CampaignPage> {
     super.dispose();
   }
 
+  void _showBuddhaCampaignInfo(BuildContext context) {
+    final l10n = context.l10n;
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: const Color(0xFF3B2F77),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 32,
+            vertical: 24,
+          ),
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 360),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.buddhaCampaignTitle,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        l10n.buddhaCampaignDescription,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          height: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: ElevatedButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.brandGold,
+                            foregroundColor: const Color(0xFF2B221D),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            textStyle: const TextStyle(
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.2,
+                            ),
+                          ),
+                          child: Text(l10n.commonClose),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 4,
+                right: 4,
+                child: IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(Icons.close, color: Colors.white),
+                  tooltip: l10n.commonClose,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,9 +129,15 @@ class _CampaignPageState extends State<CampaignPage> {
               children: [
                 SizedBox(
                   height: headerHeight,
-                  child: const Padding(
-                    padding: EdgeInsets.only(top: 8.0),
-                    child: StartupHeroLogo(forceStatic: true),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Center(
+                      child: _BuddhaCampaignHeader(
+                        title: l10n.buddhaCampaignTitle,
+                        onTap: () => _showBuddhaCampaignInfo(context),
+                        imageHeight: headerHeight * 0.55,
+                      ),
+                    ),
                   ),
                 ),
                 Expanded(
@@ -103,6 +190,52 @@ class _CampaignPageState extends State<CampaignPage> {
               ],
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+class _BuddhaCampaignHeader extends StatelessWidget {
+  final String title;
+  final double imageHeight;
+  final VoidCallback onTap;
+
+  const _BuddhaCampaignHeader({
+    required this.title,
+    required this.imageHeight,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(24),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.asset(
+                'assets/icons/buddha.png',
+                height: imageHeight.clamp(40, 96),
+                fit: BoxFit.contain,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.2,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -145,6 +145,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get menuCampaign => 'Campaign';
 
   @override
+  String get buddhaCampaignTitle => 'Campaña Buda';
+
+  @override
+  String get buddhaCampaignDescription =>
+      'La Campaña Buda es un viaje de calma, control y claridad estratégica. Cada nivel te desafía a leer el tablero, actuar con precisión y ganar mediante el equilibrio en lugar de la fuerza.';
+
+  @override
   String get menuHubShort => 'Hub';
 
   @override
