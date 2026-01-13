@@ -14,23 +14,33 @@ enum CampaignLevelStatus { locked, available, passed, failed }
 class CampaignController extends ChangeNotifier {
   static const String _kCampaignResults = 'campaign_results';
   static const String _kCampaignProgress = 'campaign_progress';
+  final String campaignId;
+  final bool isUnlocked;
+  final int totalLevels;
   final List<CampaignLevel> _levels;
   final Map<int, CampaignLevelStatus> _statusByLevel =
       <int, CampaignLevelStatus>{};
 
-  CampaignController({List<CampaignLevel>? levels})
-      : _levels = List<CampaignLevel>.from(levels ?? campaignLevels) {
+  CampaignController({
+    required this.campaignId,
+    required this.isUnlocked,
+    required this.totalLevels,
+    List<CampaignLevel>? levels,
+  }) : _levels = List<CampaignLevel>.from(levels ?? campaignLevels)
+            .take(totalLevels)
+            .toList() {
     for (final level in _levels) {
       _statusByLevel[level.index] = CampaignLevelStatus.locked;
     }
-    if (_levels.isNotEmpty) {
+    if (_levels.isNotEmpty && isUnlocked) {
       _statusByLevel[_levels.first.index] = CampaignLevelStatus.available;
     }
   }
 
   Future<void> loadProgress() async {
+    if (!isUnlocked) return;
     final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_kCampaignProgress);
+    final raw = prefs.getString(_progressKey());
     if (raw == null || raw.isEmpty) return;
     final decoded = jsonDecode(raw);
     if (decoded is! Map) return;
@@ -58,6 +68,10 @@ class CampaignController extends ChangeNotifier {
 
   List<CampaignLevel> get levels => List<CampaignLevel>.unmodifiable(_levels);
 
+  String _progressKey() => '${_kCampaignProgress}_$campaignId';
+
+  String _resultsKey() => '${_kCampaignResults}_$campaignId';
+
   CampaignLevelStatus statusForLevel(int levelIndex) {
     return _statusByLevel[levelIndex] ?? CampaignLevelStatus.locked;
   }
@@ -75,6 +89,7 @@ class CampaignController extends ChangeNotifier {
     required CampaignLevel level,
     bool replace = false,
   }) async {
+    if (!isUnlocked) return;
     if (statusForLevel(level.index) == CampaignLevelStatus.locked) return;
     final page = GamePage(
       controller: gameController,
@@ -142,7 +157,7 @@ class CampaignController extends ChangeNotifier {
 
   Future<GameResult?> bestResultForLevel(int levelIndex) async {
     final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_kCampaignResults);
+    final raw = prefs.getString(_resultsKey());
     if (raw == null || raw.isEmpty) return null;
     final decodedRaw = jsonDecode(raw);
     if (decodedRaw is! Map) return null;
@@ -162,20 +177,22 @@ class CampaignController extends ChangeNotifier {
   }
 
   Future<void> _persistProgress() async {
+    if (!isUnlocked) return;
     final prefs = await SharedPreferences.getInstance();
     final payload = <String, String>{};
     _statusByLevel.forEach((index, status) {
       payload[index.toString()] = status.name;
     });
-    await prefs.setString(_kCampaignProgress, jsonEncode(payload));
+    await prefs.setString(_progressKey(), jsonEncode(payload));
   }
 
   Future<void> _recordCampaignWinStats(
     int levelIndex,
     GameController controller,
   ) async {
+    if (!isUnlocked) return;
     final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_kCampaignResults);
+    final raw = prefs.getString(_resultsKey());
     Map<String, dynamic> decoded = <String, dynamic>{};
     if (raw != null && raw.isNotEmpty) {
       final decodedRaw = jsonDecode(raw);

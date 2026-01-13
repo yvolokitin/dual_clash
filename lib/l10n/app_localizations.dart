@@ -386,6 +386,36 @@ abstract class AppLocalizations {
   /// **'Buddha Campaign is a journey of calm, control, and strategic clarity. Each level challenges you to read the board, act with precision, and win through balance rather than force.'**
   String get buddhaCampaignDescription;
 
+  /// No description provided for @shivaCampaignTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shiva Campaign'**
+  String get shivaCampaignTitle;
+
+  /// No description provided for @shivaCampaignDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Shiva Campaign embraces destruction, aggression, and relentless pressure. Bombs become central tools, the board shifts rapidly, and decisive strikes define victory. Coming Soon.'**
+  String get shivaCampaignDescription;
+
+  /// No description provided for @ganeshaCampaignTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ganesha Campaign'**
+  String get ganeshaCampaignTitle;
+
+  /// No description provided for @ganeshaCampaignDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Ganesha Campaign challenges perception through obstacles, clever positioning, and unconventional rules. Success depends on adaptability, foresight, and finding paths where none seem obvious. Coming Soon.'**
+  String get ganeshaCampaignDescription;
+
+  /// No description provided for @campaignComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming Soon'**
+  String get campaignComingSoon;
+
   /// No description provided for @menuHubShort.
   ///
   /// In en, this message translates to:

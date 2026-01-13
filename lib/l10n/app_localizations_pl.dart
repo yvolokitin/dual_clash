@@ -152,6 +152,23 @@ class AppLocalizationsPl extends AppLocalizations {
       'Kampania Buddy to podróż spokoju, kontroli i strategicznej jasności. Każdy poziom stawia przed tobą wyzwanie: czytać planszę, działać precyzyjnie i wygrywać dzięki równowadze, a nie sile.';
 
   @override
+  String get shivaCampaignTitle => 'Shiva Campaign';
+
+  @override
+  String get shivaCampaignDescription =>
+      'Shiva Campaign embraces destruction, aggression, and relentless pressure. Bombs become central tools, the board shifts rapidly, and decisive strikes define victory. Coming Soon.';
+
+  @override
+  String get ganeshaCampaignTitle => 'Ganesha Campaign';
+
+  @override
+  String get ganeshaCampaignDescription =>
+      'Ganesha Campaign challenges perception through obstacles, clever positioning, and unconventional rules. Success depends on adaptability, foresight, and finding paths where none seem obvious. Coming Soon.';
+
+  @override
+  String get campaignComingSoon => 'Coming Soon';
+
+  @override
   String get menuHubShort => 'Hub';
 
   @override
