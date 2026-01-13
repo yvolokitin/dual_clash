@@ -29,7 +29,8 @@ class _CampaignPageState extends State<CampaignPage> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
+    _pageController =
+        PageController(viewportFraction: 0.7, initialPage: _currentIndex);
   }
 
   @override
@@ -51,20 +52,20 @@ class _CampaignPageState extends State<CampaignPage> {
     final l10n = context.l10n;
     final definitions = <CampaignMetadata>[
       CampaignMetadata(
-        id: 'buddha',
-        title: l10n.buddhaCampaignTitle,
-        description: l10n.buddhaCampaignDescription,
-        iconAsset: 'assets/icons/buddha.png',
-        isUnlocked: true,
-        totalLevels: campaignLevels.length,
-        levels: campaignLevels,
-      ),
-      CampaignMetadata(
         id: 'shiva',
         title: l10n.shivaCampaignTitle,
         description: l10n.shivaCampaignDescription,
         iconAsset: 'assets/icons/shiva.png',
         isUnlocked: false,
+        totalLevels: campaignLevels.length,
+        levels: campaignLevels,
+      ),
+      CampaignMetadata(
+        id: 'buddha',
+        title: l10n.buddhaCampaignTitle,
+        description: l10n.buddhaCampaignDescription,
+        iconAsset: 'assets/icons/buddha.png',
+        isUnlocked: true,
         totalLevels: campaignLevels.length,
         levels: campaignLevels,
       ),
@@ -78,9 +79,18 @@ class _CampaignPageState extends State<CampaignPage> {
         levels: campaignLevels,
       ),
     ];
-    final unlocked = definitions.where((campaign) => campaign.isUnlocked).toList();
-    final locked = definitions.where((campaign) => !campaign.isUnlocked).toList();
-    _campaigns = <CampaignMetadata>[...unlocked, ...locked];
+    _campaigns = definitions;
+    if (_campaigns.isNotEmpty && _currentIndex == 0) {
+      final firstUnlockedIndex =
+          _campaigns.indexWhere((campaign) => campaign.isUnlocked);
+      if (firstUnlockedIndex != -1) {
+        _currentIndex = firstUnlockedIndex;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          _pageController.jumpToPage(_currentIndex);
+        });
+      }
+    }
     for (final campaign in _campaigns) {
       _campaignControllers.putIfAbsent(
         campaign.id,
@@ -248,8 +258,6 @@ class _CampaignPageState extends State<CampaignPage> {
                                 curve: Curves.easeOut,
                               )
                           : null,
-                      comingSoonLabel: l10n.campaignComingSoon,
-                      isLocked: !_campaigns[_currentIndex].isUnlocked,
                     ),
                   ),
                 ),
@@ -273,11 +281,26 @@ class _CampaignPageState extends State<CampaignPage> {
                         final campaign = _campaigns[index];
                         final controller = _campaignControllers[campaign.id]!;
                         return AnimatedBuilder(
-                          animation: controller,
+                          animation: _pageController,
                           builder: (context, _) {
-                            return _CampaignRouteGrid(
-                              campaignController: controller,
-                              gameController: widget.controller,
+                            final page = _pageController.hasClients
+                                ? (_pageController.page ?? _currentIndex)
+                                : _currentIndex.toDouble();
+                            final distance = (page - index).abs();
+                            final scale =
+                                (1 - (distance * 0.15)).clamp(0.85, 1.0);
+                            return Transform.scale(
+                              scale: scale.toDouble(),
+                              child: AnimatedBuilder(
+                                animation: controller,
+                                builder: (context, _) {
+                                  return _CampaignRouteGrid(
+                                    campaignController: controller,
+                                    gameController: widget.controller,
+                                    comingSoonLabel: l10n.campaignComingSoon,
+                                  );
+                                },
+                              ),
                             );
                           },
                         );
@@ -328,8 +351,6 @@ class _CampaignNavigationHeader extends StatelessWidget {
   final CampaignMetadata campaign;
   final int currentIndex;
   final int totalCampaigns;
-  final bool isLocked;
-  final String comingSoonLabel;
   final double imageHeight;
   final VoidCallback onTap;
   final VoidCallback? onPrevious;
@@ -339,8 +360,6 @@ class _CampaignNavigationHeader extends StatelessWidget {
     required this.campaign,
     required this.currentIndex,
     required this.totalCampaigns,
-    required this.isLocked,
-    required this.comingSoonLabel,
     required this.imageHeight,
     required this.onTap,
     required this.onPrevious,
@@ -370,10 +389,10 @@ class _CampaignNavigationHeader extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Image.asset(
-                      campaign.iconAsset,
-                      height: iconSize,
-                      fit: BoxFit.contain,
+                    _CampaignHeaderIcon(
+                      iconAsset: campaign.iconAsset,
+                      isLocked: !campaign.isUnlocked,
+                      size: iconSize,
                     ),
                     const SizedBox(height: 6),
                     Text(
@@ -386,18 +405,6 @@ class _CampaignNavigationHeader extends StatelessWidget {
                         letterSpacing: 0.2,
                       ),
                     ),
-                    if (isLocked) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        comingSoonLabel,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.3,
-                        ),
-                      ),
-                    ],
                   ],
                 ),
               ),
@@ -415,13 +422,49 @@ class _CampaignNavigationHeader extends StatelessWidget {
   }
 }
 
+class _CampaignHeaderIcon extends StatelessWidget {
+  final String iconAsset;
+  final bool isLocked;
+  final double size;
+
+  const _CampaignHeaderIcon({
+    required this.iconAsset,
+    required this.isLocked,
+    required this.size,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final image = Image.asset(
+      iconAsset,
+      height: size,
+      fit: BoxFit.contain,
+    );
+    if (!isLocked) return image;
+    return ColorFiltered(
+      colorFilter: const ColorFilter.matrix(<double>[
+        0.2126, 0.7152, 0.0722, 0, 0,
+        0.2126, 0.7152, 0.0722, 0, 0,
+        0.2126, 0.7152, 0.0722, 0, 0,
+        0, 0, 0, 1, 0,
+      ]),
+      child: Opacity(
+        opacity: 0.65,
+        child: image,
+      ),
+    );
+  }
+}
+
 class _CampaignRouteGrid extends StatelessWidget {
   final CampaignController campaignController;
   final GameController gameController;
+  final String comingSoonLabel;
 
   const _CampaignRouteGrid({
     required this.campaignController,
     required this.gameController,
+    required this.comingSoonLabel,
   });
 
   void _showPassedLevelMenu({
@@ -638,7 +681,7 @@ class _CampaignRouteGrid extends StatelessWidget {
         final adjustedNodeSize =
             isCompactMobileLayout ? nodeSize * 0.9 : nodeSize;
 
-        return Column(
+        final grid = Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             for (var rowIndex = 0; rowIndex < rows.length; rowIndex++) ...[
@@ -679,6 +722,37 @@ class _CampaignRouteGrid extends StatelessWidget {
               if (rowIndex < rows.length - 1)
                 SizedBox(height: rowSpacing),
             ],
+          ],
+        );
+
+        if (campaignController.isUnlocked) {
+          return grid;
+        }
+
+        return Stack(
+          alignment: Alignment.topCenter,
+          children: [
+            grid,
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.lock,
+                  color: Colors.white.withOpacity(0.85),
+                  size: adjustedNodeSize * 1.4,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  comingSoonLabel,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.4,
+                  ),
+                ),
+              ],
+            ),
           ],
         );
       },
