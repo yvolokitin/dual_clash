@@ -61,7 +61,6 @@ class _GamePageState extends State<GamePage> {
   bool? _previousBombsEnabled;
   bool? _previousHumanVsHuman;
   bool _isApplyingChallengeConfig = false;
-  bool _shouldRestoreConfig = true;
 
   GameController get controller => widget.controller;
   bool get _isAndroidOrIOS => !kIsWeb && (Platform.isAndroid || Platform.isIOS);
@@ -126,7 +125,7 @@ class _GamePageState extends State<GamePage> {
   }
 
   void _restoreChallengeConfig() {
-    if (widget.challengeConfig == null || !_shouldRestoreConfig) return;
+    if (widget.challengeConfig == null) return;
     if (_previousGridSize != null) {
       K.n = _previousGridSize!;
     }
@@ -279,7 +278,6 @@ class _GamePageState extends State<GamePage> {
 
   void _handleGameCompleted() {
     if (_reportedOutcome) return;
-    _shouldRestoreConfig = false;
     final outcome = _outcomeForChallenge();
     widget.onCampaignAction?.call(outcome, CampaignResultAction.continueNext);
     _reportedOutcome = true;
@@ -287,9 +285,6 @@ class _GamePageState extends State<GamePage> {
 
   void _handleCampaignAction(CampaignResultAction action) {
     if (_reportedOutcome) return;
-    if (action != CampaignResultAction.backToCampaign) {
-      _shouldRestoreConfig = false;
-    }
     final outcome = _outcomeForChallenge();
     widget.onCampaignAction?.call(outcome, action);
     _reportedOutcome = true;
