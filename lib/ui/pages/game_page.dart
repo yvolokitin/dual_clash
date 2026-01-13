@@ -142,7 +142,7 @@ class _GamePageState extends State<GamePage> {
     if (_previousHumanVsHuman != null) {
       controller.humanVsHuman = _previousHumanVsHuman!;
     }
-    controller.newGame(notify: false);
+    controller.newGame(notify: false, skipAi: true);
   }
 
   Future<void> _loadPremiumAndMaybeAd() async {
