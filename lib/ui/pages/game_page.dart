@@ -398,7 +398,12 @@ class _GamePageState extends State<GamePage> {
                   aiSelectorEnabled: widget.challengeConfig == null,
                   onOpenMenu: () async {
                     await mmd.showAnimatedMainMenuDialog(
-                        context: context, controller: controller);
+                        context: context,
+                        controller: controller,
+                        config: mmd.MenuDialogConfig(
+                          showUndoLastAction:
+                              widget.challengeConfig != null,
+                        ));
                     await _reloadPremiumStatus(context);
                   },
                   onOpenStatistics: openStatistics,

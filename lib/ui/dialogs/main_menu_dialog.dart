@@ -29,6 +29,7 @@ class MenuDialogConfig {
   final bool showRestorePurchases;
   final bool confirmReturnToMenu;
   final bool confirmRestart;
+  final bool showUndoLastAction;
 
   const MenuDialogConfig({
     this.showStatistics = true,
@@ -39,6 +40,7 @@ class MenuDialogConfig {
     this.showRestorePurchases = true,
     this.confirmReturnToMenu = true,
     this.confirmRestart = true,
+    this.showUndoLastAction = false,
   });
 
   const MenuDialogConfig.duel()
@@ -49,7 +51,8 @@ class MenuDialogConfig {
         showRemoveAds = true,
         showRestorePurchases = true,
         confirmReturnToMenu = true,
-        confirmRestart = true;
+        confirmRestart = true,
+        showUndoLastAction = false;
 }
 
 class MainMenuDialog extends StatefulWidget {
@@ -491,6 +494,21 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                               controller.newGame();
                             },
                           ),
+                          if (config.showUndoLastAction) ...[
+                            const SizedBox(height: 6),
+                            _menuTile(
+                              context,
+                              icon: Icons.undo,
+                              label: l10n.undoLastActionTooltip,
+                              enabled: controller.canUndo,
+                              onTap: () async {
+                                Navigator.of(context).pop();
+                                await Future.delayed(
+                                    const Duration(milliseconds: 30));
+                                controller.undoToPreviousUserTurn();
+                              },
+                            ),
+                          ],
                           if (config.showStatistics) ...[
                             const SizedBox(height: 6),
                             _menuTile(
@@ -689,19 +707,23 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
   Widget _menuTile(BuildContext context,
       {required IconData icon,
       required String label,
-      required VoidCallback onTap}) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white24, width: 1),
-      ),
-      child: ListTile(
-        leading: Icon(icon, color: Colors.white),
-        title: Text(label,
-            style: const TextStyle(
-                color: Colors.white, fontWeight: FontWeight.w700)),
-        onTap: onTap,
+      VoidCallback? onTap,
+      bool enabled = true}) {
+    return Opacity(
+      opacity: enabled ? 1 : 0.5,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.white24, width: 1),
+        ),
+        child: ListTile(
+          leading: Icon(icon, color: Colors.white),
+          title: Text(label,
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.w700)),
+          onTap: enabled ? onTap : null,
+        ),
       ),
     );
   }
