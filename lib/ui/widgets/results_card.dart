@@ -29,9 +29,16 @@ class ResultsCard extends StatelessWidget {
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
     final bool isMobileFullscreen = isMobilePlatform;
-    const EdgeInsets contentPadding = EdgeInsets.fromLTRB(16, 20, 16, 20);
-    const double closeButtonBottomPadding = 20;
-    const double closeButtonReserveSpace = 72;
+    final bool showCampaignProgress =
+        campaignOutcome != null && campaignLevelIndex != null;
+    final bool isCompactMobile = isMobileFullscreen && size.width < 750;
+    final bool isCompactCampaign = isCompactMobile && showCampaignProgress;
+    final EdgeInsets contentPadding = isCompactCampaign
+        ? const EdgeInsets.fromLTRB(12, 12, 12, 12)
+        : const EdgeInsets.fromLTRB(16, 20, 16, 20);
+    final double closeButtonBottomPadding = isCompactCampaign ? 16 : 20;
+    final double closeButtonReserveSpace = isCompactCampaign ? 56 : 72;
+    final double sectionSpacing = isCompactCampaign ? 8 : 12;
     final bg = AppColors.bg;
     final redBase = controller.scoreRedBase();
     final blueBase = controller.scoreBlueBase();
@@ -75,9 +82,6 @@ class ResultsCard extends StatelessWidget {
     final bool showYellow = isDuel && controller.isMultiDuel;
     final bool showGreen =
         isDuel && controller.isMultiDuel && controller.duelPlayerCount >= 4;
-    final bool showCampaignProgress =
-        campaignOutcome != null && campaignLevelIndex != null;
-
     final tiles = [
       _ResultTileData(
         asset: 'assets/icons/box_red.png',
@@ -142,188 +146,180 @@ class ResultsCard extends StatelessWidget {
                 height: constraints.maxHeight,
                 child: Stack(
                   children: [
-                    SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      child: Padding(
-                        padding: contentPadding.copyWith(
-                          bottom:
-                              contentPadding.bottom + closeButtonReserveSpace,
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Row(
-                              children: [
-                                const Spacer(),
-                                Text(
-                                  l10n.resultsTitle,
-                                  style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.w900),
-                                ),
-                                const Spacer(),
-                                Container(
-                                  width: 36,
-                                  height: 36,
-                                  decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.08),
-                                      shape: BoxShape.circle,
-                                      border:
-                                          Border.all(color: Colors.white24)),
-                                  child: IconButton(
-                                    padding: EdgeInsets.zero,
-                                    iconSize: 20,
-                                    icon: const Icon(Icons.close,
-                                        color: Colors.white70),
-                                    onPressed: () =>
-                                        Navigator.of(context).pop(),
-                                  ),
-                                ),
-                              ],
+                    _ResultsCardBody(
+                      contentPadding: contentPadding,
+                      closeButtonReserveSpace: closeButtonReserveSpace,
+                      sectionSpacing: sectionSpacing,
+                      isScrollable: !isCompactCampaign,
+                      header: Row(
+                        children: [
+                          const Spacer(),
+                          Text(
+                            l10n.resultsTitle,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontWeight: FontWeight.w900),
+                          ),
+                          const Spacer(),
+                          Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.08),
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white24)),
+                            child: IconButton(
+                              padding: EdgeInsets.zero,
+                              iconSize: 20,
+                              icon: const Icon(Icons.close,
+                                  color: Colors.white70),
+                              onPressed: () => Navigator.of(context).pop(),
                             ),
-                            const SizedBox(height: 12),
-                            if (isChallengeMode) ...[
-                              _ChallengeOutcomeSummary(
-                                winner: winner,
-                                redTotal: redTotal,
-                                blueTotal: blueTotal,
-                                bestScore: controller.bestChallengeScore,
-                                isNewBest: controller.lastGameWasNewBest,
-                                boardSize: controller.board.length,
-                                isPhoneFullscreen: isMobileFullscreen,
-                              ),
-                              if (showCampaignProgress)
-                                _CampaignOutcomeSummary(
-                                  levelIndex: campaignLevelIndex!,
-                                  outcome: campaignOutcome!,
-                                ),
-                            ] else ...[
-                              LayoutBuilder(
-                                builder: (context, constraints) {
-                                  final width = constraints.maxWidth;
-                                  final int tileCount = tiles.length;
-                                  int columns;
-                                  if (tileCount == 3) {
-                                    columns = 3;
-                                  } else if (tileCount == 4) {
-                                    columns = 3;
-                                  } else if (tileCount == 5) {
-                                    columns = 3;
-                                  } else {
-                                    columns = width >= 420 ? 3 : 2;
-                                  }
-                                  final double spacing = 10;
-                                  final double ratio =
-                                      width >= 420 ? 1.1 : 1.0;
-                                  final bool compactRow =
-                                      tileCount == 3 && width < 550;
-                                  final double baseScale =
-                                      compactRow ? 0.7 : 0.8;
-                                  final double scale = isMobileFullscreen
-                                      ? baseScale
-                                      : baseScale * 0.8;
-                                  return GridView.count(
-                                    crossAxisCount: columns,
-                                    shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    crossAxisSpacing: spacing,
-                                    mainAxisSpacing: spacing,
-                                    childAspectRatio: ratio,
-                                    children: tiles
-                                        .map((tile) => _scoreTile(
-                                              data: tile,
-                                              isWinner: tile.state != null &&
-                                                  tile.state == winner,
-                                              isDisabled: hasWinner &&
-                                                  (tile.state == null ||
-                                                      tile.state != winner),
-                                            ))
-                                        .map((tile) => Transform.scale(
-                                              scale: scale,
-                                              child: tile,
-                                            ))
-                                        .toList(),
-                                  );
-                                },
-                              ),
-                              const SizedBox(height: 12),
-                              // Points and time on the same row if fit; otherwise they will wrap to 2 rows automatically
-                              Center(
-                                child: Wrap(
-                                  alignment: WrapAlignment.center,
-                                  spacing: 12,
-                                  runSpacing: 10,
-                                  children: [
-                                    // AnimatedTotalCounter(value: controller.totalUserScore),
-                                    _timeChip(
-                                        label: l10n.timePlayedLabel,
-                                        value: formatDurationShort(
-                                            l10n, controller.lastGamePlayMs)),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              // Turns row beneath
-                              if (isDuel && controller.isMultiDuel)
-                                Wrap(
-                                  alignment: WrapAlignment.center,
-                                  spacing: 10,
-                                  runSpacing: 8,
-                                  children: [
-                                    _statChip(
-                                        icon: Icons.rotate_left,
-                                        label: l10n.redTurnsLabel,
-                                        value: controller.turnsRed.toString()),
-                                    _statChip(
-                                        icon: Icons.rotate_left,
-                                        label: l10n.blueTurnsLabel,
-                                        value: controller.turnsBlue.toString()),
-                                    _statChip(
-                                        icon: Icons.rotate_left,
-                                        label: l10n.yellowTurnsLabel,
-                                        value:
-                                            controller.turnsYellow.toString()),
-                                    if (controller.duelPlayerCount >= 4)
-                                      _statChip(
-                                          icon: Icons.rotate_left,
-                                          label: l10n.greenTurnsLabel,
-                                          value:
-                                              controller.turnsGreen.toString()),
-                                  ],
-                                )
-                              else
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    _statChip(
-                                        icon: Icons.rotate_left,
-                                        label: isDuel
-                                            ? l10n.redTurnsLabel
-                                            : l10n.playerTurnsLabel,
-                                        value: controller.turnsRed.toString()),
-                                    _statChip(
-                                        icon: Icons.rotate_right,
-                                        label: isDuel
-                                            ? l10n.blueTurnsLabel
-                                            : l10n.aiTurnsLabel,
-                                        value: controller.turnsBlue.toString()),
-                                  ],
-                                ),
-                            ],
-                            const SizedBox(height: 12),
-                            // Action buttons based on result and AI level
-                            _ResultsActions(
-                              controller: controller,
+                          ),
+                        ],
+                      ),
+                      body: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (isChallengeMode) ...[
+                            _ChallengeOutcomeSummary(
                               winner: winner,
-                              showCampaignProgress: showCampaignProgress,
-                              campaignOutcome: campaignOutcome,
+                              redTotal: redTotal,
+                              blueTotal: blueTotal,
+                              bestScore: controller.bestChallengeScore,
+                              isNewBest: controller.lastGameWasNewBest,
+                              boardSize: controller.board.length,
+                              isPhoneFullscreen: isMobileFullscreen,
+                              iconScale: isCompactCampaign ? 0.8 : 1,
                             ),
+                            if (showCampaignProgress)
+                              _CampaignOutcomeSummary(
+                                levelIndex: campaignLevelIndex!,
+                                outcome: campaignOutcome!,
+                              ),
+                          ] else ...[
+                            LayoutBuilder(
+                              builder: (context, constraints) {
+                                final width = constraints.maxWidth;
+                                final int tileCount = tiles.length;
+                                int columns;
+                                if (tileCount == 3) {
+                                  columns = 3;
+                                } else if (tileCount == 4) {
+                                  columns = 3;
+                                } else if (tileCount == 5) {
+                                  columns = 3;
+                                } else {
+                                  columns = width >= 420 ? 3 : 2;
+                                }
+                                final double spacing = 10;
+                                final double ratio = width >= 420 ? 1.1 : 1.0;
+                                final bool compactRow =
+                                    tileCount == 3 && width < 550;
+                                final double baseScale =
+                                    compactRow ? 0.7 : 0.8;
+                                final double scale = isMobileFullscreen
+                                    ? baseScale
+                                    : baseScale * 0.8;
+                                return GridView.count(
+                                  crossAxisCount: columns,
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  crossAxisSpacing: spacing,
+                                  mainAxisSpacing: spacing,
+                                  childAspectRatio: ratio,
+                                  children: tiles
+                                      .map((tile) => _scoreTile(
+                                            data: tile,
+                                            isWinner: tile.state != null &&
+                                                tile.state == winner,
+                                            isDisabled: hasWinner &&
+                                                (tile.state == null ||
+                                                    tile.state != winner),
+                                          ))
+                                      .map((tile) => Transform.scale(
+                                            scale: scale,
+                                            child: tile,
+                                          ))
+                                      .toList(),
+                                );
+                              },
+                            ),
+                            SizedBox(height: sectionSpacing),
+                            // Points and time on the same row if fit; otherwise they will wrap to 2 rows automatically
+                            Center(
+                              child: Wrap(
+                                alignment: WrapAlignment.center,
+                                spacing: 12,
+                                runSpacing: 10,
+                                children: [
+                                  // AnimatedTotalCounter(value: controller.totalUserScore),
+                                  _timeChip(
+                                      label: l10n.timePlayedLabel,
+                                      value: formatDurationShort(
+                                          l10n, controller.lastGamePlayMs)),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: sectionSpacing),
+                            // Turns row beneath
+                            if (isDuel && controller.isMultiDuel)
+                              Wrap(
+                                alignment: WrapAlignment.center,
+                                spacing: 10,
+                                runSpacing: 8,
+                                children: [
+                                  _statChip(
+                                      icon: Icons.rotate_left,
+                                      label: l10n.redTurnsLabel,
+                                      value: controller.turnsRed.toString()),
+                                  _statChip(
+                                      icon: Icons.rotate_left,
+                                      label: l10n.blueTurnsLabel,
+                                      value: controller.turnsBlue.toString()),
+                                  _statChip(
+                                      icon: Icons.rotate_left,
+                                      label: l10n.yellowTurnsLabel,
+                                      value: controller.turnsYellow.toString()),
+                                  if (controller.duelPlayerCount >= 4)
+                                    _statChip(
+                                        icon: Icons.rotate_left,
+                                        label: l10n.greenTurnsLabel,
+                                        value:
+                                            controller.turnsGreen.toString()),
+                                ],
+                              )
+                            else
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  _statChip(
+                                      icon: Icons.rotate_left,
+                                      label: isDuel
+                                          ? l10n.redTurnsLabel
+                                          : l10n.playerTurnsLabel,
+                                      value: controller.turnsRed.toString()),
+                                  _statChip(
+                                      icon: Icons.rotate_right,
+                                      label: isDuel
+                                          ? l10n.blueTurnsLabel
+                                          : l10n.aiTurnsLabel,
+                                      value: controller.turnsBlue.toString()),
+                                ],
+                              ),
                           ],
-                        ),
+                          SizedBox(height: sectionSpacing),
+                          // Action buttons based on result and AI level
+                          _ResultsActions(
+                            controller: controller,
+                            winner: winner,
+                            showCampaignProgress: showCampaignProgress,
+                            campaignOutcome: campaignOutcome,
+                          ),
+                        ],
                       ),
                     ),
                     Positioned(
@@ -504,6 +500,51 @@ class ResultsCard extends StatelessWidget {
   }
 }
 
+class _ResultsCardBody extends StatelessWidget {
+  final EdgeInsets contentPadding;
+  final double closeButtonReserveSpace;
+  final double sectionSpacing;
+  final bool isScrollable;
+  final Widget header;
+  final Widget body;
+
+  const _ResultsCardBody({
+    required this.contentPadding,
+    required this.closeButtonReserveSpace,
+    required this.sectionSpacing,
+    required this.isScrollable,
+    required this.header,
+    required this.body,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final content = Padding(
+      padding: contentPadding.copyWith(
+        bottom: contentPadding.bottom + closeButtonReserveSpace,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          header,
+          SizedBox(height: sectionSpacing),
+          body,
+        ],
+      ),
+    );
+
+    if (!isScrollable) {
+      return content;
+    }
+
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      child: content,
+    );
+  }
+}
+
 class _ResultTileData {
   final String asset;
   final int count;
@@ -521,6 +562,7 @@ class _ChallengeOutcomeSummary extends StatelessWidget {
   final bool isNewBest;
   final int boardSize;
   final bool isPhoneFullscreen;
+  final double iconScale;
   const _ChallengeOutcomeSummary({
     required this.winner,
     required this.redTotal,
@@ -529,6 +571,7 @@ class _ChallengeOutcomeSummary extends StatelessWidget {
     required this.isNewBest,
     required this.boardSize,
     required this.isPhoneFullscreen,
+    this.iconScale = 1,
   });
 
   @override
@@ -557,8 +600,10 @@ class _ChallengeOutcomeSummary extends StatelessWidget {
       builder: (context, constraints) {
         final double tileBaseSize =
             (constraints.maxWidth * 0.45).clamp(140, 200);
-        final double tileSize =
-            isPhoneFullscreen ? tileBaseSize : tileBaseSize * 0.75;
+        final double tileSize = (isPhoneFullscreen
+                ? tileBaseSize
+                : tileBaseSize * 0.75) *
+            iconScale;
         return Column(
           children: [
             Center(
