@@ -536,6 +536,9 @@ class _CampaignRouteGrid extends StatelessWidget {
       campaignId: campaignController.campaignId,
       levelIndex: level.index,
     );
+    final iconSize = (MediaQuery.of(context).size.height * 0.2 * 0.55)
+        .clamp(40, 96)
+        .toDouble();
     showDialog<void>(
       context: context,
       builder: (context) {
@@ -575,6 +578,16 @@ class _CampaignRouteGrid extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 12),
+                      if (campaignController.campaignId == 'buddha') ...[
+                        Center(
+                          child: Image.asset(
+                            'assets/icons/campaigns/buddha.gif',
+                            height: iconSize,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
                       _detailRow(
                         'Board size',
                         '${level.boardSize}x${level.boardSize}',
