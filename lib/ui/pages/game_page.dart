@@ -460,7 +460,8 @@ class _GamePageState extends State<GamePage> {
                         context: context,
                         controller: controller,
                         config: mmd.MenuDialogConfig(
-                            showSaveGame: !isCampaignMode));
+                            showSaveGame: !isCampaignMode,
+                            showSettings: !isCampaignMode));
                     await _reloadPremiumStatus(context);
                   },
                   onOpenStatistics: openStatistics,
