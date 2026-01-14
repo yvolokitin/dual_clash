@@ -156,9 +156,15 @@ Future<void> showAnimatedMainMenuDialog(
                                     icon: Icons.folder_open,
                                     label: l10n.menuLoadGame,
                                     onTap: () async {
-                                      await showLoadGameDialog(
-                                          context: context,
-                                          controller: controller);
+                                      final loaded = await showLoadGameDialog(
+                                        context: context,
+                                        controller: controller,
+                                      );
+                                      if (loaded == true &&
+                                          context.mounted &&
+                                          Navigator.of(context).canPop()) {
+                                        Navigator.of(context).pop();
+                                      }
                                     },
                                   ),
                                   _MenuTile(

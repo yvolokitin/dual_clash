@@ -148,13 +148,39 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
   Future<void> _saveGame(BuildContext context) async {
     final rootNavigator = Navigator.of(context, rootNavigator: true);
     final rootContext = rootNavigator.context;
-    final red = controller.scoreRedBase();
-    final blue = controller.scoreBlueBase();
     final now = DateTime.now();
     String two(int v) => v.toString().padLeft(2, '0');
-    final belt = AiBelt.nameFor(controller.aiLevel).replaceAll(' ', '_');
-    final defaultName =
-        '${now.year}-${two(now.month)}-${two(now.day)}-${two(now.hour)}-${two(now.minute)}-${two(now.second)}-AI_${belt}-RED-${red}-BLUE-${blue}';
+    String defaultName;
+    if (controller.humanVsHuman) {
+      final playerKeys = controller.activePlayers
+          .map((player) {
+            switch (player) {
+              case CellState.red:
+                return 'R';
+              case CellState.blue:
+                return 'B';
+              case CellState.yellow:
+                return 'Y';
+              case CellState.green:
+                return 'G';
+              case CellState.bomb:
+              case CellState.wall:
+              case CellState.neutral:
+              case CellState.empty:
+                return '';
+            }
+          })
+          .where((value) => value.isNotEmpty)
+          .join('-');
+      defaultName =
+          '${now.year}-${two(now.month)}-${two(now.day)}-${two(now.hour)}-${two(now.minute)}-${two(now.second)}-$playerKeys';
+    } else {
+      final red = controller.scoreRedBase();
+      final blue = controller.scoreBlueBase();
+      final belt = AiBelt.nameFor(controller.aiLevel).replaceAll(' ', '_');
+      defaultName =
+          '${now.year}-${two(now.month)}-${two(now.day)}-${two(now.hour)}-${two(now.minute)}-${two(now.second)}-AI_${belt}-RED-${red}-BLUE-${blue}';
+    }
     await showAnimatedSaveGameDialog(
       context: rootContext,
       initialName: defaultName,
@@ -560,7 +586,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                           },
                         ),
   */
-                          if (config.showSaveGame) ...[
+                          if (config.showSaveGame || controller.humanVsHuman) ...[
                             const SizedBox(height: 6),
                             _menuTile(
                               context,

@@ -77,6 +77,8 @@ class TurnStatEntry {
 class GameController extends ChangeNotifier {
   // Duel mode: when true, both players are human and AI is disabled
   bool humanVsHuman = false;
+  bool _loadedFromSave = false;
+  bool _loadedFromSaveHumanVsHuman = false;
   int duelPlayerCount = 2;
   bool allianceMode = false;
   int? campaignRestoreGridSize;
@@ -661,6 +663,8 @@ class GameController extends ChangeNotifier {
               ? 'yellow'
               : (startingPlayer == CellState.green ? 'green' : 'red')),
       'aiLevel': aiLevel,
+      'humanVsHuman': humanVsHuman,
+      'duelPlayerCount': duelPlayerCount,
       'gameOver': gameOver,
       'redGamePoints': redGamePoints,
       'lastGamePointsAwarded': lastGamePointsAwarded,
@@ -765,6 +769,8 @@ class GameController extends ChangeNotifier {
             ? CellState.yellow
             : (startingKey == 'green' ? CellState.green : CellState.red));
     aiLevel = m['aiLevel'] as int;
+    humanVsHuman = m['humanVsHuman'] as bool? ?? false;
+    duelPlayerCount = (m['duelPlayerCount'] as int?)?.clamp(2, 4) ?? 2;
     gameOver = m['gameOver'] as bool? ?? false;
     // Optional fields for points accounting
     redGamePoints = m['redGamePoints'] as int? ?? redGamePoints;
@@ -802,6 +808,8 @@ class GameController extends ChangeNotifier {
         }
       });
     }
+    _loadedFromSave = true;
+    _loadedFromSaveHumanVsHuman = humanVsHuman;
   }
 
   void loadStateFromMap(Map<String, dynamic> state) {
@@ -1212,7 +1220,17 @@ class GameController extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool consumeLoadedFromSaveForMode({required bool expectHumanVsHuman}) {
+    final wasLoaded =
+        _loadedFromSave && _loadedFromSaveHumanVsHuman == expectHumanVsHuman;
+    _loadedFromSave = false;
+    _loadedFromSaveHumanVsHuman = false;
+    return wasLoaded;
+  }
+
   void newGame({bool notify = true, bool skipAi = false}) {
+    _loadedFromSave = false;
+    _loadedFromSaveHumanVsHuman = false;
     _turnStats.clear();
     _undoStack.clear();
     lastMovePoints = 0;

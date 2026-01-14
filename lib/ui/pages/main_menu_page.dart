@@ -88,24 +88,31 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
     }
   }
 
-  Future<void> _handleLoadGame(BuildContext context, GameController controller) async {
+  Future<void> _handleLoadGame(GameController controller) async {
+    final menuContext = context;
     final ok = await showLoadGameDialog(
-      context: context,
+      context: menuContext,
       controller: controller,
     );
-    if (ok == true && context.mounted) {
+    if (ok == true && mounted) {
+      final Widget page = controller.humanVsHuman
+          ? DuelPage(
+              controller: controller,
+              playerCount: controller.duelPlayerCount,
+            )
+          : GamePage(controller: controller);
       await _pushWithSlide(
-        context,
-        GamePage(controller: controller),
+        menuContext,
+        page,
         const Offset(-1.0, 0.0),
       );
     }
   }
 
-  void _openLoadGameAfterClose(BuildContext context, GameController controller) {
+  void _openLoadGameAfterClose(GameController controller) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (context.mounted) {
-        _handleLoadGame(context, controller);
+      if (mounted) {
+        _handleLoadGame(controller);
       }
     });
   }
@@ -811,7 +818,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                         color: Colors.orange,
                         onTap: () {
                           _dismissPlayerHub(context);
-                          _openLoadGameAfterClose(context, controller);
+                          _openLoadGameAfterClose(controller);
                         },
                         width: r4.width,
                         height: r4.height,
@@ -972,7 +979,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                 color: Colors.orange,
                                 onTap: () {
                                   _dismissPlayerHub(context);
-                                  _openLoadGameAfterClose(context, controller);
+                                  _openLoadGameAfterClose(controller);
                                 },
                               ),
                             ],
