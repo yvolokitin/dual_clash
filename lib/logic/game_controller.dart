@@ -661,6 +661,8 @@ class GameController extends ChangeNotifier {
               ? 'yellow'
               : (startingPlayer == CellState.green ? 'green' : 'red')),
       'aiLevel': aiLevel,
+      'humanVsHuman': humanVsHuman,
+      'duelPlayerCount': duelPlayerCount,
       'gameOver': gameOver,
       'redGamePoints': redGamePoints,
       'lastGamePointsAwarded': lastGamePointsAwarded,
@@ -765,6 +767,8 @@ class GameController extends ChangeNotifier {
             ? CellState.yellow
             : (startingKey == 'green' ? CellState.green : CellState.red));
     aiLevel = m['aiLevel'] as int;
+    humanVsHuman = m['humanVsHuman'] as bool? ?? false;
+    duelPlayerCount = (m['duelPlayerCount'] as int?)?.clamp(2, 4) ?? 2;
     gameOver = m['gameOver'] as bool? ?? false;
     // Optional fields for points accounting
     redGamePoints = m['redGamePoints'] as int? ?? redGamePoints;

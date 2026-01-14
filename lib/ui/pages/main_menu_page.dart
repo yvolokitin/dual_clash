@@ -95,9 +95,15 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
       controller: controller,
     );
     if (ok == true && mounted) {
+      final Widget page = controller.humanVsHuman
+          ? DuelPage(
+              controller: controller,
+              playerCount: controller.duelPlayerCount,
+            )
+          : GamePage(controller: controller);
       await _pushWithSlide(
         menuContext,
-        GamePage(controller: controller),
+        page,
         const Offset(-1.0, 0.0),
       );
     }
