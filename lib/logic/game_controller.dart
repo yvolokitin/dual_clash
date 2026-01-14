@@ -77,6 +77,7 @@ class TurnStatEntry {
 class GameController extends ChangeNotifier {
   // Duel mode: when true, both players are human and AI is disabled
   bool humanVsHuman = false;
+  bool _loadedFromSave = false;
   int duelPlayerCount = 2;
   bool allianceMode = false;
   int? campaignRestoreGridSize;
@@ -806,6 +807,7 @@ class GameController extends ChangeNotifier {
         }
       });
     }
+    _loadedFromSave = true;
   }
 
   void loadStateFromMap(Map<String, dynamic> state) {
@@ -1216,7 +1218,14 @@ class GameController extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool consumeLoadedFromSave() {
+    final wasLoaded = _loadedFromSave;
+    _loadedFromSave = false;
+    return wasLoaded;
+  }
+
   void newGame({bool notify = true, bool skipAi = false}) {
+    _loadedFromSave = false;
     _turnStats.clear();
     _undoStack.clear();
     lastMovePoints = 0;

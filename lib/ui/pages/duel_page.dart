@@ -191,8 +191,10 @@ class _DuelPageState extends State<DuelPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       widget.controller.setDuelPlayerCount(widget.playerCount);
-      // Ensure AI doesn't schedule at start
-      widget.controller.newGame();
+      if (!widget.controller.consumeLoadedFromSave()) {
+        // Ensure AI doesn't schedule at start
+        widget.controller.newGame();
+      }
     });
   }
 
