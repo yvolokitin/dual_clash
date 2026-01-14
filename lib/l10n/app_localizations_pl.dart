@@ -73,6 +73,13 @@ class AppLocalizationsPl extends AppLocalizations {
       'Zrestartować grę od początku?\n\nBieżący postęp zostanie utracony.';
 
   @override
+  String get adminModeEnableTitle => 'Włącz tryb administratora';
+
+  @override
+  String get adminModeEnableMessage =>
+      'Włączyć tryb administratora na tym urządzeniu?\n\nPokażą się opcje symulacji.';
+
+  @override
   String get statisticsTitle => 'Statystyki';
 
   @override

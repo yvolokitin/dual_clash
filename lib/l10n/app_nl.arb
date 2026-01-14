@@ -25,6 +25,8 @@
   "restartGameLabel": "Spel herstarten/starten",
   "restartGameTitle": "Spel herstarten",
   "restartGameMessage": "Het spel helemaal opnieuw starten?\n\nHuidige voortgang gaat verloren.",
+  "adminModeEnableTitle": "Beheermodus inschakelen",
+  "adminModeEnableMessage": "Beheermodus inschakelen op dit apparaat?\n\nSimulatie-opties worden zichtbaar.",
   "statisticsTitle": "Statistieken",
   "helpTitle": "Help",
   "settingsTitle": "Instellingen",

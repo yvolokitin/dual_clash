@@ -25,6 +25,8 @@
   "restartGameLabel": "Перезапустить игру",
   "restartGameTitle": "Перезапустить игру",
   "restartGameMessage": "Перезапустить игру с нуля?\n\nТекущий прогресс будет потерян (если вы его не сохранили).",
+  "adminModeEnableTitle": "Включить режим администратора",
+  "adminModeEnableMessage": "Включить режим администратора на этом устройстве?\n\nПоявятся пункты симуляции.",
   "statisticsTitle": "Статистика",
   "helpTitle": "Помощь",
   "settingsTitle": "Настройки",

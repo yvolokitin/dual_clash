@@ -5,18 +5,19 @@ import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/core/colors.dart';
 import 'package:dual_clash/core/constants.dart';
+import 'package:dual_clash/l10n/app_localizations.dart';
 import 'package:dual_clash/ui/dialogs/save_game_dialog.dart';
 import 'package:dual_clash/ui/pages/help_page.dart';
 import 'package:dual_clash/ui/pages/settings_page.dart';
-import 'package:dual_clash/ui/pages/profile_page.dart';
-import 'package:dual_clash/ui/pages/history_page.dart';
 import 'package:dual_clash/ui/pages/statistics_page.dart';
+import 'package:dual_clash/ui/dialogs/confirm_action_dialog.dart';
 import 'package:dual_clash/models/cell_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dual_clash/core/platforms.dart';
+import 'package:dual_clash/logic/admin_mode_service.dart';
 
 /// Minimal, independent "Main Menu" dialog styled like Profile dialog
 /// but with a solid #FFA213 background as requested.
@@ -50,6 +51,20 @@ class MenuDialogConfig {
         showRestorePurchases = true,
         confirmReturnToMenu = true,
         confirmRestart = true;
+}
+
+class _MenuEntry {
+  final IconData icon;
+  final String label;
+  final Future<void> Function() onTap;
+  final bool requiresAdmin;
+
+  const _MenuEntry({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.requiresAdmin = false,
+  });
 }
 
 class MainMenuDialog extends StatefulWidget {
@@ -199,186 +214,182 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
     );
   }
 
-  Future<bool> _confirmAction({
-    required BuildContext context,
-    required String title,
-    required String message,
-  }) async {
+  final AdminModeService _adminModeService = AdminModeService.instance;
+
+  List<_MenuEntry> _buildMenuEntries(BuildContext context) {
     final l10n = context.l10n;
-    final result = await showGeneralDialog<bool>(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: title,
-      barrierColor: Colors.black.withOpacity(0.55),
-      transitionDuration: const Duration(milliseconds: 220),
-      pageBuilder: (ctx, a1, a2) => const SizedBox.shrink(),
-      transitionBuilder: (ctx, anim, a2, child) {
-        final curved = CurvedAnimation(
-          parent: anim,
-          curve: Curves.easeOutCubic,
-          reverseCurve: Curves.easeInCubic,
-        );
-        final bg = AppColors.bg;
-        return Stack(
-          children: [
-            Positioned.fill(
-              child: AnimatedBuilder(
-                animation: anim,
-                builder: (context, _) => BackdropFilter(
-                  filter: ui.ImageFilter.blur(
-                    sigmaX: 6 * anim.value,
-                    sigmaY: 6 * anim.value,
-                  ),
-                  child: const SizedBox.shrink(),
-                ),
-              ),
-            ),
-            Center(
-              child: FadeTransition(
-                opacity: curved,
-                child: ScaleTransition(
-                  scale: Tween<double>(begin: 0.94, end: 1.0).animate(curved),
-                  child: Dialog(
-                    insetPadding:
-                        const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-                    backgroundColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(22),
-                    ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(22),
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [bg, bg],
-                        ),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: AppColors.dialogShadow,
-                            blurRadius: 24,
-                            offset: Offset(0, 12),
-                          )
-                        ],
-                        border:
-                            Border.all(color: AppColors.dialogOutline, width: 1),
-                      ),
-                      child: ConstrainedBox(
-                        constraints:
-                            const BoxConstraints(maxWidth: 520, maxHeight: 280),
-                        child: Padding(
-                          padding: const EdgeInsets.all(18.0),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Row(
-                                children: [
-                                  const Spacer(),
-                                  Text(
-                                    title,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                  const Spacer(),
-                                  Container(
-                                    width: 36,
-                                    height: 36,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.08),
-                                      shape: BoxShape.circle,
-                                      border: Border.all(color: Colors.white24),
-                                    ),
-                                    child: IconButton(
-                                      padding: EdgeInsets.zero,
-                                      iconSize: 20,
-                                      icon: const Icon(Icons.close,
-                                          color: Colors.white70),
-                                      onPressed: () => Navigator.of(ctx).pop(false),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              Text(
-                                message,
-                                style: const TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 16,
-                                  height: 1.2,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: TextButton(
-                                      onPressed: () =>
-                                          Navigator.of(ctx).pop(false),
-                                      style: TextButton.styleFrom(
-                                        backgroundColor:
-                                            Colors.white.withOpacity(0.08),
-                                        foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 16, vertical: 12),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                          side: const BorderSide(
-                                              color: Colors.white24),
-                                        ),
-                                        textStyle: const TextStyle(
-                                          fontWeight: FontWeight.w800,
-                                          letterSpacing: 0.2,
-                                        ),
-                                      ),
-                                      child: Text(l10n.commonNo),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      onPressed: () =>
-                                          Navigator.of(ctx).pop(true),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.brandGold,
-                                        foregroundColor: const Color(0xFF2B221D),
-                                        shadowColor: Colors.black54,
-                                        elevation: 4,
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 16, vertical: 12),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                        textStyle: const TextStyle(
-                                          fontWeight: FontWeight.w800,
-                                          letterSpacing: 0.2,
-                                        ),
-                                      ),
-                                      child: Text(l10n.commonYes),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-    return result == true;
+    final entries = <_MenuEntry>[
+      _MenuEntry(
+        icon: Icons.arrow_back,
+        label: l10n.returnToMainMenuLabel,
+        onTap: () async {
+          final nav = Navigator.of(context);
+          nav.pop();
+          await Future.delayed(const Duration(milliseconds: 30));
+          if (config.confirmReturnToMenu) {
+            final confirmed = await showConfirmActionDialog(
+              context: context,
+              title: l10n.returnToMainMenuTitle,
+              message: l10n.returnToMainMenuMessage,
+              confirmLabel: l10n.commonYes,
+              cancelLabel: l10n.commonNo,
+            );
+            if (!confirmed) return;
+          }
+          if (nav.canPop()) {
+            nav.pop();
+          }
+        },
+      ),
+      _MenuEntry(
+        icon: Icons.refresh,
+        label: l10n.restartGameLabel,
+        onTap: () async {
+          Navigator.of(context).pop();
+          await Future.delayed(const Duration(milliseconds: 30));
+          if (config.confirmRestart) {
+            final confirmed = await showConfirmActionDialog(
+              context: context,
+              title: l10n.restartGameTitle,
+              message: l10n.restartGameMessage,
+              confirmLabel: l10n.commonYes,
+              cancelLabel: l10n.commonNo,
+            );
+            if (!confirmed) return;
+          }
+          controller.newGame();
+        },
+      ),
+      if (config.showStatistics)
+        _MenuEntry(
+          icon: Icons.bar_chart,
+          label: l10n.statisticsTitle,
+          onTap: () async {
+            Navigator.of(context).pop();
+            await Future.delayed(const Duration(milliseconds: 30));
+            await showAnimatedStatisticsDialog(
+              context: context,
+              controller: controller,
+            );
+          },
+        ),
+      _MenuEntry(
+        icon: Icons.help_outline,
+        label: l10n.helpTitle,
+        onTap: () async {
+          Navigator.of(context).pop();
+          await Future.delayed(const Duration(milliseconds: 30));
+          await showAnimatedHelpDialog(context: context, controller: controller);
+        },
+      ),
+      if (config.showSettings)
+        _MenuEntry(
+          icon: Icons.settings,
+          label: l10n.settingsTitle,
+          onTap: () async {
+            Navigator.of(context).pop();
+            await Future.delayed(const Duration(milliseconds: 30));
+            await showAnimatedSettingsDialog(
+                context: context, controller: controller);
+          },
+        ),
+      if (config.showSaveGame)
+        _MenuEntry(
+          icon: Icons.save_alt,
+          label: l10n.saveGameTitle,
+          onTap: () async {
+            Navigator.of(context).pop();
+            await Future.delayed(const Duration(milliseconds: 30));
+            await _saveGame(context);
+          },
+        ),
+      if (config.showSimulateGame)
+        ..._buildSimulationEntries(context, l10n),
+      if (FF_ADS && config.showRemoveAds)
+        _MenuEntry(
+          icon: Icons.block,
+          label: l10n.removeAdsLabel,
+          onTap: () async {
+            await _buyPremium();
+          },
+        ),
+      if (FF_ADS && config.showRestorePurchases && isIOS)
+        _MenuEntry(
+          icon: Icons.restore,
+          label: l10n.restorePurchasesLabel,
+          onTap: () async {
+            await _iap?.restorePurchases();
+          },
+        ),
+    ];
+    return entries;
+  }
+
+  List<_MenuEntry> _buildSimulationEntries(
+      BuildContext context, AppLocalizations l10n) {
+    if (controller.humanVsHuman) {
+      return [
+        _MenuEntry(
+          icon: Icons.auto_awesome,
+          label: l10n.simulateGameLabel,
+          requiresAdmin: true,
+          onTap: () async {
+            Navigator.of(context).pop();
+            await Future.delayed(const Duration(milliseconds: 30));
+            await controller.simulateGame();
+          },
+        ),
+      ];
+    }
+    return [
+      _MenuEntry(
+        icon: Icons.auto_awesome,
+        label: l10n.simulateGameHumanWinLabel,
+        requiresAdmin: true,
+        onTap: () async {
+          Navigator.of(context).pop();
+          await Future.delayed(const Duration(milliseconds: 30));
+          await controller.simulateGame(forcedWinner: CellState.red);
+        },
+      ),
+      _MenuEntry(
+        icon: Icons.auto_awesome,
+        label: l10n.simulateGameAiWinLabel,
+        requiresAdmin: true,
+        onTap: () async {
+          Navigator.of(context).pop();
+          await Future.delayed(const Duration(milliseconds: 30));
+          await controller.simulateGame(forcedWinner: CellState.blue);
+        },
+      ),
+      _MenuEntry(
+        icon: Icons.auto_awesome,
+        label: l10n.simulateGameGreyWinLabel,
+        requiresAdmin: true,
+        onTap: () async {
+          Navigator.of(context).pop();
+          await Future.delayed(const Duration(milliseconds: 30));
+          await controller.simulateGame(forcedWinner: CellState.neutral);
+        },
+      ),
+    ];
+  }
+
+  List<Widget> _buildMenuTiles(
+      BuildContext context, List<_MenuEntry> entries) {
+    final tiles = <Widget>[];
+    for (var i = 0; i < entries.length; i++) {
+      if (i > 0) {
+        tiles.add(const SizedBox(height: 6));
+      }
+      tiles.add(_menuTile(
+        context,
+        icon: entries[i].icon,
+        label: entries[i].label,
+        onTap: entries[i].onTap,
+      ));
+    }
+    return tiles;
   }
 
   @override
@@ -472,213 +483,25 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          _menuTile(
-                            context,
-                            icon: Icons.arrow_back,
-                            label: l10n.returnToMainMenuLabel,
-                            onTap: () async {
-                              // Use captured navigator to avoid disposed context
-                              final nav = Navigator.of(context);
-                              // Close menu dialog
-                              nav.pop();
-                              await Future.delayed(
-                                  const Duration(milliseconds: 30));
-                              if (config.confirmReturnToMenu) {
-                                final confirmed = await _confirmAction(
-                                  context: context,
-                                  title: l10n.returnToMainMenuTitle,
-                                  message: l10n.returnToMainMenuMessage,
-                                );
-                                if (!confirmed) return;
-                              }
-                              // Then pop the GamePage route to return to Main Menu
-                              if (nav.canPop()) {
-                                nav.pop();
-                              }
+                          ValueListenableBuilder<bool>(
+                            valueListenable:
+                                AdminModeService.adminEnabledListenable,
+                            builder: (context, _, child) {
+                              final entries = _buildMenuEntries(context);
+                              final visibleEntries = entries
+                                  .where(
+                                    (entry) => _adminModeService
+                                        .canShowMenuItem(
+                                            requiresAdmin: entry.requiresAdmin),
+                                  )
+                                  .toList();
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children:
+                                    _buildMenuTiles(context, visibleEntries),
+                              );
                             },
                           ),
-                          const SizedBox(height: 6),
-                          _menuTile(
-                            context,
-                            icon: Icons.refresh,
-                            label: l10n.restartGameLabel,
-                            onTap: () async {
-                              Navigator.of(context).pop();
-                              await Future.delayed(
-                                  const Duration(milliseconds: 30));
-                              if (config.confirmRestart) {
-                                final confirmed = await _confirmAction(
-                                  context: context,
-                                  title: l10n.restartGameTitle,
-                                  message: l10n.restartGameMessage,
-                                );
-                                if (!confirmed) return;
-                              }
-                              controller.newGame();
-                            },
-                          ),
-                          if (config.showStatistics) ...[
-                            const SizedBox(height: 6),
-                            _menuTile(
-                              context,
-                              icon: Icons.bar_chart,
-                              label: l10n.statisticsTitle,
-                              onTap: () async {
-                                Navigator.of(context).pop();
-                                await Future.delayed(
-                                    const Duration(milliseconds: 30));
-                                await showAnimatedStatisticsDialog(
-                                  context: context,
-                                  controller: controller,
-                                );
-                              },
-                            ),
-                          ],
-                          const SizedBox(height: 6),
-                          _menuTile(
-                            context,
-                            icon: Icons.help_outline,
-                            label: l10n.helpTitle,
-                            onTap: () async {
-                              Navigator.of(context).pop();
-                              await Future.delayed(
-                                  const Duration(milliseconds: 30));
-                              await showAnimatedHelpDialog(
-                                  context: context, controller: controller);
-                            },
-                          ),
-                          if (config.showSettings) ...[
-                            const SizedBox(height: 6),
-                            _menuTile(
-                              context,
-                              icon: Icons.settings,
-                              label: l10n.settingsTitle,
-                              onTap: () async {
-                                Navigator.of(context).pop();
-                                await Future.delayed(
-                                    const Duration(milliseconds: 30));
-                                await showAnimatedSettingsDialog(
-                                    context: context, controller: controller);
-                              },
-                            ),
-                          ],
-/*
-                        const SizedBox(height: 6),
-                        _menuTile(
-                          context,
-                          icon: Icons.person_outline,
-                          label: 'Profile',
-                          onTap: () async {
-                            Navigator.of(context).pop();
-                            await Future.delayed(const Duration(milliseconds: 30));
-                            await showAnimatedProfileDialog(context: context, controller: controller);
-                          },
-                        ),
-                        const SizedBox(height: 6),
-                        _menuTile(
-                          context,
-                          icon: Icons.history,
-                          label: 'History',
-                          onTap: () async {
-                            Navigator.of(context).pop();
-                            await Future.delayed(const Duration(milliseconds: 30));
-                            await showAnimatedHistoryDialog(context: context, controller: controller);
-                          },
-                        ),
-  */
-                          if (config.showSaveGame || controller.humanVsHuman) ...[
-                            const SizedBox(height: 6),
-                            _menuTile(
-                              context,
-                              icon: Icons.save_alt,
-                              label: l10n.saveGameTitle,
-                              onTap: () async {
-                                Navigator.of(context).pop();
-                                await Future.delayed(
-                                    const Duration(milliseconds: 30));
-                                await _saveGame(context);
-                              },
-                            ),
-                          ],
-                          if (config.showSimulateGame) ...[
-                            const SizedBox(height: 6),
-                            if (controller.humanVsHuman)
-                              _menuTile(
-                                context,
-                                icon: Icons.auto_awesome,
-                                label: l10n.simulateGameLabel,
-                                onTap: () async {
-                                  Navigator.of(context).pop();
-                                  await Future.delayed(
-                                      const Duration(milliseconds: 30));
-                                  await controller.simulateGame();
-                                },
-                              )
-                            else ...[
-                              _menuTile(
-                                context,
-                                icon: Icons.auto_awesome,
-                                label: l10n.simulateGameHumanWinLabel,
-                                onTap: () async {
-                                  Navigator.of(context).pop();
-                                  await Future.delayed(
-                                      const Duration(milliseconds: 30));
-                                  await controller.simulateGame(
-                                      forcedWinner: CellState.red);
-                                },
-                              ),
-                              const SizedBox(height: 6),
-                              _menuTile(
-                                context,
-                                icon: Icons.auto_awesome,
-                                label: l10n.simulateGameAiWinLabel,
-                                onTap: () async {
-                                  Navigator.of(context).pop();
-                                  await Future.delayed(
-                                      const Duration(milliseconds: 30));
-                                  await controller.simulateGame(
-                                      forcedWinner: CellState.blue);
-                                },
-                              ),
-                              const SizedBox(height: 6),
-                              _menuTile(
-                                context,
-                                icon: Icons.auto_awesome,
-                                label: l10n.simulateGameGreyWinLabel,
-                                onTap: () async {
-                                  Navigator.of(context).pop();
-                                  await Future.delayed(
-                                      const Duration(milliseconds: 30));
-                                  await controller.simulateGame(
-                                      forcedWinner: CellState.neutral);
-                                },
-                              ),
-                            ],
-                          ],
-                          if (FF_ADS && config.showRemoveAds) ...[
-                            const SizedBox(height: 6),
-                            _menuTile(
-                              context,
-                              icon: Icons.block,
-                              label: l10n.removeAdsLabel,
-                              onTap: () async {
-                                await _buyPremium();
-                              },
-                            ),
-                          ],
-                          if (FF_ADS &&
-                              config.showRestorePurchases &&
-                              isIOS) ...[
-                            const SizedBox(height: 6),
-                            _menuTile(
-                              context,
-                              icon: Icons.restore,
-                              label: l10n.restorePurchasesLabel,
-                              onTap: () async {
-                                await _iap?.restorePurchases();
-                              },
-                            ),
-                          ],
                         ],
                       ),
                     ),
@@ -715,7 +538,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
   Widget _menuTile(BuildContext context,
       {required IconData icon,
       required String label,
-      required VoidCallback onTap}) {
+      required Future<void> Function() onTap}) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.08),
@@ -727,7 +550,9 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
         title: Text(label,
             style: const TextStyle(
                 color: Colors.white, fontWeight: FontWeight.w700)),
-        onTap: onTap,
+        onTap: () {
+          unawaited(onTap());
+        },
       ),
     );
   }

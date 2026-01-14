@@ -73,6 +73,13 @@ class AppLocalizationsDe extends AppLocalizations {
       'Spiel von vorne neu starten?\n\nDer aktuelle Fortschritt geht verloren.';
 
   @override
+  String get adminModeEnableTitle => 'Admin-Modus aktivieren';
+
+  @override
+  String get adminModeEnableMessage =>
+      'Admin-Modus auf diesem Gerät aktivieren?\n\nSimulationsmenüpunkte werden sichtbar.';
+
+  @override
   String get statisticsTitle => 'Statistiken';
 
   @override
