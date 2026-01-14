@@ -586,7 +586,7 @@ class _MainMenuDialogState extends State<MainMenuDialog> {
                           },
                         ),
   */
-                          if (config.showSaveGame || controller.humanVsHuman) ...[
+                          if (config.showSaveGame) ...[
                             const SizedBox(height: 6),
                             _menuTile(
                               context,
