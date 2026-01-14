@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../../core/colors.dart';
 
@@ -34,6 +35,8 @@ class FlyoutTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isCompactIos =
+        defaultTargetPlatform == TargetPlatform.iOS && MediaQuery.sizeOf(context).width < 800;
     final outerRadius = BorderRadius.circular(16);
     final innerRadius = BorderRadius.circular(13);
 
@@ -62,10 +65,14 @@ class FlyoutTile extends StatelessWidget {
       );
     }
 
+    final double labelFontSize = isCompactIos ? 16 * 0.85 : 16;
+    final double labelSpacing = isCompactIos ? 4 : 6;
+    final int imageFlex = isCompactIos ? 6 : 1;
+    final int labelFlex = isCompactIos ? 1 : 0;
     final labelStyle = TextStyle(
       color: disabled ? Colors.white70 : Colors.white,
       fontWeight: FontWeight.w800,
-      fontSize: 16,
+      fontSize: labelFontSize,
     );
 
     return SizedBox(
@@ -99,10 +106,34 @@ class FlyoutTile extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Expanded(
+                    flex: imageFlex,
                     child: Center(child: image),
                   ),
-                  const SizedBox(height: 6),
-                  Text(label, style: labelStyle),
+                  if (labelFlex > 0)
+                    Expanded(
+                      flex: labelFlex,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(height: labelSpacing),
+                          Text(
+                            label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: labelStyle,
+                          ),
+                        ],
+                      ),
+                    )
+                  else ...[
+                    SizedBox(height: labelSpacing),
+                    Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: labelStyle,
+                    ),
+                  ],
                 ],
               ),
             ),
