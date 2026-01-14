@@ -48,6 +48,8 @@ class _MenuTileState extends State<MenuTile> {
         MediaQuery.of(context).size.width < 800;
     final double labelFontSize = isCompactIosWidth ? 16 * 0.85 : 16;
     final double imageScale = isCompactIosWidth ? 1.2 : 1.0;
+    final int imageFlex = isCompactIosWidth ? 6 : 5;
+    final int labelFlex = isCompactIosWidth ? 2 : 3;
     final outerRadius = BorderRadius.circular(16);
     final innerRadius = BorderRadius.circular(13);
     final Color base = widget.color.withOpacity(1.0);
@@ -104,6 +106,7 @@ class _MenuTileState extends State<MenuTile> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Expanded(
+                    flex: imageFlex,
                     child: Center(
                       child: ClipRect(
                         child: AnimatedScale(
@@ -114,9 +117,11 @@ class _MenuTileState extends State<MenuTile> {
                             turns: _hovered ? (5 / 360) : 0,
                             duration: _hoverDuration,
                             curve: Curves.easeOutCubic,
-                            child: Image.asset(
-                              widget.imagePath,
-                              fit: BoxFit.contain,
+                            child: SizedBox.expand(
+                              child: Image.asset(
+                                widget.imagePath,
+                                fit: BoxFit.fill,
+                              ),
                             ),
                           ),
                         ),
@@ -124,13 +129,18 @@ class _MenuTileState extends State<MenuTile> {
                     ),
                   ),
                   if (widget.showLabel) ...[
-                    const SizedBox(height: 6),
-                    Text(
-                      widget.label,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
-                        fontSize: labelFontSize,
+                    Expanded(
+                      flex: labelFlex,
+                      child: Center(
+                        child: Text(
+                          widget.label,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                            fontSize: labelFontSize,
+                          ),
+                        ),
                       ),
                     ),
                   ],
