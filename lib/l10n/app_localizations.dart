@@ -229,6 +229,7 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Restart the game from scratch?\n\nCurrent progress will be lost.'**
   String get restartGameMessage;
+
   /// No description provided for @adminModeEnableTitle.
   ///
   /// In en, this message translates to:
