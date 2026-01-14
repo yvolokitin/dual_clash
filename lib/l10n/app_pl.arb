@@ -25,6 +25,8 @@
   "restartGameLabel": "Zrestartuj/rozpocznij grę",
   "restartGameTitle": "Zrestartuj grę",
   "restartGameMessage": "Zrestartować grę od początku?\n\nBieżący postęp zostanie utracony.",
+  "adminModeEnableTitle": "Włącz tryb administratora",
+  "adminModeEnableMessage": "Włączyć tryb administratora na tym urządzeniu?\n\nPokażą się opcje symulacji.",
   "statisticsTitle": "Statystyki",
   "helpTitle": "Pomoc",
   "settingsTitle": "Ustawienia",

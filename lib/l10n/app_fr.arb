@@ -25,6 +25,8 @@
   "restartGameLabel": "Redémarrer/Démarrer la partie",
   "restartGameTitle": "Redémarrer la partie",
   "restartGameMessage": "Recommencer la partie depuis le début ?\n\nLa progression actuelle sera perdue.",
+  "adminModeEnableTitle": "Activer le mode admin",
+  "adminModeEnableMessage": "Activer le mode admin sur cet appareil ?\n\nLes options de simulation seront visibles.",
   "statisticsTitle": "Statistiques",
   "helpTitle": "Aide",
   "settingsTitle": "Paramètres",

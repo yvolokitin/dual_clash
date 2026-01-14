@@ -73,6 +73,13 @@ class AppLocalizationsUk extends AppLocalizations {
       'Перезапустити гру з нуля?\n\nПоточний прогрес буде втрачено.';
 
   @override
+  String get adminModeEnableTitle => 'Увімкнути режим адміністратора';
+
+  @override
+  String get adminModeEnableMessage =>
+      'Увімкнути режим адміністратора на цьому пристрої?\n\nЗ\'являться пункти симуляції.';
+
+  @override
   String get statisticsTitle => 'Статистика';
 
   @override

@@ -25,6 +25,8 @@
   "restartGameLabel": "Restart game",
   "restartGameTitle": "Restart game",
   "restartGameMessage": "Restart the game from scratch?\n\nCurrent progress will be lost.",
+  "adminModeEnableTitle": "Enable admin mode",
+  "adminModeEnableMessage": "Enable admin mode on this device?\n\nSimulation menu items will become visible.",
   "statisticsTitle": "Statistics",
   "helpTitle": "Help",
   "settingsTitle": "Settings",

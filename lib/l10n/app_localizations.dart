@@ -229,6 +229,17 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Restart the game from scratch?\n\nCurrent progress will be lost.'**
   String get restartGameMessage;
+  /// No description provided for @adminModeEnableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable admin mode'**
+  String get adminModeEnableTitle;
+
+  /// No description provided for @adminModeEnableMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable admin mode on this device?\n\nSimulation menu items will become visible.'**
+  String get adminModeEnableMessage;
 
   /// No description provided for @statisticsTitle.
   ///
