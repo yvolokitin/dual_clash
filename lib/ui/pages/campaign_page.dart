@@ -668,16 +668,33 @@ class _CampaignRouteGrid extends StatelessWidget {
     BuildContext context,
     CampaignLevel level,
   ) async {
-    final result = await campaignController.bestResultForLevel(level.index);
+    final result = await campaignController.latestResultForLevel(level.index);
     if (!context.mounted) return;
+    final iconSize = (MediaQuery.of(context).size.height * 0.2 * 0.55)
+        .clamp(40, 96)
+        .toDouble();
     showDialog<void>(
       context: context,
       builder: (context) {
         return AlertDialog(
           backgroundColor: const Color(0xFF3B2F77),
-          title: Text(
-            'Level ${level.index} results',
-            style: const TextStyle(color: Colors.white),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Level ${level.index} results',
+                style: const TextStyle(color: Colors.white),
+              ),
+              if (campaignController.campaignId == 'buddha') ...[
+                const SizedBox(height: 8),
+                Image.asset(
+                  'assets/icons/campaigns/buddha.gif',
+                  height: iconSize,
+                  fit: BoxFit.contain,
+                ),
+              ],
+            ],
           ),
           content: result == null
               ? const Text(
@@ -704,6 +721,9 @@ class _CampaignRouteGrid extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.brandGold,
+              ),
               child: const Text('Close'),
             ),
           ],
