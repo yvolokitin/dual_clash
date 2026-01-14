@@ -191,7 +191,8 @@ class _DuelPageState extends State<DuelPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       widget.controller.setDuelPlayerCount(widget.playerCount);
-      if (!widget.controller.consumeLoadedFromSave()) {
+      if (!widget.controller.consumeLoadedFromSaveForMode(
+          expectHumanVsHuman: true)) {
         // Ensure AI doesn't schedule at start
         widget.controller.newGame();
       }
