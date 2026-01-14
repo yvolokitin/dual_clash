@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/l10n/app_localizations.dart';
+import 'package:dual_clash/logic/admin_mode_service.dart';
+import 'package:dual_clash/ui/dialogs/confirm_action_dialog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../logic/game_controller.dart';
@@ -75,6 +78,8 @@ class _SettingsDialogState extends State<SettingsDialog> {
   late CellState _startingPlayer;
   late String _initialLanguage;
   late CellState _initialStartingPlayer;
+  Timer? _adminActivationTimer;
+  bool _adminDialogVisible = false;
 
   @override
   void initState() {
@@ -86,6 +91,43 @@ class _SettingsDialogState extends State<SettingsDialog> {
     _initialLanguage = _language;
     _initialStartingPlayer = _startingPlayer;
     _coerceStartingPlayer();
+  }
+
+  @override
+  void dispose() {
+    _adminActivationTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startAdminActivationHold() {
+    if (!AdminModeService.instance.canEnableOnThisDevice) return;
+    if (AdminModeService.isAdminEnabled) return;
+    _adminActivationTimer?.cancel();
+    _adminActivationTimer =
+        Timer(const Duration(seconds: 13), _promptAdminActivation);
+  }
+
+  void _cancelAdminActivationHold() {
+    if (_adminActivationTimer?.isActive ?? false) {
+      _adminActivationTimer?.cancel();
+    }
+  }
+
+  Future<void> _promptAdminActivation() async {
+    if (!mounted || _adminDialogVisible) return;
+    _adminDialogVisible = true;
+    final l10n = context.l10n;
+    final confirmed = await showConfirmActionDialog(
+      context: context,
+      title: l10n.adminModeEnableTitle,
+      message: l10n.adminModeEnableMessage,
+      confirmLabel: l10n.commonYes,
+      cancelLabel: l10n.commonNo,
+    );
+    _adminDialogVisible = false;
+    if (confirmed) {
+      await AdminModeService.enableAdminOnThisDevice();
+    }
   }
 
   void _coerceStartingPlayer() {
@@ -267,6 +309,10 @@ class _SettingsDialogState extends State<SettingsDialog> {
                                       scale: imageChoiceTileScale,
                                       onTap: () => setState(
                                           () => _startingPlayer = CellState.red),
+                                      onTapDown: (_) =>
+                                          _startAdminActivationHold(),
+                                      onTapUp: (_) => _cancelAdminActivationHold(),
+                                      onTapCancel: _cancelAdminActivationHold,
                                     ),
                                     _startingPlayerTile(
                                       selected:
@@ -640,6 +686,9 @@ class _SettingsDialogState extends State<SettingsDialog> {
     required Color accent,
     double scale = 1.0,
     VoidCallback? onTap,
+    GestureTapDownCallback? onTapDown,
+    GestureTapUpCallback? onTapUp,
+    VoidCallback? onTapCancel,
   }) {
     final double tileWidth = 120 * scale;
     final double tileHeight = 72 * scale;
@@ -658,6 +707,9 @@ class _SettingsDialogState extends State<SettingsDialog> {
       child: InkWell(
         borderRadius: tileRadius,
         onTap: onTap,
+        onTapDown: onTapDown,
+        onTapUp: onTapUp,
+        onTapCancel: onTapCancel,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

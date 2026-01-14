@@ -73,6 +73,13 @@ class AppLocalizationsFr extends AppLocalizations {
       'Recommencer la partie depuis le début ?\n\nLa progression actuelle sera perdue.';
 
   @override
+  String get adminModeEnableTitle => 'Activer le mode admin';
+
+  @override
+  String get adminModeEnableMessage =>
+      'Activer le mode admin sur cet appareil ?\n\nLes options de simulation seront visibles.';
+
+  @override
   String get statisticsTitle => 'Statistiques';
 
   @override

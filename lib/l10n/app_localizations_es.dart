@@ -73,6 +73,13 @@ class AppLocalizationsEs extends AppLocalizations {
       '¿Reiniciar el juego desde cero?\n\nSe perderá el progreso actual.';
 
   @override
+  String get adminModeEnableTitle => 'Activar modo admin';
+
+  @override
+  String get adminModeEnableMessage =>
+      '¿Activar el modo admin en este dispositivo?\n\nSe mostrarán las opciones de simulación.';
+
+  @override
   String get statisticsTitle => 'Estadísticas';
 
   @override

@@ -73,6 +73,13 @@ class AppLocalizationsNl extends AppLocalizations {
       'Het spel helemaal opnieuw starten?\n\nHuidige voortgang gaat verloren.';
 
   @override
+  String get adminModeEnableTitle => 'Beheermodus inschakelen';
+
+  @override
+  String get adminModeEnableMessage =>
+      'Beheermodus inschakelen op dit apparaat?\n\nSimulatie-opties worden zichtbaar.';
+
+  @override
   String get statisticsTitle => 'Statistieken';
 
   @override

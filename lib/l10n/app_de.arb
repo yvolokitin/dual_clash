@@ -25,6 +25,8 @@
   "restartGameLabel": "Spiel neu starten/Starten",
   "restartGameTitle": "Spiel neu starten",
   "restartGameMessage": "Spiel von vorne neu starten?\n\nDer aktuelle Fortschritt geht verloren.",
+  "adminModeEnableTitle": "Admin-Modus aktivieren",
+  "adminModeEnableMessage": "Admin-Modus auf diesem Gerät aktivieren?\n\nSimulationsmenüpunkte werden sichtbar.",
   "statisticsTitle": "Statistiken",
   "helpTitle": "Hilfe",
   "settingsTitle": "Einstellungen",
