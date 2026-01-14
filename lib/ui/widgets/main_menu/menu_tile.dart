@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class MenuTile extends StatefulWidget {
@@ -42,6 +43,8 @@ class _MenuTileState extends State<MenuTile> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isCompactIos =
+        defaultTargetPlatform == TargetPlatform.iOS && MediaQuery.sizeOf(context).width < 800;
     final outerRadius = BorderRadius.circular(16);
     final innerRadius = BorderRadius.circular(13);
     final Color base = widget.color.withOpacity(1.0);
@@ -56,6 +59,13 @@ class _MenuTileState extends State<MenuTile> {
     final bool transparentBackground = widget.transparentBackground;
 
     // Entire tile scales a bit on press to mimic a button press
+    final double imageScale = isCompactIos ? 1.0 : (_hovered ? 1.05 : 1.0);
+    final double imageTurns = isCompactIos ? 0.0 : (_hovered ? (5 / 360) : 0);
+    final double labelFontSize = isCompactIos ? 16 * 0.85 : 16;
+    final double labelSpacing = isCompactIos ? 4 : 6;
+    final int imageFlex = isCompactIos ? 6 : 1;
+    final int labelFlex = isCompactIos ? 1 : 0;
+
     return AnimatedScale(
       scale: _pressed ? 0.97 : 1.0,
       duration: _pressDuration,
@@ -98,14 +108,15 @@ class _MenuTileState extends State<MenuTile> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Expanded(
+                    flex: imageFlex,
                     child: Center(
                       child: ClipRect(
                         child: AnimatedScale(
-                          scale: _hovered ? 1.05 : 1.0,
+                          scale: imageScale,
                           duration: _hoverDuration,
                           curve: Curves.easeOutCubic,
                           child: AnimatedRotation(
-                            turns: _hovered ? (5 / 360) : 0,
+                            turns: imageTurns,
                             duration: _hoverDuration,
                             curve: Curves.easeOutCubic,
                             child: Image.asset(
@@ -117,17 +128,42 @@ class _MenuTileState extends State<MenuTile> {
                       ),
                     ),
                   ),
-                  if (widget.showLabel) ...[
-                    const SizedBox(height: 6),
-                    Text(
-                      widget.label,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
+                  if (widget.showLabel)
+                    labelFlex > 0
+                        ? Expanded(
+                            flex: labelFlex,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(height: labelSpacing),
+                                Text(
+                                  widget.label,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: labelFontSize,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : Column(
+                            children: [
+                              SizedBox(height: labelSpacing),
+                              Text(
+                                widget.label,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: labelFontSize,
+                                ),
+                              ),
+                            ],
+                          ),
                 ],
               ),
             ),
