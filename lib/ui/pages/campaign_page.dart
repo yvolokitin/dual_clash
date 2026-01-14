@@ -65,7 +65,7 @@ class _CampaignPageState extends State<CampaignPage> {
         id: 'buddha',
         title: l10n.buddhaCampaignTitle,
         description: l10n.buddhaCampaignDescription,
-        iconAsset: 'assets/icons/campaigns/buddha.png',
+        iconAsset: 'assets/icons/campaigns/buddha.gif',
         isUnlocked: true,
         totalLevels: campaignLevels.length,
         levels: campaignLevels,
