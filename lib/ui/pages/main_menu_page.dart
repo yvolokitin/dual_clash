@@ -255,7 +255,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                     crossAxisCount: 2,
                                     mainAxisSpacing: 14,
                                     crossAxisSpacing: 14,
-                                    childAspectRatio: 1.1,
+                                    childAspectRatio: 1.0,
                                   ),
                                   children: [
                                     MenuTile(

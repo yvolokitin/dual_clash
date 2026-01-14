@@ -68,83 +68,87 @@ class _MenuTileState extends State<MenuTile> {
       scale: _pressed ? 0.97 : 1.0,
       duration: _pressDuration,
       curve: Curves.easeOutCubic,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: widget.onTap,
-          onHover: (h) => setState(() => _hovered = h),
-          onHighlightChanged: (v) => setState(() => _pressed = v),
-          borderRadius: outerRadius,
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: transparentBackground ? null : gradient,
-              borderRadius: outerRadius,
-              boxShadow: transparentBackground
-                  ? null
-                  : const [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 10,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-            ),
-            padding: transparentBackground
-                ? EdgeInsets.zero
-                : const EdgeInsets.all(3), // 3px gradient border
+      child: AspectRatio(
+        aspectRatio: 1.0,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: widget.onTap,
+            onHover: (h) => setState(() => _hovered = h),
+            onHighlightChanged: (v) => setState(() => _pressed = v),
+            borderRadius: outerRadius,
             child: Container(
               decoration: BoxDecoration(
-                color: transparentBackground
-                    ? Colors.transparent
-                    : widget.color.withOpacity(0.9),
-                borderRadius: innerRadius,
+                gradient: transparentBackground ? null : gradient,
+                borderRadius: outerRadius,
+                boxShadow: transparentBackground
+                    ? null
+                    : const [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 10,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
               ),
               padding: transparentBackground
                   ? EdgeInsets.zero
-                  : const EdgeInsets.all(10),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    flex: imageFlex,
-                    child: Center(
-                      child: ClipRect(
-                        child: AnimatedScale(
-                          scale: (_hovered ? 1.05 : 1.0) * imageScale,
-                          duration: _hoverDuration,
-                          curve: Curves.easeOutCubic,
-                          child: AnimatedRotation(
-                            turns: _hovered ? (5 / 360) : 0,
+                  : const EdgeInsets.all(3), // 3px gradient border
+              child: Container(
+                decoration: BoxDecoration(
+                  color: transparentBackground
+                      ? Colors.transparent
+                      : widget.color.withOpacity(0.9),
+                  borderRadius: innerRadius,
+                ),
+                padding: transparentBackground
+                    ? EdgeInsets.zero
+                    : const EdgeInsets.all(10),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      flex: imageFlex,
+                      child: Center(
+                        child: ClipRect(
+                          child: AnimatedScale(
+                            scale: (_hovered ? 1.05 : 1.0) * imageScale,
                             duration: _hoverDuration,
                             curve: Curves.easeOutCubic,
-                            child: SizedBox.expand(
-                              child: Image.asset(
-                                widget.imagePath,
-                                fit: BoxFit.fill,
+                            child: AnimatedRotation(
+                              turns: _hovered ? (5 / 360) : 0,
+                              duration: _hoverDuration,
+                              curve: Curves.easeOutCubic,
+                              child: AspectRatio(
+                                aspectRatio: 1.0,
+                                child: Image.asset(
+                                  widget.imagePath,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  if (widget.showLabel) ...[
-                    Expanded(
-                      flex: labelFlex,
-                      child: Center(
-                        child: Text(
-                          widget.label,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
-                            fontSize: labelFontSize,
+                    if (widget.showLabel) ...[
+                      Expanded(
+                        flex: labelFlex,
+                        child: Center(
+                          child: Text(
+                            widget.label,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w800,
+                              fontSize: labelFontSize,
+                            ),
                           ),
                         ),
                       ),
-                    ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ),
