@@ -65,6 +65,18 @@ class _GamePageState extends State<GamePage> {
 
   GameController get controller => widget.controller;
   bool get _isAndroidOrIOS => isMobile;
+  String? _campaignMenuIconAsset() {
+    switch (widget.campaignId) {
+      case 'shiva':
+        return 'assets/icons/campaigns/shiva.png';
+      case 'buddha':
+        return 'assets/icons/campaigns/buddha.png';
+      case 'ganesha':
+        return 'assets/icons/campaigns/ganesha.png';
+      default:
+        return null;
+    }
+  }
 
   @override
   void initState() {
@@ -410,6 +422,12 @@ class _GamePageState extends State<GamePage> {
                 },
         );
 
+        final bool isCampaignMode = widget.onCampaignAction != null ||
+            widget.campaignId != null ||
+            widget.campaignTotalLevels != null;
+        final String? campaignMenuIcon =
+            isCampaignMode ? _campaignMenuIconAsset() : null;
+
         return Scaffold(
           backgroundColor: AppColors.bg,
           bottomNavigationBar: _buildBottomBar(context),
@@ -428,6 +446,7 @@ class _GamePageState extends State<GamePage> {
                   scoreItemSize: metrics.scoreItemSize,
                   pointsItemSize: metrics.pointsItemSize,
                   boardCellSize: metrics.boardCellSize,
+                  menuIconAsset: campaignMenuIcon,
                   scoreTextStyle: metrics.scoreTextStyle,
                   pointsTextStyle: metrics.pointsTextStyle,
                   redBase: redBase,
@@ -438,7 +457,11 @@ class _GamePageState extends State<GamePage> {
                   aiSelectorEnabled: widget.challengeConfig == null,
                   onOpenMenu: () async {
                     await mmd.showAnimatedMainMenuDialog(
-                        context: context, controller: controller);
+                        context: context,
+                        controller: controller,
+                        config: mmd.MenuDialogConfig(
+                            showSaveGame: !isCampaignMode,
+                            showSettings: !isCampaignMode));
                     await _reloadPremiumStatus(context);
                   },
                   onOpenStatistics: openStatistics,
