@@ -163,6 +163,9 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
             defaultTargetPlatform == TargetPlatform.android) &&
         height > 1200;
     final double menuGridMaxWidth = isTallMobile ? 420 * 1.15 : 420;
+    final String menuPvAiAsset = kIsWeb
+        ? 'assets/icons/menu/menu_pvai.png'
+        : 'assets/icons/menu/menu_pvai.gif';
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -257,7 +260,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                   children: [
                                     MenuTile(
                                       key: _gameTileKey,
-                                      imagePath: 'assets/icons/menu/menu_pvai.png',
+                                      imagePath: menuPvAiAsset,
                                       label: compactLabels
                                           ? l10n.menuGameShort
                                           : l10n.menuGameChallenge,
