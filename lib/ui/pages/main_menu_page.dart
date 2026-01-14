@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:dual_clash/core/localization.dart';
+import 'package:dual_clash/core/navigation.dart';
+import 'package:dual_clash/logic/main_menu_music_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart' show RenderBox;
@@ -27,7 +29,8 @@ class MainMenuPage extends StatefulWidget {
   State<MainMenuPage> createState() => _MainMenuPageState();
 }
 
-class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderStateMixin {
+class _MainMenuPageState extends State<MainMenuPage>
+    with SingleTickerProviderStateMixin, RouteAware {
   final GlobalKey _duelTileKey = GlobalKey();
   final GlobalKey _gameTileKey = GlobalKey();
   final GlobalKey _campaignTileKey = GlobalKey();
@@ -37,6 +40,8 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
   VoidCallback? _bgAnimListener;
   bool _showContent = true; // hidden until startup animation completes
   bool _menuActionInProgress = false;
+  late final VoidCallback _musicSettingsListener;
+  bool _routeSubscribed = false;
   static const Color _violet = Color(0xFF8A2BE2);
   static const Color _menuGreen = Color(0xFF22B14C);
   static const Color _playerHubColor = Colors.orange;
@@ -126,6 +131,13 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
       // Ensure waves start if launch animation was already played earlier in the session
       WidgetsBinding.instance.addPostFrameCallback((_) => _startWavesIfNeeded());
     }
+    MainMenuMusicController.instance.setMenuReady(_showContent);
+    _musicSettingsListener = () {
+      MainMenuMusicController.instance
+          .setEnabled(widget.controller.musicEnabled);
+    };
+    widget.controller.addListener(_musicSettingsListener);
+    MainMenuMusicController.instance.setEnabled(widget.controller.musicEnabled);
     if (!_hasLoggedScreenSize) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
@@ -138,11 +150,46 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_routeSubscribed) {
+      return;
+    }
+    final route = ModalRoute.of(context);
+    if (route is PageRoute<dynamic>) {
+      routeObserver.subscribe(this, route);
+      _routeSubscribed = true;
+      MainMenuMusicController.instance
+          .setMainMenuVisible(route.isCurrent);
+    }
+  }
+
+  @override
+  void didPush() {
+    MainMenuMusicController.instance.setMainMenuVisible(true);
+  }
+
+  @override
+  void didPopNext() {
+    MainMenuMusicController.instance.setMainMenuVisible(true);
+  }
+
+  @override
+  void didPushNext() {
+    MainMenuMusicController.instance.setMainMenuVisible(false);
+  }
+
+  @override
   void dispose() {
     if (_bgAnim != null && _bgAnimListener != null) {
       _bgAnim!.removeListener(_bgAnimListener!);
     }
     _stopWaves();
+    widget.controller.removeListener(_musicSettingsListener);
+    if (_routeSubscribed) {
+      routeObserver.unsubscribe(this);
+    }
+    MainMenuMusicController.instance.setMainMenuVisible(false);
     super.dispose();
   }
 
@@ -224,6 +271,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                             setState(() {
                               _showContent = true;
                             });
+                            MainMenuMusicController.instance.setMenuReady(true);
                             _startWavesIfNeeded();
                           }
                         },

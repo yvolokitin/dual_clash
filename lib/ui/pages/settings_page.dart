@@ -78,6 +78,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
   late CellState _startingPlayer;
   late String _initialLanguage;
   late CellState _initialStartingPlayer;
+  late bool _musicEnabled;
   Timer? _adminActivationTimer;
   bool _adminDialogVisible = false;
 
@@ -90,6 +91,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
     _startingPlayer = widget.controller.startingPlayer;
     _initialLanguage = _language;
     _initialStartingPlayer = _startingPlayer;
+    _musicEnabled = widget.controller.musicEnabled;
     _coerceStartingPlayer();
   }
 
@@ -253,6 +255,18 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          _toggleTile(
+                            label: l10n.settingsMusicLabel,
+                            value: _musicEnabled,
+                            onChanged: (value) async {
+                              setState(() {
+                                _musicEnabled = value;
+                              });
+                              await widget.controller.setMusicEnabled(value);
+                            },
+                          ),
+                          _separator(),
+
                           // Language selector
                           _label(l10n.languageTitle),
                           Wrap(
@@ -414,6 +428,40 @@ class _SettingsDialogState extends State<SettingsDialog> {
           ),
         ),
       );
+
+  Widget _toggleTile({
+    required String label,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    final border = value ? AppColors.brandGold : Colors.white12;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.dialogFieldBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: border, width: value ? 2 : 1),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          Switch.adaptive(
+            value: value,
+            onChanged: onChanged,
+            activeColor: AppColors.brandGold,
+          ),
+        ],
+      ),
+    );
+  }
 
   InputDecoration _fieldDecoration() => const InputDecoration(
         filled: true,

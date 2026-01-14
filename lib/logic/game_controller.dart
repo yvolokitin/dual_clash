@@ -185,6 +185,7 @@ class GameController extends ChangeNotifier {
   static const _kStartingPlayer = 'startingPlayer'; // 'red', 'blue', 'yellow', 'green'
   static const _kHistory = 'historyJson';
   static const _kSavedGames = 'savedGamesJson';
+  static const _kMusicEnabled = 'musicEnabled';
   // Profile/achievements keys
   static const _kNickname = 'nickname';
   static const _kCountry = 'country';
@@ -207,6 +208,7 @@ class GameController extends ChangeNotifier {
   String languageCode = 'en';
   int boardSize = 9; // not yet applied to engine (future enhancement)
   int aiLevel = 1; // 1..7
+  bool musicEnabled = true;
 
   // Game session stats
   int turnsRed = 0;
@@ -1051,6 +1053,7 @@ class GameController extends ChangeNotifier {
     languageCode = prefs.getString(_kLanguageCode) ?? languageCode;
     boardSize = prefs.getInt(_kBoardSize) ?? boardSize;
     aiLevel = prefs.getInt(_kAiLevel) ?? aiLevel;
+    musicEnabled = prefs.getBool(_kMusicEnabled) ?? musicEnabled;
     totalUserScore = prefs.getInt(_kTotalUserScore) ?? 0;
     bestChallengeScore = prefs.getInt(_kBestChallengeScore) ?? 0;
     lastBestChallengeScoreBefore =
@@ -1133,6 +1136,13 @@ class GameController extends ChangeNotifier {
     if (!humanVsHuman && !gameOver && current == CellState.blue && _freshBoard) {
       _scheduleAi();
     }
+    notifyListeners();
+  }
+
+  Future<void> setMusicEnabled(bool enabled) async {
+    musicEnabled = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kMusicEnabled, enabled);
     notifyListeners();
   }
 

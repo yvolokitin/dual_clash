@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:dual_clash/core/feature_flags.dart';
 import 'package:dual_clash/core/localization.dart';
+import 'package:dual_clash/core/navigation.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dual_clash/l10n/app_localizations.dart';
@@ -127,6 +128,7 @@ class _TwoTouchAppState extends State<TwoTouchApp> {
             Locale('nl'),
             Locale('pl'),
           ],
+          navigatorObservers: [routeObserver],
           locale: Locale(localeCode),
           theme: base.copyWith(
             textTheme: _boldAll(base.textTheme.apply(fontFamily: 'Fredoka')),
