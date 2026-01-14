@@ -21,6 +21,64 @@ class DuelPage extends StatefulWidget {
 }
 
 class _DuelPageState extends State<DuelPage> {
+  double _crownHeight(double size) => size * 0.4;
+
+  bool _isLeaderScore(int score, List<int> others) {
+    if (others.isEmpty) {
+      return false;
+    }
+    final int maxScore = [score, ...others].reduce(
+      (value, element) => value > element ? value : element,
+    );
+    if (score != maxScore) {
+      return false;
+    }
+    return others.every((other) => score > other);
+  }
+
+  Widget _playerIconWithCrown({
+    required double size,
+    required bool isLeader,
+    required String asset,
+  }) {
+    final double crownHeight = _crownHeight(size);
+    final double crownGap = 4;
+    return SizedBox(
+      width: size,
+      height: size,
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.center,
+        children: [
+          Positioned(
+            top: -(crownHeight + crownGap),
+            left: 0,
+            right: 0,
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 180),
+              opacity: isLeader ? 1 : 0,
+              child: AnimatedScale(
+                duration: const Duration(milliseconds: 180),
+                scale: isLeader ? 1 : 0.9,
+                child: SizedBox(
+                  width: size,
+                  height: crownHeight,
+                  child: Image.asset(
+                    'assets/icons/crown.png',
+                    width: size,
+                    height: crownHeight,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Image.asset(asset, width: size, height: size),
+        ],
+      ),
+    );
+  }
+
   Future<bool> _confirmLeaveDuel(BuildContext context) async {
     final result = await showGeneralDialog<bool>(
       context: context,
@@ -217,6 +275,79 @@ class _DuelPageState extends State<DuelPage> {
         final yellowBase = controller.scoreYellowBase();
         final greenBase = controller.scoreGreenBase();
         final neutralsCount = RulesEngine.countOf(controller.board, CellState.neutral);
+        final bool highlightRed = controller.isMultiDuel
+            ? _isLeaderScore(
+                redBase,
+                [
+                  blueBase,
+                  yellowBase,
+                  if (controller.duelPlayerCount >= 4) greenBase,
+                  neutralsCount,
+                ],
+              )
+            : _isLeaderScore(
+                redBase,
+                [
+                  blueBase,
+                  neutralsCount,
+                ],
+              );
+        final bool highlightBlue = controller.isMultiDuel
+            ? _isLeaderScore(
+                blueBase,
+                [
+                  redBase,
+                  yellowBase,
+                  if (controller.duelPlayerCount >= 4) greenBase,
+                  neutralsCount,
+                ],
+              )
+            : _isLeaderScore(
+                blueBase,
+                [
+                  redBase,
+                  neutralsCount,
+                ],
+              );
+        final bool highlightYellow = controller.isMultiDuel
+            ? _isLeaderScore(
+                yellowBase,
+                [
+                  redBase,
+                  blueBase,
+                  if (controller.duelPlayerCount >= 4) greenBase,
+                  neutralsCount,
+                ],
+              )
+            : false;
+        final bool highlightGreen = controller.isMultiDuel && controller.duelPlayerCount >= 4
+            ? _isLeaderScore(
+                greenBase,
+                [
+                  redBase,
+                  blueBase,
+                  yellowBase,
+                  neutralsCount,
+                ],
+              )
+            : false;
+        final bool highlightNeutral = controller.isMultiDuel
+            ? _isLeaderScore(
+                neutralsCount,
+                [
+                  redBase,
+                  blueBase,
+                  yellowBase,
+                  if (controller.duelPlayerCount >= 4) greenBase,
+                ],
+              )
+            : _isLeaderScore(
+                neutralsCount,
+                [
+                  redBase,
+                  blueBase,
+                ],
+              );
         final metrics = GameLayoutMetrics.from(context, controller);
         final boardCellSize = metrics.boardCellSize;
         final scoreItemSize = metrics.scoreItemSize;
@@ -267,45 +398,69 @@ class _DuelPageState extends State<DuelPage> {
                               if (!controller.isMultiDuel) ...[
                                 Text('$redBase', style: textStyle),
                                 const SizedBox(width: 6),
-                                Image.asset('assets/icons/player_red.png',
-                                    width: scoreItemSize, height: scoreItemSize),
+                                _playerIconWithCrown(
+                                  size: scoreItemSize,
+                                  isLeader: highlightRed,
+                                  asset: 'assets/icons/player_red.png',
+                                ),
                                 const SizedBox(width: 18),
                                 Text('$neutralsCount', style: textStyle),
                                 const SizedBox(width: 6),
-                                Image.asset('assets/icons/player_grey.png',
-                                    width: scoreItemSize, height: scoreItemSize),
+                                _playerIconWithCrown(
+                                  size: scoreItemSize,
+                                  isLeader: highlightNeutral,
+                                  asset: 'assets/icons/player_grey.png',
+                                ),
                                 const SizedBox(width: 18),
                                 Text('$blueBase', style: textStyle),
                                 const SizedBox(width: 6),
-                                Image.asset('assets/icons/player_blue.png',
-                                    width: scoreItemSize, height: scoreItemSize),
+                                _playerIconWithCrown(
+                                  size: scoreItemSize,
+                                  isLeader: highlightBlue,
+                                  asset: 'assets/icons/player_blue.png',
+                                ),
                               ] else ...[
                                 Text('$redBase', style: textStyle),
                                 const SizedBox(width: 6),
-                                Image.asset('assets/icons/player_red.png',
-                                    width: scoreItemSize, height: scoreItemSize),
+                                _playerIconWithCrown(
+                                  size: scoreItemSize,
+                                  isLeader: highlightRed,
+                                  asset: 'assets/icons/player_red.png',
+                                ),
                                 const SizedBox(width: 14),
                                 Text('$blueBase', style: textStyle),
                                 const SizedBox(width: 6),
-                                Image.asset('assets/icons/player_blue.png',
-                                    width: scoreItemSize, height: scoreItemSize),
+                                _playerIconWithCrown(
+                                  size: scoreItemSize,
+                                  isLeader: highlightBlue,
+                                  asset: 'assets/icons/player_blue.png',
+                                ),
                                 const SizedBox(width: 14),
                                 Text('$yellowBase', style: textStyle),
                                 const SizedBox(width: 6),
-                                Image.asset('assets/icons/player_yellow.png',
-                                    width: scoreItemSize, height: scoreItemSize),
+                                _playerIconWithCrown(
+                                  size: scoreItemSize,
+                                  isLeader: highlightYellow,
+                                  asset: 'assets/icons/player_yellow.png',
+                                ),
                                 if (controller.duelPlayerCount >= 4) ...[
                                   const SizedBox(width: 14),
                                   Text('$greenBase', style: textStyle),
                                   const SizedBox(width: 6),
-                                  Image.asset('assets/icons/player_green.png',
-                                      width: scoreItemSize, height: scoreItemSize),
+                                  _playerIconWithCrown(
+                                    size: scoreItemSize,
+                                    isLeader: highlightGreen,
+                                    asset: 'assets/icons/player_green.png',
+                                  ),
                                 ],
                                 const SizedBox(width: 14),
                                 Text('$neutralsCount', style: textStyle),
                                 const SizedBox(width: 6),
-                                Image.asset('assets/icons/player_grey.png',
-                                    width: scoreItemSize, height: scoreItemSize),
+                                _playerIconWithCrown(
+                                  size: scoreItemSize,
+                                  isLeader: highlightNeutral,
+                                  asset: 'assets/icons/player_grey.png',
+                                ),
                               ],
                             ],
                           );
