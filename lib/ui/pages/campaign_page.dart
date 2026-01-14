@@ -719,10 +719,22 @@ class _CampaignRouteGrid extends StatelessWidget {
                   ],
                 ),
           actions: [
-            TextButton(
+            ElevatedButton(
               onPressed: () => Navigator.of(context).pop(),
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.brandGold,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.brandGold,
+                foregroundColor: const Color(0xFF2B221D),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                textStyle: const TextStyle(
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.2,
+                ),
               ),
               child: const Text('Close'),
             ),
