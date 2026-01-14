@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 class MenuTile extends StatefulWidget {
@@ -7,6 +9,7 @@ class MenuTile extends StatefulWidget {
   final Color color;
   final bool showLabel;
   final bool transparentBackground;
+  final bool spinOnTap;
   const MenuTile({
     super.key,
     required this.imagePath,
@@ -15,15 +18,18 @@ class MenuTile extends StatefulWidget {
     required this.color,
     this.showLabel = true,
     this.transparentBackground = false,
+    this.spinOnTap = false,
   });
 
   @override
   State<MenuTile> createState() => _MenuTileState();
 }
 
-class _MenuTileState extends State<MenuTile> {
+class _MenuTileState extends State<MenuTile> with SingleTickerProviderStateMixin {
   bool _hovered = false;
   bool _pressed = false;
+  late final AnimationController _spinController;
+  late final Animation<double> _spinAnimation;
 
   Color _darken(Color c, [double amount = 0.18]) {
     final hsl = HSLColor.fromColor(c);
@@ -39,6 +45,30 @@ class _MenuTileState extends State<MenuTile> {
 
   static const _pressDuration = Duration(milliseconds: 120);
   static const _hoverDuration = Duration(milliseconds: 220);
+  static const _spinDuration = Duration(milliseconds: 520);
+
+  @override
+  void initState() {
+    super.initState();
+    _spinController = AnimationController(vsync: this, duration: _spinDuration);
+    _spinAnimation = Tween<double>(begin: 0, end: 2 * math.pi).animate(
+      CurvedAnimation(parent: _spinController, curve: Curves.easeOutCubic),
+    );
+  }
+
+  @override
+  void dispose() {
+    _spinController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleTap() async {
+    if (widget.spinOnTap) {
+      if (_spinController.isAnimating) return;
+      await _spinController.forward(from: 0);
+    }
+    widget.onTap();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +93,7 @@ class _MenuTileState extends State<MenuTile> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: widget.onTap,
+          onTap: _handleTap,
           onHover: (h) => setState(() => _hovered = h),
           onHighlightChanged: (v) => setState(() => _pressed = v),
           borderRadius: outerRadius,
@@ -100,17 +130,29 @@ class _MenuTileState extends State<MenuTile> {
                   Expanded(
                     child: Center(
                       child: ClipRect(
-                        child: AnimatedScale(
-                          scale: _hovered ? 1.05 : 1.0,
-                          duration: _hoverDuration,
-                          curve: Curves.easeOutCubic,
-                          child: AnimatedRotation(
-                            turns: _hovered ? (5 / 360) : 0,
+                        child: AnimatedBuilder(
+                          animation: _spinAnimation,
+                          builder: (context, child) {
+                            return Transform(
+                              alignment: Alignment.center,
+                              transform: Matrix4.identity()
+                                ..setEntry(3, 2, 0.001)
+                                ..rotateY(_spinAnimation.value),
+                              child: child,
+                            );
+                          },
+                          child: AnimatedScale(
+                            scale: _hovered ? 1.05 : 1.0,
                             duration: _hoverDuration,
                             curve: Curves.easeOutCubic,
-                            child: Image.asset(
-                              widget.imagePath,
-                              fit: BoxFit.contain,
+                            child: AnimatedRotation(
+                              turns: _hovered ? (5 / 360) : 0,
+                              duration: _hoverDuration,
+                              curve: Curves.easeOutCubic,
+                              child: Image.asset(
+                                widget.imagePath,
+                                fit: BoxFit.contain,
+                              ),
                             ),
                           ),
                         ),
