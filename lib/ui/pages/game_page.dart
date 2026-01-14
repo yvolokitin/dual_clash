@@ -437,8 +437,14 @@ class _GamePageState extends State<GamePage> {
                   showLeaderShadow: !controller.humanVsHuman,
                   aiSelectorEnabled: widget.challengeConfig == null,
                   onOpenMenu: () async {
+                    final bool isCampaignMode = widget.onCampaignAction != null ||
+                        widget.campaignId != null ||
+                        widget.campaignTotalLevels != null;
                     await mmd.showAnimatedMainMenuDialog(
-                        context: context, controller: controller);
+                        context: context,
+                        controller: controller,
+                        config: mmd.MenuDialogConfig(
+                            showSaveGame: !isCampaignMode));
                     await _reloadPremiumStatus(context);
                   },
                   onOpenStatistics: openStatistics,
