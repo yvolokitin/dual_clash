@@ -70,7 +70,7 @@ class _GamePageState extends State<GamePage> {
       case 'shiva':
         return 'assets/icons/campaigns/shiva.png';
       case 'buddha':
-        return 'assets/icons/campaigns/buddha.png';
+        return 'assets/icons/campaigns/buddha.gif';
       case 'ganesha':
         return 'assets/icons/campaigns/ganesha.png';
       default:

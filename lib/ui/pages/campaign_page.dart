@@ -65,7 +65,7 @@ class _CampaignPageState extends State<CampaignPage> {
         id: 'buddha',
         title: l10n.buddhaCampaignTitle,
         description: l10n.buddhaCampaignDescription,
-        iconAsset: 'assets/icons/campaigns/buddha.png',
+        iconAsset: 'assets/icons/campaigns/buddha.gif',
         isUnlocked: true,
         totalLevels: campaignLevels.length,
         levels: campaignLevels,
@@ -536,6 +536,9 @@ class _CampaignRouteGrid extends StatelessWidget {
       campaignId: campaignController.campaignId,
       levelIndex: level.index,
     );
+    final iconSize = (MediaQuery.of(context).size.height * 0.2 * 0.55)
+        .clamp(40, 96)
+        .toDouble();
     showDialog<void>(
       context: context,
       builder: (context) {
@@ -575,6 +578,16 @@ class _CampaignRouteGrid extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 12),
+                      if (campaignController.campaignId == 'buddha') ...[
+                        Center(
+                          child: Image.asset(
+                            'assets/icons/campaigns/buddha.gif',
+                            height: iconSize,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
                       _detailRow(
                         'Board size',
                         '${level.boardSize}x${level.boardSize}',
@@ -655,16 +668,33 @@ class _CampaignRouteGrid extends StatelessWidget {
     BuildContext context,
     CampaignLevel level,
   ) async {
-    final result = await campaignController.bestResultForLevel(level.index);
+    final result = await campaignController.latestResultForLevel(level.index);
     if (!context.mounted) return;
+    final iconSize = (MediaQuery.of(context).size.height * 0.2 * 0.55)
+        .clamp(40, 96)
+        .toDouble();
     showDialog<void>(
       context: context,
       builder: (context) {
         return AlertDialog(
           backgroundColor: const Color(0xFF3B2F77),
-          title: Text(
-            'Level ${level.index} results',
-            style: const TextStyle(color: Colors.white),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Level ${level.index} results',
+                style: const TextStyle(color: Colors.white),
+              ),
+              if (campaignController.campaignId == 'buddha') ...[
+                const SizedBox(height: 8),
+                Image.asset(
+                  'assets/icons/campaigns/buddha.gif',
+                  height: iconSize,
+                  fit: BoxFit.contain,
+                ),
+              ],
+            ],
           ),
           content: result == null
               ? const Text(
@@ -689,8 +719,23 @@ class _CampaignRouteGrid extends StatelessWidget {
                   ],
                 ),
           actions: [
-            TextButton(
+            ElevatedButton(
               onPressed: () => Navigator.of(context).pop(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.brandGold,
+                foregroundColor: const Color(0xFF2B221D),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                textStyle: const TextStyle(
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.2,
+                ),
+              ),
               child: const Text('Close'),
             ),
           ],

@@ -13,6 +13,7 @@ import '../pages/game_page.dart';
 enum CampaignLevelStatus { locked, available, passed, failed }
 
 class CampaignController extends ChangeNotifier {
+  static const String _kCampaignBestResults = 'campaign_best_results';
   static const String _kCampaignResults = 'campaign_results';
   static const String _kCampaignProgress = 'campaign_progress';
   final String campaignId;
@@ -72,6 +73,7 @@ class CampaignController extends ChangeNotifier {
   String _progressKey() => '${_kCampaignProgress}_$campaignId';
 
   String _resultsKey() => '${_kCampaignResults}_$campaignId';
+  String _bestResultsKey() => '${_kCampaignBestResults}_$campaignId';
 
   CampaignLevelStatus statusForLevel(int levelIndex) {
     return _statusByLevel[levelIndex] ?? CampaignLevelStatus.locked;
@@ -172,12 +174,10 @@ class CampaignController extends ChangeNotifier {
     return _levels[idx + 1];
   }
 
-  Future<GameResult?> bestResultForLevel(int levelIndex) async {
+  Future<GameResult?> latestResultForLevel(int levelIndex) async {
     final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_resultsKey());
-    if (raw == null || raw.isEmpty) return null;
-    final decodedRaw = jsonDecode(raw);
-    if (decodedRaw is! Map) return null;
+    final decodedRaw = await _loadResultsHistory(prefs);
+    if (decodedRaw.isEmpty) return null;
     final entries = decodedRaw[levelIndex.toString()];
     if (entries is! List) return null;
     final results = entries
@@ -185,12 +185,30 @@ class CampaignController extends ChangeNotifier {
         .map((entry) => GameResult.fromMap(Map<String, dynamic>.from(entry)))
         .toList();
     if (results.isEmpty) return null;
-    results.sort((a, b) {
-      final totalCompare = b.redTotal.compareTo(a.redTotal);
-      if (totalCompare != 0) return totalCompare;
-      return a.playMs.compareTo(b.playMs);
-    });
+    results.sort((a, b) => b.timestampMs.compareTo(a.timestampMs));
     return results.first;
+  }
+
+  Future<GameResult?> bestResultForLevel(int levelIndex) async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_bestResultsKey());
+    if (raw != null && raw.isNotEmpty) {
+      final decodedRaw = jsonDecode(raw);
+      if (decodedRaw is Map) {
+        final entry = decodedRaw[levelIndex.toString()];
+        if (entry is Map) {
+          return GameResult.fromMap(Map<String, dynamic>.from(entry));
+        }
+      }
+    }
+    final decodedRaw = await _loadResultsHistory(prefs);
+    if (decodedRaw.isEmpty) return null;
+    final entries = decodedRaw[levelIndex.toString()];
+    if (entries is! List) return null;
+    final bestFromHistory = _bestResultFromEntries(entries);
+    if (bestFromHistory == null) return null;
+    await _persistBestResult(levelIndex, bestFromHistory);
+    return bestFromHistory;
   }
 
   Future<void> _persistProgress() async {
@@ -209,14 +227,7 @@ class CampaignController extends ChangeNotifier {
   ) async {
     if (!isUnlocked) return;
     final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_resultsKey());
-    Map<String, dynamic> decoded = <String, dynamic>{};
-    if (raw != null && raw.isNotEmpty) {
-      final decodedRaw = jsonDecode(raw);
-      if (decodedRaw is Map) {
-        decoded = Map<String, dynamic>.from(decodedRaw);
-      }
-    }
+    final decoded = await _loadResultsHistory(prefs);
     final levelKey = levelIndex.toString();
     final List<dynamic> entries =
         (decoded[levelKey] as List<dynamic>?) ?? <dynamic>[];
@@ -238,6 +249,70 @@ class CampaignController extends ChangeNotifier {
     );
     entries.add(result.toMap());
     decoded[levelKey] = entries;
-    await prefs.setString(_kCampaignResults, jsonEncode(decoded));
+    await prefs.setString(_resultsKey(), jsonEncode(decoded));
+    await _persistBestResult(levelIndex, result);
+  }
+
+  Future<Map<String, dynamic>> _loadResultsHistory(
+    SharedPreferences prefs,
+  ) async {
+    final current = _decodeResults(prefs.getString(_resultsKey()));
+    if (current.isNotEmpty) {
+      return current;
+    }
+    final legacy = _decodeResults(prefs.getString(_kCampaignResults));
+    if (legacy.isNotEmpty) {
+      await prefs.setString(_resultsKey(), jsonEncode(legacy));
+    }
+    return legacy;
+  }
+
+  Map<String, dynamic> _decodeResults(String? raw) {
+    if (raw == null || raw.isEmpty) return <String, dynamic>{};
+    final decoded = jsonDecode(raw);
+    if (decoded is! Map) return <String, dynamic>{};
+    return Map<String, dynamic>.from(decoded);
+  }
+
+  Future<void> _persistBestResult(int levelIndex, GameResult result) async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_bestResultsKey());
+    Map<String, dynamic> decoded = <String, dynamic>{};
+    if (raw != null && raw.isNotEmpty) {
+      final decodedRaw = jsonDecode(raw);
+      if (decodedRaw is Map) {
+        decoded = Map<String, dynamic>.from(decodedRaw);
+      }
+    }
+    final levelKey = levelIndex.toString();
+    final existing = decoded[levelKey];
+    GameResult? currentBest;
+    if (existing is Map) {
+      currentBest = GameResult.fromMap(Map<String, dynamic>.from(existing));
+    }
+    final bestResult = _pickBestResult(currentBest, result);
+    decoded[levelKey] = bestResult.toMap();
+    await prefs.setString(_bestResultsKey(), jsonEncode(decoded));
+  }
+
+  GameResult _pickBestResult(GameResult? current, GameResult candidate) {
+    if (current == null) return candidate;
+    final totalCompare = candidate.redTotal.compareTo(current.redTotal);
+    if (totalCompare != 0) {
+      return totalCompare > 0 ? candidate : current;
+    }
+    if (candidate.playMs != current.playMs) {
+      return candidate.playMs < current.playMs ? candidate : current;
+    }
+    return candidate.timestampMs >= current.timestampMs ? candidate : current;
+  }
+
+  GameResult? _bestResultFromEntries(List<dynamic> entries) {
+    GameResult? best;
+    for (final entry in entries.whereType<Map>()) {
+      final result = GameResult.fromMap(Map<String, dynamic>.from(entry));
+      best = _pickBestResult(best, result);
+    }
+    return best;
   }
 }
