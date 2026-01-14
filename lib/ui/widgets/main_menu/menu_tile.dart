@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class MenuTile extends StatefulWidget {
@@ -42,6 +43,11 @@ class _MenuTileState extends State<MenuTile> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isCompactIosWidth = !kIsWeb &&
+        defaultTargetPlatform == TargetPlatform.iOS &&
+        MediaQuery.of(context).size.width < 800;
+    final double labelFontSize = isCompactIosWidth ? 16 * 0.85 : 16;
+    final double imageScale = isCompactIosWidth ? 1.2 : 1.0;
     final outerRadius = BorderRadius.circular(16);
     final innerRadius = BorderRadius.circular(13);
     final Color base = widget.color.withOpacity(1.0);
@@ -101,7 +107,7 @@ class _MenuTileState extends State<MenuTile> {
                     child: Center(
                       child: ClipRect(
                         child: AnimatedScale(
-                          scale: _hovered ? 1.05 : 1.0,
+                          scale: (_hovered ? 1.05 : 1.0) * imageScale,
                           duration: _hoverDuration,
                           curve: Curves.easeOutCubic,
                           child: AnimatedRotation(
@@ -121,10 +127,10 @@ class _MenuTileState extends State<MenuTile> {
                     const SizedBox(height: 6),
                     Text(
                       widget.label,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w800,
-                        fontSize: 16,
+                        fontSize: labelFontSize,
                       ),
                     ),
                   ],
