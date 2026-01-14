@@ -265,6 +265,7 @@ class _MainMenuPageState extends State<MainMenuPage> with SingleTickerProviderSt
                                           ? l10n.menuGameShort
                                           : l10n.menuGameChallenge,
                                       color: AppColors.red,
+                                      spinOnTap: true,
                                       onTap: () {
                                         _runMenuAction(() async {
                                           controller.humanVsHuman = false;
