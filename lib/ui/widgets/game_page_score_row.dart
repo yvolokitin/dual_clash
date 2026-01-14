@@ -11,6 +11,7 @@ class GamePageScoreRow extends StatelessWidget {
   final double scoreItemSize;
   final double pointsItemSize;
   final double boardCellSize;
+  final String? menuIconAsset;
   final TextStyle scoreTextStyle;
   final TextStyle pointsTextStyle;
   final int redBase;
@@ -32,6 +33,7 @@ class GamePageScoreRow extends StatelessWidget {
     required this.scoreItemSize,
     required this.pointsItemSize,
     required this.boardCellSize,
+    this.menuIconAsset,
     required this.scoreTextStyle,
     required this.pointsTextStyle,
     required this.redBase,
@@ -117,6 +119,8 @@ class GamePageScoreRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String menuIconPath =
+        menuIconAsset ?? 'assets/icons/menu/menu_pvai.png';
     final int maxScore = [redBase, neutralCount, blueBase].reduce(
       (value, element) => value > element ? value : element,
     );
@@ -212,7 +216,7 @@ class GamePageScoreRow extends StatelessWidget {
                             height: menuIconSize,
                           ),
                           icon: Image.asset(
-                            'assets/icons/menu/menu_pvai.png',
+                            menuIconPath,
                             width: menuIconSize,
                             height: menuIconSize,
                           ),
@@ -262,7 +266,7 @@ class GamePageScoreRow extends StatelessWidget {
                             height: menuIconSize,
                           ),
                           icon: Image.asset(
-                            'assets/icons/menu/menu_pvai.png',
+                            menuIconPath,
                             width: menuIconSize,
                             height: menuIconSize,
                           ),
