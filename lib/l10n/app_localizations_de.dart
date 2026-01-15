@@ -90,6 +90,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsMusicLabel => 'Musik';
+
   @override
   String get settingsSoundsLabel => 'Sounds';
 
