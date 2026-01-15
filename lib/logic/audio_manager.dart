@@ -248,20 +248,20 @@ class AudioManager with WidgetsBindingObserver {
       try {
         await _bgmPlayer.setLoopMode(loop ? LoopMode.one : LoopMode.off);
         if (kDebugMode) {
-          debugPrint('AudioManager BGM load asset: $asset');
-          debugPrint(
-              'AudioManager BGM processingState before load: ${_bgmPlayer.processingState}');
+          debugPrint('[BGM] load asset: $asset');
+          debugPrint('[BGM] before load: ${_bgmPlayer.processingState}');
         }
         await _bgmPlayer.setAudioSource(AudioSource.asset(asset));
         await _bgmPlayer.load();
+        await _bgmPlayer.processingStateStream
+            .firstWhere((state) => state == ProcessingState.ready);
         if (kDebugMode) {
-          debugPrint(
-              'AudioManager BGM processingState after load: ${_bgmPlayer.processingState}');
+          debugPrint('[BGM] after load: ${_bgmPlayer.processingState}');
         }
         _currentBgmAsset = asset;
       } catch (error) {
         if (kDebugMode) {
-          debugPrint('AudioManager BGM load error: $error');
+          debugPrint('[BGM] load error: $error');
         }
         _currentBgmAsset = null;
         return;
@@ -288,15 +288,15 @@ class AudioManager with WidgetsBindingObserver {
     await _bgmPlayer.setVolume(0);
     try {
       final session = await AudioSession.instance;
-      await session.configure(AudioSessionConfiguration.music());
+      await session.configure(const AudioSessionConfiguration.music());
       await session.setActive(true);
       if (kDebugMode) {
-        debugPrint('AudioManager BGM play() called for $asset');
+        debugPrint('[BGM] play() called for $asset');
       }
       await _bgmPlayer.play();
     } catch (error) {
       if (kDebugMode) {
-        debugPrint('AudioManager BGM play error: $error');
+        debugPrint('[BGM] play error: $error');
       }
       return;
     }
