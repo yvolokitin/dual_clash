@@ -131,8 +131,7 @@ class _MainMenuPageState extends State<MainMenuPage>
       // Ensure waves start if launch animation was already played earlier in the session
       WidgetsBinding.instance.addPostFrameCallback((_) => _startWavesIfNeeded());
     }
-    AudioManager.instance
-        .setContext(_showContent ? AudioContext.menu : AudioContext.background);
+    AudioManager.instance.setContext(AudioContext.menu);
     if (!_hasLoggedScreenSize) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
@@ -155,23 +154,19 @@ class _MainMenuPageState extends State<MainMenuPage>
       routeObserver.subscribe(this, route);
       _routeSubscribed = true;
       if (route.isCurrent) {
-        AudioManager.instance.setContext(
-          _showContent ? AudioContext.menu : AudioContext.background,
-        );
+        AudioManager.instance.setContext(AudioContext.menu);
       }
     }
   }
 
   @override
   void didPush() {
-    AudioManager.instance
-        .setContext(_showContent ? AudioContext.menu : AudioContext.background);
+    AudioManager.instance.setContext(AudioContext.menu);
   }
 
   @override
   void didPopNext() {
-    AudioManager.instance
-        .setContext(_showContent ? AudioContext.menu : AudioContext.background);
+    AudioManager.instance.setContext(AudioContext.menu);
   }
 
   @override

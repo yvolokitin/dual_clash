@@ -39,7 +39,9 @@ class AudioManager with WidgetsBindingObserver {
   static const double _bgmTargetVolume = 1.0;
 
   final AudioPlayer _bgmPlayer = AudioPlayer();
-  final AudioPlayer _sfxPlayer = AudioPlayer();
+  final Map<AudioSfx, AudioPlayer> _sfxPlayers =
+      <AudioSfx, AudioPlayer>{};
+  final Map<AudioSfx, bool> _sfxLoaded = <AudioSfx, bool>{};
   final math.Random _rng = math.Random();
   final List<String> _gameplayTracks = const [
     'assets/m4a/game_challange_1.m4a',
@@ -111,12 +113,13 @@ class AudioManager with WidgetsBindingObserver {
     final asset = _sfxAsset(type);
     if (asset == null) return;
     try {
-      if (_sfxPlayer.playing) {
-        await _sfxPlayer.stop();
+      final player = _sfxPlayers.putIfAbsent(type, () => AudioPlayer());
+      if (!(_sfxLoaded[type] ?? false)) {
+        await player.setAsset(asset);
+        _sfxLoaded[type] = true;
       }
-      await _sfxPlayer.setAsset(asset);
-      await _sfxPlayer.seek(Duration.zero);
-      await _sfxPlayer.play();
+      await player.seek(Duration.zero);
+      await player.play();
     } catch (_) {
       // Fail silently for missing/unavailable assets.
     }
@@ -337,6 +340,8 @@ class AudioManager with WidgetsBindingObserver {
     }
     await _bgmStateSub?.cancel();
     await _bgmPlayer.dispose();
-    await _sfxPlayer.dispose();
+    for (final player in _sfxPlayers.values) {
+      await player.dispose();
+    }
   }
 }
