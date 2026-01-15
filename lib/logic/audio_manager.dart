@@ -48,6 +48,7 @@ class AudioManager {
   StreamSubscription<PlayerState>? _bgmStateSub;
   Future<void> _syncQueue = Future.value();
   bool _sessionConfigured = false;
+  AudioSession? _audioSession;
   bool _musicEnabled = true;
   bool _sfxEnabled = true;
   bool _isForeground = true;
@@ -81,6 +82,9 @@ class AudioManager {
     final asset = _sfxAsset(type);
     if (asset == null) return;
     try {
+      if (_sfxPlayer.playing) {
+        await _sfxPlayer.stop();
+      }
       await _sfxPlayer.setAsset(asset);
       await _sfxPlayer.seek(Duration.zero);
       await _sfxPlayer.play();
@@ -270,11 +274,13 @@ class AudioManager {
   }
 
   Future<void> _ensureAudioSession() async {
-    if (_sessionConfigured) return;
     try {
-      final session = await AudioSession.instance;
-      await session.configure(AudioSessionConfiguration.music());
-      _sessionConfigured = true;
+      _audioSession ??= await AudioSession.instance;
+      if (!_sessionConfigured) {
+        await _audioSession!.configure(AudioSessionConfiguration.music());
+        _sessionConfigured = true;
+      }
+      await _audioSession!.setActive(true);
     } catch (_) {
       // Fail silently.
     }
