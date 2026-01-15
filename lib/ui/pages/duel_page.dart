@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dual_clash/core/platforms.dart';
 import 'dart:ui' as ui; // for potential future effects
 import 'package:dual_clash/core/localization.dart';
-import 'package:dual_clash/logic/game_challenge_music_controller.dart';
+import 'package:dual_clash/logic/audio_manager.dart';
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/core/colors.dart';
 import 'package:dual_clash/models/cell_state.dart';
@@ -22,8 +22,8 @@ class DuelPage extends StatefulWidget {
 }
 
 class _DuelPageState extends State<DuelPage> {
-  late final VoidCallback _musicSettingsListener;
-  late bool _lastMusicEnabled;
+  late final VoidCallback _audioStateListener;
+  AudioScene _lastScene = AudioScene.gameplay;
 
   double _crownHeight(double size) => size * 0.4;
 
@@ -249,19 +249,9 @@ class _DuelPageState extends State<DuelPage> {
   @override
   void initState() {
     super.initState();
-    _lastMusicEnabled = widget.controller.musicEnabled;
-    _musicSettingsListener = () {
-      if (_lastMusicEnabled != widget.controller.musicEnabled) {
-        _lastMusicEnabled = widget.controller.musicEnabled;
-        GameChallengeMusicController.instance
-            .setEnabled(widget.controller.musicEnabled);
-      }
-    };
-    widget.controller.addListener(_musicSettingsListener);
-    GameChallengeMusicController.instance.setEnabled(
-      widget.controller.musicEnabled,
-    );
-    GameChallengeMusicController.instance.setChallengeActive(true);
+    _audioStateListener = _syncAudioScene;
+    widget.controller.addListener(_audioStateListener);
+    _syncAudioScene();
     // Enable human vs human and start a fresh game
     widget.controller.humanVsHuman = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -277,14 +267,24 @@ class _DuelPageState extends State<DuelPage> {
 
   @override
   void dispose() {
-    widget.controller.removeListener(_musicSettingsListener);
-    GameChallengeMusicController.instance.setChallengeActive(false);
+    widget.controller.removeListener(_audioStateListener);
     // Restore default mode when leaving Duel page
     widget.controller.humanVsHuman = false;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.controller.setDuelPlayerCount(2);
     });
     super.dispose();
+  }
+
+  void _syncAudioScene() {
+    final nextScene =
+        widget.controller.gameOver ? AudioScene.gameOver : AudioScene.gameplay;
+    if (_lastScene != nextScene) {
+      _lastScene = nextScene;
+      AudioManager.instance.setScene(nextScene);
+    } else if (_lastScene == AudioScene.gameplay) {
+      AudioManager.instance.setScene(AudioScene.gameplay);
+    }
   }
 
   @override
@@ -509,11 +509,14 @@ class _DuelPageState extends State<DuelPage> {
                                       ),
                                       tooltip: context.l10n.menuTitle,
                                       onPressed: () async {
+                                        AudioManager.instance
+                                            .setScene(AudioScene.paused);
                                         await mmd.showAnimatedMainMenuDialog(
                                             context: context,
                                             controller: controller,
                                             config:
                                                 const mmd.MenuDialogConfig.duel());
+                                        _syncAudioScene();
                                       },
                                     ),
                                     const SizedBox(width: 1),
@@ -545,10 +548,13 @@ class _DuelPageState extends State<DuelPage> {
                                     ),
                                     tooltip: context.l10n.menuTitle,
                                     onPressed: () async {
+                                      AudioManager.instance
+                                          .setScene(AudioScene.paused);
                                       await mmd.showAnimatedMainMenuDialog(
                                           context: context,
                                           controller: controller,
                                           config: const mmd.MenuDialogConfig.duel());
+                                      _syncAudioScene();
                                     },
                                   ),
                                 ],

@@ -10,7 +10,7 @@ import '../core/constants.dart';
 import '../models/game_result.dart';
 import '../core/localization.dart';
 import '../core/countries.dart';
-import 'game_sfx_controller.dart';
+import 'audio_manager.dart';
 
 enum _AiAction {
   place,
@@ -1127,7 +1127,8 @@ class GameController extends ChangeNotifier {
     AppColors.bg = Color(themeColorHex);
     // Apply starting player to current game session (fresh board at startup)
     current = startingPlayer;
-    GameSfxController.instance.setEnabled(soundsEnabled);
+    AudioManager.instance
+        .setSettings(musicEnabled: musicEnabled, sfxEnabled: soundsEnabled);
 
     // Start playtime for initial fresh session if not started yet (app startup case)
     final bool _freshBoard = RulesEngine.countOf(board, CellState.red) == 0 &&
@@ -1146,6 +1147,8 @@ class GameController extends ChangeNotifier {
 
   Future<void> setMusicEnabled(bool enabled) async {
     musicEnabled = enabled;
+    AudioManager.instance
+        .setSettings(musicEnabled: musicEnabled, sfxEnabled: soundsEnabled);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_kMusicEnabled, enabled);
     notifyListeners();
@@ -1153,7 +1156,8 @@ class GameController extends ChangeNotifier {
 
   Future<void> setSoundsEnabled(bool enabled) async {
     soundsEnabled = enabled;
-    GameSfxController.instance.setEnabled(enabled);
+    AudioManager.instance
+        .setSettings(musicEnabled: musicEnabled, sfxEnabled: soundsEnabled);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_kSoundsEnabled, enabled);
     notifyListeners();
@@ -1521,7 +1525,7 @@ class GameController extends ChangeNotifier {
     redGamePoints += lastMovePoints;
     _registerScorePopup(r, c, CellState.red);
     turnsRed++;
-    _playSfx(GameSfxType.redTurn);
+    _playSfx(AudioSfx.redTurn);
     // Log statistics for this red turn with detailed reasons
     {
       // Build concise breakdown: +1 place, +2 corner, +2 xN infect blue→grey, +3 xN claim grey→red
@@ -1586,7 +1590,7 @@ class GameController extends ChangeNotifier {
     lastMoveBy = who;
     _incrementTurnFor(who);
     if (who == CellState.red) {
-      _playSfx(GameSfxType.redTurn);
+      _playSfx(AudioSfx.redTurn);
       redGamePoints += lastMovePoints;
       _registerScorePopup(r, c, who);
       // Log statistics for this red turn with detailed reasons
@@ -1753,7 +1757,7 @@ class GameController extends ChangeNotifier {
     selectedCell = null;
     blowPreview.clear();
     board[r][c] = CellState.bomb;
-    _playSfx(GameSfxType.bombAdd);
+    _playSfx(AudioSfx.bombAdd);
     final placedTurn = _turnIndexFor(who);
     _bombs.add(
       _BombToken(
@@ -1795,7 +1799,7 @@ class GameController extends ChangeNotifier {
     if (gameOver || isExploding || isFalling) return;
     if (!autoTriggered && !_canActivateBombToken(bomb)) return;
     if (!autoTriggered) {
-      _playSfx(GameSfxType.explosion);
+      _playSfx(AudioSfx.explosion);
     }
     isExploding = true;
     explodingCells =
@@ -1842,7 +1846,7 @@ class GameController extends ChangeNotifier {
     final affected = RulesEngine.blowAffected(board, r, c);
     if (affected.isEmpty) return;
     if (userInitiated) {
-      _playSfx(GameSfxType.explosion);
+      _playSfx(AudioSfx.explosion);
     }
     isExploding = true;
     explodingCells = affected;
@@ -1931,7 +1935,7 @@ class GameController extends ChangeNotifier {
     if (neutrals.isEmpty) return;
 
     // Phase 1: Earthquake shake to signal the action
-    _playSfx(GameSfxType.greyShake);
+    _playSfx(AudioSfx.greyShake);
     isQuaking = true;
     notifyListeners();
     await Future.delayed(Duration(milliseconds: quakeDurationMs));
@@ -2024,9 +2028,8 @@ class GameController extends ChangeNotifier {
     return points;
   }
 
-  void _playSfx(GameSfxType type) {
-    if (!soundsEnabled) return;
-    GameSfxController.instance.play(type);
+  void _playSfx(AudioSfx type) {
+    AudioManager.instance.playSfx(type);
   }
 
   void setBoardPixelSize(double s) {
@@ -2335,7 +2338,7 @@ class GameController extends ChangeNotifier {
       lastMovePoints = _computeMovePoints(before, next, r, c, CellState.blue);
       lastMoveBy = CellState.blue;
       turnsBlue++;
-      _playSfx(GameSfxType.blueTurn);
+      _playSfx(AudioSfx.blueTurn);
       current = CellState.red;
       _handleTurnStart(current);
       _checkEnd();

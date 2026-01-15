@@ -2,9 +2,7 @@ import 'dart:math' as math;
 
 import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/core/navigation.dart';
-import 'package:dual_clash/logic/game_challenge_music_controller.dart';
-import 'package:dual_clash/logic/main_menu_music_controller.dart';
-import 'package:dual_clash/logic/transition_sfx_controller.dart';
+import 'package:dual_clash/logic/audio_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart' show RenderBox;
@@ -42,8 +40,6 @@ class _MainMenuPageState extends State<MainMenuPage>
   VoidCallback? _bgAnimListener;
   bool _showContent = true; // hidden until startup animation completes
   bool _menuActionInProgress = false;
-  late final VoidCallback _musicSettingsListener;
-  late bool _lastMusicEnabled;
   bool _routeSubscribed = false;
   static const Color _violet = Color(0xFF8A2BE2);
   static const Color _menuGreen = Color(0xFF22B14C);
@@ -134,22 +130,8 @@ class _MainMenuPageState extends State<MainMenuPage>
       // Ensure waves start if launch animation was already played earlier in the session
       WidgetsBinding.instance.addPostFrameCallback((_) => _startWavesIfNeeded());
     }
-    MainMenuMusicController.instance.setMenuReady(_showContent);
-    _lastMusicEnabled = widget.controller.musicEnabled;
-    _musicSettingsListener = () {
-      if (_lastMusicEnabled != widget.controller.musicEnabled) {
-        _lastMusicEnabled = widget.controller.musicEnabled;
-        MainMenuMusicController.instance
-            .setEnabled(widget.controller.musicEnabled);
-        GameChallengeMusicController.instance
-            .setEnabled(widget.controller.musicEnabled);
-      }
-    };
-    widget.controller.addListener(_musicSettingsListener);
-    MainMenuMusicController.instance.setEnabled(widget.controller.musicEnabled);
-    GameChallengeMusicController.instance.setEnabled(
-      widget.controller.musicEnabled,
-    );
+    AudioManager.instance
+        .setScene(_showContent ? AudioScene.menu : AudioScene.appStart);
     if (!_hasLoggedScreenSize) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
@@ -171,24 +153,28 @@ class _MainMenuPageState extends State<MainMenuPage>
     if (route is PageRoute<dynamic>) {
       routeObserver.subscribe(this, route);
       _routeSubscribed = true;
-      MainMenuMusicController.instance
-          .setMainMenuVisible(route.isCurrent);
+      if (route.isCurrent) {
+        AudioManager.instance
+            .setScene(_showContent ? AudioScene.menu : AudioScene.appStart);
+      }
     }
   }
 
   @override
   void didPush() {
-    MainMenuMusicController.instance.setMainMenuVisible(true);
+    AudioManager.instance
+        .setScene(_showContent ? AudioScene.menu : AudioScene.appStart);
   }
 
   @override
   void didPopNext() {
-    MainMenuMusicController.instance.setMainMenuVisible(true);
+    AudioManager.instance
+        .setScene(_showContent ? AudioScene.menu : AudioScene.appStart);
   }
 
   @override
   void didPushNext() {
-    MainMenuMusicController.instance.setMainMenuVisible(false);
+    // Another route is on top; let it control audio state.
   }
 
   @override
@@ -197,11 +183,9 @@ class _MainMenuPageState extends State<MainMenuPage>
       _bgAnim!.removeListener(_bgAnimListener!);
     }
     _stopWaves();
-    widget.controller.removeListener(_musicSettingsListener);
     if (_routeSubscribed) {
       routeObserver.unsubscribe(this);
     }
-    MainMenuMusicController.instance.setMainMenuVisible(false);
     super.dispose();
   }
 
@@ -283,7 +267,7 @@ class _MainMenuPageState extends State<MainMenuPage>
                             setState(() {
                               _showContent = true;
                             });
-                            MainMenuMusicController.instance.setMenuReady(true);
+                            AudioManager.instance.setScene(AudioScene.menu);
                             _startWavesIfNeeded();
                           }
                         },
@@ -327,14 +311,13 @@ class _MainMenuPageState extends State<MainMenuPage>
                                       color: AppColors.red,
                                       spinOnTap: true,
                                       onSpinStart: () {
-                                        if (controller.soundsEnabled) {
-                                          TransitionSfxController.instance.play();
-                                        }
+                                        AudioManager.instance
+                                            .playSfx(AudioSfx.transition);
                                       },
                                       onTap: () {
                                         _runMenuAction(() async {
-                                          await MainMenuMusicController.instance
-                                              .setMainMenuVisible(false);
+                                          AudioManager.instance
+                                              .setScene(AudioScene.gameplay);
                                           controller.humanVsHuman = false;
                                           controller.newGame();
                                           await _pushWithSlide(

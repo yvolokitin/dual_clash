@@ -5,7 +5,7 @@ import 'package:dual_clash/core/constants.dart';
 import 'package:dual_clash/core/feature_flags.dart';
 import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/logic/game_controller.dart';
-import 'package:dual_clash/logic/game_challenge_music_controller.dart';
+import 'package:dual_clash/logic/audio_manager.dart';
 import 'package:dual_clash/logic/rules_engine.dart';
 import 'package:dual_clash/models/campaign_result_action.dart';
 import 'package:dual_clash/models/campaign_level.dart';
@@ -63,8 +63,8 @@ class _GamePageState extends State<GamePage> {
   bool? _previousBombsEnabled;
   bool? _previousHumanVsHuman;
   bool _isApplyingChallengeConfig = false;
-  late final VoidCallback _musicSettingsListener;
-  late bool _lastMusicEnabled;
+  late final VoidCallback _audioStateListener;
+  AudioScene _lastScene = AudioScene.gameplay;
 
   GameController get controller => widget.controller;
   bool get _isAndroidOrIOS => isMobile;
@@ -84,20 +84,9 @@ class _GamePageState extends State<GamePage> {
   @override
   void initState() {
     super.initState();
-    _lastMusicEnabled = widget.controller.musicEnabled;
-    _musicSettingsListener = () {
-      if (_lastMusicEnabled != widget.controller.musicEnabled) {
-        _lastMusicEnabled = widget.controller.musicEnabled;
-        GameChallengeMusicController.instance
-            .setEnabled(widget.controller.musicEnabled);
-      }
-    };
-    widget.controller.addListener(_musicSettingsListener);
-    GameChallengeMusicController.instance.setEnabled(
-      widget.controller.musicEnabled,
-    );
-    GameChallengeMusicController.instance
-        .setChallengeActive(widget.challengeConfig == null);
+    _audioStateListener = _syncAudioScene;
+    widget.controller.addListener(_audioStateListener);
+    _syncAudioScene();
     if (widget.challengeConfig != null) {
       _isApplyingChallengeConfig = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -118,9 +107,19 @@ class _GamePageState extends State<GamePage> {
     _adRetryTimer?.cancel();
     _bannerAd?.dispose();
     _restoreChallengeConfig();
-    widget.controller.removeListener(_musicSettingsListener);
-    GameChallengeMusicController.instance.setChallengeActive(false);
+    widget.controller.removeListener(_audioStateListener);
     super.dispose();
+  }
+
+  void _syncAudioScene() {
+    final nextScene =
+        controller.gameOver ? AudioScene.gameOver : AudioScene.gameplay;
+    if (_lastScene != nextScene) {
+      _lastScene = nextScene;
+      AudioManager.instance.setScene(nextScene);
+    } else if (_lastScene == AudioScene.gameplay) {
+      AudioManager.instance.setScene(AudioScene.gameplay);
+    }
   }
 
   void _applyChallengeConfig() {
@@ -475,12 +474,14 @@ class _GamePageState extends State<GamePage> {
                   showLeaderShadow: !controller.humanVsHuman,
                   aiSelectorEnabled: widget.challengeConfig == null,
                   onOpenMenu: () async {
+                    AudioManager.instance.setScene(AudioScene.paused);
                     await mmd.showAnimatedMainMenuDialog(
                         context: context,
                         controller: controller,
                         config: mmd.MenuDialogConfig(
                             showSaveGame: !isCampaignMode,
                             showSettings: !isCampaignMode));
+                    _syncAudioScene();
                     await _reloadPremiumStatus(context);
                   },
                   onOpenStatistics: openStatistics,
