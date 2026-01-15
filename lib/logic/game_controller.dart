@@ -10,6 +10,7 @@ import '../core/constants.dart';
 import '../models/game_result.dart';
 import '../core/localization.dart';
 import '../core/countries.dart';
+import 'game_sfx_controller.dart';
 
 enum _AiAction {
   place,
@@ -186,6 +187,7 @@ class GameController extends ChangeNotifier {
   static const _kHistory = 'historyJson';
   static const _kSavedGames = 'savedGamesJson';
   static const _kMusicEnabled = 'musicEnabled';
+  static const _kSoundsEnabled = 'soundsEnabled';
   // Profile/achievements keys
   static const _kNickname = 'nickname';
   static const _kCountry = 'country';
@@ -209,6 +211,7 @@ class GameController extends ChangeNotifier {
   int boardSize = 9; // not yet applied to engine (future enhancement)
   int aiLevel = 1; // 1..7
   bool musicEnabled = true;
+  bool soundsEnabled = true;
 
   // Game session stats
   int turnsRed = 0;
@@ -1054,6 +1057,7 @@ class GameController extends ChangeNotifier {
     boardSize = prefs.getInt(_kBoardSize) ?? boardSize;
     aiLevel = prefs.getInt(_kAiLevel) ?? aiLevel;
     musicEnabled = prefs.getBool(_kMusicEnabled) ?? musicEnabled;
+    soundsEnabled = prefs.getBool(_kSoundsEnabled) ?? soundsEnabled;
     totalUserScore = prefs.getInt(_kTotalUserScore) ?? 0;
     bestChallengeScore = prefs.getInt(_kBestChallengeScore) ?? 0;
     lastBestChallengeScoreBefore =
@@ -1123,6 +1127,7 @@ class GameController extends ChangeNotifier {
     AppColors.bg = Color(themeColorHex);
     // Apply starting player to current game session (fresh board at startup)
     current = startingPlayer;
+    GameSfxController.instance.setEnabled(soundsEnabled);
 
     // Start playtime for initial fresh session if not started yet (app startup case)
     final bool _freshBoard = RulesEngine.countOf(board, CellState.red) == 0 &&
@@ -1143,6 +1148,14 @@ class GameController extends ChangeNotifier {
     musicEnabled = enabled;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_kMusicEnabled, enabled);
+    notifyListeners();
+  }
+
+  Future<void> setSoundsEnabled(bool enabled) async {
+    soundsEnabled = enabled;
+    GameSfxController.instance.setEnabled(enabled);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kSoundsEnabled, enabled);
     notifyListeners();
   }
 
@@ -1508,6 +1521,7 @@ class GameController extends ChangeNotifier {
     redGamePoints += lastMovePoints;
     _registerScorePopup(r, c, CellState.red);
     turnsRed++;
+    _playSfx(GameSfxType.redTurn);
     // Log statistics for this red turn with detailed reasons
     {
       // Build concise breakdown: +1 place, +2 corner, +2 xN infect blue→grey, +3 xN claim grey→red
@@ -1572,6 +1586,7 @@ class GameController extends ChangeNotifier {
     lastMoveBy = who;
     _incrementTurnFor(who);
     if (who == CellState.red) {
+      _playSfx(GameSfxType.redTurn);
       redGamePoints += lastMovePoints;
       _registerScorePopup(r, c, who);
       // Log statistics for this red turn with detailed reasons
@@ -1738,6 +1753,7 @@ class GameController extends ChangeNotifier {
     selectedCell = null;
     blowPreview.clear();
     board[r][c] = CellState.bomb;
+    _playSfx(GameSfxType.bombAdd);
     final placedTurn = _turnIndexFor(who);
     _bombs.add(
       _BombToken(
@@ -1778,6 +1794,9 @@ class GameController extends ChangeNotifier {
       {bool autoTriggered = false}) async {
     if (gameOver || isExploding || isFalling) return;
     if (!autoTriggered && !_canActivateBombToken(bomb)) return;
+    if (!autoTriggered) {
+      _playSfx(GameSfxType.explosion);
+    }
     isExploding = true;
     explodingCells =
         RulesEngine.bombBlastAffected(board, bomb.row, bomb.col);
@@ -1817,10 +1836,14 @@ class GameController extends ChangeNotifier {
     }
   }
 
-  Future<void> _performBlow(int r, int c, CellState who) async {
+  Future<void> _performBlow(int r, int c, CellState who,
+      {bool userInitiated = true}) async {
     if (gameOver || isExploding || isFalling) return;
     final affected = RulesEngine.blowAffected(board, r, c);
     if (affected.isEmpty) return;
+    if (userInitiated) {
+      _playSfx(GameSfxType.explosion);
+    }
     isExploding = true;
     explodingCells = affected;
     notifyListeners();
@@ -1908,6 +1931,7 @@ class GameController extends ChangeNotifier {
     if (neutrals.isEmpty) return;
 
     // Phase 1: Earthquake shake to signal the action
+    _playSfx(GameSfxType.greyShake);
     isQuaking = true;
     notifyListeners();
     await Future.delayed(Duration(milliseconds: quakeDurationMs));
@@ -1998,6 +2022,11 @@ class GameController extends ChangeNotifier {
       points -= neutralToBlue * 3;
     }
     return points;
+  }
+
+  void _playSfx(GameSfxType type) {
+    if (!soundsEnabled) return;
+    GameSfxController.instance.play(type);
   }
 
   void setBoardPixelSize(double s) {
@@ -2269,7 +2298,7 @@ class GameController extends ChangeNotifier {
       notifyListeners();
       await Future.delayed(const Duration(milliseconds: 280));
       // Animate and perform blow like user
-      await _performBlow(br, bc, CellState.blue);
+      await _performBlow(br, bc, CellState.blue, userInitiated: false);
       // After AI completes action and it's Red's turn, save undo point
       if (!gameOver && current == CellState.red) {
         _saveUndoPoint();
@@ -2306,6 +2335,7 @@ class GameController extends ChangeNotifier {
       lastMovePoints = _computeMovePoints(before, next, r, c, CellState.blue);
       lastMoveBy = CellState.blue;
       turnsBlue++;
+      _playSfx(GameSfxType.blueTurn);
       current = CellState.red;
       _handleTurnStart(current);
       _checkEnd();

@@ -89,7 +89,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsTitle => 'Paramètres';
 
   @override
-  String get settingsMusicLabel => 'Musique du menu principal';
+  String get settingsMusicLabel => 'Musique';
+  @override
+  String get settingsSoundsLabel => 'Sons';
 
   @override
   String get profileTitle => 'Profil';
