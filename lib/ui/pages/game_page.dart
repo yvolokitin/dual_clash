@@ -92,7 +92,7 @@ class _GamePageState extends State<GamePage> {
       widget.controller.musicEnabled,
     );
     GameChallengeMusicController.instance
-        .setChallengeActive(widget.challengeConfig != null);
+        .setChallengeActive(widget.challengeConfig == null);
     if (widget.challengeConfig != null) {
       _isApplyingChallengeConfig = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
