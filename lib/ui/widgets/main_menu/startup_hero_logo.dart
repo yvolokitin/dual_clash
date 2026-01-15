@@ -77,7 +77,7 @@ class _StartupHeroLogoState extends State<StartupHeroLogo>
     if (!widget.forceStatic && !_playedOnce) {
       _ctrl = AnimationController(
         vsync: this,
-        duration: const Duration(milliseconds: 3500),
+        duration: const Duration(milliseconds: 2500),
       );
       _t = CurvedAnimation(parent: _ctrl!, curve: Curves.easeInOutCubic);
       // Expose the animation to parent so it can drive background color
