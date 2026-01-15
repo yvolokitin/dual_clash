@@ -89,7 +89,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get settingsTitle => 'Ajustes';
 
   @override
-  String get settingsMusicLabel => 'Música del menú principal';
+  String get settingsMusicLabel => 'Música';
   @override
   String get settingsSoundsLabel => 'Sonidos';
 

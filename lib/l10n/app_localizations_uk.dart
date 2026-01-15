@@ -89,7 +89,7 @@ class AppLocalizationsUk extends AppLocalizations {
   String get settingsTitle => 'Налаштування';
 
   @override
-  String get settingsMusicLabel => 'Музика головного меню';
+  String get settingsMusicLabel => 'Музика';
   @override
   String get settingsSoundsLabel => 'Звуки';
 

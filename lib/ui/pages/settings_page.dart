@@ -257,26 +257,36 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _toggleTile(
-                            label: l10n.settingsMusicLabel,
-                            value: _musicEnabled,
-                            onChanged: (value) async {
-                              setState(() {
-                                _musicEnabled = value;
-                              });
-                              await widget.controller.setMusicEnabled(value);
-                            },
-                          ),
-                          const SizedBox(height: 10),
-                          _toggleTile(
-                            label: l10n.settingsSoundsLabel,
-                            value: _soundsEnabled,
-                            onChanged: (value) async {
-                              setState(() {
-                                _soundsEnabled = value;
-                              });
-                              await widget.controller.setSoundsEnabled(value);
-                            },
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _toggleTile(
+                                  label: l10n.settingsMusicLabel,
+                                  value: _musicEnabled,
+                                  onChanged: (value) async {
+                                    setState(() {
+                                      _musicEnabled = value;
+                                    });
+                                    await widget.controller
+                                        .setMusicEnabled(value);
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _toggleTile(
+                                  label: l10n.settingsSoundsLabel,
+                                  value: _soundsEnabled,
+                                  onChanged: (value) async {
+                                    setState(() {
+                                      _soundsEnabled = value;
+                                    });
+                                    await widget.controller
+                                        .setSoundsEnabled(value);
+                                  },
+                                ),
+                              ),
+                            ],
                           ),
                           _separator(),
 
