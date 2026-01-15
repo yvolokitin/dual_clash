@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/core/navigation.dart';
+import 'package:dual_clash/logic/game_challenge_music_controller.dart';
 import 'package:dual_clash/logic/main_menu_music_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -41,6 +42,7 @@ class _MainMenuPageState extends State<MainMenuPage>
   bool _showContent = true; // hidden until startup animation completes
   bool _menuActionInProgress = false;
   late final VoidCallback _musicSettingsListener;
+  late bool _lastMusicEnabled;
   bool _routeSubscribed = false;
   static const Color _violet = Color(0xFF8A2BE2);
   static const Color _menuGreen = Color(0xFF22B14C);
@@ -132,12 +134,21 @@ class _MainMenuPageState extends State<MainMenuPage>
       WidgetsBinding.instance.addPostFrameCallback((_) => _startWavesIfNeeded());
     }
     MainMenuMusicController.instance.setMenuReady(_showContent);
+    _lastMusicEnabled = widget.controller.musicEnabled;
     _musicSettingsListener = () {
-      MainMenuMusicController.instance
-          .setEnabled(widget.controller.musicEnabled);
+      if (_lastMusicEnabled != widget.controller.musicEnabled) {
+        _lastMusicEnabled = widget.controller.musicEnabled;
+        MainMenuMusicController.instance
+            .setEnabled(widget.controller.musicEnabled);
+        GameChallengeMusicController.instance
+            .setEnabled(widget.controller.musicEnabled);
+      }
     };
     widget.controller.addListener(_musicSettingsListener);
     MainMenuMusicController.instance.setEnabled(widget.controller.musicEnabled);
+    GameChallengeMusicController.instance.setEnabled(
+      widget.controller.musicEnabled,
+    );
     if (!_hasLoggedScreenSize) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
