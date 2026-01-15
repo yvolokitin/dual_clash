@@ -17,6 +17,9 @@ dependencies:
   shared_preferences: ^2.5.4
   url_launcher: ^6.3.2
   flutter_svg: ^2.0.10
+  audio_session: ^0.1.19
+  just_audio: ^0.9.39
+  just_audio_windows: ^0.2.1
   window_manager: ^0.5.1
 
 dev_dependencies:
@@ -57,6 +60,7 @@ flutter:
     - assets/icons/languages/
     - assets/icons/menu/
     - assets/icons/
+    - assets/m4a/
   fonts:
     - family: Fredoka
       fonts:
