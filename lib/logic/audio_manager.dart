@@ -59,8 +59,8 @@ class AudioManager with WidgetsBindingObserver {
   bool _suppressAutoResumeOnce = false;
   bool _initialized = false;
   bool _userGestureUnlocked = !kIsWeb;
-  AudioContext _context = AudioContext.menu;
-  AudioContext _lastAppliedContext = AudioContext.menu;
+  AudioContext _context = AudioContext.background;
+  AudioContext _lastAppliedContext = AudioContext.background;
   AudioContext? _contextBeforeBackground;
   String? _currentBgmAsset;
   String? _resumeAsset;
