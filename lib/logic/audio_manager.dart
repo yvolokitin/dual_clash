@@ -101,7 +101,8 @@ class AudioManager with WidgetsBindingObserver {
           _bgmPlayer.processingState == ProcessingState.ready;
       _suppressAutoResumeOnce = false;
     } else if (!_resumeAfterBackground) {
-      _suppressAutoResumeOnce = true;
+      _suppressAutoResumeOnce = _currentBgmAsset != null &&
+          _bgmPlayer.processingState != ProcessingState.idle;
       _lastAppliedContext = _context;
     }
     _queueSync(_applyState);
