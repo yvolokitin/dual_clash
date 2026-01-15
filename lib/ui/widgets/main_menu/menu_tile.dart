@@ -10,6 +10,7 @@ class MenuTile extends StatefulWidget {
   final bool showLabel;
   final bool transparentBackground;
   final bool spinOnTap;
+  final VoidCallback? onSpinStart;
   const MenuTile({
     super.key,
     required this.imagePath,
@@ -19,6 +20,7 @@ class MenuTile extends StatefulWidget {
     this.showLabel = true,
     this.transparentBackground = false,
     this.spinOnTap = false,
+    this.onSpinStart,
   });
 
   @override
@@ -65,6 +67,7 @@ class _MenuTileState extends State<MenuTile> with SingleTickerProviderStateMixin
   Future<void> _handleTap() async {
     if (widget.spinOnTap) {
       if (_spinController.isAnimating) return;
+      widget.onSpinStart?.call();
       await _spinController.forward(from: 0);
     }
     widget.onTap();

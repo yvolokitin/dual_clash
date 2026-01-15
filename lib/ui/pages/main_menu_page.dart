@@ -4,6 +4,7 @@ import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/core/navigation.dart';
 import 'package:dual_clash/logic/game_challenge_music_controller.dart';
 import 'package:dual_clash/logic/main_menu_music_controller.dart';
+import 'package:dual_clash/logic/transition_sfx_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart' show RenderBox;
@@ -325,6 +326,9 @@ class _MainMenuPageState extends State<MainMenuPage>
                                           : l10n.menuGameChallenge,
                                       color: AppColors.red,
                                       spinOnTap: true,
+                                      onSpinStart: () {
+                                        TransitionSfxController.instance.play();
+                                      },
                                       onTap: () {
                                         _runMenuAction(() async {
                                           await MainMenuMusicController.instance
