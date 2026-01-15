@@ -247,9 +247,22 @@ class AudioManager with WidgetsBindingObserver {
       await _fadeOutAndStop();
       try {
         await _bgmPlayer.setLoopMode(loop ? LoopMode.one : LoopMode.off);
-        await _bgmPlayer.setAsset(asset);
+        if (kDebugMode) {
+          debugPrint('AudioManager BGM load asset: $asset');
+          debugPrint(
+              'AudioManager BGM processingState before load: ${_bgmPlayer.processingState}');
+        }
+        await _bgmPlayer.setAudioSource(AudioSource.asset(asset));
+        await _bgmPlayer.load();
+        if (kDebugMode) {
+          debugPrint(
+              'AudioManager BGM processingState after load: ${_bgmPlayer.processingState}');
+        }
         _currentBgmAsset = asset;
-      } catch (_) {
+      } catch (error) {
+        if (kDebugMode) {
+          debugPrint('AudioManager BGM load error: $error');
+        }
         _currentBgmAsset = null;
         return;
       }
@@ -277,8 +290,14 @@ class AudioManager with WidgetsBindingObserver {
       final session = await AudioSession.instance;
       await session.configure(AudioSessionConfiguration.music());
       await session.setActive(true);
+      if (kDebugMode) {
+        debugPrint('AudioManager BGM play() called for $asset');
+      }
       await _bgmPlayer.play();
-    } catch (_) {
+    } catch (error) {
+      if (kDebugMode) {
+        debugPrint('AudioManager BGM play error: $error');
+      }
       return;
     }
     await _fadeTo(_bgmTargetVolume, _fadeInDuration);
