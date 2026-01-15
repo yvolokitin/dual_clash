@@ -274,6 +274,9 @@ class AudioManager with WidgetsBindingObserver {
 
     await _bgmPlayer.setVolume(0);
     try {
+      final session = await AudioSession.instance;
+      await session.configure(AudioSessionConfiguration.music());
+      await session.setActive(true);
       await _bgmPlayer.play();
     } catch (_) {
       return;
