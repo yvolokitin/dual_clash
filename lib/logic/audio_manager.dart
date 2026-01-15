@@ -92,7 +92,9 @@ class AudioManager with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    final bool isBackground = state != AppLifecycleState.resumed;
+    final bool isBackground = state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached ||
+        state == AppLifecycleState.hidden;
     if (_isBackground == isBackground) return;
     _isBackground = isBackground;
     if (_isBackground) {
