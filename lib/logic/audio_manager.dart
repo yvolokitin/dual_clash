@@ -25,11 +25,7 @@ enum AudioSfx {
 
 class AudioManager with WidgetsBindingObserver {
   AudioManager._() {
-    _bgmStateSub = _bgmPlayer.playerStateStream.listen((state) {
-      if (state.processingState == ProcessingState.completed) {
-        _queueSync(_handleBgmCompletion);
-      }
-    });
+    _attachBgmListener();
   }
 
   static final AudioManager instance = AudioManager._();
@@ -38,7 +34,7 @@ class AudioManager with WidgetsBindingObserver {
   static const Duration _fadeOutDuration = Duration(milliseconds: 450);
   static const double _bgmTargetVolume = 1.0;
 
-  final AudioPlayer _bgmPlayer = AudioPlayer();
+  AudioPlayer _bgmPlayer = AudioPlayer();
   final Map<AudioSfx, AudioPlayer> _sfxPlayers =
       <AudioSfx, AudioPlayer>{};
   final Map<AudioSfx, bool> _sfxLoaded = <AudioSfx, bool>{};
@@ -70,6 +66,15 @@ class AudioManager with WidgetsBindingObserver {
     if (_initialized) return;
     WidgetsBinding.instance.addObserver(this);
     _initialized = true;
+  }
+
+  void _attachBgmListener() {
+    _bgmStateSub?.cancel();
+    _bgmStateSub = _bgmPlayer.playerStateStream.listen((state) {
+      if (state.processingState == ProcessingState.completed) {
+        _queueSync(_handleBgmCompletion);
+      }
+    });
   }
 
   void setSettings({required bool musicEnabled, required bool sfxEnabled}) {
@@ -246,6 +251,12 @@ class AudioManager with WidgetsBindingObserver {
     if (!canResumeCurrent) {
       await _fadeOutAndStop();
       try {
+        if (_bgmPlayer.processingState == ProcessingState.idle ||
+            _bgmPlayer.processingState == ProcessingState.completed) {
+          await _bgmPlayer.dispose();
+          _bgmPlayer = AudioPlayer();
+          _attachBgmListener();
+        }
         await _bgmPlayer.setLoopMode(loop ? LoopMode.one : LoopMode.off);
         if (kDebugMode) {
           debugPrint('[BGM] load asset: $asset');
@@ -253,8 +264,17 @@ class AudioManager with WidgetsBindingObserver {
         }
         await _bgmPlayer.setAudioSource(AudioSource.asset(asset));
         await _bgmPlayer.load();
-        await _bgmPlayer.processingStateStream
-            .firstWhere((state) => state == ProcessingState.ready);
+        try {
+          await _bgmPlayer.processingStateStream
+              .firstWhere((state) =>
+                  state == ProcessingState.ready ||
+                  state == ProcessingState.playing)
+              .timeout(const Duration(seconds: 2));
+        } catch (_) {
+          if (kDebugMode) {
+            debugPrint('[BGM] ready timeout, forcing play');
+          }
+        }
         if (kDebugMode) {
           debugPrint('[BGM] after load: ${_bgmPlayer.processingState}');
         }
