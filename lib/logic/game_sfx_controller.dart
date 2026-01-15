@@ -4,7 +4,6 @@ import 'package:just_audio/just_audio.dart';
 
 enum GameSfxType {
   redTurn,
-  capture,
   blueTurn,
   bombAdd,
   explosion,
@@ -46,8 +45,6 @@ class GameSfxController {
     switch (type) {
       case GameSfxType.redTurn:
         return 'assets/sfx/red_turn.mp3';
-      case GameSfxType.capture:
-        return 'assets/sfx/capture.mp3';
       case GameSfxType.blueTurn:
         return 'assets/sfx/blue_turn.mp3';
       case GameSfxType.bombAdd:

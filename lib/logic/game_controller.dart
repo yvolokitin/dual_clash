@@ -1514,7 +1514,6 @@ class GameController extends ChangeNotifier {
     final before = board;
     final next = RulesEngine.place(board, r, c, CellState.red);
     if (next == null) return false;
-    final didCapture = _didPlacementCapture(before, next, r, c);
     board = next;
     // compute per-move points
     lastMovePoints = _computeMovePoints(before, next, r, c, CellState.red);
@@ -1522,7 +1521,7 @@ class GameController extends ChangeNotifier {
     redGamePoints += lastMovePoints;
     _registerScorePopup(r, c, CellState.red);
     turnsRed++;
-    _playSfx(didCapture ? GameSfxType.capture : GameSfxType.redTurn);
+    _playSfx(GameSfxType.redTurn);
     // Log statistics for this red turn with detailed reasons
     {
       // Build concise breakdown: +1 place, +2 corner, +2 xN infect blue→grey, +3 xN claim grey→red
@@ -1578,8 +1577,6 @@ class GameController extends ChangeNotifier {
     final before = board;
     final next = RulesEngine.place(board, r, c, who);
     if (next == null) return false;
-    final didCapture =
-        who == CellState.red ? _didPlacementCapture(before, next, r, c) : false;
     board = next;
     if (who == CellState.red || who == CellState.blue) {
       lastMovePoints = _computeMovePoints(before, next, r, c, who);
@@ -1589,7 +1586,7 @@ class GameController extends ChangeNotifier {
     lastMoveBy = who;
     _incrementTurnFor(who);
     if (who == CellState.red) {
-      _playSfx(didCapture ? GameSfxType.capture : GameSfxType.redTurn);
+      _playSfx(GameSfxType.redTurn);
       redGamePoints += lastMovePoints;
       _registerScorePopup(r, c, who);
       // Log statistics for this red turn with detailed reasons
@@ -2027,19 +2024,6 @@ class GameController extends ChangeNotifier {
     return points;
   }
 
-  bool _didPlacementCapture(List<List<CellState>> before,
-      List<List<CellState>> after, int r, int c) {
-    for (int i = 0; i < K.n; i++) {
-      for (int j = 0; j < K.n; j++) {
-        if (i == r && j == c) continue;
-        if (before[i][j] != after[i][j]) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
   void _playSfx(GameSfxType type) {
     if (!soundsEnabled) return;
     GameSfxController.instance.play(type);
@@ -2346,15 +2330,12 @@ class GameController extends ChangeNotifier {
     final before = board;
     final next = RulesEngine.place(board, r, c, CellState.blue);
     if (next != null) {
-      final didCapture = _didPlacementCapture(before, next, r, c);
       board = next;
       // compute per-move points for AI
       lastMovePoints = _computeMovePoints(before, next, r, c, CellState.blue);
       lastMoveBy = CellState.blue;
       turnsBlue++;
-      if (!didCapture) {
-        _playSfx(GameSfxType.blueTurn);
-      }
+      _playSfx(GameSfxType.blueTurn);
       current = CellState.red;
       _handleTurnStart(current);
       _checkEnd();
