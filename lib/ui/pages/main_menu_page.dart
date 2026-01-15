@@ -334,6 +334,9 @@ class _MainMenuPageState extends State<MainMenuPage>
                                           : l10n.menuGameChallenge,
                                       color: AppColors.red,
                                       spinOnTap: true,
+                                      labelScale: tileLabelScale,
+                                      imageSpaceScale: tileImageSpaceScale,
+                                      preventImageUpscale: preventImageUpscale,
                                       onTap: () {
                                         _runMenuAction(() async {
                                           await MainMenuMusicController.instance
@@ -371,6 +374,9 @@ class _MainMenuPageState extends State<MainMenuPage>
                                           ? l10n.menuCampaignShort
                                           : l10n.menuCampaign,
                                       color: _violet,
+                                      labelScale: tileLabelScale,
+                                      imageSpaceScale: tileImageSpaceScale,
+                                      preventImageUpscale: preventImageUpscale,
                                       onTap: () async {
                                         await _runMenuAction(() async {
                                           await _pushWithDrop(
