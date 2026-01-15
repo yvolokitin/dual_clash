@@ -316,6 +316,8 @@ class _MainMenuPageState extends State<MainMenuPage>
                                       spinOnTap: true,
                                       onTap: () {
                                         _runMenuAction(() async {
+                                          await MainMenuMusicController.instance
+                                              .setMainMenuVisible(false);
                                           controller.humanVsHuman = false;
                                           controller.newGame();
                                           await _pushWithSlide(
