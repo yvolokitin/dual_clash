@@ -266,9 +266,7 @@ class AudioManager with WidgetsBindingObserver {
         await _bgmPlayer.load();
         try {
           await _bgmPlayer.processingStateStream
-              .firstWhere((state) =>
-                  state == ProcessingState.ready ||
-                  state == ProcessingState.playing)
+              .firstWhere((state) => state == ProcessingState.ready)
               .timeout(const Duration(seconds: 2));
         } catch (_) {
           if (kDebugMode) {
