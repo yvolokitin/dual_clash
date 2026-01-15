@@ -58,6 +58,7 @@ class AudioManager with WidgetsBindingObserver {
   AudioContext _context = AudioContext.background;
   AudioContext _lastAppliedContext = AudioContext.background;
   AudioContext? _contextBeforeBackground;
+  AudioContext? _lastBgmContext;
   String? _currentBgmAsset;
   String? _resumeAsset;
   Duration? _resumePosition;
@@ -78,6 +79,9 @@ class AudioManager with WidgetsBindingObserver {
   }
 
   void setSettings({required bool musicEnabled, required bool sfxEnabled}) {
+    if (kDebugMode && _musicEnabled != musicEnabled) {
+      debugPrint('[BGM] musicEnabled toggled: $musicEnabled');
+    }
     _musicEnabled = musicEnabled;
     _sfxEnabled = sfxEnabled;
     _queueSync(_applyState);
@@ -85,6 +89,9 @@ class AudioManager with WidgetsBindingObserver {
 
   void setContext(AudioContext context) {
     if (_context == context) return;
+    if (kDebugMode) {
+      debugPrint('[BGM] context changed: $_context -> $context');
+    }
     _context = context;
     _queueSync(_applyState);
   }
@@ -164,7 +171,7 @@ class AudioManager with WidgetsBindingObserver {
 
   Future<void> _applyState() async {
     if (!_musicEnabled) {
-      await _stopBgm();
+      await _silenceBgm();
       return;
     }
     if (_isBackground || _context == AudioContext.background) {
@@ -174,11 +181,17 @@ class AudioManager with WidgetsBindingObserver {
     if (!_userGestureUnlocked && kIsWeb) {
       return;
     }
-    if (_bgmPlayer.playing && _bgmPlayer.volume == 0) {
+    if (_musicEnabled && _bgmPlayer.playing && _bgmPlayer.volume == 0) {
       await _bgmPlayer.setVolume(_bgmTargetVolume);
       if (kDebugMode) {
         debugPrint('[BGM] recovered volume: ${_bgmPlayer.volume}');
       }
+    }
+    if (_lastBgmContext != _context) {
+      _currentBgmAsset = null;
+      _resumeAsset = null;
+      _resumePosition = null;
+      _lastBgmContext = _context;
     }
     if (_suppressAutoResumeOnce &&
         _contextBeforeBackground == _context &&
@@ -247,6 +260,12 @@ class AudioManager with WidgetsBindingObserver {
   }
 
   Future<void> _playBgm(String asset, {required bool loop}) async {
+    if (!_musicEnabled) {
+      if (kDebugMode) {
+        debugPrint('[BGM] skipped start (music disabled)');
+      }
+      return;
+    }
     if (_currentBgmAsset == asset && _bgmPlayer.playing) {
       return;
     }
@@ -314,9 +333,11 @@ class AudioManager with WidgetsBindingObserver {
       final session = await AudioSession.instance;
       await session.configure(const AudioSessionConfiguration.music());
       await session.setActive(true);
+      await _bgmPlayer.setVolume(0.05);
       if (kDebugMode) {
         debugPrint('[BGM] volume before play: ${_bgmPlayer.volume}');
         debugPrint('[BGM] play() called for $asset');
+        debugPrint('[BGM] track started: $asset');
       }
       await _bgmPlayer.play();
     } catch (error) {
@@ -343,6 +364,9 @@ class AudioManager with WidgetsBindingObserver {
     await _fadeTo(0, _fadeOutDuration);
     try {
       await _bgmPlayer.pause();
+      if (kDebugMode) {
+        debugPrint('[BGM] track paused');
+      }
     } catch (_) {}
   }
 
@@ -352,6 +376,23 @@ class AudioManager with WidgetsBindingObserver {
     _currentBgmAsset = null;
     _resumeAsset = null;
     _resumePosition = null;
+    if (kDebugMode) {
+      debugPrint('[BGM] track stopped');
+    }
+  }
+
+  Future<void> _silenceBgm() async {
+    try {
+      if (_bgmPlayer.playing) {
+        await _bgmPlayer.pause();
+      }
+      await _bgmPlayer.setVolume(0);
+    } catch (_) {}
+    _resumeAsset = null;
+    _resumePosition = null;
+    if (kDebugMode) {
+      debugPrint('[BGM] track paused (music disabled)');
+    }
   }
 
   Future<void> _fadeOutAndStop() async {
