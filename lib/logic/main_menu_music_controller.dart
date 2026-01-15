@@ -13,6 +13,7 @@ class MainMenuMusicController {
   bool _mainMenuVisible = false;
   bool _menuReady = false;
   bool _sessionConfigured = false;
+  bool _restartOnNextPlay = false;
 
   Future<void> setEnabled(bool enabled) async {
     _enabled = enabled;
@@ -20,6 +21,9 @@ class MainMenuMusicController {
   }
 
   Future<void> setMainMenuVisible(bool visible) async {
+    if (visible && !_mainMenuVisible) {
+      _restartOnNextPlay = true;
+    }
     _mainMenuVisible = visible;
     await _syncPlayback();
   }
@@ -45,7 +49,10 @@ class MainMenuMusicController {
         await _player.setLoopMode(LoopMode.one);
         _isLoaded = true;
         await _player.seek(Duration.zero);
+      } else if (_restartOnNextPlay) {
+        await _player.seek(Duration.zero);
       }
+      _restartOnNextPlay = false;
       if (!_player.playing) {
         await _player.play();
       }
