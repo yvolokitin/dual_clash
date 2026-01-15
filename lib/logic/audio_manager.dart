@@ -82,6 +82,18 @@ class AudioManager with WidgetsBindingObserver {
     if (kDebugMode && _musicEnabled != musicEnabled) {
       debugPrint('[BGM] musicEnabled toggled: $musicEnabled');
     }
+    if (_musicEnabled && !musicEnabled) {
+      _queueSync(() async {
+        await _pauseBgm(savePosition: false);
+        await _bgmPlayer.setVolume(0);
+        _resumeAsset = null;
+        _resumePosition = null;
+        _lastAppliedContext = AudioContext.background;
+      });
+    }
+    if (!_musicEnabled && musicEnabled) {
+      _lastAppliedContext = AudioContext.background;
+    }
     _musicEnabled = musicEnabled;
     _sfxEnabled = sfxEnabled;
     _queueSync(_applyState);
