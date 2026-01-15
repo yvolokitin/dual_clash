@@ -29,6 +29,7 @@ class GameChallengeMusicController {
   bool _sessionConfigured = false;
   bool _isHandlingCompletion = false;
   String? _currentTrack;
+  bool _restartOnNextPlay = false;
 
   Future<void> setEnabled(bool enabled) async {
     _enabled = enabled;
@@ -36,6 +37,9 @@ class GameChallengeMusicController {
   }
 
   Future<void> setChallengeActive(bool active) async {
+    if (active && !_challengeActive) {
+      _restartOnNextPlay = true;
+    }
     _challengeActive = active;
     await _syncPlayback();
   }
@@ -43,6 +47,11 @@ class GameChallengeMusicController {
   Future<void> _syncPlayback() async {
     if (!_enabled || !_challengeActive) {
       await _stop();
+      return;
+    }
+    if (_restartOnNextPlay) {
+      _restartOnNextPlay = false;
+      await _playRandomTrack();
       return;
     }
     if (_player.playing) {
