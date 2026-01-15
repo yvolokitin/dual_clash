@@ -64,6 +64,7 @@ class _GamePageState extends State<GamePage> {
   bool? _previousHumanVsHuman;
   bool _isApplyingChallengeConfig = false;
   late final VoidCallback _musicSettingsListener;
+  late bool _lastMusicEnabled;
 
   GameController get controller => widget.controller;
   bool get _isAndroidOrIOS => isMobile;
@@ -83,9 +84,13 @@ class _GamePageState extends State<GamePage> {
   @override
   void initState() {
     super.initState();
+    _lastMusicEnabled = widget.controller.musicEnabled;
     _musicSettingsListener = () {
-      GameChallengeMusicController.instance
-          .setEnabled(widget.controller.musicEnabled);
+      if (_lastMusicEnabled != widget.controller.musicEnabled) {
+        _lastMusicEnabled = widget.controller.musicEnabled;
+        GameChallengeMusicController.instance
+            .setEnabled(widget.controller.musicEnabled);
+      }
     };
     widget.controller.addListener(_musicSettingsListener);
     GameChallengeMusicController.instance.setEnabled(

@@ -45,6 +45,19 @@ class GameChallengeMusicController {
       await _stop();
       return;
     }
+    if (_player.playing) {
+      return;
+    }
+    if (_player.processingState == ProcessingState.ready &&
+        _currentTrack != null) {
+      try {
+        await _player.play();
+        return;
+      } catch (error) {
+        debugPrint(
+            'GameChallengeMusicController: failed to resume music: $error');
+      }
+    }
     await _playRandomTrack();
   }
 
