@@ -52,6 +52,11 @@ class _MainMenuPageState extends State<MainMenuPage>
 
   bool _isDesktopWidth(BuildContext context) => MediaQuery.of(context).size.width >= 900;
 
+  bool _useCompactIosTiles(BuildContext context) =>
+      !kIsWeb &&
+      defaultTargetPlatform == TargetPlatform.iOS &&
+      MediaQuery.of(context).size.width < 800;
+
   void _dismissDialog(BuildContext context) {
     final navigator = Navigator.of(context, rootNavigator: true);
     if (navigator.canPop()) {
@@ -224,6 +229,10 @@ class _MainMenuPageState extends State<MainMenuPage>
     final String menuPvAiAsset = kIsWeb
         ? 'assets/icons/menu/menu_pvai.png'
         : 'assets/icons/menu/menu_pvai.gif';
+    final bool compactIosTiles = _useCompactIosTiles(context);
+    final double tileLabelScale = compactIosTiles ? 0.85 : 1.0;
+    final double tileImageSpaceScale = compactIosTiles ? 1.2 : 1.0;
+    final bool preventImageUpscale = compactIosTiles;
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -346,6 +355,9 @@ class _MainMenuPageState extends State<MainMenuPage>
                                           ? l10n.menuDuelShort
                                           : l10n.menuDuelMode,
                                       color: AppColors.blue,
+                                      labelScale: tileLabelScale,
+                                      imageSpaceScale: tileImageSpaceScale,
+                                      preventImageUpscale: preventImageUpscale,
                                       onTap: () {
                                         _runMenuAction(() async {
                                           await _openDuelFlyout(context, controller);
@@ -375,6 +387,9 @@ class _MainMenuPageState extends State<MainMenuPage>
                                           ? l10n.menuHubShort
                                           : l10n.menuPlayerHub,
                                       color: _playerHubColor,
+                                      labelScale: tileLabelScale,
+                                      imageSpaceScale: tileImageSpaceScale,
+                                      preventImageUpscale: preventImageUpscale,
                                       onTap: () {
                                         _runMenuAction(() async {
                                           await _openPlayerHubFlyout(
@@ -433,6 +448,10 @@ class _MainMenuPageState extends State<MainMenuPage>
   Future<void> _openDuelFlyout(BuildContext context, GameController controller) async {
     final compactLabels = _isCompactWidth(context);
     final l10n = context.l10n;
+    final bool compactIosTiles = _useCompactIosTiles(context);
+    final double tileLabelScale = compactIosTiles ? 0.85 : 1.0;
+    final double tileImageSpaceScale = compactIosTiles ? 1.2 : 1.0;
+    final bool preventImageUpscale = compactIosTiles;
     // Measure the Duel tile and target tiles global rects
     Rect rect = Rect.zero;
     Rect gameRect = Rect.zero;
@@ -581,6 +600,9 @@ class _MainMenuPageState extends State<MainMenuPage>
                             : l10n.menuTripleThreat,
                         disabled: false,
                         color: AppColors.red,
+                        labelScale: tileLabelScale,
+                        imageSpaceScale: tileImageSpaceScale,
+                        preventImageUpscale: preventImageUpscale,
                         onTap: () {
                           Navigator.of(ctx).pop();
                           _pushWithSlide(
@@ -613,6 +635,9 @@ class _MainMenuPageState extends State<MainMenuPage>
                             : l10n.menuDuelMode,
                         disabled: false,
                         color: AppColors.blue,
+                        labelScale: tileLabelScale,
+                        imageSpaceScale: tileImageSpaceScale,
+                        preventImageUpscale: preventImageUpscale,
                         onTap: () {
                           Navigator.of(ctx).pop();
                           _pushWithSlide(
@@ -645,6 +670,9 @@ class _MainMenuPageState extends State<MainMenuPage>
                             : l10n.menuQuadClash,
                         disabled: false,
                         color: AppColors.green,
+                        labelScale: tileLabelScale,
+                        imageSpaceScale: tileImageSpaceScale,
+                        preventImageUpscale: preventImageUpscale,
                         onTap: () {
                           Navigator.of(ctx).pop();
                           _pushWithSlide(
@@ -677,6 +705,9 @@ class _MainMenuPageState extends State<MainMenuPage>
                             : l10n.menuAlliance2v2,
                         disabled: true,
                         color: Colors.grey,
+                        labelScale: tileLabelScale,
+                        imageSpaceScale: tileImageSpaceScale,
+                        preventImageUpscale: preventImageUpscale,
                         width: r4.width,
                         height: r4.height,
                       ),
@@ -694,6 +725,10 @@ class _MainMenuPageState extends State<MainMenuPage>
   Future<void> _openPlayerHubFlyout(BuildContext context, GameController controller) async {
     final compactLabels = _isCompactWidth(context);
     final l10n = context.l10n;
+    final bool compactIosTiles = _useCompactIosTiles(context);
+    final double tileLabelScale = compactIosTiles ? 0.85 : 1.0;
+    final double tileImageSpaceScale = compactIosTiles ? 1.2 : 1.0;
+    final bool preventImageUpscale = compactIosTiles;
     Rect rect = Rect.zero;
     Rect gameRect = Rect.zero;
     Rect duelRect = Rect.zero;
@@ -825,6 +860,9 @@ class _MainMenuPageState extends State<MainMenuPage>
                         label: l10n.profileTitle,
                         disabled: false,
                         color: AppColors.red,
+                        labelScale: tileLabelScale,
+                        imageSpaceScale: tileImageSpaceScale,
+                        preventImageUpscale: preventImageUpscale,
                         onTap: () {
                           _dismissPlayerHub(context);
                           showAnimatedProfileDialog(
@@ -852,6 +890,9 @@ class _MainMenuPageState extends State<MainMenuPage>
                         label: l10n.settingsTitle,
                         disabled: false,
                         color: _violet,
+                        labelScale: tileLabelScale,
+                        imageSpaceScale: tileImageSpaceScale,
+                        preventImageUpscale: preventImageUpscale,
                         onTap: () {
                           _dismissPlayerHub(context);
                           showAnimatedSettingsDialog(
@@ -881,6 +922,9 @@ class _MainMenuPageState extends State<MainMenuPage>
                             : l10n.menuLoadGame,
                         disabled: false,
                         color: Colors.orange,
+                        labelScale: tileLabelScale,
+                        imageSpaceScale: tileImageSpaceScale,
+                        preventImageUpscale: preventImageUpscale,
                         onTap: () {
                           _dismissPlayerHub(context);
                           _openLoadGameAfterClose(controller);
@@ -905,6 +949,9 @@ class _MainMenuPageState extends State<MainMenuPage>
                         label: l10n.historyTitle,
                         disabled: false,
                         color: AppColors.blue,
+                        labelScale: tileLabelScale,
+                        imageSpaceScale: tileImageSpaceScale,
+                        preventImageUpscale: preventImageUpscale,
                         onTap: () {
                           _dismissPlayerHub(context);
                           showAnimatedHistoryDialog(
@@ -928,6 +975,10 @@ class _MainMenuPageState extends State<MainMenuPage>
 
   Future<void> _openPlayerHubOverlay(BuildContext context, GameController controller) async {
     final l10n = context.l10n;
+    final bool compactIosTiles = _useCompactIosTiles(context);
+    final double tileLabelScale = compactIosTiles ? 0.85 : 1.0;
+    final double tileImageSpaceScale = compactIosTiles ? 1.2 : 1.0;
+    final bool preventImageUpscale = compactIosTiles;
     await showGeneralDialog<void>(
       context: context,
       barrierDismissible: true,
@@ -997,6 +1048,9 @@ class _MainMenuPageState extends State<MainMenuPage>
                                 width: tileWidth,
                                 height: tileHeight,
                                 color: AppColors.red,
+                                labelScale: tileLabelScale,
+                                imageSpaceScale: tileImageSpaceScale,
+                                preventImageUpscale: preventImageUpscale,
                                 onTap: () {
                                   _dismissPlayerHub(context);
                                   showAnimatedProfileDialog(
@@ -1012,6 +1066,9 @@ class _MainMenuPageState extends State<MainMenuPage>
                                 width: tileWidth,
                                 height: tileHeight,
                                 color: _violet,
+                                labelScale: tileLabelScale,
+                                imageSpaceScale: tileImageSpaceScale,
+                                preventImageUpscale: preventImageUpscale,
                                 onTap: () {
                                   _dismissPlayerHub(context);
                                   showAnimatedSettingsDialog(
@@ -1027,6 +1084,9 @@ class _MainMenuPageState extends State<MainMenuPage>
                                 width: tileWidth,
                                 height: tileHeight,
                                 color: AppColors.blue,
+                                labelScale: tileLabelScale,
+                                imageSpaceScale: tileImageSpaceScale,
+                                preventImageUpscale: preventImageUpscale,
                                 onTap: () {
                                   _dismissPlayerHub(context);
                                   showAnimatedHistoryDialog(
@@ -1042,6 +1102,9 @@ class _MainMenuPageState extends State<MainMenuPage>
                                 width: tileWidth,
                                 height: tileHeight,
                                 color: Colors.orange,
+                                labelScale: tileLabelScale,
+                                imageSpaceScale: tileImageSpaceScale,
+                                preventImageUpscale: preventImageUpscale,
                                 onTap: () {
                                   _dismissPlayerHub(context);
                                   _openLoadGameAfterClose(controller);
@@ -1065,6 +1128,10 @@ class _MainMenuPageState extends State<MainMenuPage>
   Future<void> _openDuelModesOverlay(BuildContext context, GameController controller) async {
     final compactLabels = _isCompactWidth(context);
     final l10n = context.l10n;
+    final bool compactIosTiles = _useCompactIosTiles(context);
+    final double tileLabelScale = compactIosTiles ? 0.85 : 1.0;
+    final double tileImageSpaceScale = compactIosTiles ? 1.2 : 1.0;
+    final bool preventImageUpscale = compactIosTiles;
     await showGeneralDialog<void>(
       context: context,
       barrierDismissible: true,
@@ -1138,6 +1205,9 @@ class _MainMenuPageState extends State<MainMenuPage>
                                     width: tileWidth,
                                     height: tileHeight,
                                     color: AppColors.red,
+                                    labelScale: tileLabelScale,
+                                    imageSpaceScale: tileImageSpaceScale,
+                                    preventImageUpscale: preventImageUpscale,
                                     onTap: () {
                                       _dismissDialog(context);
                                       _pushWithSlide(
@@ -1160,6 +1230,9 @@ class _MainMenuPageState extends State<MainMenuPage>
                                     width: tileWidth,
                                     height: tileHeight,
                                     color: AppColors.blue,
+                                    labelScale: tileLabelScale,
+                                    imageSpaceScale: tileImageSpaceScale,
+                                    preventImageUpscale: preventImageUpscale,
                                     onTap: () {
                                       _dismissDialog(context);
                                       _pushWithSlide(
@@ -1185,6 +1258,9 @@ class _MainMenuPageState extends State<MainMenuPage>
                                     width: tileWidth,
                                     height: tileHeight,
                                     color: AppColors.green,
+                                    labelScale: tileLabelScale,
+                                    imageSpaceScale: tileImageSpaceScale,
+                                    preventImageUpscale: preventImageUpscale,
                                     onTap: () {
                                       _dismissDialog(context);
                                       _pushWithSlide(
@@ -1205,6 +1281,9 @@ class _MainMenuPageState extends State<MainMenuPage>
                                     width: tileWidth,
                                     height: tileHeight,
                                     color: Colors.grey,
+                                    labelScale: tileLabelScale,
+                                    imageSpaceScale: tileImageSpaceScale,
+                                    preventImageUpscale: preventImageUpscale,
                                   ),
                                 ],
                               ),

@@ -10,6 +10,9 @@ class MenuTile extends StatefulWidget {
   final bool showLabel;
   final bool transparentBackground;
   final bool spinOnTap;
+  final double labelScale;
+  final double imageSpaceScale;
+  final bool preventImageUpscale;
   const MenuTile({
     super.key,
     required this.imagePath,
@@ -19,6 +22,9 @@ class MenuTile extends StatefulWidget {
     this.showLabel = true,
     this.transparentBackground = false,
     this.spinOnTap = false,
+    this.labelScale = 1.0,
+    this.imageSpaceScale = 1.0,
+    this.preventImageUpscale = false,
   });
 
   @override
@@ -84,6 +90,10 @@ class _MenuTileState extends State<MenuTile> with SingleTickerProviderStateMixin
       ],
     );
     final bool transparentBackground = widget.transparentBackground;
+    final double labelFontSize = 16 * widget.labelScale;
+    final double labelSpacing = 6 * widget.labelScale;
+    final double contentPadding = 10 / widget.imageSpaceScale;
+    final bool allowImageHoverScale = !widget.preventImageUpscale;
 
     // Entire tile scales a bit on press to mimic a button press
     return AnimatedScale(
@@ -123,7 +133,7 @@ class _MenuTileState extends State<MenuTile> with SingleTickerProviderStateMixin
               ),
               padding: transparentBackground
                   ? EdgeInsets.zero
-                  : const EdgeInsets.all(10),
+                  : EdgeInsets.all(contentPadding),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -142,17 +152,25 @@ class _MenuTileState extends State<MenuTile> with SingleTickerProviderStateMixin
                             );
                           },
                           child: AnimatedScale(
-                            scale: _hovered ? 1.05 : 1.0,
+                            scale: _hovered && allowImageHoverScale ? 1.05 : 1.0,
                             duration: _hoverDuration,
                             curve: Curves.easeOutCubic,
                             child: AnimatedRotation(
                               turns: _hovered ? (5 / 360) : 0,
                               duration: _hoverDuration,
                               curve: Curves.easeOutCubic,
-                              child: Image.asset(
-                                widget.imagePath,
-                                fit: BoxFit.contain,
-                              ),
+                              child: widget.preventImageUpscale
+                                  ? FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Image.asset(
+                                        widget.imagePath,
+                                        fit: BoxFit.contain,
+                                      ),
+                                    )
+                                  : Image.asset(
+                                      widget.imagePath,
+                                      fit: BoxFit.contain,
+                                    ),
                             ),
                           ),
                         ),
@@ -160,14 +178,13 @@ class _MenuTileState extends State<MenuTile> with SingleTickerProviderStateMixin
                     ),
                   ),
                   if (widget.showLabel) ...[
-                    const SizedBox(height: 6),
+                    SizedBox(height: labelSpacing),
                     Text(
                       widget.label,
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w800,
-                        fontSize: 16,
-                      ),
+                      ).copyWith(fontSize: labelFontSize),
                     ),
                   ],
                 ],

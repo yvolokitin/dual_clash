@@ -9,6 +9,9 @@ class FlyoutTile extends StatelessWidget {
   final double height;
   final Color? color;
   final VoidCallback? onTap;
+  final double labelScale;
+  final double imageSpaceScale;
+  final bool preventImageUpscale;
   const FlyoutTile({
     super.key,
     required this.imagePath,
@@ -18,6 +21,9 @@ class FlyoutTile extends StatelessWidget {
     required this.height,
     this.color,
     this.onTap,
+    this.labelScale = 1.0,
+    this.imageSpaceScale = 1.0,
+    this.preventImageUpscale = false,
   });
 
   Color _darken(Color c, [double amount = 0.18]) {
@@ -62,11 +68,20 @@ class FlyoutTile extends StatelessWidget {
       );
     }
 
+    final double labelFontSize = 16 * labelScale;
+    final double labelSpacing = 6 * labelScale;
+    final double contentPadding = 10 / imageSpaceScale;
     final labelStyle = TextStyle(
       color: disabled ? Colors.white70 : Colors.white,
       fontWeight: FontWeight.w800,
-      fontSize: 16,
+      fontSize: labelFontSize,
     );
+    if (preventImageUpscale) {
+      image = FittedBox(
+        fit: BoxFit.scaleDown,
+        child: image,
+      );
+    }
 
     return SizedBox(
       width: width,
@@ -94,14 +109,14 @@ class FlyoutTile extends StatelessWidget {
                 color: base.withOpacity(disabled ? 0.85 : 0.9),
                 borderRadius: innerRadius,
               ),
-              padding: const EdgeInsets.all(10),
+              padding: EdgeInsets.all(contentPadding),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Expanded(
                     child: Center(child: image),
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(height: labelSpacing),
                   Text(label, style: labelStyle),
                 ],
               ),
