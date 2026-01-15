@@ -12,7 +12,11 @@ import 'package:window_manager/window_manager.dart' if (dart.library.html) 'pack
 import 'core/platforms.dart';
 
 import 'core/constants.dart';
+import 'logic/game_challenge_music_controller.dart';
 import 'logic/game_controller.dart';
+import 'logic/game_sfx_controller.dart';
+import 'logic/main_menu_music_controller.dart';
+import 'logic/transition_sfx_controller.dart';
 import 'ui/pages/legal_pages.dart';
 import 'ui/pages/main_menu_page.dart';
 
@@ -56,15 +60,36 @@ class TwoTouchApp extends StatefulWidget {
   State<TwoTouchApp> createState() => _TwoTouchAppState();
 }
 
-class _TwoTouchAppState extends State<TwoTouchApp> {
+class _TwoTouchAppState extends State<TwoTouchApp>
+    with WidgetsBindingObserver {
   late final GameController controller;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     controller = GameController();
     // Load persisted theme color and apply
     controller.loadSettingsAndApply();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) return;
+    _stopAudioForLifecycle();
+  }
+
+  Future<void> _stopAudioForLifecycle() async {
+    await MainMenuMusicController.instance.stop();
+    await GameChallengeMusicController.instance.stop();
+    await TransitionSfxController.instance.stop();
+    await GameSfxController.instance.stopAll();
   }
 
   TextTheme _boldAll(TextTheme t) {

@@ -116,6 +116,10 @@ class GameChallengeMusicController {
     }
   }
 
+  Future<void> stop() async {
+    await _stop();
+  }
+
   Future<void> dispose() async {
     await _playerStateSub?.cancel();
     await _player.dispose();

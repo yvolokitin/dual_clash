@@ -67,6 +67,18 @@ class GameSfxController {
     }
   }
 
+  Future<void> stopAll() async {
+    for (final player in _players.values) {
+      try {
+        if (player.playing) {
+          await player.pause();
+        }
+      } catch (error) {
+        debugPrint('GameSfxController: failed to stop sfx: $error');
+      }
+    }
+  }
+
   Future<void> dispose() async {
     for (final player in _players.values) {
       await player.dispose();

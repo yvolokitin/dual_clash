@@ -38,6 +38,16 @@ class TransitionSfxController {
     }
   }
 
+  Future<void> stop() async {
+    try {
+      if (_player.playing) {
+        await _player.pause();
+      }
+    } catch (error) {
+      debugPrint('TransitionSfxController: failed to stop sfx: $error');
+    }
+  }
+
   Future<void> dispose() async {
     await _player.dispose();
   }

@@ -75,6 +75,10 @@ class MainMenuMusicController {
     }
   }
 
+  Future<void> stop() async {
+    await _stop();
+  }
+
   Future<void> dispose() async {
     await _player.dispose();
   }
