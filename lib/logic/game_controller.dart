@@ -1142,6 +1142,7 @@ class GameController extends ChangeNotifier {
     if (!humanVsHuman && !gameOver && current == CellState.blue && _freshBoard) {
       _scheduleAi();
     }
+    AudioManager.instance.bootstrapInitialBgm();
     notifyListeners();
   }
 

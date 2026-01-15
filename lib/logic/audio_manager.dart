@@ -90,6 +90,31 @@ class AudioManager with WidgetsBindingObserver {
     _queueSync(_applyState);
   }
 
+  void bootstrapInitialBgm() {
+    _queueSync(() async {
+      if (!_musicEnabled) return;
+      if (_bgmPlayer.playing) return;
+      if (_isBackground ||
+          _context == AudioContext.background ||
+          _context == AudioContext.paused) {
+        return;
+      }
+      await _ensureAudioSession();
+      switch (_context) {
+        case AudioContext.menu:
+          await _playMenuBgm();
+          break;
+        case AudioContext.gameplay:
+        case AudioContext.gameOver:
+          await _playGameplayBgm();
+          break;
+        case AudioContext.paused:
+        case AudioContext.background:
+          break;
+      }
+    });
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final bool isBackground = state == AppLifecycleState.paused ||
