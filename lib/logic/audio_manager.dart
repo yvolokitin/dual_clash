@@ -174,6 +174,12 @@ class AudioManager with WidgetsBindingObserver {
     if (!_userGestureUnlocked && kIsWeb) {
       return;
     }
+    if (_bgmPlayer.playing && _bgmPlayer.volume == 0) {
+      await _bgmPlayer.setVolume(_bgmTargetVolume);
+      if (kDebugMode) {
+        debugPrint('[BGM] recovered volume: ${_bgmPlayer.volume}');
+      }
+    }
     if (_suppressAutoResumeOnce &&
         _contextBeforeBackground == _context &&
         !_bgmPlayer.playing) {
@@ -309,6 +315,7 @@ class AudioManager with WidgetsBindingObserver {
       await session.configure(const AudioSessionConfiguration.music());
       await session.setActive(true);
       if (kDebugMode) {
+        debugPrint('[BGM] volume before play: ${_bgmPlayer.volume}');
         debugPrint('[BGM] play() called for $asset');
       }
       await _bgmPlayer.play();
@@ -319,6 +326,10 @@ class AudioManager with WidgetsBindingObserver {
       return;
     }
     await _fadeTo(_bgmTargetVolume, _fadeInDuration);
+    await _bgmPlayer.setVolume(_bgmTargetVolume);
+    if (kDebugMode) {
+      debugPrint('[BGM] volume after fade: ${_bgmPlayer.volume}');
+    }
   }
 
   Future<void> _pauseBgm({required bool savePosition}) async {
