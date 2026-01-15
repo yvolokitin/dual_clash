@@ -120,6 +120,10 @@ class GameChallengeMusicController {
     await _stop();
   }
 
+  Future<void> resume() async {
+    await _syncPlayback();
+  }
+
   Future<void> dispose() async {
     await _playerStateSub?.cancel();
     await _player.dispose();

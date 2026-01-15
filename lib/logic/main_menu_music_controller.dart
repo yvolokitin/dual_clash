@@ -44,8 +44,8 @@ class MainMenuMusicController {
         await _player.setAsset('assets/m4a/main_page.m4a');
         await _player.setLoopMode(LoopMode.one);
         _isLoaded = true;
+        await _player.seek(Duration.zero);
       }
-      await _player.seek(Duration.zero);
       if (!_player.playing) {
         await _player.play();
       }
@@ -77,6 +77,10 @@ class MainMenuMusicController {
 
   Future<void> stop() async {
     await _stop();
+  }
+
+  Future<void> resume() async {
+    await _syncPlayback();
   }
 
   Future<void> dispose() async {

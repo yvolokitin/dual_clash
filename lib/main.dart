@@ -81,7 +81,10 @@ class _TwoTouchAppState extends State<TwoTouchApp>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) return;
+    if (state == AppLifecycleState.resumed) {
+      _resumeAudioForLifecycle();
+      return;
+    }
     _stopAudioForLifecycle();
   }
 
@@ -90,6 +93,11 @@ class _TwoTouchAppState extends State<TwoTouchApp>
     await GameChallengeMusicController.instance.stop();
     await TransitionSfxController.instance.stop();
     await GameSfxController.instance.stopAll();
+  }
+
+  Future<void> _resumeAudioForLifecycle() async {
+    await MainMenuMusicController.instance.resume();
+    await GameChallengeMusicController.instance.resume();
   }
 
   TextTheme _boldAll(TextTheme t) {
