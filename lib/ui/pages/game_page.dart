@@ -5,6 +5,7 @@ import 'package:dual_clash/core/constants.dart';
 import 'package:dual_clash/core/feature_flags.dart';
 import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/logic/game_controller.dart';
+import 'package:dual_clash/logic/game_challenge_music_controller.dart';
 import 'package:dual_clash/logic/rules_engine.dart';
 import 'package:dual_clash/models/campaign_result_action.dart';
 import 'package:dual_clash/models/campaign_level.dart';
@@ -62,6 +63,7 @@ class _GamePageState extends State<GamePage> {
   bool? _previousBombsEnabled;
   bool? _previousHumanVsHuman;
   bool _isApplyingChallengeConfig = false;
+  late final VoidCallback _musicSettingsListener;
 
   GameController get controller => widget.controller;
   bool get _isAndroidOrIOS => isMobile;
@@ -81,6 +83,16 @@ class _GamePageState extends State<GamePage> {
   @override
   void initState() {
     super.initState();
+    _musicSettingsListener = () {
+      GameChallengeMusicController.instance
+          .setEnabled(widget.controller.musicEnabled);
+    };
+    widget.controller.addListener(_musicSettingsListener);
+    GameChallengeMusicController.instance.setEnabled(
+      widget.controller.musicEnabled,
+    );
+    GameChallengeMusicController.instance
+        .setChallengeActive(widget.challengeConfig != null);
     if (widget.challengeConfig != null) {
       _isApplyingChallengeConfig = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -101,6 +113,8 @@ class _GamePageState extends State<GamePage> {
     _adRetryTimer?.cancel();
     _bannerAd?.dispose();
     _restoreChallengeConfig();
+    widget.controller.removeListener(_musicSettingsListener);
+    GameChallengeMusicController.instance.setChallengeActive(false);
     super.dispose();
   }
 

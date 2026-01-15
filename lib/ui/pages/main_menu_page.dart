@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/core/navigation.dart';
+import 'package:dual_clash/logic/game_challenge_music_controller.dart';
 import 'package:dual_clash/logic/main_menu_music_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -135,9 +136,14 @@ class _MainMenuPageState extends State<MainMenuPage>
     _musicSettingsListener = () {
       MainMenuMusicController.instance
           .setEnabled(widget.controller.musicEnabled);
+      GameChallengeMusicController.instance
+          .setEnabled(widget.controller.musicEnabled);
     };
     widget.controller.addListener(_musicSettingsListener);
     MainMenuMusicController.instance.setEnabled(widget.controller.musicEnabled);
+    GameChallengeMusicController.instance.setEnabled(
+      widget.controller.musicEnabled,
+    );
     if (!_hasLoggedScreenSize) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
