@@ -64,7 +64,7 @@ class _GamePageState extends State<GamePage> {
   bool? _previousHumanVsHuman;
   bool _isApplyingChallengeConfig = false;
   late final VoidCallback _audioStateListener;
-  AudioScene _lastScene = AudioScene.gameplay;
+  AudioContext _lastContext = AudioContext.gameplay;
 
   GameController get controller => widget.controller;
   bool get _isAndroidOrIOS => isMobile;
@@ -112,13 +112,13 @@ class _GamePageState extends State<GamePage> {
   }
 
   void _syncAudioScene() {
-    final nextScene =
-        controller.gameOver ? AudioScene.gameOver : AudioScene.gameplay;
-    if (_lastScene != nextScene) {
-      _lastScene = nextScene;
-      AudioManager.instance.setScene(nextScene);
-    } else if (_lastScene == AudioScene.gameplay) {
-      AudioManager.instance.setScene(AudioScene.gameplay);
+    final nextContext =
+        controller.gameOver ? AudioContext.gameOver : AudioContext.gameplay;
+    if (_lastContext != nextContext) {
+      _lastContext = nextContext;
+      AudioManager.instance.setContext(nextContext);
+    } else if (_lastContext == AudioContext.gameplay) {
+      AudioManager.instance.setContext(AudioContext.gameplay);
     }
   }
 
@@ -474,7 +474,7 @@ class _GamePageState extends State<GamePage> {
                   showLeaderShadow: !controller.humanVsHuman,
                   aiSelectorEnabled: widget.challengeConfig == null,
                   onOpenMenu: () async {
-                    AudioManager.instance.setScene(AudioScene.paused);
+                    AudioManager.instance.setContext(AudioContext.paused);
                     await mmd.showAnimatedMainMenuDialog(
                         context: context,
                         controller: controller,

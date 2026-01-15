@@ -84,6 +84,7 @@ class _MainMenuPageState extends State<MainMenuPage>
     if (_menuActionInProgress) return;
     _menuActionInProgress = true;
     try {
+      AudioManager.instance.registerUserGesture();
       await action();
     } finally {
       if (mounted) {
@@ -131,7 +132,7 @@ class _MainMenuPageState extends State<MainMenuPage>
       WidgetsBinding.instance.addPostFrameCallback((_) => _startWavesIfNeeded());
     }
     AudioManager.instance
-        .setScene(_showContent ? AudioScene.menu : AudioScene.appStart);
+        .setContext(_showContent ? AudioContext.menu : AudioContext.background);
     if (!_hasLoggedScreenSize) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
@@ -154,8 +155,9 @@ class _MainMenuPageState extends State<MainMenuPage>
       routeObserver.subscribe(this, route);
       _routeSubscribed = true;
       if (route.isCurrent) {
-        AudioManager.instance
-            .setScene(_showContent ? AudioScene.menu : AudioScene.appStart);
+        AudioManager.instance.setContext(
+          _showContent ? AudioContext.menu : AudioContext.background,
+        );
       }
     }
   }
@@ -163,13 +165,13 @@ class _MainMenuPageState extends State<MainMenuPage>
   @override
   void didPush() {
     AudioManager.instance
-        .setScene(_showContent ? AudioScene.menu : AudioScene.appStart);
+        .setContext(_showContent ? AudioContext.menu : AudioContext.background);
   }
 
   @override
   void didPopNext() {
     AudioManager.instance
-        .setScene(_showContent ? AudioScene.menu : AudioScene.appStart);
+        .setContext(_showContent ? AudioContext.menu : AudioContext.background);
   }
 
   @override
@@ -267,7 +269,7 @@ class _MainMenuPageState extends State<MainMenuPage>
                             setState(() {
                               _showContent = true;
                             });
-                            AudioManager.instance.setScene(AudioScene.menu);
+                            AudioManager.instance.setContext(AudioContext.menu);
                             _startWavesIfNeeded();
                           }
                         },
@@ -311,13 +313,14 @@ class _MainMenuPageState extends State<MainMenuPage>
                                       color: AppColors.red,
                                       spinOnTap: true,
                                       onSpinStart: () {
-                                        AudioManager.instance
-                                            .playSfx(AudioSfx.transition);
+                                        widget.controller
+                                            .playUiSfx(AudioSfx.transition);
                                       },
                                       onTap: () {
                                         _runMenuAction(() async {
-                                          AudioManager.instance
-                                              .setScene(AudioScene.gameplay);
+                                          AudioManager.instance.setContext(
+                                            AudioContext.gameplay,
+                                          );
                                           controller.humanVsHuman = false;
                                           controller.newGame();
                                           await _pushWithSlide(

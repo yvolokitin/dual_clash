@@ -57,33 +57,21 @@ class TwoTouchApp extends StatefulWidget {
   State<TwoTouchApp> createState() => _TwoTouchAppState();
 }
 
-class _TwoTouchAppState extends State<TwoTouchApp>
-    with WidgetsBindingObserver {
+class _TwoTouchAppState extends State<TwoTouchApp> {
   late final GameController controller;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
     controller = GameController();
-    AudioManager.instance.setScene(AudioScene.appStart);
+    AudioManager.instance.initialize();
+    AudioManager.instance.setContext(AudioContext.menu);
     AudioManager.instance.setSettings(
       musicEnabled: controller.musicEnabled,
       sfxEnabled: controller.soundsEnabled,
     );
     // Load persisted theme color and apply
     controller.loadSettingsAndApply();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    AudioManager.instance.handleAppLifecycleState(state);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
   }
 
   TextTheme _boldAll(TextTheme t) {

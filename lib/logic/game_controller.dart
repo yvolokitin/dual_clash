@@ -2029,6 +2029,12 @@ class GameController extends ChangeNotifier {
   }
 
   void _playSfx(AudioSfx type) {
+    AudioManager.instance.registerUserGesture();
+    AudioManager.instance.playSfx(type);
+  }
+
+  void playUiSfx(AudioSfx type) {
+    AudioManager.instance.registerUserGesture();
     AudioManager.instance.playSfx(type);
   }
 

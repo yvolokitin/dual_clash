@@ -23,7 +23,7 @@ class DuelPage extends StatefulWidget {
 
 class _DuelPageState extends State<DuelPage> {
   late final VoidCallback _audioStateListener;
-  AudioScene _lastScene = AudioScene.gameplay;
+  AudioContext _lastContext = AudioContext.gameplay;
 
   double _crownHeight(double size) => size * 0.4;
 
@@ -277,13 +277,14 @@ class _DuelPageState extends State<DuelPage> {
   }
 
   void _syncAudioScene() {
-    final nextScene =
-        widget.controller.gameOver ? AudioScene.gameOver : AudioScene.gameplay;
-    if (_lastScene != nextScene) {
-      _lastScene = nextScene;
-      AudioManager.instance.setScene(nextScene);
-    } else if (_lastScene == AudioScene.gameplay) {
-      AudioManager.instance.setScene(AudioScene.gameplay);
+    final nextContext = widget.controller.gameOver
+        ? AudioContext.gameOver
+        : AudioContext.gameplay;
+    if (_lastContext != nextContext) {
+      _lastContext = nextContext;
+      AudioManager.instance.setContext(nextContext);
+    } else if (_lastContext == AudioContext.gameplay) {
+      AudioManager.instance.setContext(AudioContext.gameplay);
     }
   }
 
@@ -510,7 +511,7 @@ class _DuelPageState extends State<DuelPage> {
                                       tooltip: context.l10n.menuTitle,
                                       onPressed: () async {
                                         AudioManager.instance
-                                            .setScene(AudioScene.paused);
+                                            .setContext(AudioContext.paused);
                                         await mmd.showAnimatedMainMenuDialog(
                                             context: context,
                                             controller: controller,
@@ -549,7 +550,7 @@ class _DuelPageState extends State<DuelPage> {
                                     tooltip: context.l10n.menuTitle,
                                     onPressed: () async {
                                       AudioManager.instance
-                                          .setScene(AudioScene.paused);
+                                          .setContext(AudioContext.paused);
                                       await mmd.showAnimatedMainMenuDialog(
                                           context: context,
                                           controller: controller,

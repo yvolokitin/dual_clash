@@ -2,15 +2,16 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:audio_session/audio_session.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:just_audio/just_audio.dart';
 
-enum AudioScene {
-  appStart,
+enum AudioContext {
   menu,
   gameplay,
   paused,
   gameOver,
+  background,
 }
 
 enum AudioSfx {
@@ -22,7 +23,7 @@ enum AudioSfx {
   greyShake,
 }
 
-class AudioManager {
+class AudioManager with WidgetsBindingObserver {
   AudioManager._() {
     _bgmStateSub = _bgmPlayer.playerStateStream.listen((state) {
       if (state.processingState == ProcessingState.completed) {
@@ -51,11 +52,23 @@ class AudioManager {
   AudioSession? _audioSession;
   bool _musicEnabled = true;
   bool _sfxEnabled = true;
-  bool _isForeground = true;
-  AudioScene _scene = AudioScene.appStart;
+  bool _isBackground = false;
+  bool _resumeAfterBackground = false;
+  bool _suppressAutoResumeOnce = false;
+  bool _initialized = false;
+  bool _userGestureUnlocked = !kIsWeb;
+  AudioContext _context = AudioContext.menu;
+  AudioContext _lastAppliedContext = AudioContext.menu;
+  AudioContext? _contextBeforeBackground;
   String? _currentBgmAsset;
   String? _resumeAsset;
   Duration? _resumePosition;
+
+  void initialize() {
+    if (_initialized) return;
+    WidgetsBinding.instance.addObserver(this);
+    _initialized = true;
+  }
 
   void setSettings({required bool musicEnabled, required bool sfxEnabled}) {
     _musicEnabled = musicEnabled;
@@ -63,16 +76,32 @@ class AudioManager {
     _queueSync(_applyState);
   }
 
-  void setScene(AudioScene scene) {
-    if (_scene == scene) return;
-    _scene = scene;
+  void setContext(AudioContext context) {
+    if (_context == context) return;
+    _context = context;
     _queueSync(_applyState);
   }
 
-  void handleAppLifecycleState(AppLifecycleState state) {
-    final bool isForeground = state == AppLifecycleState.resumed;
-    if (_isForeground == isForeground) return;
-    _isForeground = isForeground;
+  void registerUserGesture() {
+    if (_userGestureUnlocked) return;
+    _userGestureUnlocked = true;
+    _queueSync(_applyState);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final bool isBackground = state != AppLifecycleState.resumed;
+    if (_isBackground == isBackground) return;
+    _isBackground = isBackground;
+    if (_isBackground) {
+      _contextBeforeBackground = _context;
+      _resumeAfterBackground = _bgmPlayer.playing ||
+          _bgmPlayer.processingState == ProcessingState.ready;
+      _suppressAutoResumeOnce = false;
+    } else if (!_resumeAfterBackground) {
+      _suppressAutoResumeOnce = true;
+      _lastAppliedContext = _context;
+    }
     _queueSync(_applyState);
   }
 
@@ -102,22 +131,34 @@ class AudioManager {
       await _stopBgm();
       return;
     }
-    if (!_isForeground) {
+    if (_isBackground || _context == AudioContext.background) {
       await _pauseBgm(savePosition: true);
       return;
     }
-    switch (_scene) {
-      case AudioScene.appStart:
-        await _stopBgm();
-        break;
-      case AudioScene.menu:
+    if (!_userGestureUnlocked && kIsWeb) {
+      return;
+    }
+    if (_suppressAutoResumeOnce &&
+        _contextBeforeBackground == _context &&
+        !_bgmPlayer.playing) {
+      _suppressAutoResumeOnce = false;
+      return;
+    }
+    _resumeAfterBackground = true;
+    if (_context == _lastAppliedContext && _bgmPlayer.playing) {
+      return;
+    }
+    _lastAppliedContext = _context;
+    switch (_context) {
+      case AudioContext.menu:
         await _playMenuBgm();
         break;
-      case AudioScene.gameplay:
-      case AudioScene.gameOver:
+      case AudioContext.gameplay:
+      case AudioContext.gameOver:
         await _playGameplayBgm();
         break;
-      case AudioScene.paused:
+      case AudioContext.paused:
+      case AudioContext.background:
         await _pauseBgm(savePosition: true);
         break;
     }
@@ -154,8 +195,11 @@ class AudioManager {
   }
 
   Future<void> _handleBgmCompletion() async {
-    if (!_musicEnabled || !_isForeground) return;
-    if (_scene != AudioScene.gameplay && _scene != AudioScene.gameOver) return;
+    if (!_musicEnabled || _isBackground) return;
+    if (_context != AudioContext.gameplay &&
+        _context != AudioContext.gameOver) {
+      return;
+    }
     final next = _pickNextGameplayTrack();
     await _playBgm(next, loop: false);
   }
@@ -287,6 +331,10 @@ class AudioManager {
   }
 
   Future<void> dispose() async {
+    if (_initialized) {
+      WidgetsBinding.instance.removeObserver(this);
+      _initialized = false;
+    }
     await _bgmStateSub?.cancel();
     await _bgmPlayer.dispose();
     await _sfxPlayer.dispose();
