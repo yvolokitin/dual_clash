@@ -78,6 +78,7 @@ class TurnStatEntry {
 class GameController extends ChangeNotifier {
   // Duel mode: when true, both players are human and AI is disabled
   bool humanVsHuman = false;
+  bool _isGameChallengeMode = false;
   bool _loadedFromSave = false;
   bool _loadedFromSaveHumanVsHuman = false;
   int duelPlayerCount = 2;
@@ -127,6 +128,10 @@ class GameController extends ChangeNotifier {
     if (current == CellState.red) return _undoStack.length >= 2;
     // If it's Blue's turn (user just acted), one snapshot is enough
     return _undoStack.isNotEmpty;
+  }
+
+  void setGameChallengeMode(bool enabled) {
+    _isGameChallengeMode = enabled;
   }
 
   // Per-move live points
@@ -2044,7 +2049,10 @@ class GameController extends ChangeNotifier {
     notifyListeners();
 
     // Brief delay for UX and to let UI show overlay
-    await Future.delayed(const Duration(milliseconds: 200));
+    final baseDelay = const Duration(milliseconds: 200);
+    final extraDelay =
+        _isGameChallengeMode ? const Duration(milliseconds: 500) : Duration.zero;
+    await Future.delayed(baseDelay + extraDelay);
     // If state changed (e.g., user loaded a game), cancel this run safely
     if (gen != _aiGeneration || gameOver) {
       isAiThinking = false;

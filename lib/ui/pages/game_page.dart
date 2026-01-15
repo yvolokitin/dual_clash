@@ -84,6 +84,9 @@ class _GamePageState extends State<GamePage> {
   @override
   void initState() {
     super.initState();
+    final isGameChallenge =
+        widget.challengeConfig == null && widget.campaignId == null;
+    widget.controller.setGameChallengeMode(isGameChallenge);
     _lastMusicEnabled = widget.controller.musicEnabled;
     _musicSettingsListener = () {
       if (_lastMusicEnabled != widget.controller.musicEnabled) {
@@ -118,6 +121,7 @@ class _GamePageState extends State<GamePage> {
     _adRetryTimer?.cancel();
     _bannerAd?.dispose();
     _restoreChallengeConfig();
+    widget.controller.setGameChallengeMode(false);
     widget.controller.removeListener(_musicSettingsListener);
     GameChallengeMusicController.instance.setChallengeActive(false);
     super.dispose();
