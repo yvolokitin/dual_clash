@@ -266,6 +266,12 @@ abstract class AppLocalizations {
   /// **'Main menu music'**
   String get settingsMusicLabel;
 
+  /// No description provided for @settingsSoundsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sounds'**
+  String get settingsSoundsLabel;
+
   /// No description provided for @profileTitle.
   ///
   /// In en, this message translates to:

@@ -79,6 +79,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
   late String _initialLanguage;
   late CellState _initialStartingPlayer;
   late bool _musicEnabled;
+  late bool _soundsEnabled;
   Timer? _adminActivationTimer;
   bool _adminDialogVisible = false;
 
@@ -92,6 +93,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
     _initialLanguage = _language;
     _initialStartingPlayer = _startingPlayer;
     _musicEnabled = widget.controller.musicEnabled;
+    _soundsEnabled = widget.controller.soundsEnabled;
     _coerceStartingPlayer();
   }
 
@@ -263,6 +265,17 @@ class _SettingsDialogState extends State<SettingsDialog> {
                                 _musicEnabled = value;
                               });
                               await widget.controller.setMusicEnabled(value);
+                            },
+                          ),
+                          const SizedBox(height: 10),
+                          _toggleTile(
+                            label: l10n.settingsSoundsLabel,
+                            value: _soundsEnabled,
+                            onChanged: (value) async {
+                              setState(() {
+                                _soundsEnabled = value;
+                              });
+                              await widget.controller.setSoundsEnabled(value);
                             },
                           ),
                           _separator(),

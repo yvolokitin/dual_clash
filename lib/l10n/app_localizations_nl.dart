@@ -90,6 +90,8 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String get settingsMusicLabel => 'Hoofdmenumuziek';
+  @override
+  String get settingsSoundsLabel => 'Geluiden';
 
   @override
   String get profileTitle => 'Profiel';

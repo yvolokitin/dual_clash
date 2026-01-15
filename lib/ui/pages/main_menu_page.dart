@@ -327,7 +327,9 @@ class _MainMenuPageState extends State<MainMenuPage>
                                       color: AppColors.red,
                                       spinOnTap: true,
                                       onSpinStart: () {
-                                        TransitionSfxController.instance.play();
+                                        if (controller.soundsEnabled) {
+                                          TransitionSfxController.instance.play();
+                                        }
                                       },
                                       onTap: () {
                                         _runMenuAction(() async {
