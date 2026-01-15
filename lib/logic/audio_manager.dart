@@ -79,23 +79,20 @@ class AudioManager with WidgetsBindingObserver {
   }
 
   void setSettings({required bool musicEnabled, required bool sfxEnabled}) {
+    final prevMusicEnabled = _musicEnabled;
     if (kDebugMode && _musicEnabled != musicEnabled) {
       debugPrint('[BGM] musicEnabled toggled: $musicEnabled');
     }
-    if (_musicEnabled && !musicEnabled) {
+    _musicEnabled = musicEnabled;
+    _sfxEnabled = sfxEnabled;
+    if (prevMusicEnabled && !musicEnabled) {
       _queueSync(() async {
         await _pauseBgm(savePosition: false);
         await _bgmPlayer.setVolume(0);
         _resumeAsset = null;
         _resumePosition = null;
-        _lastAppliedContext = AudioContext.background;
       });
     }
-    if (!_musicEnabled && musicEnabled) {
-      _lastAppliedContext = AudioContext.background;
-    }
-    _musicEnabled = musicEnabled;
-    _sfxEnabled = sfxEnabled;
     _queueSync(_applyState);
   }
 
@@ -212,10 +209,6 @@ class AudioManager with WidgetsBindingObserver {
       return;
     }
     _resumeAfterBackground = true;
-    if (_context == _lastAppliedContext && _bgmPlayer.playing) {
-      return;
-    }
-    _lastAppliedContext = _context;
     switch (_context) {
       case AudioContext.menu:
         await _playMenuBgm();
@@ -235,12 +228,14 @@ class AudioManager with WidgetsBindingObserver {
     await _ensureAudioSession();
     const asset = 'assets/m4a/main_page.m4a';
     await _playBgm(asset, loop: true);
+    _lastAppliedContext = AudioContext.menu;
   }
 
   Future<void> _playGameplayBgm() async {
     await _ensureAudioSession();
     final asset = _currentGameplayAsset();
     await _playBgm(asset, loop: false);
+    _lastAppliedContext = AudioContext.gameplay;
   }
 
   String _currentGameplayAsset() {
