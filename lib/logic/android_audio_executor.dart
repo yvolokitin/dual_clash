@@ -246,6 +246,7 @@ class AndroidSfxPlayer implements SfxPlayer {
     }
     await player.seek(Duration.zero);
     // Important: do not pause/stop BGM here; rely on shared session and android attributes.
-    await player.play();
+    // Start playback but do not await completion to avoid blocking UI/logic.
+    unawaited(player.play());
   }
 }

@@ -151,6 +151,9 @@ class GameController extends ChangeNotifier {
   int quakeDurationMs = 500;
   // Duration for fall-down animations in milliseconds (used for grey drop and blow fall-out)
   int fallDurationMs = 1000;
+  // AI turn pacing (ms)
+  int aiPreviewDelayMs = 420;
+  int aiPostActionDelayMs = 120;
   // Profile data
   String nickname = 'Player';
   String country = Countries.defaultCountry;
@@ -1797,7 +1800,7 @@ class GameController extends ChangeNotifier {
     if (gameOver || isExploding || isFalling) return;
     if (!autoTriggered && !_canActivateBombToken(bomb)) return;
     if (!autoTriggered) {
-      _playSfx(GameSfxType.explosion);
+      await _playSfxAwait(GameSfxType.explosion);
     }
     isExploding = true;
     explodingCells =
@@ -1844,7 +1847,7 @@ class GameController extends ChangeNotifier {
     final affected = RulesEngine.blowAffected(board, r, c);
     if (affected.isEmpty) return;
     if (userInitiated) {
-      _playSfx(GameSfxType.explosion);
+      await _playSfxAwait(GameSfxType.explosion);
     }
     isExploding = true;
     explodingCells = affected;
@@ -2047,6 +2050,29 @@ class GameController extends ChangeNotifier {
         break;
     }
     AppAudio.coordinator?.playSfx(mapped);
+  }
+
+  Future<void> _playSfxAwait(GameSfxType type) async {
+    if (!soundsEnabled) return;
+    SfxType mapped;
+    switch (type) {
+      case GameSfxType.redTurn:
+        mapped = SfxType.redTurn;
+        break;
+      case GameSfxType.blueTurn:
+        mapped = SfxType.blueTurn;
+        break;
+      case GameSfxType.bombAdd:
+        mapped = SfxType.bombAdd;
+        break;
+      case GameSfxType.explosion:
+        mapped = SfxType.explosion;
+        break;
+      case GameSfxType.greyShake:
+        mapped = SfxType.greyShake;
+        break;
+    }
+    await (AppAudio.coordinator?.playSfx(mapped) ?? Future.value());
   }
 
   void setBoardPixelSize(double s) {
@@ -2316,9 +2342,13 @@ class GameController extends ChangeNotifier {
       selectedCell = (br, bc);
       blowPreview = RulesEngine.blowAffected(board, br, bc);
       notifyListeners();
-      await Future.delayed(const Duration(milliseconds: 280));
-      // Animate and perform blow like user
-      await _performBlow(br, bc, CellState.blue, userInitiated: false);
+      await Future.delayed(Duration(milliseconds: aiPreviewDelayMs));
+      // Animate and perform blow like user (enable SFX for AI as well)
+      await _performBlow(br, bc, CellState.blue, userInitiated: true);
+      // Small post-action delay for clarity
+      if (aiPostActionDelayMs > 0) {
+        await Future.delayed(Duration(milliseconds: aiPostActionDelayMs));
+      }
       // After AI completes action and it's Red's turn, save undo point
       if (!gameOver && current == CellState.red) {
         _saveUndoPoint();
@@ -2335,7 +2365,7 @@ class GameController extends ChangeNotifier {
       selectedCell = sel;
       blowPreview = allNeutrals;
       notifyListeners();
-      await Future.delayed(const Duration(milliseconds: 280));
+      await Future.delayed(Duration(milliseconds: aiPreviewDelayMs));
       await _performGreyDropAi();
       // After AI completes action and it's Red's turn, save undo point
       if (!gameOver && current == CellState.red) {
@@ -2347,20 +2377,32 @@ class GameController extends ChangeNotifier {
     }
 
     final (r, c) = placeChoice!;
+    // Show a brief preview highlight on the target cell to make AI action clearer
+    selectedCell = null; // ensure no conflicting selection
+    blowPreview = {(r, c)};
+    notifyListeners();
+    await Future.delayed(Duration(milliseconds: aiPreviewDelayMs));
+    // After preview, perform placement if still valid
     final before = board;
     final next = RulesEngine.place(board, r, c, CellState.blue);
+    // Clear preview regardless of result
+    blowPreview.clear();
     if (next != null) {
       board = next;
       // compute per-move points for AI
       lastMovePoints = _computeMovePoints(before, next, r, c, CellState.blue);
       lastMoveBy = CellState.blue;
       turnsBlue++;
-      _playSfx(GameSfxType.blueTurn);
+      await _playSfxAwait(GameSfxType.blueTurn);
       current = CellState.red;
       _handleTurnStart(current);
       _checkEnd();
       if (!gameOver && current == CellState.red) {
         _saveUndoPoint();
+      }
+      // Small post-action delay so users can perceive AI move before control returns
+      if (aiPostActionDelayMs > 0) {
+        await Future.delayed(Duration(milliseconds: aiPostActionDelayMs));
       }
     }
     isAiThinking = false;
@@ -2725,6 +2767,7 @@ class GameController extends ChangeNotifier {
     }
 
     // Phase 1: Earthquake shake to signal the action
+    await _playSfxAwait(GameSfxType.greyShake);
     isQuaking = true;
     notifyListeners();
     await Future.delayed(Duration(milliseconds: quakeDurationMs));
