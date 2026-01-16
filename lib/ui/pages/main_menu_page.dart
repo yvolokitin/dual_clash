@@ -22,6 +22,8 @@ import 'profile_page.dart';
 import 'settings_page.dart';
 import 'game_page.dart';
 import 'duel_page.dart';
+import 'package:dual_clash/logic/app_audio.dart';
+import 'package:dual_clash/logic/audio_intent_resolver.dart' show RouteContext, NavigationPhase;
 
 class MainMenuPage extends StatefulWidget {
   final GameController controller;
@@ -135,6 +137,8 @@ class _MainMenuPageState extends State<MainMenuPage>
       WidgetsBinding.instance.addPostFrameCallback((_) => _startWavesIfNeeded());
     }
     MainMenuMusicController.instance.setMenuReady(_showContent);
+    // Wire menu readiness to global audio coordinator (menu-only step)
+    AppAudio.coordinator?.onMenuReadyChanged(_showContent);
     _lastMusicEnabled = widget.controller.musicEnabled;
     _musicSettingsListener = () {
       if (_lastMusicEnabled != widget.controller.musicEnabled) {
@@ -173,22 +177,31 @@ class _MainMenuPageState extends State<MainMenuPage>
       _routeSubscribed = true;
       MainMenuMusicController.instance
           .setMainMenuVisible(route.isCurrent);
+      if (route.isCurrent) {
+        AppAudio.coordinator?.onRouteContextChanged(RouteContext.menu);
+        AppAudio.coordinator?.onNavigationPhaseChanged(NavigationPhase.idle);
+      }
     }
   }
 
   @override
   void didPush() {
     MainMenuMusicController.instance.setMainMenuVisible(true);
+    AppAudio.coordinator?.onRouteContextChanged(RouteContext.menu);
+    AppAudio.coordinator?.onNavigationPhaseChanged(NavigationPhase.idle);
   }
 
   @override
   void didPopNext() {
     MainMenuMusicController.instance.setMainMenuVisible(true);
+    AppAudio.coordinator?.onRouteContextChanged(RouteContext.menu);
+    AppAudio.coordinator?.onNavigationPhaseChanged(NavigationPhase.idle);
   }
 
   @override
   void didPushNext() {
     MainMenuMusicController.instance.setMainMenuVisible(false);
+    AppAudio.coordinator?.onNavigationPhaseChanged(NavigationPhase.transitioning);
   }
 
   @override
@@ -202,6 +215,10 @@ class _MainMenuPageState extends State<MainMenuPage>
       routeObserver.unsubscribe(this);
     }
     MainMenuMusicController.instance.setMainMenuVisible(false);
+    // Reset global audio context because menu is being hidden/disposed
+    AppAudio.coordinator?.onMenuReadyChanged(false);
+    AppAudio.coordinator?.onNavigationPhaseChanged(NavigationPhase.transitioning);
+    AppAudio.coordinator?.onRouteContextChanged(RouteContext.other);
     super.dispose();
   }
 
@@ -284,6 +301,7 @@ class _MainMenuPageState extends State<MainMenuPage>
                               _showContent = true;
                             });
                             MainMenuMusicController.instance.setMenuReady(true);
+                            AppAudio.coordinator?.onMenuReadyChanged(true);
                             _startWavesIfNeeded();
                           }
                         },

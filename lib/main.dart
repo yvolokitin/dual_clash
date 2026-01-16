@@ -15,6 +15,7 @@ import 'core/constants.dart';
 import 'logic/game_controller.dart';
 import 'ui/pages/legal_pages.dart';
 import 'ui/pages/main_menu_page.dart';
+import 'logic/app_audio.dart';
 
 
 Future<void> main() async {
@@ -56,7 +57,7 @@ class TwoTouchApp extends StatefulWidget {
   State<TwoTouchApp> createState() => _TwoTouchAppState();
 }
 
-class _TwoTouchAppState extends State<TwoTouchApp> {
+class _TwoTouchAppState extends State<TwoTouchApp> { 
   late final GameController controller;
 
   @override
@@ -65,6 +66,8 @@ class _TwoTouchAppState extends State<TwoTouchApp> {
     controller = GameController();
     // Load persisted theme color and apply
     controller.loadSettingsAndApply();
+    // Initialize global audio wiring (menu-only in this step)
+    AppAudio.init(controller);
   }
 
   TextTheme _boldAll(TextTheme t) {
@@ -85,6 +88,12 @@ class _TwoTouchAppState extends State<TwoTouchApp> {
       labelMedium: t.labelMedium?.copyWith(fontWeight: FontWeight.w700),
       labelSmall: t.labelSmall?.copyWith(fontWeight: FontWeight.w700),
     );
+  }
+
+  @override
+  void dispose() {
+    AppAudio.dispose();
+    super.dispose();
   }
 
   @override
