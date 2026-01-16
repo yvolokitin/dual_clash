@@ -11,6 +11,9 @@ import 'package:dual_clash/ui/widgets/board_widget.dart';
 import 'package:dual_clash/ui/widgets/game_layout_metrics.dart';
 import 'package:dual_clash/ui/dialogs/main_menu_dialog.dart' as mmd;
 import 'package:dual_clash/ui/dialogs/results_dialog.dart' as results;
+import 'package:dual_clash/core/navigation.dart';
+import 'package:dual_clash/logic/app_audio.dart';
+import 'package:dual_clash/logic/audio_intent_resolver.dart' show RouteContext, NavigationPhase;
 
 class DuelPage extends StatefulWidget {
   final GameController controller;
@@ -21,7 +24,7 @@ class DuelPage extends StatefulWidget {
   State<DuelPage> createState() => _DuelPageState();
 }
 
-class _DuelPageState extends State<DuelPage> {
+class _DuelPageState extends State<DuelPage> with RouteAware { 
   late final VoidCallback _musicSettingsListener;
   late bool _lastMusicEnabled;
 
@@ -246,6 +249,8 @@ class _DuelPageState extends State<DuelPage> {
     return result == true;
   }
 
+  bool _routeSubscribed = false;
+
   @override
   void initState() {
     super.initState();
@@ -276,8 +281,48 @@ class _DuelPageState extends State<DuelPage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_routeSubscribed) return;
+    final route = ModalRoute.of(context);
+    if (route is PageRoute<dynamic>) {
+      routeObserver.subscribe(this, route);
+      _routeSubscribed = true;
+      if (route.isCurrent) {
+        AppAudio.coordinator?.onGameplayEntered(active: true);
+        AppAudio.coordinator?.onNavigationPhaseChanged(NavigationPhase.idle);
+      }
+    }
+  }
+
+  @override
+  void didPush() {
+    AppAudio.coordinator?.onGameplayEntered(active: true);
+    AppAudio.coordinator?.onNavigationPhaseChanged(NavigationPhase.idle);
+  }
+
+  @override
+  void didPopNext() {
+    AppAudio.coordinator?.onGameplayEntered(active: true);
+    AppAudio.coordinator?.onNavigationPhaseChanged(NavigationPhase.idle);
+  }
+
+  @override
+  void didPushNext() {
+    AppAudio.coordinator?.onNavigationPhaseChanged(NavigationPhase.transitioning);
+  }
+
+  @override
   void dispose() {
     widget.controller.removeListener(_musicSettingsListener);
+    // Global audio: leaving gameplay (duel)
+    if (_routeSubscribed) {
+      routeObserver.unsubscribe(this);
+      _routeSubscribed = false;
+    }
+    AppAudio.coordinator?.onNavigationPhaseChanged(NavigationPhase.transitioning);
+    AppAudio.coordinator?.onGameplayExited(next: RouteContext.other);
+    AppAudio.coordinator?.onChallengeEnded();
     GameChallengeMusicController.instance.setChallengeActive(false);
     // Restore default mode when leaving Duel page
     widget.controller.humanVsHuman = false;

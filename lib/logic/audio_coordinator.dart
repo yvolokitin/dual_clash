@@ -22,9 +22,18 @@
 import 'audio_intent_resolver.dart';
 import 'audio_executor.dart';
 
+/// Discrete sound effects available via the coordinator.
+enum SfxType { redTurn, blueTurn, bombAdd, explosion, greyShake, transition }
+
+/// Abstract SFX player used by the coordinator (imperative executor for one-shots).
+abstract class SfxPlayer {
+  Future<void> play(SfxType type);
+}
+
 /// Coordinates AudioState updates and applies AudioIntent via AudioExecutor.
 class AudioCoordinator {
   final AudioExecutor _executor;
+  final SfxPlayer? _sfx; // optional SFX player for one-shot effects
 
   AudioState _state;
   AudioIntent? _lastIntent;
@@ -34,8 +43,10 @@ class AudioCoordinator {
   /// activity; music and sfx enabled).
   AudioCoordinator({
     required AudioExecutor executor,
+    SfxPlayer? sfxPlayer,
     AudioState? initialState,
   })  : _executor = executor,
+        _sfx = sfxPlayer,
         _state = initialState ??
             const AudioState(
               appLifecycle: AppLifecycle.foreground,
@@ -91,6 +102,57 @@ class AudioCoordinator {
     await _recomputeAndApply();
   }
 
+  Future<void> onMusicEnabledChanged(bool enabled) =>
+      onUserSettingsChanged(musicEnabled: enabled, sfxEnabled: _state.sfxEnabled);
+
+  Future<void> onSfxEnabledChanged(bool enabled) =>
+      onUserSettingsChanged(musicEnabled: _state.musicEnabled, sfxEnabled: enabled);
+
+  // ---- Gameplay-specific convenience events ----
+
+  /// Entering gameplay context. This enforces invariants:
+  /// - routeContext becomes gameplay
+  /// - menuReady is forced false
+  /// - challengeActive is set to [active]
+  Future<void> onGameplayEntered({bool active = true}) async {
+    _state = _copy(
+      routeContext: RouteContext.gameplay,
+      menuReady: false,
+      challengeActive: active,
+    );
+    await _recomputeAndApply();
+  }
+
+  /// Exiting gameplay context. This enforces invariants:
+  /// - challengeActive becomes false
+  /// - routeContext switches to [next] (defaults to other)
+  /// - menuReady is reset to false unless next == menu (menu page will set it)
+  Future<void> onGameplayExited({RouteContext next = RouteContext.other}) async {
+    final bool keepMenuReady = next == RouteContext.menu;
+    _state = _copy(
+      challengeActive: false,
+      routeContext: next,
+      menuReady: keepMenuReady ? _state.menuReady : false,
+    );
+    await _recomputeAndApply();
+  }
+
+  /// Start gameplay challenge. Guarantees gameplay context and menuReady=false.
+  Future<void> onChallengeStarted() async {
+    _state = _copy(
+      routeContext: RouteContext.gameplay,
+      menuReady: false,
+      challengeActive: true,
+    );
+    await _recomputeAndApply();
+  }
+
+  /// End gameplay challenge (does not change route context).
+  Future<void> onChallengeEnded() async {
+    _state = _copy(challengeActive: false);
+    await _recomputeAndApply();
+  }
+
   // ---- Internal helpers ----
 
   AudioState _copy({
@@ -126,6 +188,21 @@ class AudioCoordinator {
         a.bgmAction == b.bgmAction &&
         a.loop == b.loop &&
         a.sfx == b.sfx;
+  }
+
+  /// Play a one-shot SFX if allowed by current policy. Does not change state.
+  Future<void> playSfx(SfxType type) async {
+    // Determine current SFX policy based on the latest intent; if none, compute now.
+    AudioIntent intent;
+    if (_lastIntent == null) {
+      intent = resolve(_state);
+      _lastIntent = intent; // cache for next time (no apply)
+    } else {
+      intent = _lastIntent!;
+    }
+    if (intent.sfx == SfxPolicy.allowed) {
+      await _sfx?.play(type);
+    }
   }
 }
 

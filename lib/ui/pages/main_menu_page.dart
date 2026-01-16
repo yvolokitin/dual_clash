@@ -2,9 +2,6 @@ import 'dart:math' as math;
 
 import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/core/navigation.dart';
-import 'package:dual_clash/logic/game_challenge_music_controller.dart';
-import 'package:dual_clash/logic/main_menu_music_controller.dart';
-import 'package:dual_clash/logic/transition_sfx_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart' show RenderBox;
@@ -24,6 +21,7 @@ import 'game_page.dart';
 import 'duel_page.dart';
 import 'package:dual_clash/logic/app_audio.dart';
 import 'package:dual_clash/logic/audio_intent_resolver.dart' show RouteContext, NavigationPhase;
+import 'package:dual_clash/logic/audio_coordinator.dart' show SfxType;
 
 class MainMenuPage extends StatefulWidget {
   final GameController controller;
@@ -136,24 +134,16 @@ class _MainMenuPageState extends State<MainMenuPage>
       // Ensure waves start if launch animation was already played earlier in the session
       WidgetsBinding.instance.addPostFrameCallback((_) => _startWavesIfNeeded());
     }
-    MainMenuMusicController.instance.setMenuReady(_showContent);
-    // Wire menu readiness to global audio coordinator (menu-only step)
+    // Wire menu readiness to global audio coordinator
     AppAudio.coordinator?.onMenuReadyChanged(_showContent);
     _lastMusicEnabled = widget.controller.musicEnabled;
     _musicSettingsListener = () {
       if (_lastMusicEnabled != widget.controller.musicEnabled) {
         _lastMusicEnabled = widget.controller.musicEnabled;
-        MainMenuMusicController.instance
-            .setEnabled(widget.controller.musicEnabled);
-        GameChallengeMusicController.instance
-            .setEnabled(widget.controller.musicEnabled);
+        AppAudio.coordinator?.onMusicEnabledChanged(_lastMusicEnabled);
       }
     };
     widget.controller.addListener(_musicSettingsListener);
-    MainMenuMusicController.instance.setEnabled(widget.controller.musicEnabled);
-    GameChallengeMusicController.instance.setEnabled(
-      widget.controller.musicEnabled,
-    );
     if (!_hasLoggedScreenSize) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
@@ -175,8 +165,6 @@ class _MainMenuPageState extends State<MainMenuPage>
     if (route is PageRoute<dynamic>) {
       routeObserver.subscribe(this, route);
       _routeSubscribed = true;
-      MainMenuMusicController.instance
-          .setMainMenuVisible(route.isCurrent);
       if (route.isCurrent) {
         AppAudio.coordinator?.onRouteContextChanged(RouteContext.menu);
         AppAudio.coordinator?.onNavigationPhaseChanged(NavigationPhase.idle);
@@ -186,21 +174,18 @@ class _MainMenuPageState extends State<MainMenuPage>
 
   @override
   void didPush() {
-    MainMenuMusicController.instance.setMainMenuVisible(true);
     AppAudio.coordinator?.onRouteContextChanged(RouteContext.menu);
     AppAudio.coordinator?.onNavigationPhaseChanged(NavigationPhase.idle);
   }
 
   @override
   void didPopNext() {
-    MainMenuMusicController.instance.setMainMenuVisible(true);
     AppAudio.coordinator?.onRouteContextChanged(RouteContext.menu);
     AppAudio.coordinator?.onNavigationPhaseChanged(NavigationPhase.idle);
   }
 
   @override
   void didPushNext() {
-    MainMenuMusicController.instance.setMainMenuVisible(false);
     AppAudio.coordinator?.onNavigationPhaseChanged(NavigationPhase.transitioning);
   }
 
@@ -214,7 +199,6 @@ class _MainMenuPageState extends State<MainMenuPage>
     if (_routeSubscribed) {
       routeObserver.unsubscribe(this);
     }
-    MainMenuMusicController.instance.setMainMenuVisible(false);
     // Reset global audio context because menu is being hidden/disposed
     AppAudio.coordinator?.onMenuReadyChanged(false);
     AppAudio.coordinator?.onNavigationPhaseChanged(NavigationPhase.transitioning);
@@ -300,7 +284,6 @@ class _MainMenuPageState extends State<MainMenuPage>
                             setState(() {
                               _showContent = true;
                             });
-                            MainMenuMusicController.instance.setMenuReady(true);
                             AppAudio.coordinator?.onMenuReadyChanged(true);
                             _startWavesIfNeeded();
                           }
@@ -345,14 +328,11 @@ class _MainMenuPageState extends State<MainMenuPage>
                                       color: AppColors.red,
                                       spinOnTap: true,
                                       onSpinStart: () {
-                                        if (controller.soundsEnabled) {
-                                          TransitionSfxController.instance.play();
-                                        }
+                                        AppAudio.coordinator?.playSfx(SfxType.transition);
                                       },
                                       onTap: () {
                                         _runMenuAction(() async {
-                                          await MainMenuMusicController.instance
-                                              .setMainMenuVisible(false);
+                                          AppAudio.coordinator?.onNavigationPhaseChanged(NavigationPhase.transitioning);
                                           controller.humanVsHuman = false;
                                           controller.newGame();
                                           await _pushWithSlide(

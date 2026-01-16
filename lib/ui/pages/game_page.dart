@@ -5,9 +5,11 @@ import 'package:dual_clash/core/constants.dart';
 import 'package:dual_clash/core/feature_flags.dart';
 import 'package:dual_clash/core/localization.dart';
 import 'package:dual_clash/logic/game_controller.dart';
-import 'package:dual_clash/logic/game_challenge_music_controller.dart';
 import 'package:dual_clash/logic/rules_engine.dart';
 import 'package:dual_clash/models/campaign_result_action.dart';
+import 'package:dual_clash/core/navigation.dart';
+import 'package:dual_clash/logic/app_audio.dart';
+import 'package:dual_clash/logic/audio_intent_resolver.dart' show RouteContext, NavigationPhase;
 import 'package:dual_clash/models/campaign_level.dart';
 import 'package:dual_clash/models/game_outcome.dart';
 import 'package:dual_clash/models/cell_state.dart';
@@ -48,12 +50,13 @@ class GamePage extends StatefulWidget {
   State<GamePage> createState() => _GamePageState();
 }
 
-class _GamePageState extends State<GamePage> {
+class _GamePageState extends State<GamePage> with RouteAware { 
   BannerAd? _bannerAd;
   AdSize? _adaptiveBannerSize;
   bool _isAdLoaded = false;
   bool _hasPremium = false;
   bool _isLoadingAd = false;
+  bool _routeSubscribed = false;
   Timer? _adRetryTimer;
   bool _reportedOutcome = false;
   bool _shouldRestoreConfig = true;
@@ -63,8 +66,6 @@ class _GamePageState extends State<GamePage> {
   bool? _previousBombsEnabled;
   bool? _previousHumanVsHuman;
   bool _isApplyingChallengeConfig = false;
-  late final VoidCallback _musicSettingsListener;
-  late bool _lastMusicEnabled;
 
   GameController get controller => widget.controller;
   bool get _isAndroidOrIOS => isMobile;
@@ -114,11 +115,52 @@ class _GamePageState extends State<GamePage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_routeSubscribed) return;
+    final route = ModalRoute.of(context);
+    if (route is PageRoute<dynamic>) {
+      routeObserver.subscribe(this, route);
+      _routeSubscribed = true;
+      if (route.isCurrent) {
+        AppAudio.coordinator?.onGameplayEntered(active: widget.challengeConfig == null);
+        AppAudio.coordinator?.onNavigationPhaseChanged(NavigationPhase.idle);
+      }
+    }
+  }
+
+  @override
+  void didPush() {
+    AppAudio.coordinator?.onGameplayEntered(active: widget.challengeConfig == null);
+    AppAudio.coordinator?.onNavigationPhaseChanged(NavigationPhase.idle);
+  }
+
+  @override
+  void didPopNext() {
+    AppAudio.coordinator?.onGameplayEntered(active: widget.challengeConfig == null);
+    AppAudio.coordinator?.onNavigationPhaseChanged(NavigationPhase.idle);
+  }
+
+  @override
+  void didPushNext() {
+    AppAudio.coordinator?.onNavigationPhaseChanged(NavigationPhase.transitioning);
+  }
+
+  @override
   void dispose() {
     _adRetryTimer?.cancel();
     _bannerAd?.dispose();
     _restoreChallengeConfig();
     widget.controller.removeListener(_musicSettingsListener);
+    // Global audio: leaving gameplay
+    if (_routeSubscribed) {
+      routeObserver.unsubscribe(this);
+      _routeSubscribed = false;
+    }
+    AppAudio.coordinator?.onNavigationPhaseChanged(NavigationPhase.transitioning);
+    AppAudio.coordinator?.onGameplayExited(next: RouteContext.other);
+    AppAudio.coordinator?.onChallengeEnded();
+    // Legacy controller cleanup (kept during transition)
     GameChallengeMusicController.instance.setChallengeActive(false);
     super.dispose();
   }
