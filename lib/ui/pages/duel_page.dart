@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:dual_clash/core/platforms.dart';
 import 'dart:ui' as ui; // for potential future effects
 import 'package:dual_clash/core/localization.dart';
-import 'package:dual_clash/logic/game_challenge_music_controller.dart';
 import 'package:dual_clash/logic/game_controller.dart';
 import 'package:dual_clash/core/colors.dart';
 import 'package:dual_clash/models/cell_state.dart';
@@ -25,8 +24,6 @@ class DuelPage extends StatefulWidget {
 }
 
 class _DuelPageState extends State<DuelPage> with RouteAware { 
-  late final VoidCallback _musicSettingsListener;
-  late bool _lastMusicEnabled;
 
   double _crownHeight(double size) => size * 0.4;
 
@@ -254,19 +251,6 @@ class _DuelPageState extends State<DuelPage> with RouteAware {
   @override
   void initState() {
     super.initState();
-    _lastMusicEnabled = widget.controller.musicEnabled;
-    _musicSettingsListener = () {
-      if (_lastMusicEnabled != widget.controller.musicEnabled) {
-        _lastMusicEnabled = widget.controller.musicEnabled;
-        GameChallengeMusicController.instance
-            .setEnabled(widget.controller.musicEnabled);
-      }
-    };
-    widget.controller.addListener(_musicSettingsListener);
-    GameChallengeMusicController.instance.setEnabled(
-      widget.controller.musicEnabled,
-    );
-    GameChallengeMusicController.instance.setChallengeActive(true);
     // Enable human vs human and start a fresh game
     widget.controller.humanVsHuman = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -314,7 +298,6 @@ class _DuelPageState extends State<DuelPage> with RouteAware {
 
   @override
   void dispose() {
-    widget.controller.removeListener(_musicSettingsListener);
     // Global audio: leaving gameplay (duel)
     if (_routeSubscribed) {
       routeObserver.unsubscribe(this);
@@ -323,7 +306,6 @@ class _DuelPageState extends State<DuelPage> with RouteAware {
     AppAudio.coordinator?.onNavigationPhaseChanged(NavigationPhase.transitioning);
     AppAudio.coordinator?.onGameplayExited(next: RouteContext.other);
     AppAudio.coordinator?.onChallengeEnded();
-    GameChallengeMusicController.instance.setChallengeActive(false);
     // Restore default mode when leaving Duel page
     widget.controller.humanVsHuman = false;
     WidgetsBinding.instance.addPostFrameCallback((_) {

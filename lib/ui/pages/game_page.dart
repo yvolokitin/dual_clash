@@ -85,20 +85,6 @@ class _GamePageState extends State<GamePage> with RouteAware {
   @override
   void initState() {
     super.initState();
-    _lastMusicEnabled = widget.controller.musicEnabled;
-    _musicSettingsListener = () {
-      if (_lastMusicEnabled != widget.controller.musicEnabled) {
-        _lastMusicEnabled = widget.controller.musicEnabled;
-        GameChallengeMusicController.instance
-            .setEnabled(widget.controller.musicEnabled);
-      }
-    };
-    widget.controller.addListener(_musicSettingsListener);
-    GameChallengeMusicController.instance.setEnabled(
-      widget.controller.musicEnabled,
-    );
-    GameChallengeMusicController.instance
-        .setChallengeActive(widget.challengeConfig == null);
     if (widget.challengeConfig != null) {
       _isApplyingChallengeConfig = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -151,7 +137,6 @@ class _GamePageState extends State<GamePage> with RouteAware {
     _adRetryTimer?.cancel();
     _bannerAd?.dispose();
     _restoreChallengeConfig();
-    widget.controller.removeListener(_musicSettingsListener);
     // Global audio: leaving gameplay
     if (_routeSubscribed) {
       routeObserver.unsubscribe(this);
@@ -160,8 +145,7 @@ class _GamePageState extends State<GamePage> with RouteAware {
     AppAudio.coordinator?.onNavigationPhaseChanged(NavigationPhase.transitioning);
     AppAudio.coordinator?.onGameplayExited(next: RouteContext.other);
     AppAudio.coordinator?.onChallengeEnded();
-    // Legacy controller cleanup (kept during transition)
-    GameChallengeMusicController.instance.setChallengeActive(false);
+    // Cleanup complete
     super.dispose();
   }
 

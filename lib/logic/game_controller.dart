@@ -10,7 +10,10 @@ import '../core/constants.dart';
 import '../models/game_result.dart';
 import '../core/localization.dart';
 import '../core/countries.dart';
-import 'game_sfx_controller.dart';
+import 'app_audio.dart';
+import 'audio_coordinator.dart' show SfxType;
+
+enum GameSfxType { redTurn, blueTurn, bombAdd, explosion, greyShake }
 
 enum _AiAction {
   place,
@@ -1127,7 +1130,7 @@ class GameController extends ChangeNotifier {
     AppColors.bg = Color(themeColorHex);
     // Apply starting player to current game session (fresh board at startup)
     current = startingPlayer;
-    GameSfxController.instance.setEnabled(soundsEnabled);
+    // SFX policy is handled centrally by AudioCoordinator; nothing to call here.
 
     // Start playtime for initial fresh session if not started yet (app startup case)
     final bool _freshBoard = RulesEngine.countOf(board, CellState.red) == 0 &&
@@ -1153,7 +1156,6 @@ class GameController extends ChangeNotifier {
 
   Future<void> setSoundsEnabled(bool enabled) async {
     soundsEnabled = enabled;
-    GameSfxController.instance.setEnabled(enabled);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_kSoundsEnabled, enabled);
     notifyListeners();
@@ -2026,7 +2028,25 @@ class GameController extends ChangeNotifier {
 
   void _playSfx(GameSfxType type) {
     if (!soundsEnabled) return;
-    GameSfxController.instance.play(type);
+    SfxType mapped;
+    switch (type) {
+      case GameSfxType.redTurn:
+        mapped = SfxType.redTurn;
+        break;
+      case GameSfxType.blueTurn:
+        mapped = SfxType.blueTurn;
+        break;
+      case GameSfxType.bombAdd:
+        mapped = SfxType.bombAdd;
+        break;
+      case GameSfxType.explosion:
+        mapped = SfxType.explosion;
+        break;
+      case GameSfxType.greyShake:
+        mapped = SfxType.greyShake;
+        break;
+    }
+    AppAudio.coordinator?.playSfx(mapped);
   }
 
   void setBoardPixelSize(double s) {
