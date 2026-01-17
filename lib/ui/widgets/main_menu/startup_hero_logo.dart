@@ -1,9 +1,7 @@
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'package:dual_clash/utils/web_reload.dart';
 import 'package:dual_clash/logic/app_audio.dart';
 import 'package:dual_clash/logic/audio_coordinator.dart' show SfxType;
 
@@ -11,11 +9,13 @@ class StartupHeroLogo extends StatefulWidget {
   const StartupHeroLogo({
     super.key,
     this.onAttachAnimation,
+    this.onAttachInteraction,
     this.onCompleted,
     this.forceStatic = false,
   });
 
   final ValueChanged<Animation<double>>? onAttachAnimation;
+  final ValueChanged<Animation<double>>? onAttachInteraction;
   final VoidCallback? onCompleted;
   final bool forceStatic;
 
@@ -34,6 +34,9 @@ class _StartupHeroLogoState extends State<StartupHeroLogo>
   bool _showStaticLogo = false; // show static composed grid on subsequent entries only
   static List<String>? _sessionImages; // cache 4 random player images for the session
   bool _isHovering = false;
+  bool _isReplayingIntro = false; // guard to orchestrate click->scatter->fly-in cycle
+  bool _allowOnCompleted = false; // only true for the very first intro to notify parent
+  bool _introListenerAdded = false; // ensure we add intro status listener once per controller instance
 
   List<String> _candidatePlayers() => const [
         'assets/icons/player_blue.png',
@@ -62,44 +65,44 @@ class _StartupHeroLogoState extends State<StartupHeroLogo>
       vsync: this,
       duration: const Duration(milliseconds: 900),
     );
+    // Expose interaction animation to parent (for background color driving)
+    if (widget.onAttachInteraction != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) widget.onAttachInteraction!.call(_interactionCtrl!);
+      });
+    }
+    // Rebuild on every tick to update scatter offsets and word fade
+    _interactionCtrl!.addListener(() {
+      if (mounted) setState(() {});
+    });
     _interactionCtrl!.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        if (kIsWeb) {
-          reloadPage();
-          return;
-        }
+        // After scatter completes, pick new images and replay the intro animation.
         _sessionImages = null;
         _initSessionImagesIfNeeded();
         _interactionCtrl!.reset();
         if (mounted) {
+          // Switch to intro replay rendering branch
+          _isReplayingIntro = true;
+          _showStaticLogo = false;
+          _startIntroReplay();
           setState(() {});
         }
       }
     });
     if (!widget.forceStatic && !_playedOnce) {
-      _ctrl = AnimationController(
-        vsync: this,
-        duration: const Duration(milliseconds: 2500),
-      );
-      _t = CurvedAnimation(parent: _ctrl!, curve: Curves.easeInOutCubic);
+      _ensureIntroController();
       // Expose the animation to parent so it can drive background color
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && widget.onAttachAnimation != null && _t != null) {
           widget.onAttachAnimation!.call(_t!);
         }
       });
+      // First intro should notify parent upon completion
+      _allowOnCompleted = true;
       // Play startup SFX in parallel with the intro animation (first run only)
       AppAudio.coordinator?.playSfx(SfxType.startup);
       _ctrl!.forward();
-      _ctrl!.addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          _playedOnce = true; // future builds in new routes show the static logo
-          // Notify parent that animation is done so the rest of UI can appear
-          widget.onCompleted?.call();
-          // Keep showing the final animation frame in this first session view
-          if (mounted) setState(() {});
-        }
-      });
     } else {
       _showStaticLogo = true;
       // If skipping animation, notify parent immediately so page content shows
@@ -118,8 +121,58 @@ class _StartupHeroLogoState extends State<StartupHeroLogo>
     super.dispose();
   }
 
+  void _ensureIntroController() {
+    if (_ctrl != null && _t != null && _introListenerAdded) return;
+    _ctrl ??= AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2500),
+    );
+    _t = CurvedAnimation(parent: _ctrl!, curve: Curves.easeInOutCubic);
+    if (!_introListenerAdded) {
+      _ctrl!.addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          if (_isReplayingIntro) {
+            // End of replay: return to static grid state.
+            _isReplayingIntro = false;
+            _showStaticLogo = true;
+            if (mounted) setState(() {});
+            return;
+          }
+          // First-time completion
+          _playedOnce = true;
+          if (_allowOnCompleted) {
+            widget.onCompleted?.call();
+            _allowOnCompleted = false;
+          }
+          if (mounted) setState(() {});
+        }
+      });
+      _introListenerAdded = true;
+    }
+  }
+
+  void _startIntroReplay() {
+    _ensureIntroController();
+    // Attach intro animation to parent as well for background driving during replay
+    if (widget.onAttachAnimation != null && _t != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) widget.onAttachAnimation!.call(_t!);
+      });
+    }
+    // Do not notify parent on replay
+    _isReplayingIntro = true;
+    _ctrl!.stop();
+    _ctrl!.reset();
+    _ctrl!.forward();
+  }
+
   void _triggerInteraction() {
-    if (_interactionCtrl == null || _interactionCtrl!.isAnimating) {
+    // Allow interaction when first intro has completed (final frame shown) OR static grid is shown,
+    // and no animations are currently running (no scatter and no intro/replay).
+    final bool introAnimating = _ctrl?.isAnimating == true || _isReplayingIntro;
+    final bool introCompletedAtRest = _playedOnce && !introAnimating; // first intro ended and not replaying
+    final bool canInteract = _interactionCtrl != null && !_interactionCtrl!.isAnimating && (introCompletedAtRest || _showStaticLogo);
+    if (!canInteract) {
       return;
     }
     // Play the same startup SFX whenever the user triggers the logo interaction
@@ -128,7 +181,7 @@ class _StartupHeroLogoState extends State<StartupHeroLogo>
     _interactionCtrl!.forward(from: 0.0);
   }
 
-  Offset _interactionOffset(int index, double tileSize, double height) {
+  Offset _interactionOffset(int index, double tileSize, double width, double height) {
     if (_interactionCtrl == null) {
       return Offset.zero;
     }
@@ -145,9 +198,24 @@ class _StartupHeroLogoState extends State<StartupHeroLogo>
       final dy = amp * 0.6 * math.cos(sp * 10 * math.pi + phase);
       return Offset(dx, dy);
     }
-    final fallT = ((t - shakePhase) / (1 - shakePhase)).clamp(0.0, 1.0);
-    final fallY = Curves.easeIn.transform(fallT) * (height + tileSize);
-    return Offset(0, fallY);
+    // After shake, tiles fly outward to screen edges in their quadrant.
+    final outT = ((t - shakePhase) / (1 - shakePhase)).clamp(0.0, 1.0);
+    final eased = Curves.easeIn.transform(outT);
+    double sx, sy;
+    switch (index) {
+      case 0: // top-left
+        sx = -1.0; sy = -1.0; break;
+      case 1: // top-right
+        sx = 1.0; sy = -1.0; break;
+      case 2: // bottom-left
+        sx = -1.0; sy = 1.0; break;
+      default: // bottom-right
+        sx = 1.0; sy = 1.0; break;
+    }
+    final maxDist = math.max(width, height) + tileSize;
+    final dx = sx * maxDist * eased;
+    final dy = sy * maxDist * eased;
+    return Offset(dx, dy);
   }
 
   double _interactionLogoScale() {
@@ -196,7 +264,7 @@ class _StartupHeroLogoState extends State<StartupHeroLogo>
           final images = _sessionImages!;
           List<Widget> tiles = [];
           for (int i = 0; i < 4; i++) {
-            final offset = _interactionOffset(i, tileSize, h);
+            final offset = _interactionOffset(i, tileSize, w, h);
             tiles.add(Positioned(
               left: finalPos[i].dx + offset.dx,
               top: finalPos[i].dy + offset.dy,
@@ -206,22 +274,27 @@ class _StartupHeroLogoState extends State<StartupHeroLogo>
             ));
           }
           // Words overlay fully visible
+          final double interactionT = (_interactionCtrl?.value ?? 0.0).clamp(0.0, 1.0);
+          final double wordsFadeOut = Curves.easeInOut.transform(interactionT);
           tiles.add(Positioned(
             left: centerX - targetSize / 2,
             top: centerY - targetSize / 2,
             width: targetSize,
             height: targetSize,
-            child: _buildInteractiveLogo(
-              child: Center(
-                child: Transform.scale(
-                  scale: _interactionLogoScale(),
-                  child: AnimatedScale(
-                    scale: _isHovering ? 1.07 : 1.0,
-                    duration: const Duration(milliseconds: 160),
-                    curve: Curves.easeOut,
-                    child: Image.asset(
-                      'assets/icons/dual_clash-words-removebg.png',
-                      fit: BoxFit.contain,
+            child: Opacity(
+              opacity: 1.0 - wordsFadeOut,
+              child: _buildInteractiveLogo(
+                child: Center(
+                  child: Transform.scale(
+                    scale: _interactionLogoScale(),
+                    child: AnimatedScale(
+                      scale: _isHovering ? 1.07 : 1.0,
+                      duration: const Duration(milliseconds: 160),
+                      curve: Curves.easeOut,
+                      child: Image.asset(
+                        'assets/icons/dual_clash-words-removebg.png',
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ),
                 ),
@@ -353,7 +426,7 @@ class _StartupHeroLogoState extends State<StartupHeroLogo>
                 pos = finalPos[i];
               }
 
-              final interactionOffset = _interactionOffset(i, tileSize, h);
+              final interactionOffset = _interactionOffset(i, tileSize, w, h);
               pos += interactionOffset;
 
               // slight scale-in during fly

@@ -40,6 +40,8 @@ class _MainMenuPageState extends State<MainMenuPage>
   static bool _hasLoggedScreenSize = false;
   Animation<double>? _bgAnim;
   VoidCallback? _bgAnimListener;
+  Animation<double>? _interactionAnim;
+  VoidCallback? _interactionAnimListener;
   bool _showContent = true; // hidden until startup animation completes
   bool _menuActionInProgress = false;
   late final VoidCallback _musicSettingsListener;
@@ -194,6 +196,9 @@ class _MainMenuPageState extends State<MainMenuPage>
     if (_bgAnim != null && _bgAnimListener != null) {
       _bgAnim!.removeListener(_bgAnimListener!);
     }
+    if (_interactionAnim != null && _interactionAnimListener != null) {
+      _interactionAnim!.removeListener(_interactionAnimListener!);
+    }
     _stopWaves();
     widget.controller.removeListener(_musicSettingsListener);
     if (_routeSubscribed) {
@@ -213,9 +218,19 @@ class _MainMenuPageState extends State<MainMenuPage>
     final compactLabels = _isCompactWidth(context);
     final l10n = context.l10n;
     final double topHeroHeight = size.height * 0.35; // 35% of top page for the image
-    final Color bgColor = _bgAnim != null
-        ? ColorTween(begin: _violet, end: _menuGreen).evaluate(_bgAnim!)!
-        : (_showContent ? _menuGreen : _violet);
+    // Background color logic:
+    // - During interaction scatter, go from green -> violet using interactionAnim (eased)
+    // - During intro/replay fly-in, go from violet -> green using bgAnim (existing)
+    // - Otherwise: green when content shown, violet before first intro completes
+    Color bgColor;
+    if (_interactionAnim != null && (_interactionAnim!.value > 0.0)) {
+      final double t = Curves.easeInOut.transform(_interactionAnim!.value.clamp(0.0, 1.0));
+      bgColor = Color.lerp(_menuGreen, _violet, t)!;
+    } else if (_bgAnim != null) {
+      bgColor = ColorTween(begin: _violet, end: _menuGreen).evaluate(_bgAnim!)!;
+    } else {
+      bgColor = _showContent ? _menuGreen : _violet;
+    }
 
     final height = MediaQuery.of(context).size.height;
     final bool isTallMobile = !kIsWeb &&
@@ -239,7 +254,7 @@ class _MainMenuPageState extends State<MainMenuPage>
                   duration: const Duration(milliseconds: 600),
                   curve: Curves.easeOutCubic,
                   child: CustomPaint(
-                    painter: WavesPainter(animation: _wavesCtrl, baseColor: _menuGreen),
+                    painter: WavesPainter(animation: _wavesCtrl, baseColor: bgColor),
                   ),
                 ),
               ),
@@ -279,6 +294,7 @@ class _MainMenuPageState extends State<MainMenuPage>
                     child: Center(
                       child: StartupHeroLogo(
                         onAttachAnimation: _attachBackgroundAnimation,
+                        onAttachInteraction: _attachInteractionAnimation, 
                         onCompleted: () {
                           if (mounted) {
                             setState(() {
@@ -1236,6 +1252,18 @@ class _MainMenuPageState extends State<MainMenuPage>
       if (mounted) setState(() {});
     };
     _bgAnim!.addListener(_bgAnimListener!);
+    setState(() {});
+  }
+
+  void _attachInteractionAnimation(Animation<double> anim) {
+    if (_interactionAnim != null && _interactionAnimListener != null) {
+      _interactionAnim!.removeListener(_interactionAnimListener!);
+    }
+    _interactionAnim = anim;
+    _interactionAnimListener = () {
+      if (mounted) setState(() {});
+    };
+    _interactionAnim!.addListener(_interactionAnimListener!);
     setState(() {});
   }
 
