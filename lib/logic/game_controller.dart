@@ -22,6 +22,8 @@ enum _AiAction {
   place,
   blow,
   greyDrop,
+  bombPlace,
+  bombDetonate,
 }
 
 class _GameSnapshot {
@@ -419,6 +421,35 @@ class GameController extends ChangeNotifier {
     if (lastTurn == null) return true;
     final cooldown = _bombCooldownFor(current);
     return _turnIndexFor(current) - lastTurn >= cooldown;
+  }
+
+  // AI helper: same availability logic as canPlaceBomb but for an arbitrary owner.
+  bool _canPlaceBombFor(CellState owner) {
+    if (!bombsEnabled) return false;
+    if (gameOver || isExploding || isFalling || isQuaking) return false;
+    if (!_isActivePlayer(owner)) return false;
+    if (_turnsFor(owner) == 0) return false;
+    if (_bombs.length >= _maxBombsOnField()) return false;
+    if (!RulesEngine.hasEmpty(board)) return false;
+    final lastTurn = _lastBombTurns[owner];
+    if (lastTurn == null) return true;
+    final cooldown = _bombCooldownFor(owner);
+    return _turnIndexFor(owner) - lastTurn >= cooldown;
+  }
+
+  // AI helper: find valid bomb placement targets for a specific owner
+  Set<(int, int)> _validBombTargetsFor(CellState owner) {
+    final targets = <(int, int)>{};
+    if (!_canPlaceBombFor(owner)) return targets;
+    for (int r = 0; r < K.n; r++) {
+      for (int c = 0; c < K.n; c++) {
+        if (board[r][c] != CellState.empty) continue;
+        if (_hasEnemyAdjacent(r, c, owner)) {
+          targets.add((r, c));
+        }
+      }
+    }
+    return targets;
   }
 
   bool get bombActionEnabled => canPlaceBomb || canActivateAnyBomb;
@@ -2178,6 +2209,47 @@ class GameController extends ChangeNotifier {
     })>[];
     final redBefore = RulesEngine.countOf(board, CellState.red);
     final blueBefore = RulesEngine.countOf(board, CellState.blue);
+
+    // Evaluate AI-owned bomb detonation options (owner-only)
+    int bestBombDetSwing = -0x7fffffff;
+    _BombToken? bestBombToDetonate;
+    for (final bomb in _bombs) {
+      if (bomb.owner != CellState.blue) continue; // AI only detonates its own bombs
+      if (!_canActivateBombToken(bomb)) continue; // enforce ownership + enemy-adjacent
+      final affected = RulesEngine.bombBlastAffected(board, bomb.row, bomb.col);
+      if (affected.isEmpty) continue;
+      final after = RulesEngine.blow(board, affected);
+      final redAfter = RulesEngine.countOf(after, CellState.red);
+      final blueAfter = RulesEngine.countOf(after, CellState.blue);
+      final swing = (blueAfter - blueBefore) - (redAfter - redBefore);
+      if (swing > bestBombDetSwing) {
+        bestBombDetSwing = swing;
+        bestBombToDetonate = bomb;
+      }
+    }
+
+    // Evaluate AI bomb placement options when available
+    int bestBombPlaceScore = -0x7fffffff;
+    (int, int)? bestBombPlaceCell;
+    if (_canPlaceBombFor(CellState.blue)) {
+      final targets = _validBombTargetsFor(CellState.blue);
+      for (final (br, bc) in targets) {
+        // Heuristic: number of blast-affected opponent cells if detonated here immediately
+        final affected = RulesEngine.bombBlastAffected(board, br, bc);
+        int score = 0;
+        for (final (ar, ac) in affected) {
+          final s = board[ar][ac];
+          if (s == CellState.red) score += 1; // target enemy
+          if (s == CellState.blue) score -= 1; // avoid self-harm
+        }
+        // Prefer central positions slightly
+        score += -((br - (K.n - 1) / 2).abs() + (bc - (K.n - 1) / 2).abs()).toInt();
+        if (score > bestBombPlaceScore || (score == bestBombPlaceScore && _rng.nextBool())) {
+          bestBombPlaceScore = score;
+          bestBombPlaceCell = (br, bc);
+        }
+      }
+    }
     for (int r = 0; r < K.n; r++) {
       for (int c = 0; c < K.n; c++) {
         if (board[r][c] != CellState.blue) continue;
@@ -2295,6 +2367,12 @@ class GameController extends ChangeNotifier {
     if (neutralsExist) {
       actionScores[_AiAction.greyDrop] = bestGreySwing;
     }
+    if (bestBombToDetonate != null) {
+      actionScores[_AiAction.bombDetonate] = bestBombDetSwing;
+    }
+    if (bestBombPlaceCell != null) {
+      actionScores[_AiAction.bombPlace] = bestBombPlaceScore;
+    }
 
     _AiAction? bestAction;
     int bestActionScore = -0x7fffffff;
@@ -2391,9 +2469,30 @@ class GameController extends ChangeNotifier {
       }
     }
 
-    if (action == null || placeChoice == null && action == _AiAction.place) {
+    if (action == null || (placeChoice == null && action == _AiAction.place)) {
       // no moves; end
       _checkEnd(force: true);
+      isAiThinking = false;
+      notifyListeners();
+      return;
+    }
+
+    // AI bomb detonation (owner-only)
+    if (action == _AiAction.bombDetonate && bestBombToDetonate != null) {
+      final bomb = bestBombToDetonate;
+      selectedCell = (bomb.row, bomb.col);
+      blowPreview = RulesEngine.bombBlastAffected(board, bomb.row, bomb.col);
+      notifyListeners();
+      await Future.delayed(Duration(milliseconds: aiPreviewDelayMs));
+      await _performBombActivation(bomb);
+      // Small post-action delay for clarity
+      if (aiPostActionDelayMs > 0) {
+        await Future.delayed(Duration(milliseconds: aiPostActionDelayMs));
+      }
+      // After AI completes action and it's Red's turn, save undo point
+      if (!gameOver && current == CellState.red) {
+        _saveUndoPoint();
+      }
       isAiThinking = false;
       notifyListeners();
       return;
@@ -2434,6 +2533,32 @@ class GameController extends ChangeNotifier {
       if (!gameOver && current == CellState.red) {
         _saveUndoPoint();
       }
+      isAiThinking = false;
+      notifyListeners();
+      return;
+    }
+
+    // AI bomb placement
+    if (action == _AiAction.bombPlace && bestBombPlaceCell != null) {
+      final (br, bc) = bestBombPlaceCell;
+      selectedCell = null; // ensure no conflicting selection
+      blowPreview = {(br, bc)};
+      notifyListeners();
+      await Future.delayed(Duration(milliseconds: aiPreviewDelayMs));
+      // Perform bomb placement if still valid
+      if (_canPlaceBombFor(CellState.blue) && board[br][bc] == CellState.empty) {
+        _performBombPlacement(br, bc, CellState.blue);
+        // Small post-action delay so users can perceive AI move
+        if (aiPostActionDelayMs > 0) {
+          await Future.delayed(Duration(milliseconds: aiPostActionDelayMs));
+        }
+        // After AI completes action and it's Red's turn, save undo point
+        if (!gameOver && current == CellState.red) {
+          _saveUndoPoint();
+        }
+      }
+      // Clear preview regardless
+      blowPreview.clear();
       isAiThinking = false;
       notifyListeners();
       return;
