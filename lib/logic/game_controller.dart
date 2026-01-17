@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 import '../models/cell_state.dart';
 import 'rules_engine.dart';
+import 'infection_resolution.dart';
 import 'ai.dart';
 import '../core/colors.dart';
 import '../core/constants.dart';
@@ -1678,6 +1679,11 @@ class GameController extends ChangeNotifier {
 
     // Grey tap: select to preview all grey boxes; tap same again to drop them
     if (s == CellState.neutral) {
+      // In directTransfer mode, gray-specific actions are disabled.
+      if (InfectionResolution.mode !=
+          InfectionResolutionMode.neutralIntermediary) {
+        return;
+      }
       if (selectedCell == (r, c)) {
         if (humanVsHuman) {
           _performGreyDropFor(current);
@@ -1930,6 +1936,11 @@ class GameController extends ChangeNotifier {
     } else if (who != CellState.red || current != CellState.red) {
       return;
     }
+    // Gray drop is unavailable in directTransfer mode.
+    if (InfectionResolution.mode !=
+        InfectionResolutionMode.neutralIntermediary) {
+      return;
+    }
     _clearScorePopup();
     // Determine all neutral cells to drop
     final neutrals = _allNeutralCells();
@@ -2161,8 +2172,11 @@ class GameController extends ChangeNotifier {
       }
     }
 
-    // Consider AI grey-drop option if neutrals exist and other options are not strictly beneficial
-    final neutralsExist = _allNeutralCells().isNotEmpty;
+    // Consider AI grey-drop option only in neutralIntermediary mode, and only
+    // if neutrals exist and other options are not strictly beneficial.
+    final bool neutralsEnabled =
+        InfectionResolution.mode == InfectionResolutionMode.neutralIntermediary;
+    final neutralsExist = neutralsEnabled && _allNeutralCells().isNotEmpty;
     int bestGreySwing = -0x7fffffff;
     if (neutralsExist) {
       final after = RulesEngine.removeAllNeutrals(board);
@@ -2755,6 +2769,11 @@ class GameController extends ChangeNotifier {
 
   Future<void> _performGreyDropAi() async {
     if (gameOver || isExploding || isFalling || isQuaking) return;
+    // Gray drop is unavailable in directTransfer mode.
+    if (InfectionResolution.mode !=
+        InfectionResolutionMode.neutralIntermediary) {
+      return;
+    }
     _clearScorePopup();
     // Determine all neutral cells to drop
     final neutrals = _allNeutralCells();
