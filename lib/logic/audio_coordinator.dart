@@ -23,7 +23,7 @@ import 'audio_intent_resolver.dart';
 import 'audio_executor.dart';
 
 /// Discrete sound effects available via the coordinator.
-enum SfxType { redTurn, blueTurn, bombAdd, explosion, greyShake, transition }
+enum SfxType { redTurn, blueTurn, bombAdd, explosion, greyShake, transition, startup }
 
 /// Abstract SFX player used by the coordinator (imperative executor for one-shots).
 abstract class SfxPlayer {

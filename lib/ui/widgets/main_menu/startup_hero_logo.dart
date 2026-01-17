@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:dual_clash/utils/web_reload.dart';
+import 'package:dual_clash/logic/app_audio.dart';
+import 'package:dual_clash/logic/audio_coordinator.dart' show SfxType;
 
 class StartupHeroLogo extends StatefulWidget {
   const StartupHeroLogo({
@@ -86,6 +88,8 @@ class _StartupHeroLogoState extends State<StartupHeroLogo>
           widget.onAttachAnimation!.call(_t!);
         }
       });
+      // Play startup SFX in parallel with the intro animation (first run only)
+      AppAudio.coordinator?.playSfx(SfxType.startup);
       _ctrl!.forward();
       _ctrl!.addStatusListener((status) {
         if (status == AnimationStatus.completed) {
@@ -118,6 +122,9 @@ class _StartupHeroLogoState extends State<StartupHeroLogo>
     if (_interactionCtrl == null || _interactionCtrl!.isAnimating) {
       return;
     }
+    // Play the same startup SFX whenever the user triggers the logo interaction
+    // Reuses existing audio pipeline (AudioCoordinator -> AndroidSfxPlayer)
+    AppAudio.coordinator?.playSfx(SfxType.startup);
     _interactionCtrl!.forward(from: 0.0);
   }
 

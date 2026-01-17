@@ -47,27 +47,27 @@ Future<void> main() async {
     await MobileAds.instance.initialize();
   }
 
-  runApp(const TwoTouchApp());
+  // Preload settings before starting the app to ensure audio policy is correct
+  final controller = GameController();
+  await controller.loadSettingsAndApply();
+
+  runApp(TwoTouchApp(controller: controller));
 }
 
 class TwoTouchApp extends StatefulWidget {
-  const TwoTouchApp({super.key});
+  final GameController controller;
+  const TwoTouchApp({super.key, required this.controller});
 
   @override
   State<TwoTouchApp> createState() => _TwoTouchAppState();
 }
 
-class _TwoTouchAppState extends State<TwoTouchApp> { 
-  late final GameController controller;
-
+class _TwoTouchAppState extends State<TwoTouchApp> {
   @override
   void initState() {
     super.initState();
-    controller = GameController();
-    // Load persisted theme color and apply
-    controller.loadSettingsAndApply();
-    // Initialize global audio wiring (menu-only in this step)
-    AppAudio.init(controller);
+    // Initialize global audio wiring using preloaded controller
+    AppAudio.init(widget.controller);
   }
 
   TextTheme _boldAll(TextTheme t) {
@@ -100,9 +100,9 @@ class _TwoTouchAppState extends State<TwoTouchApp> {
   Widget build(BuildContext context) {
     final base = ThemeData();
     return AnimatedBuilder(
-      animation: controller,
+      animation: widget.controller,
       builder: (context, _) {
-        final localeCode = switch (controller.languageCode) {
+        final localeCode = switch (widget.controller.languageCode) {
           'de' => 'de',
           'fr' => 'fr',
           'pl' => 'pl',
@@ -144,7 +144,7 @@ class _TwoTouchAppState extends State<TwoTouchApp> {
             primaryTextTheme:
                 _boldAll(base.primaryTextTheme.apply(fontFamily: 'Fredoka')),
           ),
-          home: MainMenuPage(controller: controller),
+          home: MainMenuPage(controller: widget.controller),
         );
       },
     );

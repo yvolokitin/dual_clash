@@ -232,6 +232,8 @@ class AndroidSfxPlayer implements SfxPlayer {
         return 'assets/sfx/grey_shake.mp3';
       case SfxType.transition:
         return 'assets/sfx/transition.mp3';
+      case SfxType.startup:
+        return 'assets/sfx/dual_clash.mp3';
     }
   }
 
