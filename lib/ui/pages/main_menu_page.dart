@@ -374,7 +374,7 @@ class _MainMenuPageState extends State<MainMenuPage>
                                     ),
                                     MenuTile(
                                       key: _playerHubTileKey,
-                                      imagePath: 'assets/icons/menu/menu_settings.png',
+                                      imagePath: 'assets/icons/menu/menu_settings.webp',
                                       label: compactLabels
                                           ? l10n.menuHubShort
                                           : l10n.menuPlayerHub,
@@ -579,7 +579,7 @@ class _MainMenuPageState extends State<MainMenuPage>
                     child: ScaleTransition(
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: FlyoutTile(
-                        imagePath: 'assets/icons/menu/menu_323.png',
+                        imagePath: 'assets/icons/menu/menu_323.webp',
                         label: compactLabels
                             ? l10n.menuTripleShort
                             : l10n.menuTripleThreat,
@@ -643,7 +643,7 @@ class _MainMenuPageState extends State<MainMenuPage>
                     child: ScaleTransition(
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: FlyoutTile(
-                        imagePath: 'assets/icons/menu/menu_424.png',
+                        imagePath: 'assets/icons/menu/menu_424.webp',
                         label: compactLabels
                             ? l10n.menuQuadShort
                             : l10n.menuQuadClash,
@@ -1134,7 +1134,7 @@ class _MainMenuPageState extends State<MainMenuPage>
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   FlyoutTile(
-                                    imagePath: 'assets/icons/menu/menu_323.png',
+                                    imagePath: 'assets/icons/menu/menu_323.webp',
                                     label: compactLabels
                                         ? l10n.menuTripleShort
                                         : l10n.menuTripleThreat,
@@ -1181,7 +1181,7 @@ class _MainMenuPageState extends State<MainMenuPage>
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   FlyoutTile(
-                                    imagePath: 'assets/icons/menu/menu_424.png',
+                                    imagePath: 'assets/icons/menu/menu_424.webp',
                                     label: compactLabels
                                         ? l10n.menuQuadShort
                                         : l10n.menuQuadClash,
