@@ -5,6 +5,8 @@ import 'dart:math' as math;
 import '../models/cell_state.dart';
 import 'rules_engine.dart';
 import 'infection_resolution.dart';
+import 'adjacency.dart';
+import 'game_rules_config.dart';
 import 'ai.dart';
 import '../core/colors.dart';
 import '../core/constants.dart';
@@ -195,6 +197,9 @@ class GameController extends ChangeNotifier {
   static const _kSavedGames = 'savedGamesJson';
   static const _kMusicEnabled = 'musicEnabled';
   static const _kSoundsEnabled = 'soundsEnabled';
+  // Gameplay rules config
+  static const _kResolutionMode = 'resolutionMode'; // 'neutral' | 'direct'
+  static const _kAdjacencyMode = 'adjacencyMode'; // 'orthogonal4' | 'orthogonalPlusDiagonal8'
   // Profile/achievements keys
   static const _kNickname = 'nickname';
   static const _kCountry = 'country';
@@ -1086,6 +1091,22 @@ class GameController extends ChangeNotifier {
         startingPlayer = CellState.red; // default
         break;
     }
+
+    // Gameplay rules config (defaults preserve legacy behavior)
+    try {
+      final resStr = prefs.getString(_kResolutionMode);
+      final adjStr = prefs.getString(_kAdjacencyMode);
+      final res = GameRulesConfig.parseResolution(resStr);
+      final adj = GameRulesConfig.parseAdjacency(adjStr);
+      GameRulesConfig.current = GameRulesConfig(
+        resolutionMode: res,
+        adjacencyMode: adj,
+      );
+    } catch (_) {
+      // Keep defaults on any parsing/prefs errors
+      GameRulesConfig.current = GameRulesConfig();
+    }
+
     // Profile
     nickname = prefs.getString(_kNickname) ?? nickname;
     country = Countries.normalize(prefs.getString(_kCountry) ?? country);
@@ -1235,6 +1256,34 @@ class GameController extends ChangeNotifier {
       _ => 'red',
     };
     await prefs.setString(_kStartingPlayer, stored);
+  }
+
+  Future<void> setResolutionMode(InfectionResolutionMode mode) async {
+    if (GameRulesConfig.current.resolutionMode == mode) return;
+    GameRulesConfig.current = GameRulesConfig(
+      resolutionMode: mode,
+      adjacencyMode: GameRulesConfig.current.adjacencyMode,
+    );
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      _kResolutionMode,
+      GameRulesConfig.encodeResolution(mode),
+    );
+  }
+  
+  Future<void> setAdjacencyMode(InfectionAdjacencyMode mode) async {
+    if (GameRulesConfig.current.adjacencyMode == mode) return;
+    GameRulesConfig.current = GameRulesConfig(
+      resolutionMode: GameRulesConfig.current.resolutionMode,
+      adjacencyMode: mode,
+    );
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      _kAdjacencyMode,
+      GameRulesConfig.encodeAdjacency(mode),
+    );
   }
 
   Future<void> setCountry(String value) async {
@@ -1680,7 +1729,7 @@ class GameController extends ChangeNotifier {
     // Grey tap: select to preview all grey boxes; tap same again to drop them
     if (s == CellState.neutral) {
       // In directTransfer mode, gray-specific actions are disabled.
-      if (InfectionResolution.mode !=
+      if (GameRulesConfig.current.resolutionMode !=
           InfectionResolutionMode.neutralIntermediary) {
         return;
       }
@@ -1937,7 +1986,7 @@ class GameController extends ChangeNotifier {
       return;
     }
     // Gray drop is unavailable in directTransfer mode.
-    if (InfectionResolution.mode !=
+    if (GameRulesConfig.current.resolutionMode !=
         InfectionResolutionMode.neutralIntermediary) {
       return;
     }
@@ -2175,7 +2224,7 @@ class GameController extends ChangeNotifier {
     // Consider AI grey-drop option only in neutralIntermediary mode, and only
     // if neutrals exist and other options are not strictly beneficial.
     final bool neutralsEnabled =
-        InfectionResolution.mode == InfectionResolutionMode.neutralIntermediary;
+        GameRulesConfig.current.resolutionMode == InfectionResolutionMode.neutralIntermediary;
     final neutralsExist = neutralsEnabled && _allNeutralCells().isNotEmpty;
     int bestGreySwing = -0x7fffffff;
     if (neutralsExist) {
@@ -2770,7 +2819,7 @@ class GameController extends ChangeNotifier {
   Future<void> _performGreyDropAi() async {
     if (gameOver || isExploding || isFalling || isQuaking) return;
     // Gray drop is unavailable in directTransfer mode.
-    if (InfectionResolution.mode !=
+    if (GameRulesConfig.current.resolutionMode !=
         InfectionResolutionMode.neutralIntermediary) {
       return;
     }

@@ -8,6 +8,9 @@ import 'package:dual_clash/ui/dialogs/confirm_action_dialog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../logic/game_controller.dart';
+import '../../logic/game_rules_config.dart';
+import '../../logic/infection_resolution.dart';
+import '../../logic/adjacency.dart';
 import '../../core/colors.dart';
 import '../../core/constants.dart';
 import '../../models/cell_state.dart';
@@ -80,6 +83,12 @@ class _SettingsDialogState extends State<SettingsDialog> {
   late CellState _initialStartingPlayer;
   late bool _musicEnabled;
   late bool _soundsEnabled;
+  // Gameplay modes
+  late InfectionResolutionMode _resolutionMode;
+  late InfectionAdjacencyMode _adjacencyMode;
+  late InfectionResolutionMode _initialResolutionMode;
+  late InfectionAdjacencyMode _initialAdjacencyMode;
+  
   Timer? _adminActivationTimer;
   bool _adminDialogVisible = false;
 
@@ -94,6 +103,11 @@ class _SettingsDialogState extends State<SettingsDialog> {
     _initialStartingPlayer = _startingPlayer;
     _musicEnabled = widget.controller.musicEnabled;
     _soundsEnabled = widget.controller.soundsEnabled;
+    // Initialize gameplay modes from central config
+    _resolutionMode = GameRulesConfig.current.resolutionMode;
+    _adjacencyMode = GameRulesConfig.current.adjacencyMode;
+    _initialResolutionMode = _resolutionMode;
+    _initialAdjacencyMode = _adjacencyMode;
     _coerceStartingPlayer();
   }
 
@@ -178,7 +192,9 @@ class _SettingsDialogState extends State<SettingsDialog> {
         const EdgeInsets.fromLTRB(18, 20, 18, 18);
     final bool hasPendingChanges =
         _language != _initialLanguage ||
-        _startingPlayer != _initialStartingPlayer;
+        _startingPlayer != _initialStartingPlayer ||
+        _resolutionMode != _initialResolutionMode ||
+        _adjacencyMode != _initialAdjacencyMode;
     final bool isNarrowMobile = isMobilePlatform && size.width < 700;
     final double languageTileScale = isMobileFullscreen
         ? (isNarrowMobile ? 0.9 : 0.87)
@@ -363,6 +379,58 @@ class _SettingsDialogState extends State<SettingsDialog> {
                                     ),
                                   ],
                           ),
+
+                          _separator(),
+
+                          // Infection Resolution setting
+                          _label('Infection Resolution'),
+                          _tipText('Controls whether opponent cells are captured instantly or first converted to neutral (gray).'),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              _choiceTile(
+                                selected: _resolutionMode == InfectionResolutionMode.neutralIntermediary,
+                                label: 'Two-Step (Gray Cells)',
+                                onTap: () => setState(() {
+                                  _resolutionMode = InfectionResolutionMode.neutralIntermediary;
+                                }),
+                              ),
+                              _choiceTile(
+                                selected: _resolutionMode == InfectionResolutionMode.directTransfer,
+                                label: 'Direct Capture',
+                                onTap: () => setState(() {
+                                  _resolutionMode = InfectionResolutionMode.directTransfer;
+                                }),
+                              ),
+                            ],
+                          ),
+
+                          _separator(),
+
+                          // Adjacency Rules setting
+                          _label('Adjacency Rules'),
+                          _tipText('Defines which neighboring cells can be affected during capture.'),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              _choiceTile(
+                                selected: _adjacencyMode == InfectionAdjacencyMode.orthogonal4,
+                                label: 'Sides Only (4 directions)',
+                                onTap: () => setState(() {
+                                  _adjacencyMode = InfectionAdjacencyMode.orthogonal4;
+                                }),
+                              ),
+                              _choiceTile(
+                                selected: _adjacencyMode == InfectionAdjacencyMode.orthogonalPlusDiagonal8,
+                                label: 'Sides + Diagonals (8 directions)',
+                                onTap: () => setState(() {
+                                  _adjacencyMode = InfectionAdjacencyMode.orthogonalPlusDiagonal8;
+                                }),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -382,6 +450,14 @@ class _SettingsDialogState extends State<SettingsDialog> {
                               await widget.controller
                                   .setStartingPlayer(_startingPlayer);
                               _initialStartingPlayer = _startingPlayer;
+                            }
+                            if (_resolutionMode != _initialResolutionMode) {
+                              await widget.controller.setResolutionMode(_resolutionMode);
+                              _initialResolutionMode = _resolutionMode;
+                            }
+                            if (_adjacencyMode != _initialAdjacencyMode) {
+                              await widget.controller.setAdjacencyMode(_adjacencyMode);
+                              _initialAdjacencyMode = _adjacencyMode;
                             }
                             if (context.mounted) {
                               Navigator.of(context).pop();

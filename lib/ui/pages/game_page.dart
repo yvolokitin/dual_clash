@@ -13,6 +13,8 @@ import 'package:dual_clash/logic/audio_intent_resolver.dart' show RouteContext, 
 import 'package:dual_clash/models/campaign_level.dart';
 import 'package:dual_clash/models/game_outcome.dart';
 import 'package:dual_clash/models/cell_state.dart';
+import 'package:dual_clash/logic/game_rules_config.dart';
+import 'package:dual_clash/logic/infection_resolution.dart';
 import 'package:dual_clash/ui/dialogs/ai_difficulty_dialog.dart';
 import 'package:dual_clash/ui/dialogs/main_menu_dialog.dart' as mmd;
 import 'package:dual_clash/ui/dialogs/results_dialog.dart';
@@ -500,6 +502,7 @@ class _GamePageState extends State<GamePage> with RouteAware {
                   redGamePoints: controller.redGamePoints,
                   showLeaderShadow: !controller.humanVsHuman,
                   aiSelectorEnabled: widget.challengeConfig == null,
+                  showNeutral: GameRulesConfig.current.resolutionMode == InfectionResolutionMode.neutralIntermediary,
                   onOpenMenu: () async {
                     await mmd.showAnimatedMainMenuDialog(
                         context: context,

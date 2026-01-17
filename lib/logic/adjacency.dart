@@ -1,4 +1,5 @@
 import '../core/constants.dart';
+import 'game_rules_config.dart';
 
 /// Axis 2: Infection Adjacency Mode — defines which neighbors are considered
 /// adjacent for infection-related operations.
@@ -13,16 +14,16 @@ enum InfectionAdjacencyMode {
 /// Centralized adjacency provider — the single source of truth for enumerating
 /// neighboring cells. This is intentionally reusable by rules, AI, and UI.
 class Adjacency {
-  /// Global default mode. Do not wire runtime configuration in this step.
-  /// Keep default to orthogonal4 to preserve current behavior.
+  /// Deprecated global toggle retained for backward compatibility.
+  /// Runtime behavior is driven by GameRulesConfig.current.adjacencyMode.
   static InfectionAdjacencyMode mode = InfectionAdjacencyMode.orthogonal4;
 
   /// In-bounds check using current board size [K.n].
   static bool inBounds(int r, int c) => r >= 0 && r < K.n && c >= 0 && c < K.n;
 
-  /// Return neighbors for the current [mode].
+  /// Return neighbors for the active adjacency mode from GameRulesConfig.
   static Iterable<(int, int)> neighborsOf(int r, int c) =>
-      neighborsOfMode(r, c, mode);
+      neighborsOfMode(r, c, GameRulesConfig.current.adjacencyMode);
 
   /// Return neighbors for the specified [adjMode]. This can be used by logic
   /// that must remain strictly 4-way even if the global default changes,

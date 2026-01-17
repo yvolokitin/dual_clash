@@ -1,6 +1,7 @@
 import '../models/multi_cell_state.dart';
 import 'adjacency.dart';
 import 'infection_resolution.dart';
+import 'game_rules_config.dart';
 
 /// Centralized infection resolution for multi-player boards using MultiCellState.
 class MultiInfectionResolution {
@@ -40,7 +41,7 @@ class MultiInfectionResolution {
     }
   }
 
-  /// Convenience overload that uses global defaults (adjacency and resolution).
+  /// Convenience overload that uses current GameRulesConfig (adjacency & resolution).
   static void applyUsingDefaults(
     List<List<MultiCellState>> board,
     int r,
@@ -54,7 +55,7 @@ class MultiInfectionResolution {
       c,
       attacker,
       neighbors,
-      InfectionResolution.mode,
+      GameRulesConfig.current.resolutionMode,
     );
   }
 }

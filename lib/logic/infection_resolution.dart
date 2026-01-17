@@ -1,5 +1,6 @@
 import '../models/cell_state.dart';
 import 'adjacency.dart';
+import 'game_rules_config.dart';
 
 /// Axis 1: Infection Resolution Mode — controls HOW ownership changes resolve.
 enum InfectionResolutionMode {
@@ -16,10 +17,6 @@ enum InfectionResolutionMode {
 /// for applying ownership transitions to a set of affected neighbors returned by
 /// the adjacency provider. The default mode preserves current gameplay behavior.
 class InfectionResolution {
-  /// Global default resolution mode (no runtime wiring in this step).
-  static InfectionResolutionMode mode =
-      InfectionResolutionMode.neutralIntermediary;
-
   /// Apply ownership transitions to the provided [neighbors] around the last
   /// placement at (r,c). The [board] must be a mutable clone of the source.
   /// Common exclusions: bombs/walls are ignored; empty cells are ignored; the
@@ -64,7 +61,7 @@ class InfectionResolution {
     }
   }
 
-  /// Convenience overload that uses the global [mode] and current adjacency mode.
+  /// Convenience overload that uses the current GameRulesConfig and adjacency.
   static void applyUsingDefaults(
     List<List<CellState>> board,
     int r,
@@ -72,6 +69,7 @@ class InfectionResolution {
     CellState attacker,
   ) {
     final neighbors = Adjacency.neighborsOf(r, c);
+    final mode = GameRulesConfig.current.resolutionMode;
     applyOwnershipTransitions(board, r, c, attacker, neighbors, mode);
   }
 }

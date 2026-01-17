@@ -8,6 +8,8 @@ import 'package:dual_clash/models/cell_state.dart';
 import 'package:dual_clash/logic/rules_engine.dart';
 import 'package:dual_clash/ui/widgets/board_widget.dart';
 import 'package:dual_clash/ui/widgets/game_layout_metrics.dart';
+import 'package:dual_clash/logic/game_rules_config.dart';
+import 'package:dual_clash/logic/infection_resolution.dart';
 import 'package:dual_clash/ui/dialogs/main_menu_dialog.dart' as mmd;
 import 'package:dual_clash/ui/dialogs/results_dialog.dart' as results;
 import 'package:dual_clash/core/navigation.dart';
@@ -325,6 +327,7 @@ class _DuelPageState extends State<DuelPage> with RouteAware {
         final yellowBase = controller.scoreYellowBase();
         final greenBase = controller.scoreGreenBase();
         final neutralsCount = RulesEngine.countOf(controller.board, CellState.neutral);
+        final bool showNeutral = GameRulesConfig.current.resolutionMode == InfectionResolutionMode.neutralIntermediary;
         final bool highlightRed = controller.isMultiDuel
             ? _isLeaderScore(
                 redBase,
@@ -332,14 +335,14 @@ class _DuelPageState extends State<DuelPage> with RouteAware {
                   blueBase,
                   yellowBase,
                   if (controller.duelPlayerCount >= 4) greenBase,
-                  neutralsCount,
+                  if (showNeutral) neutralsCount,
                 ],
               )
             : _isLeaderScore(
                 redBase,
                 [
                   blueBase,
-                  neutralsCount,
+                  if (showNeutral) neutralsCount,
                 ],
               );
         final bool highlightBlue = controller.isMultiDuel
@@ -349,14 +352,14 @@ class _DuelPageState extends State<DuelPage> with RouteAware {
                   redBase,
                   yellowBase,
                   if (controller.duelPlayerCount >= 4) greenBase,
-                  neutralsCount,
+                  if (showNeutral) neutralsCount,
                 ],
               )
             : _isLeaderScore(
                 blueBase,
                 [
                   redBase,
-                  neutralsCount,
+                  if (showNeutral) neutralsCount,
                 ],
               );
         final bool highlightYellow = controller.isMultiDuel
@@ -366,7 +369,7 @@ class _DuelPageState extends State<DuelPage> with RouteAware {
                   redBase,
                   blueBase,
                   if (controller.duelPlayerCount >= 4) greenBase,
-                  neutralsCount,
+                  if (showNeutral) neutralsCount,
                 ],
               )
             : false;
@@ -377,11 +380,11 @@ class _DuelPageState extends State<DuelPage> with RouteAware {
                   redBase,
                   blueBase,
                   yellowBase,
-                  neutralsCount,
+                  if (showNeutral) neutralsCount,
                 ],
               )
             : false;
-        final bool highlightNeutral = controller.isMultiDuel
+        final bool highlightNeutral = showNeutral && (controller.isMultiDuel
             ? _isLeaderScore(
                 neutralsCount,
                 [
@@ -397,7 +400,7 @@ class _DuelPageState extends State<DuelPage> with RouteAware {
                   redBase,
                   blueBase,
                 ],
-              );
+              ));
         final metrics = GameLayoutMetrics.from(context, controller);
         final boardCellSize = metrics.boardCellSize;
         final scoreItemSize = metrics.scoreItemSize;
@@ -453,14 +456,16 @@ class _DuelPageState extends State<DuelPage> with RouteAware {
                                   isLeader: highlightRed,
                                   asset: 'assets/icons/player_red.png',
                                 ),
-                                const SizedBox(width: 18),
-                                Text('$neutralsCount', style: textStyle),
-                                const SizedBox(width: 6),
-                                _playerIconWithCrown(
-                                  size: scoreItemSize,
-                                  isLeader: highlightNeutral,
-                                  asset: 'assets/icons/player_grey.png',
-                                ),
+                                if (showNeutral) ...[
+                                  const SizedBox(width: 18),
+                                  Text('$neutralsCount', style: textStyle),
+                                  const SizedBox(width: 6),
+                                  _playerIconWithCrown(
+                                    size: scoreItemSize,
+                                    isLeader: highlightNeutral,
+                                    asset: 'assets/icons/player_grey.png',
+                                  ),
+                                ],
                                 const SizedBox(width: 18),
                                 Text('$blueBase', style: textStyle),
                                 const SizedBox(width: 6),
@@ -503,14 +508,16 @@ class _DuelPageState extends State<DuelPage> with RouteAware {
                                     asset: 'assets/icons/player_green.png',
                                   ),
                                 ],
-                                const SizedBox(width: 14),
-                                Text('$neutralsCount', style: textStyle),
-                                const SizedBox(width: 6),
-                                _playerIconWithCrown(
-                                  size: scoreItemSize,
-                                  isLeader: highlightNeutral,
-                                  asset: 'assets/icons/player_grey.png',
-                                ),
+                                if (showNeutral) ...[
+                                  const SizedBox(width: 14),
+                                  Text('$neutralsCount', style: textStyle),
+                                  const SizedBox(width: 6),
+                                  _playerIconWithCrown(
+                                    size: scoreItemSize,
+                                    isLeader: highlightNeutral,
+                                    asset: 'assets/icons/player_grey.png',
+                                  ),
+                                ],
                               ],
                             ],
                           );
