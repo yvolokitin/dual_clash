@@ -8,6 +8,7 @@ import 'infection_resolution.dart';
 import 'adjacency.dart';
 import 'game_rules_config.dart';
 import 'ai.dart';
+import 'ai_decision_model.dart';
 import '../core/colors.dart';
 import '../core/constants.dart';
 import '../models/game_result.dart';
@@ -2189,9 +2190,30 @@ class GameController extends ChangeNotifier {
       return;
     }
 
-    // Evaluate best placement via existing AI
-    final mv =
-        await Future<(int, int)?>(() => _ai.chooseMoveLevel(board, aiLevel));
+    // Mode-aware placement evaluation using centralized decision model.
+    // Also compute legacy SimpleAI move and compare for higher levels.
+    final bombsSnapshot = _bombs
+        .map((b) => (row: b.row, col: b.col, owner: b.owner))
+        .toList(growable: false);
+    final bestPlacement = await Future<({int r, int c, double score})?>(
+        () => AiDecisionModel.bestPlacement(board, CellState.blue,
+            bombs: bombsSnapshot));
+    final simpleMove = await Future<(int, int)?>(() => _ai.chooseMoveLevel(board, aiLevel));
+    (int, int)? mv;
+    if (aiLevel <= 3) {
+      mv = bestPlacement == null ? simpleMove : (bestPlacement.r, bestPlacement.c);
+    } else {
+      if (simpleMove != null && bestPlacement != null) {
+        final (sr, sc) = simpleMove;
+        final simpleScore = AiDecisionModel.evaluatePlacement(board, sr, sc, CellState.blue, bombs: bombsSnapshot);
+        // Prefer evaluator move if it significantly out-scores the legacy pick; otherwise keep legacy.
+        mv = (bestPlacement.score >= simpleScore + 0.5)
+            ? (bestPlacement.r, bestPlacement.c)
+            : simpleMove;
+      } else {
+        mv = bestPlacement == null ? simpleMove : (bestPlacement.r, bestPlacement.c);
+      }
+    }
     // Cancel if state changed during AI computation
     if (gen != _aiGeneration || gameOver) {
       isAiThinking = false;
@@ -2234,16 +2256,9 @@ class GameController extends ChangeNotifier {
     if (_canPlaceBombFor(CellState.blue)) {
       final targets = _validBombTargetsFor(CellState.blue);
       for (final (br, bc) in targets) {
-        // Heuristic: number of blast-affected opponent cells if detonated here immediately
-        final affected = RulesEngine.bombBlastAffected(board, br, bc);
-        int score = 0;
-        for (final (ar, ac) in affected) {
-          final s = board[ar][ac];
-          if (s == CellState.red) score += 1; // target enemy
-          if (s == CellState.blue) score -= 1; // avoid self-harm
-        }
-        // Prefer central positions slightly
-        score += -((br - (K.n - 1) / 2).abs() + (bc - (K.n - 1) / 2).abs()).toInt();
+        final scoreD = AiDecisionModel.evaluateBombPlacement(board, br, bc, CellState.blue);
+        // Convert to integer scale for unified action scoring
+        final score = (scoreD * 10).round();
         if (score > bestBombPlaceScore || (score == bestBombPlaceScore && _rng.nextBool())) {
           bestBombPlaceScore = score;
           bestBombPlaceCell = (br, bc);
@@ -2279,8 +2294,9 @@ class GameController extends ChangeNotifier {
       return;
     }
 
-    // Compute best placement swing baseline
+    // Compute placement action score using mode-aware evaluator (primary) and swing (aux)
     int bestPlaceSwing = -0x7fffffff;
+    int placeActionScore = -0x7fffffff;
     (int, int)? placeChoice = mv;
     List<List<CellState>>? placeSim;
     if (mv != null) {
@@ -2291,6 +2307,8 @@ class GameController extends ChangeNotifier {
         final blueAfter = RulesEngine.countOf(placeSim, CellState.blue);
         bestPlaceSwing = (blueAfter - blueBefore) - (redAfter - redBefore);
       }
+      final evalScoreD = AiDecisionModel.evaluatePlacement(board, pr, pc, CellState.blue, bombs: bombsSnapshot);
+      placeActionScore = (evalScoreD * 10).round();
     }
 
     // Consider AI grey-drop option only in neutralIntermediary mode, and only
@@ -2359,7 +2377,10 @@ class GameController extends ChangeNotifier {
     (int, int)? blowChoice = bestBlowCell;
     final actionScores = <_AiAction, int>{};
     if (placeChoice != null) {
-      actionScores[_AiAction.place] = bestPlaceSwing;
+      // Use evaluator-driven score for placement to be mode-aware.
+      actionScores[_AiAction.place] = placeActionScore != -0x7fffffff
+          ? placeActionScore
+          : bestPlaceSwing; // fallback
     }
     if (bestBlowCell != null) {
       actionScores[_AiAction.blow] = bestBlowSwing;
