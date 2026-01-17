@@ -361,7 +361,7 @@ class _MainMenuPageState extends State<MainMenuPage>
                                     ),
                                     MenuTile(
                                       key: _duelTileKey,
-                                      imagePath: 'assets/icons/menu/menu_121.png',
+                                      imagePath: 'assets/icons/menu/menu_121.webp',
                                       label: compactLabels
                                           ? l10n.menuDuelShort
                                           : l10n.menuDuelMode,
@@ -627,7 +627,7 @@ class _MainMenuPageState extends State<MainMenuPage>
                     child: ScaleTransition(
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: FlyoutTile(
-                        imagePath: 'assets/icons/menu/menu_121.png',
+                        imagePath: 'assets/icons/menu/menu_121.webp',
                         label: compactLabels
                             ? l10n.menuDuelShort
                             : l10n.menuDuelMode,
@@ -1172,7 +1172,7 @@ class _MainMenuPageState extends State<MainMenuPage>
                                   ),
                                   const SizedBox(width: 14),
                                   FlyoutTile(
-                                    imagePath: 'assets/icons/menu/menu_121.png',
+                                    imagePath: 'assets/icons/menu/menu_121.webp',
                                     label: compactLabels
                                         ? l10n.menuDuelShort
                                         : l10n.menuDuelMode,
