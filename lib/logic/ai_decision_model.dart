@@ -153,9 +153,14 @@ class AiDecisionModel {
       for (int c = 0; c < K.n; c++) {
         if (board[r][c] != CellState.empty) continue;
         final score = evaluatePlacement(board, r, c, attacker, bombs: bombs);
-        if (score > best || (score == best && math.Random().nextBool())) {
+        if (score > best) {
           best = score;
           bestCell = (r, c);
+        } else if (score == best) {
+          if (bestCell == null || r < bestCell.$1 || (r == bestCell.$1 && c < bestCell.$2)) {
+            best = score;
+            bestCell = (r, c);
+          }
         }
       }
     }

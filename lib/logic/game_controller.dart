@@ -186,6 +186,24 @@ class GameController extends ChangeNotifier {
   bool isSimulating = false;
   final _rng = math.Random();
 
+  // --- Debug logging helper ---
+  void _log(String msg) {
+    // Keep logs lightweight and only visible in debug console
+    debugPrint('[AI] \\u{1F916} ' + DateTime.now().toIso8601String() + ' ' + msg);
+  }
+
+  // --- Safety: ensure AI turn always completes even if no action is executed ---
+  void _endAiTurnNoOp(String reason) {
+    if (gameOver) return;
+    lastMovePoints = 0;
+    lastMoveBy = CellState.blue;
+    _incrementTurnFor(CellState.blue);
+    current = CellState.red;
+    _handleTurnStart(current);
+    _checkEnd();
+    _log('Turn completion guarantee: passing to RED due to: ' + reason);
+  }
+
   // Settings persistence keys
   static const _kThemeColorHex = 'themeColorHex';
   static const _kLanguageCode = 'languageCode';
@@ -751,6 +769,14 @@ class GameController extends ChangeNotifier {
       final row = b[r] as List<dynamic>;
       return List<CellState>.generate(K.n, (c) => _strToCell(row[c] as String));
     });
+    // If current mode is directTransfer, sanitize away any neutrals from loaded board
+    if (GameRulesConfig.current.resolutionMode == InfectionResolutionMode.directTransfer) {
+      final neutrals = RulesEngine.countOf(board, CellState.neutral);
+      if (neutrals > 0) {
+        _log('Sanitizing loaded board for directTransfer: removing $neutrals neutral cells');
+        board = RulesEngine.removeAllNeutrals(board);
+      }
+    }
     _bombs
       ..clear()
       ..addAll(
@@ -1324,16 +1350,27 @@ class GameController extends ChangeNotifier {
 
   Future<void> setResolutionMode(InfectionResolutionMode mode) async {
     if (GameRulesConfig.current.resolutionMode == mode) return;
+    final prev = GameRulesConfig.current.resolutionMode;
     GameRulesConfig.current = GameRulesConfig(
       resolutionMode: mode,
       adjacencyMode: GameRulesConfig.current.adjacencyMode,
     );
     notifyListeners();
+    // Sanitize board if switching to directTransfer: remove any neutrals
+    if (mode == InfectionResolutionMode.directTransfer) {
+      int neutrals = RulesEngine.countOf(board, CellState.neutral);
+      if (neutrals > 0) {
+        _log('Sanitizing board for directTransfer: removing $neutrals neutral cells');
+        board = RulesEngine.removeAllNeutrals(board);
+        notifyListeners();
+      }
+    }
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
       _kResolutionMode,
       GameRulesConfig.encodeResolution(mode),
     );
+    _log('Resolution mode changed from ' + prev.toString() + ' to ' + mode.toString());
   }
   
   Future<void> setAdjacencyMode(InfectionAdjacencyMode mode) async {
@@ -1914,23 +1951,84 @@ class GameController extends ChangeNotifier {
     }
   }
 
+  // Dedicated AI-safe bomb placement executor. Mirrors human side-effects but
+  // uses AI gating (_canPlaceBombFor) and does not rely on current==red.
+  // Returns true if a bomb was actually placed and the turn advanced.
+  bool _performBombPlacementForAi(int r, int c, CellState owner) {
+    _log('AI bomb placement requested at ($r,$c) by $owner');
+    if (!_canPlaceBombFor(owner)) {
+      _log('AI bomb placement denied: availability/cooldown/limits not satisfied');
+      return false;
+    }
+    if (!RulesEngine.inBounds(r, c) || board[r][c] != CellState.empty) {
+      _log('AI bomb placement denied: target not empty or out of bounds');
+      return false;
+    }
+    // Clear any previews/selections
+    selectedCell = null;
+    blowPreview.clear();
+    // Apply bomb to board and register token
+    board[r][c] = CellState.bomb;
+    _playSfx(GameSfxType.bombAdd);
+    final placedTurn = _turnIndexFor(owner);
+    _bombs.add(
+      _BombToken(row: r, col: c, owner: owner, placedTurn: placedTurn),
+    );
+    _lastBombTurns[owner] = placedTurn;
+    // No direct points for bomb placement
+    lastMovePoints = 0;
+    lastMoveBy = owner;
+    _incrementTurnFor(owner);
+    if (owner == CellState.red) {
+      _turnStats.add(TurnStatEntry(
+        turn: turnsRed,
+        points: 0,
+        desc: appLocalizations()?.scoreZeroBlow ?? '0 bomb',
+        ts: DateTime.now().millisecondsSinceEpoch,
+      ));
+    }
+    final prev = current;
+    current = humanVsHuman
+        ? _nextPlayer(owner)
+        : (owner == CellState.red ? CellState.blue : CellState.red);
+    bombMode = false;
+    bombModeTargets = <(int, int)>{};
+    bombAutoCountdownActive = false;
+    bombAutoCountdownValue = 0;
+    _checkEnd();
+    _handleTurnStart(current);
+    notifyListeners();
+    _log('AI bomb placement committed at ($r,$c). turn $prev -> $current');
+    return true;
+  }
+
   Future<void> _performBombActivation(_BombToken bomb,
       {bool autoTriggered = false}) async {
-    if (gameOver || isExploding || isFalling) return;
-    if (!autoTriggered && !_canActivateBombToken(bomb)) return;
+    _log('Bomb activation requested at (${bomb.row},${bomb.col}), owner=${bomb.owner}, auto=$autoTriggered');
+    if (gameOver || isExploding || isFalling) {
+      _log('Bomb activation ignored: gameOver=$gameOver isExploding=$isExploding isFalling=$isFalling');
+      return;
+    }
+    if (!autoTriggered && !_canActivateBombToken(bomb)) {
+      _log('Bomb activation denied: not activatable (ownership/adjacency)');
+      return;
+    }
     if (!autoTriggered) {
       await _playSfxAwait(GameSfxType.explosion);
     }
     isExploding = true;
     explodingCells =
         RulesEngine.bombBlastAffected(board, bomb.row, bomb.col);
+    _log('Bomb activation: explodingCells=${explodingCells.length}');
     notifyListeners();
     await Future.delayed(const Duration(milliseconds: 420));
 
     final affected = Set<(int, int)>.from(explodingCells);
     final before = board;
     final after = RulesEngine.blow(before, affected);
+    final removedBombsBefore = _bombs.length;
     _bombs.removeWhere((b) => affected.contains((b.row, b.col)));
+    final removedBombs = removedBombsBefore - _bombs.length;
     isExploding = false;
     explodingCells.clear();
     selectedCell = null;
@@ -1949,9 +2047,11 @@ class GameController extends ChangeNotifier {
         ts: DateTime.now().millisecondsSinceEpoch,
       ));
     }
+    final prev = current;
     current = humanVsHuman
         ? _nextPlayer(bomb.owner)
         : (bomb.owner == CellState.red ? CellState.blue : CellState.red);
+    _log('Bomb activation complete. RemovedBombs=$removedBombs; turn $prev -> $current');
     _checkEnd();
     _handleTurnStart(current);
     notifyListeners();
@@ -1962,9 +2062,16 @@ class GameController extends ChangeNotifier {
 
   Future<void> _performBlow(int r, int c, CellState who,
       {bool userInitiated = true}) async {
-    if (gameOver || isExploding || isFalling) return;
+    _log('Blow requested at ($r,$c) by $who, userInitiated=$userInitiated');
+    if (gameOver || isExploding || isFalling) {
+      _log('Blow ignored: gameOver=$gameOver isExploding=$isExploding isFalling=$isFalling');
+      return;
+    }
     final affected = RulesEngine.blowAffected(board, r, c);
-    if (affected.isEmpty) return;
+    if (affected.isEmpty) {
+      _log('Blow denied: no affected cells');
+      return;
+    }
     if (userInitiated) {
       await _playSfxAwait(GameSfxType.explosion);
     }
@@ -1992,9 +2099,11 @@ class GameController extends ChangeNotifier {
         ts: DateTime.now().millisecondsSinceEpoch,
       ));
     }
+    final prev = current;
     current = humanVsHuman
         ? _nextPlayer(who)
         : (who == CellState.red ? CellState.blue : CellState.red);
+    _log('Blow complete. turn $prev -> $current, removed=${affected.length}');
     _handleTurnStart(current);
 
     // Clear explosion overlay and selection, then remove immediately (no fall animation for blow)
@@ -2209,399 +2318,341 @@ class GameController extends ChangeNotifier {
   void _scheduleAi() async {
     // Capture generation to cancel any outdated AI runs when state is reloaded
     final int gen = _aiGeneration;
+    bool aborted = false;
+    bool didCommitMove = false; // Track whether AI actually committed a move/turn
+    _log('Scheduling AI turn... current=$current, mode=${GameRulesConfig.current.resolutionMode}, adj=${GameRulesConfig.current.adjacencyMode}');
     if (gameOver) return;
     isAiThinking = true;
     notifyListeners();
 
-    // Brief delay for UX and to let UI show overlay
-    await Future.delayed(const Duration(milliseconds: 200));
-    // If state changed (e.g., user loaded a game), cancel this run safely
-    if (gen != _aiGeneration || gameOver) {
-      isAiThinking = false;
-      notifyListeners();
-      return;
-    }
+    try {
+      // Brief delay for UX and to let UI show overlay
+      await Future.delayed(const Duration(milliseconds: 200));
+      // If state changed (e.g., user loaded a game), cancel this run safely
+      if (gen != _aiGeneration || gameOver) {
+        aborted = true;
+        _log('AI aborted before compute: gen changed or gameOver');
+        return;
+      }
 
-    // Mode-aware placement evaluation using centralized decision model.
-    // Also compute legacy SimpleAI move and compare for higher levels.
-    final bombsSnapshot = _bombs
-        .map((b) => (row: b.row, col: b.col, owner: b.owner))
-        .toList(growable: false);
-    final bestPlacement = await Future<({int r, int c, double score})?>(
-        () => AiDecisionModel.bestPlacement(board, CellState.blue,
-            bombs: bombsSnapshot));
-    final simpleMove = await Future<(int, int)?>(() => _ai.chooseMoveLevel(board, aiLevel));
-    (int, int)? mv;
-    if (aiLevel <= 3) {
-      mv = bestPlacement == null ? simpleMove : (bestPlacement.r, bestPlacement.c);
-    } else {
-      if (simpleMove != null && bestPlacement != null) {
-        final (sr, sc) = simpleMove;
-        final simpleScore = AiDecisionModel.evaluatePlacement(board, sr, sc, CellState.blue, bombs: bombsSnapshot);
-        // Prefer evaluator move if it significantly out-scores the legacy pick; otherwise keep legacy.
-        mv = (bestPlacement.score >= simpleScore + 0.5)
-            ? (bestPlacement.r, bestPlacement.c)
-            : simpleMove;
-      } else {
+      // Mode-aware placement evaluation using centralized decision model.
+      // Also compute legacy SimpleAI move and compare for higher levels.
+      final bombsSnapshot = _bombs
+          .map((b) => (row: b.row, col: b.col, owner: b.owner))
+          .toList(growable: false);
+      final bestPlacement = await Future<({int r, int c, double score})?>(
+          () => AiDecisionModel.bestPlacement(board, CellState.blue,
+              bombs: bombsSnapshot));
+      final simpleMove = await Future<(int, int)?>(() => _ai.chooseMoveLevel(board, aiLevel));
+      (int, int)? mv;
+      if (aiLevel <= 3) {
         mv = bestPlacement == null ? simpleMove : (bestPlacement.r, bestPlacement.c);
-      }
-    }
-    // Cancel if state changed during AI computation
-    if (gen != _aiGeneration || gameOver) {
-      isAiThinking = false;
-      notifyListeners();
-      return;
-    }
-
-    // Also evaluate best blow for BLUE
-    int bestBlowSwing = -0x7fffffff;
-    (int, int)? bestBlowCell;
-    final blowCandidates = <({
-      (int, int) cell,
-      Set<(int, int)> affected,
-      int swing
-    })>[];
-    final redBefore = RulesEngine.countOf(board, CellState.red);
-    final blueBefore = RulesEngine.countOf(board, CellState.blue);
-
-    // Evaluate AI-owned bomb detonation options (owner-only)
-    int bestBombDetSwing = -0x7fffffff;
-    _BombToken? bestBombToDetonate;
-    for (final bomb in _bombs) {
-      if (bomb.owner != CellState.blue) continue; // AI only detonates its own bombs
-      if (!_canActivateBombToken(bomb)) continue; // enforce ownership + enemy-adjacent
-      final affected = RulesEngine.bombBlastAffected(board, bomb.row, bomb.col);
-      if (affected.isEmpty) continue;
-      final after = RulesEngine.blow(board, affected);
-      final redAfter = RulesEngine.countOf(after, CellState.red);
-      final blueAfter = RulesEngine.countOf(after, CellState.blue);
-      final swing = (blueAfter - blueBefore) - (redAfter - redBefore);
-      if (swing > bestBombDetSwing) {
-        bestBombDetSwing = swing;
-        bestBombToDetonate = bomb;
-      }
-    }
-
-    // Evaluate AI bomb placement options when available
-    int bestBombPlaceScore = -0x7fffffff;
-    (int, int)? bestBombPlaceCell;
-    if (_canPlaceBombFor(CellState.blue)) {
-      final targets = _validBombTargetsFor(CellState.blue);
-      for (final (br, bc) in targets) {
-        final scoreD = AiDecisionModel.evaluateBombPlacement(board, br, bc, CellState.blue);
-        // Convert to integer scale for unified action scoring
-        final score = (scoreD * 10).round();
-        if (score > bestBombPlaceScore || (score == bestBombPlaceScore && _rng.nextBool())) {
-          bestBombPlaceScore = score;
-          bestBombPlaceCell = (br, bc);
+      } else {
+        if (simpleMove != null && bestPlacement != null) {
+          final (sr, sc) = simpleMove;
+          final simpleScore = AiDecisionModel.evaluatePlacement(board, sr, sc, CellState.blue, bombs: bombsSnapshot);
+          // Prefer evaluator move if it significantly out-scores the legacy pick; otherwise keep legacy.
+          mv = (bestPlacement.score >= simpleScore + 0.5)
+              ? (bestPlacement.r, bestPlacement.c)
+              : simpleMove;
+        } else {
+          mv = bestPlacement == null ? simpleMove : (bestPlacement.r, bestPlacement.c);
         }
       }
-    }
-    for (int r = 0; r < K.n; r++) {
-      for (int c = 0; c < K.n; c++) {
-        if (board[r][c] != CellState.blue) continue;
-        final affected = RulesEngine.blowAffected(board, r, c);
+      // Cancel if state changed during AI computation
+      if (gen != _aiGeneration || gameOver) {
+        aborted = true;
+        _log('AI aborted after compute: gen changed or gameOver');
+        return;
+      }
+
+      // Also evaluate best blow for BLUE
+      int bestBlowSwing = -0x7fffffff;
+      (int, int)? bestBlowCell;
+      final blowCandidates = <({
+        (int, int) cell,
+        Set<(int, int)> affected,
+        int swing
+      })>[];
+      final redBefore = RulesEngine.countOf(board, CellState.red);
+      final blueBefore = RulesEngine.countOf(board, CellState.blue);
+
+      // Evaluate AI-owned bomb detonation options (owner-only)
+      int bestBombDetSwing = -0x7fffffff;
+      _BombToken? bestBombToDetonate;
+      for (final bomb in _bombs) {
+        if (bomb.owner != CellState.blue) continue; // AI only detonates its own bombs
+        if (!_canActivateBombToken(bomb)) continue; // enforce ownership + enemy-adjacent
+        final affected = RulesEngine.bombBlastAffected(board, bomb.row, bomb.col);
         if (affected.isEmpty) continue;
-        // Skip trivial blow that only removes self
-        if (affected.length <= 1) continue;
         final after = RulesEngine.blow(board, affected);
         final redAfter = RulesEngine.countOf(after, CellState.red);
         final blueAfter = RulesEngine.countOf(after, CellState.blue);
         final swing = (blueAfter - blueBefore) - (redAfter - redBefore);
-        blowCandidates.add((
-          cell: (r, c),
-          affected: affected,
-          swing: swing,
-        ));
-        if (swing > bestBlowSwing) {
-          bestBlowSwing = swing;
-          bestBlowCell = (r, c);
+        if (swing > bestBombDetSwing) {
+          bestBombDetSwing = swing;
+          bestBombToDetonate = bomb;
         }
       }
-    }
 
-    if (gameOver) {
-      isAiThinking = false;
-      notifyListeners();
-      return;
-    }
-
-    // Compute placement action score using mode-aware evaluator (primary) and swing (aux)
-    int bestPlaceSwing = -0x7fffffff;
-    int placeActionScore = -0x7fffffff;
-    (int, int)? placeChoice = mv;
-    List<List<CellState>>? placeSim;
-    if (mv != null) {
-      final (pr, pc) = mv;
-      placeSim = RulesEngine.place(board, pr, pc, CellState.blue);
-      if (placeSim != null) {
-        final redAfter = RulesEngine.countOf(placeSim, CellState.red);
-        final blueAfter = RulesEngine.countOf(placeSim, CellState.blue);
-        bestPlaceSwing = (blueAfter - blueBefore) - (redAfter - redBefore);
+      // Evaluate AI bomb placement options when available
+      int bestBombPlaceScore = -0x7fffffff;
+      (int, int)? bestBombPlaceCell;
+      if (_canPlaceBombFor(CellState.blue)) {
+        final targets = _validBombTargetsFor(CellState.blue);
+        for (final (br, bc) in targets) {
+          final scoreD = AiDecisionModel.evaluateBombPlacement(board, br, bc, CellState.blue);
+          // Convert to integer scale for unified action scoring
+          final score = (scoreD * 10).round();
+          if (score > bestBombPlaceScore) {
+            bestBombPlaceScore = score;
+            bestBombPlaceCell = (br, bc);
+          } else if (score == bestBombPlaceScore) {
+            if (bestBombPlaceCell == null || br < bestBombPlaceCell.$1 || (br == bestBombPlaceCell.$1 && bc < bestBombPlaceCell.$2)) {
+              bestBombPlaceScore = score;
+              bestBombPlaceCell = (br, bc);
+            }
+          }
+        }
       }
-      final evalScoreD = AiDecisionModel.evaluatePlacement(board, pr, pc, CellState.blue, bombs: bombsSnapshot);
-      placeActionScore = (evalScoreD * 10).round();
-    }
-
-    // Consider AI grey-drop option only in neutralIntermediary mode, and only
-    // if neutrals exist and other options are not strictly beneficial.
-    final bool neutralsEnabled =
-        GameRulesConfig.current.resolutionMode == InfectionResolutionMode.neutralIntermediary;
-    final neutralsExist = neutralsEnabled && _allNeutralCells().isNotEmpty;
-    int bestGreySwing = -0x7fffffff;
-    if (neutralsExist) {
-      final after = RulesEngine.removeAllNeutrals(board);
-      final redAfter = RulesEngine.countOf(after, CellState.red);
-      final blueAfter = RulesEngine.countOf(after, CellState.blue);
-      bestGreySwing = (blueAfter - blueBefore) - (redAfter - redBefore);
-    }
-
-    _AiAction? strategicAction;
-    (int, int)? strategicBlowCell;
-    if (aiLevel >= 7) {
-      double bestWinRate = -1.0;
-      double? placeWinRate;
-      const minWinRateEdge = 0.08;
-      const minPositiveSwing = 2;
-      if (placeSim != null) {
-        final rate = _ai.estimateWinRate(placeSim, CellState.red,
-            rollouts: 220, timeLimitMs: 200);
-        bestWinRate = rate;
-        strategicAction = _AiAction.place;
-        placeWinRate = rate;
+      for (int r = 0; r < K.n; r++) {
+        for (int c = 0; c < K.n; c++) {
+          if (board[r][c] != CellState.blue) continue;
+          final affected = RulesEngine.blowAffected(board, r, c);
+          if (affected.isEmpty) continue;
+          // Skip trivial blow that only removes self
+          if (affected.length <= 1) continue;
+          final after = RulesEngine.blow(board, affected);
+          final redAfter = RulesEngine.countOf(after, CellState.red);
+          final blueAfter = RulesEngine.countOf(after, CellState.blue);
+          final swing = (blueAfter - blueBefore) - (redAfter - redBefore);
+          blowCandidates.add((
+            cell: (r, c),
+            affected: affected,
+            swing: swing,
+          ));
+          if (swing > bestBlowSwing) {
+            bestBlowSwing = swing;
+            bestBlowCell = (r, c);
+          }
+        }
       }
-      if (blowCandidates.isNotEmpty) {
-        final sorted = [...blowCandidates]
-          ..sort((a, b) => b.swing.compareTo(a.swing));
-        final limit = math.min(3, sorted.length);
-        for (int i = 0; i < limit; i++) {
-          final candidate = sorted[i];
-          final after = RulesEngine.blow(board, candidate.affected);
+
+      if (gameOver) {
+        _log('AI aborted mid-turn: gameOver');
+        return;
+      }
+
+      // Compute placement action score using mode-aware evaluator (primary) and swing (aux)
+      int bestPlaceSwing = -0x7fffffff;
+      int placeActionScore = -0x7fffffff;
+      (int, int)? placeChoice = mv;
+      List<List<CellState>>? placeSim;
+      if (mv != null) {
+        final (pr, pc) = mv;
+        placeSim = RulesEngine.place(board, pr, pc, CellState.blue);
+        if (placeSim != null) {
+          final redAfter = RulesEngine.countOf(placeSim, CellState.red);
+          final blueAfter = RulesEngine.countOf(placeSim, CellState.blue);
+          bestPlaceSwing = (blueAfter - blueBefore) - (redAfter - redBefore);
+        }
+        final evalScoreD = AiDecisionModel.evaluatePlacement(board, pr, pc, CellState.blue, bombs: bombsSnapshot);
+        placeActionScore = (evalScoreD * 10).round();
+      }
+
+      // Consider AI grey-drop option only in neutralIntermediary mode, and only
+      // if neutrals exist and other options are not strictly beneficial.
+      final bool neutralsEnabled =
+          GameRulesConfig.current.resolutionMode == InfectionResolutionMode.neutralIntermediary;
+      final neutralsExist = neutralsEnabled && _allNeutralCells().isNotEmpty;
+      int bestGreySwing = -0x7fffffff;
+      if (neutralsExist) {
+        final after = RulesEngine.removeAllNeutrals(board);
+        final redAfter = RulesEngine.countOf(after, CellState.red);
+        final blueAfter = RulesEngine.countOf(after, CellState.blue);
+        bestGreySwing = (blueAfter - blueBefore) - (redAfter - redBefore);
+      }
+
+      _AiAction? strategicAction;
+      (int, int)? strategicBlowCell;
+      if (aiLevel >= 7) {
+        double bestWinRate = -1.0;
+        double? placeWinRate;
+        const minWinRateEdge = 0.08;
+        const minPositiveSwing = 2;
+        if (placeSim != null) {
+          final rate = _ai.estimateWinRate(placeSim, CellState.red,
+              rollouts: 220, timeLimitMs: 200);
+          bestWinRate = rate;
+          strategicAction = _AiAction.place;
+          placeWinRate = rate;
+        }
+        if (blowCandidates.isNotEmpty) {
+          final sorted = [...blowCandidates]
+            ..sort((a, b) => b.swing.compareTo(a.swing));
+          final limit = math.min(3, sorted.length);
+          for (int i = 0; i < limit; i++) {
+            final candidate = sorted[i];
+            final after = RulesEngine.blow(board, candidate.affected);
+            final rate = _ai.estimateWinRate(after, CellState.red,
+                rollouts: 220, timeLimitMs: 200);
+            final improvesWinRate = placeWinRate == null ||
+                rate >= placeWinRate + minWinRateEdge;
+            final strongSwing = candidate.swing >= minPositiveSwing;
+            if ((strongSwing && rate >= bestWinRate) ||
+                (improvesWinRate && rate > bestWinRate)) {
+              bestWinRate = rate;
+              strategicAction = _AiAction.blow;
+              strategicBlowCell = candidate.cell;
+            }
+          }
+        }
+        if (neutralsExist) {
+          final after = RulesEngine.removeAllNeutrals(board);
           final rate = _ai.estimateWinRate(after, CellState.red,
               rollouts: 220, timeLimitMs: 200);
           final improvesWinRate = placeWinRate == null ||
               rate >= placeWinRate + minWinRateEdge;
-          final strongSwing = candidate.swing >= minPositiveSwing;
+          final strongSwing = bestGreySwing >= minPositiveSwing;
           if ((strongSwing && rate >= bestWinRate) ||
               (improvesWinRate && rate > bestWinRate)) {
             bestWinRate = rate;
-            strategicAction = _AiAction.blow;
-            strategicBlowCell = candidate.cell;
+            strategicAction = _AiAction.greyDrop;
           }
         }
       }
+
+      _AiAction? action;
+      (int, int)? blowChoice = bestBlowCell;
+      final actionScores = <_AiAction, int>{};
+      if (placeChoice != null) {
+        // Use evaluator-driven score for placement to be mode-aware.
+        actionScores[_AiAction.place] = placeActionScore != -0x7fffffff
+            ? placeActionScore
+            : bestPlaceSwing; // fallback
+      }
+      if (bestBlowCell != null) {
+        actionScores[_AiAction.blow] = bestBlowSwing;
+      }
       if (neutralsExist) {
-        final after = RulesEngine.removeAllNeutrals(board);
-        final rate = _ai.estimateWinRate(after, CellState.red,
-            rollouts: 220, timeLimitMs: 200);
-        final improvesWinRate = placeWinRate == null ||
-            rate >= placeWinRate + minWinRateEdge;
-        final strongSwing = bestGreySwing >= minPositiveSwing;
-        if ((strongSwing && rate >= bestWinRate) ||
-            (improvesWinRate && rate > bestWinRate)) {
-          bestWinRate = rate;
-          strategicAction = _AiAction.greyDrop;
+        actionScores[_AiAction.greyDrop] = bestGreySwing;
+      }
+      if (bestBombToDetonate != null) {
+        actionScores[_AiAction.bombDetonate] = bestBombDetSwing;
+      }
+      if (bestBombPlaceCell != null) {
+        actionScores[_AiAction.bombPlace] = bestBombPlaceScore;
+      }
+
+      _AiAction? bestAction;
+      int bestActionScore = -0x7fffffff;
+      for (final entry in actionScores.entries) {
+        final score = entry.value;
+        if (score > bestActionScore) {
+          bestActionScore = score;
+          bestAction = entry.key;
         }
       }
-    }
 
-    _AiAction? action;
-    (int, int)? blowChoice = bestBlowCell;
-    final actionScores = <_AiAction, int>{};
-    if (placeChoice != null) {
-      // Use evaluator-driven score for placement to be mode-aware.
-      actionScores[_AiAction.place] = placeActionScore != -0x7fffffff
-          ? placeActionScore
-          : bestPlaceSwing; // fallback
-    }
-    if (bestBlowCell != null) {
-      actionScores[_AiAction.blow] = bestBlowSwing;
-    }
-    if (neutralsExist) {
-      actionScores[_AiAction.greyDrop] = bestGreySwing;
-    }
-    if (bestBombToDetonate != null) {
-      actionScores[_AiAction.bombDetonate] = bestBombDetSwing;
-    }
-    if (bestBombPlaceCell != null) {
-      actionScores[_AiAction.bombPlace] = bestBombPlaceScore;
-    }
-
-    _AiAction? bestAction;
-    int bestActionScore = -0x7fffffff;
-    for (final entry in actionScores.entries) {
-      final score = entry.value;
-      if (score > bestActionScore ||
-          (score == bestActionScore && _rng.nextBool())) {
-        bestActionScore = score;
-        bestAction = entry.key;
-      }
-    }
-
-    _AiAction? bestNonPlaceAction;
-    int bestNonPlaceScore = -0x7fffffff;
-    for (final entry in actionScores.entries) {
-      if (entry.key == _AiAction.place) continue;
-      final score = entry.value;
-      if (score > bestNonPlaceScore ||
-          (score == bestNonPlaceScore && _rng.nextBool())) {
-        bestNonPlaceScore = score;
-        bestNonPlaceAction = entry.key;
-      }
-    }
-
-    switch (aiLevel) {
-      case 1:
-        action = placeChoice != null ? _AiAction.place : null;
-        break;
-      case 2:
-        if (bestNonPlaceAction != null &&
-            bestNonPlaceScore > 0 &&
-            _rng.nextDouble() < 0.35) {
-          action = bestNonPlaceAction;
-        } else {
-          action = placeChoice != null ? _AiAction.place : bestAction;
+      _AiAction? bestNonPlaceAction;
+      int bestNonPlaceScore = -0x7fffffff;
+      for (final entry in actionScores.entries) {
+        if (entry.key == _AiAction.place) continue;
+        final score = entry.value;
+        if (score > bestNonPlaceScore) {
+          bestNonPlaceScore = score;
+          bestNonPlaceAction = entry.key;
         }
-        break;
-      case 3:
-        if (bestNonPlaceAction != null &&
-            bestNonPlaceScore > 0 &&
-            (actionScores[_AiAction.place] == null ||
-                bestNonPlaceScore >= actionScores[_AiAction.place]!)) {
-          action = bestNonPlaceAction;
-        } else {
-          action = placeChoice != null ? _AiAction.place : bestAction;
-        }
-        break;
-      case 4:
-        if (bestAction != null && bestActionScore > 0) {
-          action = bestAction;
-        } else {
-          action = placeChoice != null ? _AiAction.place : bestAction;
-        }
-        break;
-      case 5:
-        if (bestAction != null &&
-            bestActionScore >= 0 &&
-            (actionScores[_AiAction.place] == null ||
-                bestActionScore >= actionScores[_AiAction.place]!)) {
-          action = bestAction;
-        } else {
-          action = placeChoice != null ? _AiAction.place : bestAction;
-        }
-        break;
-      case 6:
-        action = bestAction ?? (placeChoice != null ? _AiAction.place : null);
-        break;
-      default:
-        if (bestBlowCell != null &&
-            (placeChoice == null || bestBlowSwing > bestPlaceSwing)) {
-          action = _AiAction.blow;
-        } else if (neutralsExist &&
-            (placeChoice == null ||
-                (bestPlaceSwing <= 0 && bestBlowSwing <= 0))) {
-          action = _AiAction.greyDrop;
-        } else if (placeChoice != null) {
-          action = _AiAction.place;
-        }
-        break;
-    }
+      }
 
-    if (aiLevel >= 7 && strategicAction != null) {
-      bool isValid = false;
-      if (strategicAction == _AiAction.place) {
-        isValid = placeChoice != null;
-      } else if (strategicAction == _AiAction.blow) {
-        isValid = strategicBlowCell != null;
-      } else if (strategicAction == _AiAction.greyDrop) {
-        isValid = neutralsExist;
+      switch (aiLevel) {
+        case 1:
+          action = placeChoice != null ? _AiAction.place : null;
+          break;
+        case 2:
+          if (bestNonPlaceAction != null &&
+              bestNonPlaceScore > 0 &&
+              (actionScores[_AiAction.place] == null ||
+                  bestNonPlaceScore > actionScores[_AiAction.place]!)) {
+            action = bestNonPlaceAction;
+          } else {
+            action = placeChoice != null ? _AiAction.place : bestAction;
+          }
+          break;
+        case 3:
+          if (bestNonPlaceAction != null &&
+              bestNonPlaceScore > 0 &&
+              (actionScores[_AiAction.place] == null ||
+                  bestNonPlaceScore >= actionScores[_AiAction.place]!)) {
+            action = bestNonPlaceAction;
+          } else {
+            action = placeChoice != null ? _AiAction.place : bestAction;
+          }
+          break;
+        case 4:
+          if (bestAction != null && bestActionScore > 0) {
+            action = bestAction;
+          } else {
+            action = placeChoice != null ? _AiAction.place : bestAction;
+          }
+          break;
+        case 5:
+          if (bestAction != null &&
+              bestActionScore >= 0 &&
+              (actionScores[_AiAction.place] == null ||
+                  bestActionScore >= actionScores[_AiAction.place]!)) {
+            action = bestAction;
+          } else {
+            action = placeChoice != null ? _AiAction.place : bestAction;
+          }
+          break;
+        case 6:
+          action = bestAction ?? (placeChoice != null ? _AiAction.place : null);
+          break;
+        default:
+          if (bestBlowCell != null &&
+              (placeChoice == null || bestBlowSwing > bestPlaceSwing)) {
+            action = _AiAction.blow;
+          } else if (neutralsExist &&
+              (placeChoice == null ||
+                  (bestPlaceSwing <= 0 && bestBlowSwing <= 0))) {
+            action = _AiAction.greyDrop;
+          } else if (placeChoice != null) {
+            action = _AiAction.place;
+          }
+          break;
       }
-      if (isValid) {
-        action = strategicAction;
-        blowChoice = strategicBlowCell ?? blowChoice;
-      }
-    }
 
-    if (action == null || (placeChoice == null && action == _AiAction.place)) {
-      // no moves; end
-      _checkEnd(force: true);
-      isAiThinking = false;
-      notifyListeners();
-      return;
-    }
+      // Guard: greyDrop is illegal in directTransfer; correct if somehow chosen
+      if (action == _AiAction.greyDrop &&
+          GameRulesConfig.current.resolutionMode == InfectionResolutionMode.directTransfer) {
+        _log('ASSERT: greyDrop chosen in directTransfer; correcting to placement or blow');
+        action = placeChoice != null ? _AiAction.place : bestNonPlaceAction;
+      }
 
-    // AI bomb detonation (owner-only)
-    if (action == _AiAction.bombDetonate && bestBombToDetonate != null) {
-      final bomb = bestBombToDetonate;
-      selectedCell = (bomb.row, bomb.col);
-      blowPreview = RulesEngine.bombBlastAffected(board, bomb.row, bomb.col);
-      notifyListeners();
-      await Future.delayed(Duration(milliseconds: aiPreviewDelayMs));
-      await _performBombActivation(bomb);
-      // Small post-action delay for clarity
-      if (aiPostActionDelayMs > 0) {
-        await Future.delayed(Duration(milliseconds: aiPostActionDelayMs));
-      }
-      // After AI completes action and it's Red's turn, save undo point
-      if (!gameOver && current == CellState.red) {
-        _saveUndoPoint();
-      }
-      isAiThinking = false;
-      notifyListeners();
-      return;
-    }
+      _log('AI chose action: ' + (action?.toString() ?? 'none'));
 
-    if (action == _AiAction.blow && blowChoice != null) {
-      final (br, bc) = blowChoice;
-      // Preselect for animation parity with user: show border+icon and affected preview
-      selectedCell = (br, bc);
-      blowPreview = RulesEngine.blowAffected(board, br, bc);
-      notifyListeners();
-      await Future.delayed(Duration(milliseconds: aiPreviewDelayMs));
-      // Animate and perform blow like user (enable SFX for AI as well)
-      await _performBlow(br, bc, CellState.blue, userInitiated: true);
-      // Small post-action delay for clarity
-      if (aiPostActionDelayMs > 0) {
-        await Future.delayed(Duration(milliseconds: aiPostActionDelayMs));
+      if (action == null || (placeChoice == null && action == _AiAction.place)) {
+        // no moves; end
+        _log('No legal actions; forcing game end.');
+        _checkEnd(force: true);
+        return;
       }
-      // After AI completes action and it's Red's turn, save undo point
-      if (!gameOver && current == CellState.red) {
-        _saveUndoPoint();
-      }
-      isAiThinking = false;
-      notifyListeners();
-      return;
-    }
 
-    if (action == _AiAction.greyDrop) {
-      // Preselect one neutral for clarity and preview all neutrals
-      final allNeutrals = _allNeutralCells();
-      final sel = allNeutrals.first;
-      selectedCell = sel;
-      blowPreview = allNeutrals;
-      notifyListeners();
-      await Future.delayed(Duration(milliseconds: aiPreviewDelayMs));
-      await _performGreyDropAi();
-      // After AI completes action and it's Red's turn, save undo point
-      if (!gameOver && current == CellState.red) {
-        _saveUndoPoint();
-      }
-      isAiThinking = false;
-      notifyListeners();
-      return;
-    }
-
-    // AI bomb placement
-    if (action == _AiAction.bombPlace && bestBombPlaceCell != null) {
-      final (br, bc) = bestBombPlaceCell;
-      selectedCell = null; // ensure no conflicting selection
-      blowPreview = {(br, bc)};
-      notifyListeners();
-      await Future.delayed(Duration(milliseconds: aiPreviewDelayMs));
-      // Perform bomb placement if still valid
-      if (_canPlaceBombFor(CellState.blue) && board[br][bc] == CellState.empty) {
-        _performBombPlacement(br, bc, CellState.blue);
-        // Small post-action delay so users can perceive AI move
+      // AI bomb detonation (owner-only)
+      if (action == _AiAction.bombDetonate && bestBombToDetonate != null) {
+        final bomb = bestBombToDetonate;
+        selectedCell = (bomb.row, bomb.col);
+        blowPreview = RulesEngine.bombBlastAffected(board, bomb.row, bomb.col);
+        notifyListeners();
+        await Future.delayed(Duration(milliseconds: aiPreviewDelayMs));
+        _log('Executing: bombDetonate at (${bomb.row},${bomb.col})');
+        final prevTurnsBlue = turnsBlue;
+        final prevCurrent = current;
+        await _performBombActivation(bomb);
+        // Commit detection: turn switched to Red or Blue turn incremented
+        didCommitMove = gameOver || current == CellState.red || turnsBlue > prevTurnsBlue || current != prevCurrent;
+        // Small post-action delay for clarity
         if (aiPostActionDelayMs > 0) {
           await Future.delayed(Duration(milliseconds: aiPostActionDelayMs));
         }
@@ -2609,45 +2660,132 @@ class GameController extends ChangeNotifier {
         if (!gameOver && current == CellState.red) {
           _saveUndoPoint();
         }
+        return;
       }
-      // Clear preview regardless
-      blowPreview.clear();
-      isAiThinking = false;
-      notifyListeners();
-      return;
-    }
 
-    final (r, c) = placeChoice!;
-    // Show a brief preview highlight on the target cell to make AI action clearer
-    selectedCell = null; // ensure no conflicting selection
-    blowPreview = {(r, c)};
-    notifyListeners();
-    await Future.delayed(Duration(milliseconds: aiPreviewDelayMs));
-    // After preview, perform placement if still valid
-    final before = board;
-    final next = RulesEngine.place(board, r, c, CellState.blue);
-    // Clear preview regardless of result
-    blowPreview.clear();
-    if (next != null) {
-      board = next;
-      // compute per-move points for AI
-      lastMovePoints = _computeMovePoints(before, next, r, c, CellState.blue);
-      lastMoveBy = CellState.blue;
-      turnsBlue++;
-      await _playSfxAwait(GameSfxType.blueTurn);
-      current = CellState.red;
-      _handleTurnStart(current);
-      _checkEnd();
-      if (!gameOver && current == CellState.red) {
-        _saveUndoPoint();
+      if (action == _AiAction.blow && blowChoice != null) {
+        final (br, bc) = blowChoice;
+        // Preselect for animation parity with user: show border+icon and affected preview
+        selectedCell = (br, bc);
+        blowPreview = RulesEngine.blowAffected(board, br, bc);
+        notifyListeners();
+        await Future.delayed(Duration(milliseconds: aiPreviewDelayMs));
+        // Animate and perform blow like user (enable SFX for AI as well)
+        _log('Executing: blow at ($br,$bc)');
+        final prevTurnsBlue = turnsBlue;
+        final prevCurrent = current;
+        await _performBlow(br, bc, CellState.blue, userInitiated: true);
+        didCommitMove = gameOver || current == CellState.red || turnsBlue > prevTurnsBlue || current != prevCurrent;
+        // Small post-action delay for clarity
+        if (aiPostActionDelayMs > 0) {
+          await Future.delayed(Duration(milliseconds: aiPostActionDelayMs));
+        }
+        // After AI completes action and it's Red's turn, save undo point
+        if (!gameOver && current == CellState.red) {
+          _saveUndoPoint();
+        }
+        return;
       }
-      // Small post-action delay so users can perceive AI move before control returns
-      if (aiPostActionDelayMs > 0) {
-        await Future.delayed(Duration(milliseconds: aiPostActionDelayMs));
+
+      if (action == _AiAction.greyDrop) {
+        // Preselect one neutral for clarity and preview all neutrals
+        final allNeutrals = _allNeutralCells();
+        final sel = allNeutrals.first;
+        selectedCell = sel;
+        blowPreview = allNeutrals;
+        notifyListeners();
+        await Future.delayed(Duration(milliseconds: aiPreviewDelayMs));
+        _log('Executing: greyDrop');
+        final prevTurnsBlue = turnsBlue;
+        final prevCurrent = current;
+        await _performGreyDropAi();
+        didCommitMove = gameOver || current == CellState.red || turnsBlue > prevTurnsBlue || current != prevCurrent;
+        // After AI completes action and it's Red's turn, save undo point
+        if (!gameOver && current == CellState.red) {
+          _saveUndoPoint();
+        }
+        return;
       }
+
+      // AI bomb placement
+      if (action == _AiAction.bombPlace && bestBombPlaceCell != null) {
+        final (br, bc) = bestBombPlaceCell;
+        selectedCell = null; // ensure no conflicting selection
+        blowPreview = {(br, bc)};
+        notifyListeners();
+        await Future.delayed(Duration(milliseconds: aiPreviewDelayMs));
+        // Perform bomb placement if still valid
+        if (_canPlaceBombFor(CellState.blue) && board[br][bc] == CellState.empty) {
+          _log('Executing: bombPlace at ($br,$bc)');
+          final committed = _performBombPlacementForAi(br, bc, CellState.blue);
+          didCommitMove = committed || didCommitMove;
+          // Small post-action delay so users can perceive AI move
+          if (aiPostActionDelayMs > 0) {
+            await Future.delayed(Duration(milliseconds: aiPostActionDelayMs));
+          }
+          // After AI completes action and it's Red's turn, save undo point
+          if (committed && !gameOver && current == CellState.red) {
+            _saveUndoPoint();
+          }
+        } else {
+          _log('Bomb placement aborted: invalid target or cooldown');
+        }
+        // Clear preview regardless
+        blowPreview.clear();
+        return;
+      }
+
+      final (r, c) = placeChoice!;
+      // Show a brief preview highlight on the target cell to make AI action clearer
+      selectedCell = null; // ensure no conflicting selection
+      blowPreview = {(r, c)};
+      notifyListeners();
+      await Future.delayed(Duration(milliseconds: aiPreviewDelayMs));
+      // After preview, perform placement if still valid
+      final before = board;
+      final next = RulesEngine.place(board, r, c, CellState.blue);
+      // Clear preview regardless of result
+      blowPreview.clear();
+      if (next != null) {
+        board = next;
+        // compute per-move points for AI
+        lastMovePoints = _computeMovePoints(before, next, r, c, CellState.blue);
+        lastMoveBy = CellState.blue;
+        turnsBlue++;
+        await _playSfxAwait(GameSfxType.blueTurn);
+        final prev = current;
+        current = CellState.red;
+        _handleTurnStart(current);
+        _checkEnd();
+        didCommitMove = true;
+        if (!gameOver && current == CellState.red) {
+          _saveUndoPoint();
+        }
+        _log('Placement complete at ($r,$c). turn $prev -> $current, pts=$lastMovePoints');
+        // Small post-action delay so users can perceive AI move before control returns
+        if (aiPostActionDelayMs > 0) {
+          await Future.delayed(Duration(milliseconds: aiPostActionDelayMs));
+        }
+      } else {
+        _log('Placement aborted: target became invalid');
+      }
+    } catch (e, st) {
+      _log('ERROR in _scheduleAi: $e\n$st');
+    } finally {
+      // Ensure we always clear AI thinking and pass the turn if stuck
+      // Also clear any previews/selection to avoid UI being stuck
+      blowPreview.clear();
+      selectedCell = null;
+      if (!humanVsHuman && !gameOver) {
+        if (!didCommitMove && !aborted) {
+          _endAiTurnNoOp('AI action produced no state change');
+        }
+      }
+      if (isAiThinking) {
+        isAiThinking = false;
+      }
+      notifyListeners();
     }
-    isAiThinking = false;
-    notifyListeners();
   }
 
   void _checkEnd({bool force = false}) {
@@ -2995,15 +3133,21 @@ class GameController extends ChangeNotifier {
   }
 
   Future<void> _performGreyDropAi() async {
-    if (gameOver || isExploding || isFalling || isQuaking) return;
+    _log('AI greyDrop requested');
+    if (gameOver || isExploding || isFalling || isQuaking) {
+      _log('greyDrop ignored: gameOver=$gameOver isExploding=$isExploding isFalling=$isFalling isQuaking=$isQuaking');
+      return;
+    }
     // Gray drop is unavailable in directTransfer mode.
     if (GameRulesConfig.current.resolutionMode !=
         InfectionResolutionMode.neutralIntermediary) {
+      _log('greyDrop denied: directTransfer mode');
       return;
     }
     _clearScorePopup();
     // Determine all neutral cells to drop
     final neutrals = _allNeutralCells();
+    _log('greyDrop neutrals count=${neutrals.length}');
     if (neutrals.isEmpty) {
       // Nothing to do
       selectedCell = null;
@@ -3038,8 +3182,10 @@ class GameController extends ChangeNotifier {
     lastMovePoints = 0;
     lastMoveBy = CellState.blue;
     turnsBlue++;
+    final prev = current;
     current = CellState.red;
     _handleTurnStart(current);
+    _log('greyDrop complete. turn $prev -> $current');
 
     _checkEnd();
     notifyListeners();

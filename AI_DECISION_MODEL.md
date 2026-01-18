@@ -49,7 +49,7 @@ All evaluation relies on centralized providers:
       - `orthogonalPlusDiagonal8`: extra weight for local change density; favors multi‑capture.
     - Bomb risk: penalty for placing adjacent (orthogonally) to enemy bombs.
   - `bestPlacement(board, attacker, {bombs}) -> ({r,c,score})?`
-    - Scans empty cells and returns the best evaluated cell (ties broken randomly).
+    - Scans empty cells and returns the best evaluated cell (ties broken deterministically: row asc, then col asc when scores are equal).
   - `evaluateBombPlacement(board, r, c, owner) -> double`
     - Estimates value of planting a bomb by counting enemies vs self in the blast cross, adds centrality and density nudges. Biases slightly higher when adjacency is 8‑way (more clustering, bigger swings likely).
 
