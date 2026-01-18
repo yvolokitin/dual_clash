@@ -20,7 +20,8 @@ class CampaignPage extends StatefulWidget {
 }
 
 class _CampaignPageState extends State<CampaignPage> {
-  static const String _kLastCampaignId = 'campaign_last_played';
+  static const String _kActiveCampaignId = 'activeCampaignId';
+  static const String _kLegacyLastCampaignId = 'campaign_last_played';
   static const String _kIntroShownPrefix = 'campaign_intro_shown_';
   final Map<String, CampaignController> _campaignControllers =
       <String, CampaignController>{};
@@ -55,15 +56,7 @@ class _CampaignPageState extends State<CampaignPage> {
   void _initializeCampaigns() {
     final l10n = context.l10n;
     final definitions = <CampaignMetadata>[
-      CampaignMetadata(
-        id: 'shiva',
-        title: l10n.shivaCampaignTitle,
-        description: l10n.shivaCampaignDescription,
-        iconAsset: 'assets/icons/campaigns/shiva.png',
-        isUnlocked: false,
-        totalLevels: campaignLevels.length,
-        levels: campaignLevels,
-      ),
+      // Order must be strictly: Buddha → Ganesha → Shiva
       CampaignMetadata(
         id: 'buddha',
         title: l10n.buddhaCampaignTitle,
@@ -78,23 +71,21 @@ class _CampaignPageState extends State<CampaignPage> {
         title: l10n.ganeshaCampaignTitle,
         description: l10n.ganeshaCampaignDescription,
         iconAsset: 'assets/icons/campaigns/ganesha.png',
-        isUnlocked: false,
+        isUnlocked: true,
+        totalLevels: campaignLevels.length,
+        levels: campaignLevels,
+      ),
+      CampaignMetadata(
+        id: 'shiva',
+        title: l10n.shivaCampaignTitle,
+        description: l10n.shivaCampaignDescription,
+        iconAsset: 'assets/icons/campaigns/shiva.png',
+        isUnlocked: true,
         totalLevels: campaignLevels.length,
         levels: campaignLevels,
       ),
     ];
     _campaigns = definitions;
-    if (_campaigns.isNotEmpty && _currentIndex == 0) {
-      final firstUnlockedIndex =
-          _campaigns.indexWhere((campaign) => campaign.isUnlocked);
-      if (firstUnlockedIndex != -1) {
-        _currentIndex = firstUnlockedIndex;
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!mounted) return;
-          _pageController.jumpToPage(_currentIndex);
-        });
-      }
-    }
     for (final campaign in _campaigns) {
       _campaignControllers.putIfAbsent(
         campaign.id,
@@ -105,7 +96,7 @@ class _CampaignPageState extends State<CampaignPage> {
           levels: campaign.levels,
         ),
       );
-      if (campaign.isUnlocked && !_loadedProgress.contains(campaign.id)) {
+      if (!_loadedProgress.contains(campaign.id)) {
         _loadedProgress.add(campaign.id);
         _campaignControllers[campaign.id]!.loadProgress();
       }
@@ -120,34 +111,32 @@ class _CampaignPageState extends State<CampaignPage> {
 
   Future<void> _restoreLastCampaignIfNeeded() async {
     if (_campaigns.isEmpty) return;
-    final unlocked = _campaigns.where((campaign) => campaign.isUnlocked).toList();
-    if (unlocked.length <= 1) return;
     final prefs = await SharedPreferences.getInstance();
-    final lastCampaignId = prefs.getString(_kLastCampaignId);
-    if (lastCampaignId == null) return;
-    final index = _campaigns.indexWhere(
-      (campaign) => campaign.id == lastCampaignId && campaign.isUnlocked,
-    );
-    if (index <= -1 || index == _currentIndex) return;
+    // Migrate from legacy key if needed
+    String? id = prefs.getString(_kActiveCampaignId);
+    id ??= prefs.getString(_kLegacyLastCampaignId);
+    id ??= 'buddha'; // default when nothing stored yet
+    final index = _campaigns.indexWhere((c) => c.id == id);
+    final targetIndex = index >= 0 ? index : 0; // fallback to Buddha (index 0)
     if (!mounted) return;
-    setState(() {
-      _currentIndex = index;
-    });
-    _pageController.jumpToPage(index);
+    if (_currentIndex != targetIndex) {
+      setState(() {
+        _currentIndex = targetIndex;
+      });
+      _pageController.jumpToPage(targetIndex);
+    }
+    // Persist back using the new key for future opens
+    await prefs.setString(_kActiveCampaignId, _campaigns[_currentIndex].id);
     // After restore, maybe show intro for this campaign
     _maybeShowCampaignIntro(_campaigns[_currentIndex]);
   }
 
   Future<void> _persistSelectedCampaign(CampaignMetadata campaign) async {
-    final unlocked = _campaigns.where((entry) => entry.isUnlocked).toList();
-    if (unlocked.length <= 1) return;
-    if (!campaign.isUnlocked) return;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_kLastCampaignId, campaign.id);
+    await prefs.setString(_kActiveCampaignId, campaign.id);
   }
 
   Future<void> _maybeShowCampaignIntro(CampaignMetadata campaign) async {
-    if (!campaign.isUnlocked) return;
     if (_introShown.contains(campaign.id)) return;
     final prefs = await SharedPreferences.getInstance();
     final key = '$_kIntroShownPrefix${campaign.id}';
@@ -421,7 +410,7 @@ class _CampaignNavigationHeader extends StatelessWidget {
                   children: [
                     _CampaignHeaderIcon(
                       iconAsset: campaign.iconAsset,
-                      isLocked: !campaign.isUnlocked,
+                      isLocked: false,
                       size: iconSize,
                     ),
                     const SizedBox(height: 6),
@@ -887,36 +876,7 @@ class _CampaignRouteGrid extends StatelessWidget {
           ],
         );
 
-        if (campaignController.isUnlocked) {
-          return grid;
-        }
-
-        return Stack(
-          alignment: Alignment.topCenter,
-          children: [
-            grid,
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.lock,
-                  color: AppColors.brandGold,
-                  size: adjustedNodeSize * 2,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  comingSoonLabel,
-                  style: const TextStyle(
-                    color: AppColors.brandGold,
-                    fontSize: 20.8,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.4,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        );
+        return grid;
       },
     );
   }

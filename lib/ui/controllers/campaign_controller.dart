@@ -18,6 +18,8 @@ class CampaignController extends ChangeNotifier {
   static const String _kCampaignResults = 'campaign_results';
   static const String _kCampaignProgress = 'campaign_progress';
   static const String _kCampaignAchievements = 'campaign_achievements';
+  static const String _kHighestCompletedPrefix = 'campaign_highest_completed_';
+  static const String _kActiveCampaignId = 'activeCampaignId';
   final String campaignId;
   final bool isUnlocked;
   final int totalLevels;
@@ -67,6 +69,7 @@ class CampaignController extends ChangeNotifier {
             status == CampaignLevelStatus.failed)) {
       _statusByLevel[_levels.first.index] = CampaignLevelStatus.available;
     }
+    await _persistHighestCompletedFromStatus();
     notifyListeners();
   }
 
@@ -134,6 +137,8 @@ class CampaignController extends ChangeNotifier {
       }
       _persistProgress();
       _recordCampaignWinStats(level.index, gameController);
+      // Persist highest completed level (monotonic)
+      _persistHighestCompletedIfGreater(level.index);
       // Unlock campaign achievement if this was the final level
       if (nextLevel == null) {
         _unlockCampaignAchievementIfNeeded();
@@ -373,6 +378,32 @@ class CampaignController extends ChangeNotifier {
       case 'shiva':
       default:
         return 'frame_shiva';
+    }
+  }
+
+  Future<void> _persistHighestCompletedIfGreater(int levelIndex) async {
+    if (!isUnlocked) return;
+    final prefs = await SharedPreferences.getInstance();
+    final key = '$_kHighestCompletedPrefix$campaignId';
+    final current = prefs.getInt(key) ?? 0;
+    if (levelIndex > current) {
+      await prefs.setInt(key, levelIndex);
+    }
+  }
+
+  Future<void> _persistHighestCompletedFromStatus() async {
+    if (!isUnlocked) return;
+    int highest = 0;
+    for (final level in _levels) {
+      if (_statusByLevel[level.index] == CampaignLevelStatus.passed && level.index > highest) {
+        highest = level.index;
+      }
+    }
+    final prefs = await SharedPreferences.getInstance();
+    final key = '$_kHighestCompletedPrefix$campaignId';
+    final current = prefs.getInt(key) ?? 0;
+    if (highest > current) {
+      await prefs.setInt(key, highest);
     }
   }
 }

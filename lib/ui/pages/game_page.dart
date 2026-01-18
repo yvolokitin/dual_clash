@@ -179,25 +179,42 @@ class _GamePageState extends State<GamePage> with RouteAware {
     controller.aiLevel = config.aiLevel;
     controller.humanVsHuman = false;
 
-    // Apply per-campaign rule presets
+    // Remember active campaign for persistence
+    _persistActiveCampaignId();
+
+    // Apply per-campaign rule presets (fixed within each campaign)
     switch (widget.campaignId) {
       case 'shiva':
         GameRulesConfig.current.resolutionMode = InfectionResolutionMode.directTransfer;
-        GameRulesConfig.current.adjacencyMode = InfectionAdjacencyMode.orthogonal4;
+        GameRulesConfig.current.adjacencyMode = InfectionAdjacencyMode.orthogonalPlusDiagonal8;
+        break;
+      case 'ganesha':
+        GameRulesConfig.current.resolutionMode = InfectionResolutionMode.neutralIntermediary;
+        GameRulesConfig.current.adjacencyMode = InfectionAdjacencyMode.orthogonalPlusDiagonal8;
         break;
       case 'buddha':
-      case 'ganesha':
       default:
         GameRulesConfig.current.resolutionMode = InfectionResolutionMode.neutralIntermediary;
-        GameRulesConfig.current.adjacencyMode = InfectionAdjacencyMode.orthogonal4; // no diagonals in campaigns
+        GameRulesConfig.current.adjacencyMode = InfectionAdjacencyMode.orthogonal4;
         break;
     }
 
     // Bomb availability overrides per campaign philosophy
-    bool bombs = config.bombsEnabled;
-    if (widget.campaignId == 'shiva') {
-      // Bombs are core in Shiva — always enabled
-      bombs = true;
+    bool bombs;
+    switch (widget.campaignId) {
+      case 'shiva':
+        // Bombs are core in Shiva — always enabled
+        bombs = true;
+        break;
+      case 'buddha':
+        // Buddha: calm control — disable or very limited; enforce disabled
+        bombs = false;
+        break;
+      case 'ganesha':
+      default:
+        // Ganesha: limited tools — use per-level flag
+        bombs = config.bombsEnabled;
+        break;
     }
     controller.setBombsEnabled(bombs);
 
@@ -219,6 +236,13 @@ class _GamePageState extends State<GamePage> with RouteAware {
       if (row.length != config.boardSize) return false;
     }
     return true;
+  }
+
+  Future<void> _persistActiveCampaignId() async {
+    final id = widget.campaignId;
+    if (id == null) return;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('activeCampaignId', id);
   }
 
   void _restoreChallengeConfig() {
