@@ -9,6 +9,7 @@ import '../../models/campaign_level.dart';
 import '../../models/campaign_level_details.dart';
 import '../../models/campaign_metadata.dart';
 import '../controllers/campaign_controller.dart';
+import '../dialogs/campaign_intro_dialog.dart';
 
 class CampaignPage extends StatefulWidget {
   final GameController controller;
@@ -20,9 +21,11 @@ class CampaignPage extends StatefulWidget {
 
 class _CampaignPageState extends State<CampaignPage> {
   static const String _kLastCampaignId = 'campaign_last_played';
+  static const String _kIntroShownPrefix = 'campaign_intro_shown_';
   final Map<String, CampaignController> _campaignControllers =
       <String, CampaignController>{};
   final Set<String> _loadedProgress = <String>{};
+  final Set<String> _introShown = <String>{};
   late final PageController _pageController;
   List<CampaignMetadata> _campaigns = const [];
   int _currentIndex = 0;
@@ -107,6 +110,11 @@ class _CampaignPageState extends State<CampaignPage> {
         _campaignControllers[campaign.id]!.loadProgress();
       }
     }
+    // Show one-time intro for the initially selected campaign
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _campaigns.isEmpty) return;
+      _maybeShowCampaignIntro(_campaigns[_currentIndex]);
+    });
     _restoreLastCampaignIfNeeded();
   }
 
@@ -126,6 +134,8 @@ class _CampaignPageState extends State<CampaignPage> {
       _currentIndex = index;
     });
     _pageController.jumpToPage(index);
+    // After restore, maybe show intro for this campaign
+    _maybeShowCampaignIntro(_campaigns[_currentIndex]);
   }
 
   Future<void> _persistSelectedCampaign(CampaignMetadata campaign) async {
@@ -134,6 +144,24 @@ class _CampaignPageState extends State<CampaignPage> {
     if (!campaign.isUnlocked) return;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_kLastCampaignId, campaign.id);
+  }
+
+  Future<void> _maybeShowCampaignIntro(CampaignMetadata campaign) async {
+    if (!campaign.isUnlocked) return;
+    if (_introShown.contains(campaign.id)) return;
+    final prefs = await SharedPreferences.getInstance();
+    final key = '$_kIntroShownPrefix${campaign.id}';
+    final wasShown = prefs.getBool(key) ?? false;
+    if (wasShown) {
+      _introShown.add(campaign.id);
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      await showCampaignIntroDialog(context: context, campaignId: campaign.id);
+      _introShown.add(campaign.id);
+      await prefs.setBool(key, true);
+    });
   }
 
   void _showCampaignInfo(BuildContext context, CampaignMetadata campaign) {
@@ -276,6 +304,7 @@ class _CampaignPageState extends State<CampaignPage> {
                           _currentIndex = index;
                         });
                         _persistSelectedCampaign(_campaigns[index]);
+                        _maybeShowCampaignIntro(_campaigns[index]);
                       },
                       itemCount: _campaigns.length,
                       itemBuilder: (context, index) {
@@ -531,7 +560,7 @@ class _CampaignRouteGrid extends StatelessWidget {
     );
   }
 
-  void _showLevelDetails(BuildContext context, CampaignLevel level) {
+  void _showLevelDetails(BuildContext context, CampaignLevel level, {CampaignLevelStatus? status}) {
     final levelDetails = campaignLevelDetailsFor(
       campaignId: campaignController.campaignId,
       levelIndex: level.index,
@@ -539,6 +568,19 @@ class _CampaignRouteGrid extends StatelessWidget {
     final iconSize = (MediaQuery.of(context).size.height * 0.2 * 0.55)
         .clamp(40, 96)
         .toDouble();
+    // Compute who starts first for this level
+    final l10n = context.l10n;
+    String starting = gameController.startingPlayer.name;
+    final fixed = level.fixedState;
+    if (fixed != null) {
+      final sp = fixed['startingPlayer'];
+      if (sp is String && sp.isNotEmpty) {
+        starting = sp;
+      }
+    }
+    final startsLabel = starting.toLowerCase() == 'blue'
+        ? l10n.startingPlayerAi
+        : l10n.startingPlayerHuman;
     showDialog<void>(
       context: context,
       builder: (context) {
@@ -588,6 +630,10 @@ class _CampaignRouteGrid extends StatelessWidget {
                         ),
                         const SizedBox(height: 12),
                       ],
+                      _detailRow(
+                        'Starts',
+                        startsLabel,
+                      ),
                       _detailRow(
                         'Board size',
                         '${level.boardSize}x${level.boardSize}',
@@ -970,9 +1016,9 @@ class _CampaignNode extends StatelessWidget {
           )
         : null;
     return MouseRegion(
-      cursor: isLocked ? SystemMouseCursors.basic : SystemMouseCursors.click,
+      cursor: onTap == null ? SystemMouseCursors.basic : SystemMouseCursors.click,
       child: GestureDetector(
-        onTap: isLocked ? null : onTap,
+        onTap: onTap,
         child: Opacity(
           opacity: isLocked ? 0.55 : 1,
           child: Container(

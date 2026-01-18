@@ -209,6 +209,9 @@ class GameController extends ChangeNotifier {
   static const _kAge = 'age';
   static const _kBadges = 'badges';
   static const _kRedLinesTotal = 'redLinesCompletedTotal';
+  // Cosmetics (non-gameplay visual rewards)
+  static const _kCosmeticsOwned = 'cosmeticsOwned';
+  static const _kActiveCosmetic = 'cosmeticActive';
   // Analytics keys
   static const _kTotalPlayTimeMs = 'totalPlayTimeMs';
   static const _kDailyPlayCountJson = 'dailyPlayCountJson';
@@ -256,6 +259,10 @@ class GameController extends ChangeNotifier {
 
   // History of finished games
   List<GameResult> history = <GameResult>[];
+
+  // Cosmetics inventory (non-gameplay)
+  Set<String> cosmeticsOwned = <String>{};
+  String? activeCosmetic;
 
   // Deep copy of board
   List<List<CellState>> _copyBoard(List<List<CellState>> src) =>
@@ -1146,6 +1153,10 @@ class GameController extends ChangeNotifier {
     redLinesCompletedTotal = prefs.getInt(_kRedLinesTotal) ?? 0;
     final badgesList = prefs.getStringList(_kBadges) ?? const <String>[];
     badges = badgesList.toSet();
+    // Cosmetics
+    final ownedList = prefs.getStringList(_kCosmeticsOwned) ?? const <String>[];
+    cosmeticsOwned = ownedList.toSet();
+    activeCosmetic = prefs.getString(_kActiveCosmetic);
     // History
     final histJson = prefs.getString(_kHistory);
     if (histJson != null && histJson.isNotEmpty) {
@@ -1216,6 +1227,27 @@ class GameController extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_kSoundsEnabled, enabled);
     notifyListeners();
+  }
+
+  // --- Cosmetics (non-gameplay) ---
+  Future<void> grantCosmetic(String cosmeticId) async {
+    if (cosmeticsOwned.contains(cosmeticId)) return;
+    cosmeticsOwned.add(cosmeticId);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_kCosmeticsOwned, cosmeticsOwned.toList());
+    // Auto-equip if none active yet
+    activeCosmetic ??= cosmeticId;
+    await prefs.setString(_kActiveCosmetic, activeCosmetic!);
+    notifyListeners();
+  }
+
+  Future<bool> setActiveCosmetic(String cosmeticId) async {
+    if (!cosmeticsOwned.contains(cosmeticId)) return false;
+    activeCosmetic = cosmeticId;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kActiveCosmetic, cosmeticId);
+    notifyListeners();
+    return true;
   }
 
   Future<void> applySettings({required int themeColorHex}) async {

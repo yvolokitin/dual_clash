@@ -9,6 +9,7 @@ import '../../models/campaign_result_action.dart';
 import '../../models/game_outcome.dart';
 import '../../models/game_result.dart';
 import '../pages/game_page.dart';
+import '../dialogs/campaign_complete_dialog.dart';
 
 enum CampaignLevelStatus { locked, available, passed, failed }
 
@@ -16,6 +17,7 @@ class CampaignController extends ChangeNotifier {
   static const String _kCampaignBestResults = 'campaign_best_results';
   static const String _kCampaignResults = 'campaign_results';
   static const String _kCampaignProgress = 'campaign_progress';
+  static const String _kCampaignAchievements = 'campaign_achievements';
   final String campaignId;
   final bool isUnlocked;
   final int totalLevels;
@@ -132,6 +134,10 @@ class CampaignController extends ChangeNotifier {
       }
       _persistProgress();
       _recordCampaignWinStats(level.index, gameController);
+      // Unlock campaign achievement if this was the final level
+      if (nextLevel == null) {
+        _unlockCampaignAchievementIfNeeded();
+      }
       notifyListeners();
     } else {
       _statusByLevel[level.index] = CampaignLevelStatus.failed;
@@ -163,7 +169,22 @@ class CampaignController extends ChangeNotifier {
           replace: true,
         );
       } else {
-        Navigator.of(context).pop();
+        // Final level completed: ensure achievement unlock happens before completion screen
+        final cosmeticId = _cosmeticIdForCampaign(campaignId);
+        _unlockCampaignAchievementIfNeeded().then((_) async {
+          // Grant cosmetic reward (idempotent)
+          await gameController.grantCosmetic(cosmeticId);
+          if (!context.mounted) return;
+          // Show completion dialog
+          showCampaignCompleteDialog(context: context, campaignId: campaignId).then((result) async {
+            if (result == 'equip') {
+              await gameController.setActiveCosmetic(cosmeticId);
+            }
+            if (context.mounted) {
+              Navigator.of(context).pop();
+            }
+          });
+        });
       }
     }
   }
@@ -314,5 +335,44 @@ class CampaignController extends ChangeNotifier {
       best = _pickBestResult(best, result);
     }
     return best;
+  }
+
+  Future<void> _unlockCampaignAchievementIfNeeded() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_kCampaignAchievements);
+    Map<String, dynamic> decoded = <String, dynamic>{};
+    if (raw != null && raw.isNotEmpty) {
+      final j = jsonDecode(raw);
+      if (j is Map) decoded = Map<String, dynamic>.from(j);
+    }
+    // Determine achievement id by campaign
+    String? achId;
+    switch (campaignId) {
+      case 'buddha':
+        achId = 'ACH_BUDDHA';
+        break;
+      case 'ganesha':
+        achId = 'ACH_GANESHA';
+        break;
+      case 'shiva':
+        achId = 'ACH_SHIVA';
+        break;
+    }
+    if (achId == null) return;
+    if (decoded[achId] == true) return; // already unlocked
+    decoded[achId] = true;
+    await prefs.setString(_kCampaignAchievements, jsonEncode(decoded));
+  }
+
+  String _cosmeticIdForCampaign(String id) {
+    switch (id) {
+      case 'buddha':
+        return 'frame_buddha';
+      case 'ganesha':
+        return 'frame_ganesha';
+      case 'shiva':
+      default:
+        return 'frame_shiva';
+    }
   }
 }

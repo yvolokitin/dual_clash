@@ -15,6 +15,7 @@ import 'package:dual_clash/models/game_outcome.dart';
 import 'package:dual_clash/models/cell_state.dart';
 import 'package:dual_clash/logic/game_rules_config.dart';
 import 'package:dual_clash/logic/infection_resolution.dart';
+import 'package:dual_clash/logic/adjacency.dart';
 import 'package:dual_clash/ui/dialogs/ai_difficulty_dialog.dart';
 import 'package:dual_clash/ui/dialogs/main_menu_dialog.dart' as mmd;
 import 'package:dual_clash/ui/dialogs/results_dialog.dart';
@@ -68,6 +69,8 @@ class _GamePageState extends State<GamePage> with RouteAware {
   bool? _previousBombsEnabled;
   bool? _previousHumanVsHuman;
   bool _isApplyingChallengeConfig = false;
+  InfectionResolutionMode? _prevResolutionMode;
+  InfectionAdjacencyMode? _prevAdjacencyMode;
 
   GameController get controller => widget.controller;
   bool get _isAndroidOrIOS => isMobile;
@@ -154,21 +157,50 @@ class _GamePageState extends State<GamePage> with RouteAware {
   void _applyChallengeConfig() {
     final config = widget.challengeConfig;
     if (config == null) return;
+    // Save restore points for controller fields
     controller.campaignRestoreGridSize ??= K.n;
     controller.campaignRestoreBoardSize ??= controller.boardSize;
     controller.campaignRestoreAiLevel ??= controller.aiLevel;
     controller.campaignRestoreBombsEnabled ??= controller.bombsEnabled;
     controller.campaignRestoreHumanVsHuman ??= controller.humanVsHuman;
+    // Save global rules to restore later
+    _prevResolutionMode ??= GameRulesConfig.current.resolutionMode;
+    _prevAdjacencyMode ??= GameRulesConfig.current.adjacencyMode;
+
     _previousGridSize = controller.campaignRestoreGridSize;
     _previousBoardSize = controller.campaignRestoreBoardSize;
     _previousAiLevel = controller.campaignRestoreAiLevel;
     _previousBombsEnabled = controller.campaignRestoreBombsEnabled;
     _previousHumanVsHuman = controller.campaignRestoreHumanVsHuman;
+
+    // Enforce 7x7 campaign board size from level config
     K.n = config.boardSize;
     controller.boardSize = config.boardSize;
     controller.aiLevel = config.aiLevel;
     controller.humanVsHuman = false;
-    controller.setBombsEnabled(config.bombsEnabled);
+
+    // Apply per-campaign rule presets
+    switch (widget.campaignId) {
+      case 'shiva':
+        GameRulesConfig.current.resolutionMode = InfectionResolutionMode.directTransfer;
+        GameRulesConfig.current.adjacencyMode = InfectionAdjacencyMode.orthogonal4;
+        break;
+      case 'buddha':
+      case 'ganesha':
+      default:
+        GameRulesConfig.current.resolutionMode = InfectionResolutionMode.neutralIntermediary;
+        GameRulesConfig.current.adjacencyMode = InfectionAdjacencyMode.orthogonal4; // no diagonals in campaigns
+        break;
+    }
+
+    // Bomb availability overrides per campaign philosophy
+    bool bombs = config.bombsEnabled;
+    if (widget.campaignId == 'shiva') {
+      // Bombs are core in Shiva — always enabled
+      bombs = true;
+    }
+    controller.setBombsEnabled(bombs);
+
     final fixedState = config.fixedState;
     if (fixedState != null && _isValidFixedState(config, fixedState)) {
       controller.loadStateFromMap(fixedState);
@@ -206,6 +238,14 @@ class _GamePageState extends State<GamePage> with RouteAware {
     if (_previousHumanVsHuman != null) {
       controller.humanVsHuman = _previousHumanVsHuman!;
     }
+    // Restore global campaign rule presets
+    if (_prevResolutionMode != null) {
+      GameRulesConfig.current.resolutionMode = _prevResolutionMode!;
+    }
+    if (_prevAdjacencyMode != null) {
+      GameRulesConfig.current.adjacencyMode = _prevAdjacencyMode!;
+    }
+
     controller.newGame(notify: false, skipAi: true);
     controller.campaignRestoreGridSize = null;
     controller.campaignRestoreBoardSize = null;
