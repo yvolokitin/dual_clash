@@ -796,39 +796,39 @@ class _MainMenuPageState extends State<MainMenuPage>
             const spacing = 14.0;
             final tileWidth = targetGameRect.width;
             final tileHeight = targetGameRect.height;
-            final Rect row1Left = Rect.fromLTWH(
+            final Rect row2Left = Rect.fromLTWH(
               targetGameRect.left,
               targetGameRect.top,
               tileWidth,
               tileHeight,
             );
-            final Rect row1Right = Rect.fromLTWH(
+            final Rect row2Right = Rect.fromLTWH(
               targetDuelRect.left,
               targetDuelRect.top,
               tileWidth,
               tileHeight,
             );
-            final Rect row2Left = Rect.fromLTWH(
+            final Rect row3Left = Rect.fromLTWH(
               targetLoadRect.left,
               targetLoadRect.top,
               tileWidth,
               tileHeight,
             );
-            final Rect row2Right = Rect.fromLTWH(
+            final Rect row3Right = Rect.fromLTWH(
               hubRect.left,
               hubRect.top,
               tileWidth,
               tileHeight,
             );
-            final Rect row3Left = Rect.fromLTWH(
+            final Rect row1Left = Rect.fromLTWH(
               row2Left.left,
-              row2Left.top + tileHeight + spacing,
+              row2Left.top - tileHeight - spacing,
               tileWidth,
               tileHeight,
             );
-            final Rect row3Right = Rect.fromLTWH(
+            final Rect row1Right = Rect.fromLTWH(
               row2Right.left,
-              row2Right.top + tileHeight + spacing,
+              row2Right.top - tileHeight - spacing,
               tileWidth,
               tileHeight,
             );
