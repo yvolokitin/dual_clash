@@ -917,7 +917,7 @@ class _MainMenuPageState extends State<MainMenuPage>
                     child: ScaleTransition(
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: FlyoutTile(
-                        imagePath: 'assets/icons/star.png',
+                        imagePath: 'assets/icons/menu/menu_achivments.webp',
                         label: l10n.achievementsTitle,
                         disabled: false,
                         color: AppColors.brandGold,
@@ -1150,7 +1150,8 @@ class _MainMenuPageState extends State<MainMenuPage>
                                   ),
                                   const SizedBox(width: 14),
                                   FlyoutTile(
-                                    imagePath: 'assets/icons/star.png',
+                                    imagePath:
+                                        'assets/icons/menu/menu_achivments.webp',
                                     label: l10n.achievementsTitle,
                                     disabled: false,
                                     width: tileWidth,
