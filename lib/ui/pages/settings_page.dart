@@ -328,7 +328,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                                       selected:
                                           _startingPlayer == CellState.red,
                                       label: l10n.startingPlayerHuman,
-                                      asset: 'assets/icons/human.jpg',
+                                      asset: 'assets/icons/settings/turn_human.jpg',
                                       accent: AppColors.red,
                                       scale: imageChoiceTileScale,
                                       onTap: () => setState(
@@ -342,7 +342,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                                       selected:
                                           _startingPlayer == CellState.blue,
                                       label: l10n.startingPlayerAi,
-                                      asset: 'assets/icons/ai.jpg',
+                                      asset: 'assets/icons/settings/turn_ai.jpg',
                                       accent: AppColors.blue,
                                       scale: imageChoiceTileScale,
                                       onTap: () => setState(
