@@ -360,18 +360,30 @@ class _SettingsDialogState extends State<SettingsDialog> {
                             spacing: 8,
                             runSpacing: 8,
                             children: [
-                              _choiceTile(
-                                selected: _resolutionMode == InfectionResolutionMode.neutralIntermediary,
-                                label: 'Two-Step (Gray Cells)',
+                              _startingPlayerTile(
+                                selected: _resolutionMode ==
+                                    InfectionResolutionMode.neutralIntermediary,
+                                label: 'Two-Step',
+                                asset:
+                                    'assets/icons/settings/infection_grey.png',
+                                accent: AppColors.neutral,
+                                scale: imageChoiceTileScale,
                                 onTap: () => setState(() {
-                                  _resolutionMode = InfectionResolutionMode.neutralIntermediary;
+                                  _resolutionMode =
+                                      InfectionResolutionMode.neutralIntermediary;
                                 }),
                               ),
-                              _choiceTile(
-                                selected: _resolutionMode == InfectionResolutionMode.directTransfer,
+                              _startingPlayerTile(
+                                selected: _resolutionMode ==
+                                    InfectionResolutionMode.directTransfer,
                                 label: 'Direct Capture',
+                                asset:
+                                    'assets/icons/settings/infection_direct.png',
+                                accent: AppColors.red,
+                                scale: imageChoiceTileScale,
                                 onTap: () => setState(() {
-                                  _resolutionMode = InfectionResolutionMode.directTransfer;
+                                  _resolutionMode =
+                                      InfectionResolutionMode.directTransfer;
                                 }),
                               ),
                             ],
