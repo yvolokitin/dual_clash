@@ -87,6 +87,10 @@ class AndroidBgmChannel implements BgmChannel {
   BgmKind? _currentKind;
   LoopKind _currentLoop = LoopKind.na;
   bool _configured = false;
+  bool _isLoading = false;
+
+  @override
+  bool get isBgmLoading => _isLoading;
 
   Future<void> _ensureConfigured() async {
     if (_configured) return;
@@ -121,15 +125,22 @@ class AndroidBgmChannel implements BgmChannel {
 
   Future<void> _loadFor(BgmKind kind) async {
     await _ensureConfigured();
-    if (kind == BgmKind.menu) {
-      // Load only if different to avoid reloading on SFX.
-      await _player.setAudioSource(_menuSource());
-      await setLoop(LoopKind.one);
-    } else {
-      await _player.setAudioSource(_gameplaySource());
-      await setLoop(LoopKind.sequence);
+    _isLoading = true;
+    try {
+      if (kind == BgmKind.menu) {
+        // Load only if different to avoid reloading on SFX.
+        await _player.setAudioSource(_menuSource());
+        await setLoop(LoopKind.one);
+      } else {
+        await _player.setAudioSource(_gameplaySource());
+        await setLoop(LoopKind.sequence);
+      }
+      _currentKind = kind;
+    } catch (e) {
+      debugPrint('BGM load aborted: $e');
+    } finally {
+      _isLoading = false;
     }
-    _currentKind = kind;
   }
 
   @override
@@ -200,10 +211,11 @@ class AndroidSfxBus implements SfxBus {
 /// stealing audio focus from BGM. No session (re)configuration here.
 class AndroidSfxPlayer implements SfxPlayer {
   final AndroidSfxBus _policyBus;
+  final BgmChannel _bgm;
   final Map<SfxType, AudioPlayer> _players = <SfxType, AudioPlayer>{};
   final Map<SfxType, bool> _loaded = <SfxType, bool>{};
 
-  AndroidSfxPlayer(this._policyBus);
+  AndroidSfxPlayer(this._policyBus, this._bgm);
 
   Future<AudioPlayer> _ensurePlayer(SfxType type) async {
     final p = _players.putIfAbsent(type, () => AudioPlayer());
@@ -238,9 +250,22 @@ class AndroidSfxPlayer implements SfxPlayer {
   }
 
   @override
-  Future<void> play(SfxType type) async {
+  Future<void> play(SfxType type) async => _playWithGate(type, 5);
+
+  Future<void> _playWithGate(SfxType type, int attemptsRemaining) async {
     if (_policyBus.current == SfxPolicy.blocked) return;
     await _AndroidAudioSession.instance.ensureConfigured();
+
+    // On Android, avoid triggering playback while BGM is loading to prevent crash.
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android && _bgm.isBgmLoading) {
+      if (attemptsRemaining > 0) {
+        // Delay slightly and retry; do not drop the SFX.
+        unawaited(Future<void>.delayed(const Duration(milliseconds: 80), () => _playWithGate(type, attemptsRemaining - 1)));
+        return;
+      }
+      // If we've exhausted attempts, fall through to try once; the window is tiny.
+    }
+
     final player = await _ensurePlayer(type);
     if (!(_loaded[type] ?? false)) {
       await player.setAsset(_assetFor(type));

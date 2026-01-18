@@ -62,13 +62,14 @@ class AppAudio {
     if (_coordinator != null) return; // already initialized
 
     final sfxBus = AndroidSfxBus();
+    final bgm = AndroidBgmChannel();
     final executor = AudioExecutor(
-      bgmChannel: AndroidBgmChannel(),
+      bgmChannel: bgm,
       sfxBus: sfxBus,
     );
     final coord = AudioCoordinator(
       executor: executor,
-      sfxPlayer: AndroidSfxPlayer(sfxBus),
+      sfxPlayer: AndroidSfxPlayer(sfxBus, bgm),
     );
     _coordinator = coord;
 

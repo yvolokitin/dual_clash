@@ -46,6 +46,10 @@ abstract class BgmChannel {
   /// apply it as part of the transition. Implementations may no‑op when the
   /// target equals current.
   Future<void> crossfadeTo(BgmKind kind, {LoopKind? loop});
+
+  /// True while the BGM channel is loading a new audio source on Android.
+  /// Implementations on other platforms may always return false.
+  bool get isBgmLoading;
 }
 
 /// SFX bus — controls global SFX policy. Concrete implementations should
