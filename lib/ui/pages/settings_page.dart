@@ -75,11 +75,9 @@ Future<void> showAnimatedSettingsDialog(
 
 class _SettingsDialogState extends State<SettingsDialog> {
   // Local working copies to reflect dropdown selections immediately
-  late String _language;
   late int _boardSize;
   late int _aiLevel;
   late CellState _startingPlayer;
-  late String _initialLanguage;
   late CellState _initialStartingPlayer;
   late bool _musicEnabled;
   late bool _soundsEnabled;
@@ -95,11 +93,9 @@ class _SettingsDialogState extends State<SettingsDialog> {
   @override
   void initState() {
     super.initState();
-    _language = widget.controller.languageCode;
     _boardSize = widget.controller.boardSize;
     _aiLevel = widget.controller.aiLevel;
     _startingPlayer = widget.controller.startingPlayer;
-    _initialLanguage = _language;
     _initialStartingPlayer = _startingPlayer;
     _musicEnabled = widget.controller.musicEnabled;
     _soundsEnabled = widget.controller.soundsEnabled;
@@ -191,14 +187,10 @@ class _SettingsDialogState extends State<SettingsDialog> {
     final EdgeInsets contentPadding =
         const EdgeInsets.fromLTRB(18, 20, 18, 18);
     final bool hasPendingChanges =
-        _language != _initialLanguage ||
         _startingPlayer != _initialStartingPlayer ||
         _resolutionMode != _initialResolutionMode ||
         _adjacencyMode != _initialAdjacencyMode;
     final bool isNarrowMobile = isMobilePlatform && size.width < 700;
-    final double languageTileScale = isMobileFullscreen
-        ? (isNarrowMobile ? 0.9 : 0.87)
-        : 1.0;
     final double imageChoiceTileScale = isNarrowMobile ? 0.9 : 1.0;
     // The dialog window — centered, not fullscreen. showDialog will dim the background.
     return Dialog(
@@ -304,27 +296,6 @@ class _SettingsDialogState extends State<SettingsDialog> {
                               ),
                             ],
                           ),
-                          _separator(),
-
-                          // Language selector
-                          _label(l10n.languageTitle),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: _languageOptions().map((opt) {
-                              final code = opt.$1;
-                              final title = opt.$2;
-                              final asset = opt.$3;
-                              return _languageTile(
-                                selected: _language == code,
-                                label: title,
-                                asset: asset,
-                                scale: languageTileScale,
-                                onTap: () => setState(() => _language = code),
-                              );
-                            }).toList(),
-                          ),
-                          // separator between sections
                           _separator(),
 
                           // Board size selector (removed as per spec)
@@ -442,10 +413,6 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       if (hasPendingChanges)
                         ElevatedButton(
                           onPressed: () async {
-                            if (_language != _initialLanguage) {
-                              await widget.controller.setLanguage(_language);
-                              _initialLanguage = _language;
-                            }
                             if (_startingPlayer != _initialStartingPlayer) {
                               await widget.controller
                                   .setStartingPlayer(_startingPlayer);
@@ -584,19 +551,6 @@ class _SettingsDialogState extends State<SettingsDialog> {
         ),
       ),
     );
-  }
-
-  List<(String, String, String)> _languageOptions() {
-    return const [
-      ('en', 'English', 'assets/icons/languages/lang_en.jpg'),
-      ('de', 'Deutsch', 'assets/icons/languages/lang_de.jpg'),
-      ('es', 'Español', 'assets/icons/languages/lang_es.jpg'),
-      ('fr', 'Français', 'assets/icons/languages/lang_fr.jpg'),
-      ('nl', 'Nederlands', 'assets/icons/languages/lang_nl.jpg'),
-      ('pl', 'Polski', 'assets/icons/languages/lang_pl.jpg'),
-      ('ru', 'Русский', 'assets/icons/languages/lang_ru.jpg'),
-      ('uk', 'Українська', 'assets/icons/languages/lang_ua.jpg'),
-    ];
   }
 
   Widget _choiceTile({
@@ -744,86 +698,6 @@ class _SettingsDialogState extends State<SettingsDialog> {
       CellState.green => AppColors.green,
       _ => AppColors.red,
     };
-  }
-
-  Widget _languageTile({
-    required bool selected,
-    required String label,
-    required String asset,
-    double scale = 1.0,
-    VoidCallback? onTap,
-  }) {
-    final double tileWidth = 110 * scale;
-    final double tileHeight = 72 * scale;
-    final double borderWidth = 3 * scale;
-    const BorderRadius tileRadius = BorderRadius.all(Radius.circular(12));
-    const LinearGradient selectedBorderGradient = LinearGradient(
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-      colors: [
-        Color(0xFFFFE29A),
-        Color(0xFFB7771B),
-      ],
-    );
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: tileRadius,
-        onTap: onTap,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              decoration: selected
-                  ? const BoxDecoration(
-                      gradient: selectedBorderGradient,
-                      borderRadius: tileRadius,
-                    )
-                  : BoxDecoration(
-                      borderRadius: tileRadius,
-                      border: Border.all(
-                        color: Colors.transparent,
-                        width: borderWidth,
-                      ),
-                  ),
-              padding: EdgeInsets.all(borderWidth),
-              child: Container(
-                width: tileWidth,
-                height: tileHeight,
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  borderRadius: tileRadius,
-                ),
-                child: ClipRRect(
-                  borderRadius: tileRadius,
-                  child: SizedBox.expand(
-                    child: Image.asset(
-                      asset,
-                      fit: BoxFit.fitHeight,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: 6 * scale),
-            SizedBox(
-              width: tileWidth,
-              child: Text(
-                label,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                  fontSize: 12 * scale,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   Widget _startingPlayerTile({
