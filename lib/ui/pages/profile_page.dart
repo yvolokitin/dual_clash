@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import '../../logic/game_controller.dart';
 import '../../core/colors.dart';
 import '../../core/constants.dart';
+import '../../core/countries.dart';
 import 'help_page.dart';
 import 'history_page.dart';
 
@@ -22,6 +23,7 @@ class _ProfileDialogState extends State<ProfileDialog> {
   late final TextEditingController _nicknameController;
   Timer? _saveDebounce;
   String? _nicknameError;
+  late String _selectedCountry;
   late int _age;
 
   @override
@@ -29,7 +31,11 @@ class _ProfileDialogState extends State<ProfileDialog> {
     super.initState();
     _nicknameController =
         TextEditingController(text: widget.controller.nickname);
+    _selectedCountry = Countries.normalize(widget.controller.country);
     _age = widget.controller.age.clamp(3, 99);
+    if (_selectedCountry != widget.controller.country) {
+      widget.controller.setCountry(_selectedCountry);
+    }
   }
 
   @override
@@ -200,6 +206,58 @@ class _ProfileDialogState extends State<ProfileDialog> {
     );
   }
 
+  Widget _countryRow() {
+    final l10n = context.l10n;
+    final options = Countries.optionsForSelection(_selectedCountry);
+    return Row(
+      children: [
+        SizedBox(
+          width: 140,
+          child: Text(l10n.countryLabel,
+              style: const TextStyle(
+                  color: AppColors.dialogSubtitle,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.2)),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+            decoration: BoxDecoration(
+              color: AppColors.dialogFieldBg.withOpacity(0.6),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white24, width: 1),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: _selectedCountry,
+                isExpanded: true,
+                dropdownColor: AppColors.dialogFieldBg.withOpacity(0.92),
+                iconEnabledColor: Colors.white70,
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.w700),
+                items: options
+                    .map((country) => DropdownMenuItem<String>(
+                          value: country,
+                          enabled: country != Countries.defaultCountry,
+                          child: Text(Countries.localizedName(l10n, country)),
+                        ))
+                    .toList(),
+                onChanged: (value) async {
+                  if (value == null || value == _selectedCountry) return;
+                  setState(() {
+                    _selectedCountry = value;
+                  });
+                  await widget.controller.setCountry(value);
+                },
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -287,6 +345,8 @@ class _ProfileDialogState extends State<ProfileDialog> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _nicknameRow(),
+                          const SizedBox(height: 8),
+                          _countryRow(),
                           const SizedBox(height: 8),
                           _ageRow(),
                         ],
