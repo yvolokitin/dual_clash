@@ -971,7 +971,7 @@ class _MainMenuPageState extends State<MainMenuPage>
                     child: ScaleTransition(
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: FlyoutTile(
-                        imagePath: 'assets/icons/menu/menu_language.png',
+                        imagePath: 'assets/icons/menu/menu_language.webp',
                         label: l10n.languageTitle,
                         disabled: false,
                         color: AppColors.neutral,
@@ -1190,7 +1190,7 @@ class _MainMenuPageState extends State<MainMenuPage>
                                   const SizedBox(width: 14),
                                   FlyoutTile(
                                     imagePath:
-                                        'assets/icons/menu/menu_language.png',
+                                        'assets/icons/menu/menu_language.webp',
                                     label: l10n.languageTitle,
                                     disabled: false,
                                     width: tileWidth,
