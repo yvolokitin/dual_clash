@@ -1,5 +1,7 @@
 import '../models/multi_cell_state.dart';
 import '../core/constants.dart';
+import 'adjacency.dart';
+import 'infection_resolution_multi.dart';
 
 class MultiRulesEngine {
   static List<MultiCellState> emptyRow() =>
@@ -34,14 +36,8 @@ class MultiRulesEngine {
     // place attacker
     next[r][c] = attacker;
 
-    for (final (nr, nc) in neighbors4(r, c)) {
-      final s = next[nr][nc];
-      if (s == MultiCellState.neutral) {
-        next[nr][nc] = attacker;
-      } else if (s != MultiCellState.empty && s != attacker) {
-        next[nr][nc] = MultiCellState.neutral;
-      }
-    }
+    // Resolve neighbors via centralized infection resolution (multi-player).
+    MultiInfectionResolution.applyUsingDefaults(next, r, c, attacker);
 
     return next;
   }

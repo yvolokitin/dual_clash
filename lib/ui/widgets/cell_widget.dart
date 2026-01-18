@@ -9,6 +9,7 @@ class CellWidget extends StatefulWidget {
   final VoidCallback? onLongPress;
   final BorderRadius? borderRadius; // optional custom radius per-cell
   final bool usePlayerTokens;
+  final Color? bombOwnerColor; // tint for bomb owner background
 
   const CellWidget(
       {super.key,
@@ -16,7 +17,8 @@ class CellWidget extends StatefulWidget {
       this.onTap,
       this.onLongPress,
       this.borderRadius,
-      this.usePlayerTokens = false});
+      this.usePlayerTokens = false,
+      this.bombOwnerColor});
 
   @override
   State<CellWidget> createState() => _CellWidgetState();
@@ -165,6 +167,7 @@ class _CellWidgetState extends State<CellWidget> {
         return _BombTile(
           radius: widget.borderRadius ?? BorderRadius.circular(8),
           flashing: _flashing,
+          ownerColor: widget.bombOwnerColor,
           key: const ValueKey('bomb'),
         );
       case CellState.wall:
@@ -256,20 +259,57 @@ class _EmptyCell extends StatelessWidget {
 class _BombTile extends StatelessWidget {
   final BorderRadius radius;
   final bool flashing;
-  const _BombTile({super.key, required this.radius, required this.flashing});
+  final Color? ownerColor;
+  const _BombTile({super.key, required this.radius, required this.flashing, this.ownerColor});
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        _InsetTile(
-          color: const Color(0xFF2A2F45),
-          radius: radius,
-          asset: 'assets/icons/bomb.png',
-          flashing: flashing,
+    final Color bg = (ownerColor ?? const Color(0xFF2A2F45));
+    return Padding(
+      padding: const EdgeInsets.all(1),
+      child: ClipRRect(
+        borderRadius: radius,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Owner-tinted background panel
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              decoration: BoxDecoration(color: bg),
+            ),
+            // Bomb image overlay
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: Image.asset(
+                'assets/icons/bomb.png',
+                key: const ValueKey('bomb-img'),
+                fit: BoxFit.cover,
+                filterQuality: FilterQuality.none,
+              ),
+            ),
+            // Flash overlay when changing state
+            Positioned.fill(
+              child: IgnorePointer(
+                child: AnimatedOpacity(
+                  opacity: flashing ? 0.9 : 0.0,
+                  duration: const Duration(milliseconds: 120),
+                  curve: Curves.easeOut,
+                  child: const DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: RadialGradient(
+                        center: Alignment.topLeft,
+                        radius: 1.2,
+                        colors: [Color(0xCCFFFFFF), Color(0x00FFFFFF)],
+                        stops: [0.0, 1.0],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

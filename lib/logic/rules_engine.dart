@@ -1,5 +1,7 @@
 import '../models/cell_state.dart';
 import '../core/constants.dart';
+import 'adjacency.dart';
+import 'infection_resolution.dart';
 
 class RulesEngine {
   static List<CellState> emptyRow() =>
@@ -34,19 +36,10 @@ class RulesEngine {
     // 1) place attacker
     next[r][c] = attacker;
 
-    // 2) process 4-neighbors
-    for (final (nr, nc) in neighbors4(r, c)) {
-      final s = next[nr][nc];
-
-      if (s == CellState.bomb || s == CellState.wall) {
-        continue;
-      }
-      if (s != attacker && s != CellState.empty && s != CellState.neutral) {
-        next[nr][nc] = CellState.neutral;
-      } else if (s == CellState.neutral) {
-        next[nr][nc] = attacker;
-      }
-    }
+    // 2) resolve neighbors via centralized infection resolution using
+    // the configured adjacency and resolution modes. This preserves the
+    // current default behavior (neutralIntermediary × orthogonal4).
+    InfectionResolution.applyUsingDefaults(next, r, c, attacker);
 
     return next;
   }

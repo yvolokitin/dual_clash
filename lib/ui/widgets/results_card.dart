@@ -7,6 +7,8 @@ import 'package:dual_clash/models/cell_state.dart';
 import 'package:dual_clash/models/campaign_level_details.dart';
 import 'package:dual_clash/models/game_outcome.dart';
 import 'package:dual_clash/logic/rules_engine.dart';
+import 'package:dual_clash/logic/game_rules_config.dart';
+import 'package:dual_clash/logic/infection_resolution.dart';
 import 'package:dual_clash/ui/widgets/main_menu/menu_tile.dart';
 import 'package:dual_clash/l10n/app_localizations.dart';
 
@@ -71,26 +73,34 @@ class ResultsCard extends StatelessWidget {
     if (controller.isMultiDuel) {
       winner = controller.duelWinner();
     } else if (isChallengeMode) {
-      final int maxScore = [
-        redTotal,
-        blueTotal,
-        neutrals,
-      ].reduce((a, b) => a > b ? a : b);
-      final int topCount = [
-        redTotal,
-        blueTotal,
-        neutrals,
-      ].where((score) => score == maxScore).length;
-      if (topCount == 1) {
-        if (maxScore == redTotal) {
-          winner = CellState.red;
-        } else if (maxScore == blueTotal) {
-          winner = CellState.blue;
+      final bool showNeutralWinner = GameRulesConfig.current.resolutionMode == InfectionResolutionMode.neutralIntermediary;
+      if (showNeutralWinner) {
+        final int maxScore = [
+          redTotal,
+          blueTotal,
+          neutrals,
+        ].reduce((a, b) => a > b ? a : b);
+        final int topCount = [
+          redTotal,
+          blueTotal,
+          neutrals,
+        ].where((score) => score == maxScore).length;
+        if (topCount == 1) {
+          if (maxScore == redTotal) {
+            winner = CellState.red;
+          } else if (maxScore == blueTotal) {
+            winner = CellState.blue;
+          } else {
+            winner = CellState.neutral;
+          }
         } else {
-          winner = CellState.neutral;
+          winner = null;
         }
       } else {
-        winner = null;
+        // In Direct Capture, neutrals are not considered in UI/score; decide between red and blue only.
+        winner = redTotal == blueTotal
+            ? null
+            : (redTotal > blueTotal ? CellState.red : CellState.blue);
       }
     } else {
       winner = redTotal == blueTotal
@@ -102,6 +112,7 @@ class ResultsCard extends StatelessWidget {
     final bool showYellow = isDuel && controller.isMultiDuel;
     final bool showGreen =
         isDuel && controller.isMultiDuel && controller.duelPlayerCount >= 4;
+    final bool showNeutral = GameRulesConfig.current.resolutionMode == InfectionResolutionMode.neutralIntermediary;
     final tiles = [
       _ResultTileData(
         asset: 'assets/icons/box_red.png',
@@ -125,11 +136,12 @@ class ResultsCard extends StatelessWidget {
           count: controller.scoreGreenBase(),
           state: CellState.green,
         ),
-      _ResultTileData(
-        asset: 'assets/icons/box_grey.png',
-        count: neutrals,
-        state: CellState.neutral,
-      ),
+      if (showNeutral)
+        _ResultTileData(
+          asset: 'assets/icons/box_grey.png',
+          count: neutrals,
+          state: CellState.neutral,
+        ),
     ];
 
     final BorderRadius dialogRadius =

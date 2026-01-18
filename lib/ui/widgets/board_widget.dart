@@ -147,6 +147,16 @@ class BoardWidget extends StatelessWidget {
                                 state: st,
                                 borderRadius: cellRadius,
                                 usePlayerTokens: controller.usePlayerTokens,
+                                bombOwnerColor: (st == CellState.bomb)
+                                    ? (() {
+                                        final owner = controller.bombOwnerAt(r, c);
+                                        if (owner == CellState.red) return AppColors.red;
+                                        if (owner == CellState.blue) return AppColors.blue;
+                                        if (owner == CellState.yellow) return AppColors.yellow;
+                                        if (owner == CellState.green) return AppColors.green;
+                                        return const Color(0xFF2A2F45);
+                                      })()
+                                    : null,
                                 onTap: () {
                                   controller.onCellTap(r, c);
                                 },

@@ -20,6 +20,7 @@ class GamePageScoreRow extends StatelessWidget {
   final int redGamePoints;
   final bool showLeaderShadow;
   final bool aiSelectorEnabled;
+  final bool showNeutral; // hide grey HUD when false
   final VoidCallback onOpenMenu;
   final VoidCallback onOpenStatistics;
   final VoidCallback onOpenAiSelector;
@@ -42,6 +43,7 @@ class GamePageScoreRow extends StatelessWidget {
     required this.redGamePoints,
     required this.showLeaderShadow,
     required this.aiSelectorEnabled,
+    required this.showNeutral,
     required this.onOpenMenu,
     required this.onOpenStatistics,
     required this.onOpenAiSelector,
@@ -121,21 +123,30 @@ class GamePageScoreRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final String menuIconPath =
         menuIconAsset ?? 'assets/icons/menu/menu_pvai.png';
-    final int maxScore = [redBase, neutralCount, blueBase].reduce(
-      (value, element) => value > element ? value : element,
-    );
+
+    final bool includeNeutral = showNeutral;
+    int maxScore;
+    if (includeNeutral) {
+      maxScore = [redBase, neutralCount, blueBase].reduce(
+        (value, element) => value > element ? value : element,
+      );
+    } else {
+      maxScore = [redBase, blueBase].reduce(
+        (value, element) => value > element ? value : element,
+      );
+    }
     final bool highlightRed = showLeaderShadow &&
         redBase == maxScore &&
-        redBase > neutralCount &&
-        redBase > blueBase;
-    final bool highlightNeutral = showLeaderShadow &&
+        redBase > blueBase &&
+        (!includeNeutral || redBase > neutralCount);
+    final bool highlightNeutral = includeNeutral && showLeaderShadow &&
         neutralCount == maxScore &&
         neutralCount > redBase &&
         neutralCount > blueBase;
     final bool highlightBlue = showLeaderShadow &&
         blueBase == maxScore &&
         blueBase > redBase &&
-        blueBase > neutralCount;
+        (!includeNeutral || blueBase > neutralCount);
     final double playerIconSize =
         isMobile ? boardCellSize * 0.8 : scoreItemSize;
     final Widget bluePlayerIcon = aiSelectorEnabled
@@ -153,22 +164,22 @@ class GamePageScoreRow extends StatelessWidget {
             size: playerIconSize,
             isLeader: highlightBlue,
           );
-    final Widget playerCountsRow = Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text('$redBase', style: scoreTextStyle),
-        const SizedBox(width: 6),
-        _playerIconWithCrown(
+    final List<Widget> countsChildren = [
+      Text('$redBase', style: scoreTextStyle),
+      const SizedBox(width: 6),
+      _playerIconWithCrown(
+        size: playerIconSize,
+        isLeader: highlightRed,
+        icon: _playerIcon(
+          asset: 'assets/icons/player_red.png',
           size: playerIconSize,
           isLeader: highlightRed,
-          icon: _playerIcon(
-            asset: 'assets/icons/player_red.png',
-            size: playerIconSize,
-            isLeader: highlightRed,
-          ),
         ),
-        const SizedBox(width: 18),
+      ),
+    ];
+    if (includeNeutral) {
+      countsChildren.addAll(const [SizedBox(width: 18)]);
+      countsChildren.addAll([
         Text('$neutralCount', style: scoreTextStyle),
         const SizedBox(width: 6),
         _playerIconWithCrown(
@@ -180,15 +191,22 @@ class GamePageScoreRow extends StatelessWidget {
             isLeader: highlightNeutral,
           ),
         ),
-        const SizedBox(width: 18),
-        Text('$blueBase', style: scoreTextStyle),
-        const SizedBox(width: 6),
-        _playerIconWithCrown(
-          size: playerIconSize,
-          isLeader: highlightBlue,
-          icon: bluePlayerIcon,
-        ),
-      ],
+      ]);
+    }
+    countsChildren.addAll(const [SizedBox(width: 18)]);
+    countsChildren.addAll([
+      Text('$blueBase', style: scoreTextStyle),
+      const SizedBox(width: 6),
+      _playerIconWithCrown(
+        size: playerIconSize,
+        isLeader: highlightBlue,
+        icon: bluePlayerIcon,
+      ),
+    ]);
+    final Widget playerCountsRow = Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: countsChildren,
     );
 
     return Padding(
