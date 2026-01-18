@@ -58,6 +58,7 @@ flutter:
     - assets/icons/achievements/
     - assets/icons/campaigns/
     - assets/icons/languages/
+    - assets/icons/settings/
     - assets/icons/menu/
     - assets/icons/
     - assets/m4a/
