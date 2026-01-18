@@ -68,7 +68,7 @@ class _CampaignPageState extends State<CampaignPage> {
         id: 'buddha',
         title: l10n.buddhaCampaignTitle,
         description: l10n.buddhaCampaignDescription,
-        iconAsset: 'assets/icons/campaigns/buddha.gif',
+        iconAsset: 'assets/icons/campaigns/buddha.webp',
         isUnlocked: true,
         totalLevels: campaignLevels.length,
         levels: campaignLevels,
@@ -623,7 +623,7 @@ class _CampaignRouteGrid extends StatelessWidget {
                       if (campaignController.campaignId == 'buddha') ...[
                         Center(
                           child: Image.asset(
-                            'assets/icons/campaigns/buddha.gif',
+                            'assets/icons/campaigns/buddha.webp',
                             height: iconSize,
                             fit: BoxFit.contain,
                           ),
@@ -735,7 +735,7 @@ class _CampaignRouteGrid extends StatelessWidget {
               if (campaignController.campaignId == 'buddha') ...[
                 const SizedBox(height: 8),
                 Image.asset(
-                  'assets/icons/campaigns/buddha.gif',
+                  'assets/icons/campaigns/buddha.webp',
                   height: iconSize,
                   fit: BoxFit.contain,
                 ),

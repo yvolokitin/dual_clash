@@ -79,7 +79,7 @@ class _GamePageState extends State<GamePage> with RouteAware {
       case 'shiva':
         return 'assets/icons/campaigns/shiva.png';
       case 'buddha':
-        return 'assets/icons/campaigns/buddha.gif';
+        return 'assets/icons/campaigns/buddha.webp';
       case 'ganesha':
         return 'assets/icons/campaigns/ganesha.png';
       default:

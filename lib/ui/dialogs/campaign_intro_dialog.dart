@@ -92,7 +92,7 @@ Future<void> showCampaignIntroDialog({
     case 'buddha':
       return (
         'Buddha — Calm Control',
-        'assets/icons/campaigns/buddha.gif',
+        'assets/icons/campaigns/buddha.webp',
         'Calm, balance, precision. Gray cells buffer infections; no diagonals.\nBe patient, read the board, and steer the flow.',
       );
     case 'ganesha':

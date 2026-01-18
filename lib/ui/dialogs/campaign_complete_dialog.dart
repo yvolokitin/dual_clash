@@ -116,7 +116,7 @@ Future<String?> showCampaignCompleteDialog({
     case 'buddha':
       return (
         'Buddha Campaign',
-        'assets/icons/campaigns/buddha.gif',
+        'assets/icons/campaigns/buddha.webp',
         'Master of Calm and Balance. You kept control to the very end.',
         'ACH_BUDDHA',
         'frame_buddha',
