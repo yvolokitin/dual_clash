@@ -328,7 +328,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                                       selected:
                                           _startingPlayer == CellState.red,
                                       label: l10n.startingPlayerHuman,
-                                      asset: 'assets/icons/human.jpg',
+                                      asset: 'assets/icons/settings/turn_human.jpg',
                                       accent: AppColors.red,
                                       scale: imageChoiceTileScale,
                                       onTap: () => setState(
@@ -342,7 +342,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                                       selected:
                                           _startingPlayer == CellState.blue,
                                       label: l10n.startingPlayerAi,
-                                      asset: 'assets/icons/ai.jpg',
+                                      asset: 'assets/icons/settings/turn_ai.jpg',
                                       accent: AppColors.blue,
                                       scale: imageChoiceTileScale,
                                       onTap: () => setState(
@@ -360,18 +360,30 @@ class _SettingsDialogState extends State<SettingsDialog> {
                             spacing: 8,
                             runSpacing: 8,
                             children: [
-                              _choiceTile(
-                                selected: _resolutionMode == InfectionResolutionMode.neutralIntermediary,
-                                label: 'Two-Step (Gray Cells)',
+                              _startingPlayerTile(
+                                selected: _resolutionMode ==
+                                    InfectionResolutionMode.neutralIntermediary,
+                                label: 'Two-Step',
+                                asset:
+                                    'assets/icons/settings/infection_grey.png',
+                                accent: AppColors.neutral,
+                                scale: imageChoiceTileScale,
                                 onTap: () => setState(() {
-                                  _resolutionMode = InfectionResolutionMode.neutralIntermediary;
+                                  _resolutionMode =
+                                      InfectionResolutionMode.neutralIntermediary;
                                 }),
                               ),
-                              _choiceTile(
-                                selected: _resolutionMode == InfectionResolutionMode.directTransfer,
+                              _startingPlayerTile(
+                                selected: _resolutionMode ==
+                                    InfectionResolutionMode.directTransfer,
                                 label: 'Direct Capture',
+                                asset:
+                                    'assets/icons/settings/infection_direct.png',
+                                accent: AppColors.red,
+                                scale: imageChoiceTileScale,
                                 onTap: () => setState(() {
-                                  _resolutionMode = InfectionResolutionMode.directTransfer;
+                                  _resolutionMode =
+                                      InfectionResolutionMode.directTransfer;
                                 }),
                               ),
                             ],
