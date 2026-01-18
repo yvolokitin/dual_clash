@@ -374,7 +374,7 @@ class _MainMenuPageState extends State<MainMenuPage>
                                     ),
                                     MenuTile(
                                       key: _campaignTileKey,
-                                      imagePath: 'assets/icons/menu/menu_camp.png',
+                                      imagePath: 'assets/icons/menu/menu_camp.webp',
                                       label: compactLabels
                                           ? l10n.menuCampaignShort
                                           : l10n.menuCampaign,
