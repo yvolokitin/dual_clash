@@ -207,6 +207,8 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get playerHubBarrierLabel => 'Hub gracza';
+
+  @override
   String get playerHubCloseTip => 'Stuknij poza lub Zamknij';
 
   @override

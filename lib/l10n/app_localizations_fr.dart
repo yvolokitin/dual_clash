@@ -208,6 +208,8 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get playerHubBarrierLabel => 'Hub joueur';
+
+  @override
   String get playerHubCloseTip => 'Touchez hors zone ou Fermer';
 
   @override

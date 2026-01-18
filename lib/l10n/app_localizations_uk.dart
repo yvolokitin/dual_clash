@@ -207,6 +207,8 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get playerHubBarrierLabel => 'Хаб гравця';
+
+  @override
   String get playerHubCloseTip => 'Натисніть поза вікном або Закрити';
 
   @override
