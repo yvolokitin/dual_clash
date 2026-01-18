@@ -494,6 +494,12 @@ abstract class AppLocalizations {
   /// **'Player Hub'**
   String get playerHubBarrierLabel;
 
+  /// No description provided for @playerHubCloseTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap outside or Close to return'**
+  String get playerHubCloseTip;
+
   /// No description provided for @modesBarrierLabel.
   ///
   /// In en, this message translates to:

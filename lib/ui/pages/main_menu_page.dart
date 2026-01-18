@@ -1041,6 +1041,23 @@ class _MainMenuPageState extends State<MainMenuPage>
                     ),
                   ),
                 ),
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 24,
+                  child: FadeTransition(
+                    opacity: curved,
+                    child: Text(
+                      l10n.playerHubCloseTip,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             );
           },
@@ -1222,6 +1239,16 @@ class _MainMenuPageState extends State<MainMenuPage>
                                     },
                                   ),
                                 ],
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                l10n.playerHubCloseTip,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ],
                           ),

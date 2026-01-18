@@ -207,6 +207,7 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String get playerHubBarrierLabel => 'Spelershub';
+  String get playerHubCloseTip => 'Tik buiten of Sluiten';
 
   @override
   String get modesBarrierLabel => 'Modi';
