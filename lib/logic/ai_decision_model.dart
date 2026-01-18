@@ -4,6 +4,7 @@ import '../core/constants.dart';
 import 'rules_engine.dart';
 import 'adjacency.dart';
 import 'game_rules_config.dart';
+import 'infection_resolution.dart';
 
 /// Centralized, mode-aware AI evaluation utilities.
 /// This module separates move generation (done by the caller)
