@@ -207,6 +207,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get playerHubBarrierLabel => 'Хаб игрока';
+  String get playerHubCloseTip => 'Нажмите вне окна или Закрыть';
 
   @override
   String get modesBarrierLabel => 'Режимы';

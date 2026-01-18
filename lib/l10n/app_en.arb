@@ -69,6 +69,7 @@
   "menuAlliance2v2": "Alliance 2vs2",
   "menuAlliance2v2Short": "Alliance",
   "playerHubBarrierLabel": "Player Hub",
+  "playerHubCloseTip": "Tap outside or Close to return",
   "modesBarrierLabel": "Modes",
   "languageTitle": "Language",
   "userProfileLabel": "User Profile",

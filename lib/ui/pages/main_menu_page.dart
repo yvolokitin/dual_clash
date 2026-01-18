@@ -15,6 +15,8 @@ import '../widgets/main_menu/waves_painter.dart';
 import 'campaign_page.dart';
 import 'history_page.dart';
 import 'menu_page.dart' show showLoadGameDialog; // reuse existing dialog
+import 'achievements_page.dart';
+import 'language_page.dart';
 import 'profile_page.dart';
 import 'settings_page.dart';
 import 'game_page.dart';
@@ -791,13 +793,60 @@ class _MainMenuPageState extends State<MainMenuPage>
         return AnimatedBuilder(
           animation: curved,
           builder: (context, _) {
-            final r1 = _lerpRect(hubRect, targetGameRect, curved.value);
-            final r2 = _lerpRect(hubRect, targetDuelRect, curved.value);
-            final r3 = _lerpRect(hubRect, targetLoadRect, curved.value);
-            final r4 = _lerpRect(hubRect, hubRect, curved.value);
-            final minLeft = math.min(math.min(r1.left, r2.left), math.min(r3.left, r4.left));
-            final maxRight = math.max(math.max(r1.right, r2.right), math.max(r3.right, r4.right));
-            final minTop = math.min(math.min(r1.top, r2.top), math.min(r3.top, r4.top));
+            const spacing = 14.0;
+            final tileWidth = targetGameRect.width;
+            final tileHeight = targetGameRect.height;
+            final Rect row2Left = Rect.fromLTWH(
+              targetGameRect.left,
+              targetGameRect.top,
+              tileWidth,
+              tileHeight,
+            );
+            final Rect row2Right = Rect.fromLTWH(
+              targetDuelRect.left,
+              targetDuelRect.top,
+              tileWidth,
+              tileHeight,
+            );
+            final Rect row3Left = Rect.fromLTWH(
+              targetLoadRect.left,
+              targetLoadRect.top,
+              tileWidth,
+              tileHeight,
+            );
+            final Rect row3Right = Rect.fromLTWH(
+              hubRect.left,
+              hubRect.top,
+              tileWidth,
+              tileHeight,
+            );
+            final Rect row1Left = Rect.fromLTWH(
+              row2Left.left,
+              row2Left.top - tileHeight - spacing,
+              tileWidth,
+              tileHeight,
+            );
+            final Rect row1Right = Rect.fromLTWH(
+              row2Right.left,
+              row2Right.top - tileHeight - spacing,
+              tileWidth,
+              tileHeight,
+            );
+            final r1 = _lerpRect(hubRect, row1Left, curved.value);
+            final r2 = _lerpRect(hubRect, row1Right, curved.value);
+            final r3 = _lerpRect(hubRect, row2Left, curved.value);
+            final r4 = _lerpRect(hubRect, row2Right, curved.value);
+            final r5 = _lerpRect(hubRect, row3Left, curved.value);
+            final r6 = _lerpRect(hubRect, row3Right, curved.value);
+            final minLeft = math.min(
+                math.min(math.min(r1.left, r2.left), math.min(r3.left, r4.left)),
+                math.min(r5.left, r6.left));
+            final maxRight = math.max(
+                math.max(math.max(r1.right, r2.right), math.max(r3.right, r4.right)),
+                math.max(r5.right, r6.right));
+            final minTop = math.min(
+                math.min(math.min(r1.top, r2.top), math.min(r3.top, r4.top)),
+                math.min(r5.top, r6.top));
             final cancelSize = r1.width * 0.25;
             final cancelSpacing = _isDesktopWidth(context) ? 30.0 : 40.0;
             final cancelLeft = (minLeft + maxRight) / 2 - cancelSize / 2;
@@ -868,6 +917,33 @@ class _MainMenuPageState extends State<MainMenuPage>
                     child: ScaleTransition(
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: FlyoutTile(
+                        imagePath: 'assets/icons/star.png',
+                        label: l10n.achievementsTitle,
+                        disabled: false,
+                        color: AppColors.brandGold,
+                        onTap: () {
+                          _dismissPlayerHub(context);
+                          showAnimatedAchievementsDialog(
+                            context: context,
+                            controller: controller,
+                          );
+                        },
+                        width: r2.width,
+                        height: r2.height,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: r3.left,
+                  top: r3.top,
+                  width: r3.width,
+                  height: r3.height,
+                  child: FadeTransition(
+                    opacity: curved,
+                    child: ScaleTransition(
+                      scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
+                      child: FlyoutTile(
                         imagePath: 'assets/icons/menu/menu_options.png',
                         label: l10n.settingsTitle,
                         disabled: false,
@@ -879,8 +955,8 @@ class _MainMenuPageState extends State<MainMenuPage>
                             controller: controller,
                           );
                         },
-                        width: r2.width,
-                        height: r2.height,
+                        width: r3.width,
+                        height: r3.height,
                       ),
                     ),
                   ),
@@ -895,15 +971,16 @@ class _MainMenuPageState extends State<MainMenuPage>
                     child: ScaleTransition(
                       scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
                       child: FlyoutTile(
-                        imagePath: 'assets/icons/menu/menu_load.png',
-                        label: compactLabels
-                            ? l10n.menuLoadShort
-                            : l10n.menuLoadGame,
+                        imagePath: 'assets/icons/menu/menu_language.png',
+                        label: l10n.languageTitle,
                         disabled: false,
-                        color: Colors.orange,
+                        color: AppColors.neutral,
                         onTap: () {
                           _dismissPlayerHub(context);
-                          _openLoadGameAfterClose(controller);
+                          showAnimatedLanguageDialog(
+                            context: context,
+                            controller: controller,
+                          );
                         },
                         width: r4.width,
                         height: r4.height,
@@ -912,10 +989,10 @@ class _MainMenuPageState extends State<MainMenuPage>
                   ),
                 ),
                 Positioned(
-                  left: r3.left,
-                  top: r3.top,
-                  width: r3.width,
-                  height: r3.height,
+                  left: r5.left,
+                  top: r5.top,
+                  width: r5.width,
+                  height: r5.height,
                   child: FadeTransition(
                     opacity: curved,
                     child: ScaleTransition(
@@ -932,8 +1009,52 @@ class _MainMenuPageState extends State<MainMenuPage>
                             controller: controller,
                           );
                         },
-                        width: r3.width,
-                        height: r3.height,
+                        width: r5.width,
+                        height: r5.height,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: r6.left,
+                  top: r6.top,
+                  width: r6.width,
+                  height: r6.height,
+                  child: FadeTransition(
+                    opacity: curved,
+                    child: ScaleTransition(
+                      scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
+                      child: FlyoutTile(
+                        imagePath: 'assets/icons/menu/menu_load.png',
+                        label: compactLabels
+                            ? l10n.menuLoadShort
+                            : l10n.menuLoadGame,
+                        disabled: false,
+                        color: Colors.orange,
+                        onTap: () {
+                          _dismissPlayerHub(context);
+                          _openLoadGameAfterClose(controller);
+                        },
+                        width: r6.width,
+                        height: r6.height,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 24,
+                  child: FadeTransition(
+                    opacity: curved,
+                    child: Text(
+                      l10n.playerHubCloseTip,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        decoration: TextDecoration.none,
                       ),
                     ),
                   ),
@@ -1005,67 +1126,131 @@ class _MainMenuPageState extends State<MainMenuPage>
                         opacity: curved,
                         child: ScaleTransition(
                           scale: Tween<double>(begin: 0.96, end: 1.0).animate(curved),
-                          child: Wrap(
-                            alignment: WrapAlignment.center,
-                            spacing: 14,
-                            runSpacing: 14,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              FlyoutTile(
-                                imagePath: 'assets/icons/menu/menu_profile.png',
-                                label: l10n.profileTitle,
-                                disabled: false,
-                                width: tileWidth,
-                                height: tileHeight,
-                                color: AppColors.red,
-                                onTap: () {
-                                  _dismissPlayerHub(context);
-                                  showAnimatedProfileDialog(
-                                    context: context,
-                                    controller: controller,
-                                  );
-                                },
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  FlyoutTile(
+                                    imagePath:
+                                        'assets/icons/menu/menu_profile.png',
+                                    label: l10n.profileTitle,
+                                    disabled: false,
+                                    width: tileWidth,
+                                    height: tileHeight,
+                                    color: AppColors.red,
+                                    onTap: () {
+                                      _dismissPlayerHub(context);
+                                      showAnimatedProfileDialog(
+                                        context: context,
+                                        controller: controller,
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(width: 14),
+                                  FlyoutTile(
+                                    imagePath: 'assets/icons/star.png',
+                                    label: l10n.achievementsTitle,
+                                    disabled: false,
+                                    width: tileWidth,
+                                    height: tileHeight,
+                                    color: AppColors.brandGold,
+                                    onTap: () {
+                                      _dismissPlayerHub(context);
+                                      showAnimatedAchievementsDialog(
+                                        context: context,
+                                        controller: controller,
+                                      );
+                                    },
+                                  ),
+                                ],
                               ),
-                              FlyoutTile(
-                                imagePath: 'assets/icons/menu/menu_options.png',
-                                label: l10n.languageTitle,
-                                disabled: false,
-                                width: tileWidth,
-                                height: tileHeight,
-                                color: _violet,
-                                onTap: () {
-                                  _dismissPlayerHub(context);
-                                  showAnimatedSettingsDialog(
-                                    context: context,
-                                    controller: controller,
-                                  );
-                                },
+                              const SizedBox(height: 14),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  FlyoutTile(
+                                    imagePath:
+                                        'assets/icons/menu/menu_options.png',
+                                    label: l10n.settingsTitle,
+                                    disabled: false,
+                                    width: tileWidth,
+                                    height: tileHeight,
+                                    color: _violet,
+                                    onTap: () {
+                                      _dismissPlayerHub(context);
+                                      showAnimatedSettingsDialog(
+                                        context: context,
+                                        controller: controller,
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(width: 14),
+                                  FlyoutTile(
+                                    imagePath:
+                                        'assets/icons/menu/menu_language.png',
+                                    label: l10n.languageTitle,
+                                    disabled: false,
+                                    width: tileWidth,
+                                    height: tileHeight,
+                                    color: AppColors.neutral,
+                                    onTap: () {
+                                      _dismissPlayerHub(context);
+                                      showAnimatedLanguageDialog(
+                                        context: context,
+                                        controller: controller,
+                                      );
+                                    },
+                                  ),
+                                ],
                               ),
-                              FlyoutTile(
-                                imagePath: 'assets/icons/menu/menu_history.png',
-                                label: l10n.historyTitle,
-                                disabled: false,
-                                width: tileWidth,
-                                height: tileHeight,
-                                color: AppColors.blue,
-                                onTap: () {
-                                  _dismissPlayerHub(context);
-                                  showAnimatedHistoryDialog(
-                                    context: context,
-                                    controller: controller,
-                                  );
-                                },
+                              const SizedBox(height: 14),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  FlyoutTile(
+                                    imagePath:
+                                        'assets/icons/menu/menu_history.png',
+                                    label: l10n.historyTitle,
+                                    disabled: false,
+                                    width: tileWidth,
+                                    height: tileHeight,
+                                    color: AppColors.blue,
+                                    onTap: () {
+                                      _dismissPlayerHub(context);
+                                      showAnimatedHistoryDialog(
+                                        context: context,
+                                        controller: controller,
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(width: 14),
+                                  FlyoutTile(
+                                    imagePath:
+                                        'assets/icons/menu/menu_load.png',
+                                    label: l10n.menuLoadGame,
+                                    disabled: false,
+                                    width: tileWidth,
+                                    height: tileHeight,
+                                    color: Colors.orange,
+                                    onTap: () {
+                                      _dismissPlayerHub(context);
+                                      _openLoadGameAfterClose(controller);
+                                    },
+                                  ),
+                                ],
                               ),
-                              FlyoutTile(
-                                imagePath: 'assets/icons/menu/menu_load.png',
-                                label: l10n.menuLoadGame,
-                                disabled: false,
-                                width: tileWidth,
-                                height: tileHeight,
-                                color: Colors.orange,
-                                onTap: () {
-                                  _dismissPlayerHub(context);
-                                  _openLoadGameAfterClose(controller);
-                                },
+                              const SizedBox(height: 12),
+                              Text(
+                                l10n.playerHubCloseTip,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  decoration: TextDecoration.none,
+                                ),
                               ),
                             ],
                           ),

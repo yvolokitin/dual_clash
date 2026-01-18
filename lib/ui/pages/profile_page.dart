@@ -11,64 +11,6 @@ import '../../core/countries.dart';
 import 'help_page.dart';
 import 'history_page.dart';
 
-Widget _beltTile(String name, Color color) {
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-    decoration: BoxDecoration(
-      color: color.withOpacity(0.2),
-      borderRadius: BorderRadius.circular(10),
-      border: Border.all(color: color, width: 1),
-    ),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 10,
-          height: 10,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        const SizedBox(width: 6),
-        Text(name,
-            style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.2,
-                fontSize: 12)),
-      ],
-    ),
-  );
-}
-
-Widget beltsGridWidget(Set<String> badges) {
-  final l10n = appLocalizations();
-  final achievedLevels = <int>[
-    for (int lvl = 1; lvl <= 7; lvl++)
-      if (badges.contains('Beat AI L$lvl')) lvl
-  ];
-  return Container(
-    width: double.infinity,
-    padding: const EdgeInsets.all(12),
-    decoration: BoxDecoration(
-      color: AppColors.dialogFieldBg.withOpacity(0.6),
-      borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: Colors.white24, width: 1),
-    ),
-    child: achievedLevels.isEmpty
-        ? Text(l10n?.noBeltsEarnedYetMessage ?? 'No belts earned yet.',
-            style: const TextStyle(color: Colors.white54))
-        : Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final lvl in achievedLevels)
-                _beltTile(
-                    l10n == null ? AiBelt.nameFor(lvl) : aiBeltName(l10n, lvl),
-                    AiBelt.colorFor(lvl)),
-            ],
-          ),
-  );
-}
-
 class ProfileDialog extends StatefulWidget {
   final GameController controller;
   const ProfileDialog({super.key, required this.controller});
@@ -148,33 +90,6 @@ class _ProfileDialogState extends State<ProfileDialog> {
     _saveDebounce = Timer(const Duration(milliseconds: 400), () {
       _saveNickname(trimmed);
     });
-  }
-
-  Widget _achChip(String text, bool achieved) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: achieved
-            ? Colors.lightGreenAccent.withOpacity(0.18)
-            : Colors.white.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-            color: achieved ? Colors.lightGreenAccent : Colors.white24,
-            width: 1),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(text,
-              style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.w700)),
-          const SizedBox(width: 6),
-          Icon(achieved ? Icons.check : Icons.radio_button_unchecked,
-              color: achieved ? Colors.lightGreenAccent : Colors.white38,
-              size: 16),
-        ],
-      ),
-    );
   }
 
   Future<void> _updateAge(int delta) async {
@@ -354,8 +269,6 @@ class _ProfileDialogState extends State<ProfileDialog> {
     final bool isNarrowMobile = isMobilePlatform && size.width < 700;
     final bg = AppColors.bg;
     final controller = widget.controller;
-    // Legacy badges are deprecated in UI; keep only Achievements and Belts sections
-    // final badges = controller.badges.toList()..sort();
     final EdgeInsets dialogInsetPadding = isMobileFullscreen
         ? EdgeInsets.zero
         : EdgeInsets.symmetric(
@@ -436,40 +349,6 @@ class _ProfileDialogState extends State<ProfileDialog> {
                           _countryRow(),
                           const SizedBox(height: 8),
                           _ageRow(),
-                          const SizedBox(height: 16),
-                          Text(l10n.beltsTitle,
-                              style: const TextStyle(
-                                  color: AppColors.dialogSubtitle,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.2)),
-                          const SizedBox(height: 8),
-                          beltsGridWidget(controller.badges),
-                          const SizedBox(height: 16),
-                          Text(l10n.achievementsTitle,
-                              style: const TextStyle(
-                                  color: AppColors.dialogSubtitle,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.2)),
-                          const SizedBox(height: 8),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: [
-                              _achChip(l10n.achievementFullRow,
-                                  controller.achievedRedRow),
-                              _achChip(
-                                  l10n.achievementFullColumn,
-                                  controller.achievedRedColumn),
-                              _achChip(
-                                  l10n.achievementDiagonal,
-                                  controller.achievedRedDiagonal),
-                              _achChip(l10n.achievement100GamePoints,
-                                  controller.achievedGamePoints100),
-                              _achChip(l10n.achievement1000GamePoints,
-                                  controller.achievedGamePoints1000),
-                            ],
-                          ),
-                          // Legacy badges section removed as per spec; only Achievements and Belts remain
                         ],
                       ),
                     ),
